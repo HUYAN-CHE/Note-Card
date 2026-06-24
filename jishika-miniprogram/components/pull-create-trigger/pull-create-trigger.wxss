@@ -38,7 +38,7 @@
   grid-template-columns: repeat(7, 1fr);
   align-items: center;
   gap: 8rpx;
-  margin-top: 20rpx;
+  margin-top: 40rpx;
 }
 
 .day-item {
