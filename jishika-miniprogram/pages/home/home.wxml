@@ -11,14 +11,6 @@
   >
     <view slot="nav" class="home-nav" style="padding-top: {{statusBarHeight}}px;">
       <text class="nav-title">This week</text>
-      <view class="nav-capsule">
-        <view class="nav-btn" bindtap="onMenuTap" aria-label="菜单">
-          <text class="nav-btn-icon menu-icon">···</text>
-        </view>
-        <view class="nav-btn" bindtap="onProfileTap" aria-label="我的">
-          <text class="nav-btn-icon record-icon">◎</text>
-        </view>
-      </view>
     </view>
 
     <view class="sheet-head">

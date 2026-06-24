@@ -12,7 +12,6 @@
 .home-nav {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   height: 88rpx;
   margin-bottom: 24rpx;
 }
@@ -22,39 +21,6 @@
   font-weight: 700;
   color: #142115;
   line-height: 44rpx;
-}
-
-.nav-capsule {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 22rpx;
-  width: 172rpx;
-  height: 64rpx;
-  border-radius: 999rpx;
-  background: rgba(255, 255, 255, 0.82);
-  box-shadow: inset 0 0 0 1rpx rgba(18, 24, 21, 0.08);
-}
-
-.nav-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.nav-btn-icon {
-  color: #101816;
-  font-weight: 700;
-  line-height: 1;
-}
-
-.menu-icon {
-  font-size: 28rpx;
-  margin-top: -8rpx;
-}
-
-.record-icon {
-  font-size: 32rpx;
 }
 
 /* Sheet 头部 */
