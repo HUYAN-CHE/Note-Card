@@ -1,8 +1,6 @@
 <view class="pull-create-trigger">
-  <view class="pull-hero" style="padding-top: {{statusBarHeight + 12}}px;">
-    <view class="hero-nav">
-      <text class="hero-nav-title">This week</text>
-    </view>
+  <view class="pull-hero">
+    <slot name="nav"></slot>
     <view class="week-row">
       <view
         wx:for="{{weekDays}}"

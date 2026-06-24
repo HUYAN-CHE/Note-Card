@@ -40,10 +40,6 @@ Component({
         { label: 'T', date: '25' },
         { label: 'F', date: '26' }
       ]
-    },
-    statusBarHeight: {
-      type: Number,
-      value: 44
     }
   },
 

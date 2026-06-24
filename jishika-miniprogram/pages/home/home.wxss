@@ -8,21 +8,6 @@
   background: #bdf5b8;
 }
 
-/* 顶部导航（slot 内容） */
-.home-nav {
-  display: flex;
-  align-items: center;
-  height: 88rpx;
-  margin-bottom: 24rpx;
-}
-
-.nav-title {
-  font-size: 36rpx;
-  font-weight: 700;
-  color: #142115;
-  line-height: 44rpx;
-}
-
 /* Sheet 头部 */
 .sheet-head {
   display: flex;
