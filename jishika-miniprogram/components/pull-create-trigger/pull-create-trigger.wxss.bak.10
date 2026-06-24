@@ -92,7 +92,7 @@
   margin: 34rpx 0 60rpx;
 }
 
-.capsule-svg,
+.capsule-canvas,
 .capsule-inner {
   position: absolute;
   top: 0;
@@ -103,10 +103,6 @@
   height: 120rpx;
   margin: 0;
   padding: 0;
-}
-
-.capsule-svg {
-  overflow: visible;
 }
 
 .capsule-inner {

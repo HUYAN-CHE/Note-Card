@@ -20,10 +20,7 @@
     <view class="hero-title">{{title}}</view>
 
     <view class="capsule-wrap" data-action="pull_create_progress" aria-label="{{label}}">
-      <svg class="capsule-svg" viewBox="0 0 230 60" preserveAspectRatio="none">
-        <path class="capsule-track" d="M30,4 L200,4 A26,26 0 0 1 200,56 L30,56 A26,26 0 0 1 30,4" fill="none" stroke="rgba(255,255,255,0.42)" stroke-width="2" stroke-linecap="round" />
-        <path class="capsule-progress" d="M30,4 L200,4 A26,26 0 0 1 200,56 L30,56 A26,26 0 0 1 30,4" fill="none" stroke="rgba(255,255,255,0.98)" stroke-width="3" stroke-linecap="round" stroke-dasharray="503.36" stroke-dashoffset="{{503.36 * (1 - progress)}}" />
-      </svg>
+      <canvas class="capsule-canvas" canvas-id="capsuleProgress"></canvas>
       <view class="capsule-inner">
         <view class="capsule-plus">＋</view>
         <view class="capsule-label">{{label}}</view>
