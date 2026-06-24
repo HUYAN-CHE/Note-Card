@@ -3,226 +3,66 @@
 .home-page {
   position: relative;
   min-height: 100vh;
-  background: #f4f6f8;
+  padding: 0;
   overflow: hidden;
+  background: #bdf5b8;
 }
 
-/* 顶部绿色区域 */
-.header {
-  position: relative;
-  z-index: 1;
-  width: 100%;
-  background: linear-gradient(180deg, #b2f2b0 0%, #7bd17b 100%);
-  border-radius: 0 0 40rpx 40rpx;
-  padding-bottom: 48rpx;
-  box-sizing: border-box;
-}
-
-.status-bar {
-  width: 100%;
-}
-
-.header-top {
-  height: 88rpx;
+/* 顶部导航（slot 内容） */
+.home-nav {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 32rpx;
-  box-sizing: border-box;
+  height: 88rpx;
+  margin-bottom: 24rpx;
 }
 
-.section-label {
+.nav-title {
   font-size: 36rpx;
   font-weight: 700;
-  color: #14532d;
+  color: #142115;
   line-height: 44rpx;
 }
 
-.header-actions {
-  display: flex;
-  align-items: center;
-  gap: 16rpx;
-}
-
-.action-btn {
-  width: 68rpx;
-  height: 68rpx;
+.nav-capsule {
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.32);
+  gap: 22rpx;
+  width: 172rpx;
+  height: 64rpx;
+  border-radius: 999rpx;
+  background: rgba(255, 255, 255, 0.82);
+  box-shadow: inset 0 0 0 1rpx rgba(18, 24, 21, 0.08);
 }
 
-.action-icon {
-  color: #14532d;
+.nav-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.nav-btn-icon {
+  color: #101816;
   font-weight: 700;
+  line-height: 1;
 }
 
 .menu-icon {
   font-size: 28rpx;
-  line-height: 1;
   margin-top: -8rpx;
 }
 
 .record-icon {
   font-size: 32rpx;
-  line-height: 1;
 }
 
-/* 日期选择器 */
-.date-picker {
-  position: relative;
-  height: 140rpx;
-  margin-top: 8rpx;
-  box-sizing: border-box;
-  overflow: hidden;
-}
-
-.date-list {
+/* Sheet 头部 */
+.sheet-head {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
-  height: 100%;
-  padding: 0 32rpx;
-}
-
-.day-item {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 92rpx;
-  height: 100%;
-}
-
-.day-inner {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  width: 88rpx;
-  height: 118rpx;
-  border-radius: 44rpx;
-  color: rgba(20, 83, 45, 0.72);
-  transition: all 0.2s ease;
-}
-
-.day-item.selected .day-inner {
-  background: #ffffff;
-  color: #14532d;
-  box-shadow: 0 12rpx 32rpx rgba(20, 83, 45, 0.12);
-}
-
-.day-item.today .day-number {
-  color: #fef08a;
-}
-
-.day-item.selected.today .day-number {
-  color: #14532d;
-}
-
-.day-week {
-  font-size: 22rpx;
-  line-height: 30rpx;
-  font-weight: 500;
-}
-
-.day-number {
-  font-size: 34rpx;
-  font-weight: 700;
-  line-height: 44rpx;
-  margin-top: 4rpx;
-}
-
-.day-dot {
-  position: absolute;
-  bottom: 18rpx;
-  width: 8rpx;
-  height: 8rpx;
-  border-radius: 50%;
-  background: rgba(20, 83, 45, 0.38);
-}
-
-/* 顶部标语/CTA */
-.header-body {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 32rpx 40rpx 0;
-}
-
-.slogan {
-  font-size: 36rpx;
-  font-weight: 600;
-  color: #ffffff;
-  text-align: center;
-  line-height: 52rpx;
-  text-shadow: 0 4rpx 16rpx rgba(20, 83, 45, 0.12);
-}
-
-.cta-pill {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 92rpx;
-  padding: 0 56rpx;
-  margin-top: 32rpx;
-  background: rgba(255, 255, 255, 0.86);
-  border-radius: 46rpx;
-  box-shadow: 0 12rpx 36rpx rgba(20, 83, 45, 0.12);
-  backdrop-filter: blur(8rpx);
-}
-
-.cta-plus {
-  font-size: 40rpx;
-  font-weight: 600;
-  color: #16a34a;
-  margin-right: 12rpx;
-  line-height: 1;
-}
-
-.cta-text {
-  font-size: 30rpx;
-  font-weight: 600;
-  color: #16a34a;
-}
-
-/* 白色底部门板区 */
-.bottom-sheet {
-  position: fixed;
-  left: 0;
-  right: 0;
-  z-index: 10;
-  height: 100vh;
-  background: #f4f6f8;
-  border-radius: 40rpx 40rpx 0 0;
-  box-shadow: 0 -12rpx 48rpx rgba(0, 0, 0, 0.06);
-  display: flex;
-  flex-direction: column;
-}
-
-.sheet-header {
-  position: relative;
-  flex-shrink: 0;
-  padding: 24rpx 32rpx 16rpx;
-  background: #ffffff;
-  border-radius: 40rpx 40rpx 0 0;
-}
-
-.sheet-drag-handle {
-  width: 64rpx;
-  height: 6rpx;
-  background: #e5e7eb;
-  border-radius: 3rpx;
-  margin: 0 auto 24rpx;
-}
-
-.sheet-header-content {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+  gap: 24rpx;
 }
 
 .sheet-title-wrap {
@@ -231,28 +71,29 @@
 }
 
 .sheet-title {
+  color: #111816;
   font-size: 34rpx;
-  font-weight: 700;
-  color: #111827;
+  font-weight: 800;
   line-height: 48rpx;
 }
 
 .sheet-subtitle {
-  font-size: 24rpx;
-  color: #9ca3af;
-  line-height: 34rpx;
-  margin-top: 4rpx;
+  margin-top: 10rpx;
+  color: #9aa19c;
+  font-size: 26rpx;
+  line-height: 36rpx;
 }
 
 .reminder-switch {
-  transform: scale(0.78);
-  transform-origin: right center;
+  transform: scale(0.84);
+  transform-origin: right top;
 }
 
 /* 卡片列表 */
 .card-list-scroll {
   flex: 1;
-  padding: 24rpx 32rpx calc(160rpx + env(safe-area-inset-bottom));
+  margin-top: 34rpx;
+  padding: 0 0 calc(120rpx + env(safe-area-inset-bottom));
   box-sizing: border-box;
 }
 
@@ -266,16 +107,16 @@
   display: flex;
   align-items: center;
   padding: 28rpx;
-  background: #ffffff;
-  border-radius: 28rpx;
-  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.03);
+  background: #f8f9fb;
+  border-radius: 24rpx;
+  box-shadow: 0 18rpx 46rpx rgba(24, 32, 27, 0.06);
 }
 
 .card-icon {
   width: 84rpx;
   height: 84rpx;
   border-radius: 50%;
-  background: #f3f4f6;
+  background: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -293,8 +134,8 @@
 
 .card-title {
   font-size: 32rpx;
-  font-weight: 600;
-  color: #111827;
+  font-weight: 700;
+  color: #111816;
   line-height: 44rpx;
   white-space: nowrap;
   overflow: hidden;
@@ -303,7 +144,7 @@
 
 .card-meta {
   font-size: 24rpx;
-  color: #9ca3af;
+  color: #a0a5a1;
   line-height: 34rpx;
   margin-top: 8rpx;
 }
@@ -313,17 +154,19 @@
   padding: 10rpx 22rpx;
   border-radius: 28rpx;
   margin-left: 16rpx;
-  background: #f3f4f6;
+  background: #fff;
+  border: 1rpx solid rgba(17, 24, 22, 0.08);
 }
 
 .status-text {
   font-size: 24rpx;
   font-weight: 500;
-  color: #6b7280;
+  color: #68706a;
 }
 
 .status-done {
   background: #dcfce7;
+  border-color: transparent;
 }
 
 .status-done .status-text {
@@ -335,7 +178,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding-top: 120rpx;
+  padding-top: 100rpx;
 }
 
 .empty-image {
@@ -346,16 +189,16 @@
 
 .empty-title {
   font-size: 32rpx;
-  font-weight: 600;
-  color: #111827;
+  font-weight: 700;
+  color: #111816;
   line-height: 44rpx;
 }
 
 .empty-sub {
   font-size: 26rpx;
-  color: #9ca3af;
+  color: #9aa19c;
   line-height: 38rpx;
   margin-top: 12rpx;
   text-align: center;
-  padding: 0 80rpx;
+  padding: 0 60rpx;
 }

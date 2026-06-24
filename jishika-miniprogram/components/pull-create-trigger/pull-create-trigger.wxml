@@ -1,0 +1,42 @@
+<view class="pull-create-trigger">
+  <view class="pull-hero" aria-hidden="true">
+    <slot name="nav"></slot>
+    <view class="week-row">
+      <view
+        wx:for="{{weekDays}}"
+        wx:key="date"
+        class="day-item {{item.active ? 'active' : ''}}"
+        bindtap="onSelectDay"
+        data-index="{{index}}"
+      >
+        <text class="day-label">{{item.label}}</text>
+        <text class="day-date">{{item.date}}</text>
+        <text wx:if="{{item.active}}" class="day-dot"></text>
+      </view>
+    </view>
+
+    <view class="hero-title">{{title}}</view>
+
+    <view class="capsule-wrap" data-action="pull_create_progress" aria-label="{{label}}">
+      <canvas class="capsule-canvas" canvas-id="capsuleProgress"></canvas>
+      <view class="capsule-inner">
+        <text class="capsule-plus">＋</text>
+        <text>{{label}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view
+    class="pull-sheet {{isReturning ? 'returning' : ''}}"
+    style="transform: translate3d(0, {{dragY}}px, 0);"
+    data-action="drag_sheet_create"
+    aria-label="下拉卡片，新建事项"
+    bindtouchstart="onTouchStart"
+    catchtouchmove="onTouchMove"
+    bindtouchend="onTouchEnd"
+    bindtouchcancel="onTouchEnd"
+  >
+    <view class="sheet-grabber"></view>
+    <slot></slot>
+  </view>
+</view>

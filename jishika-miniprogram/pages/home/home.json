@@ -5,6 +5,7 @@
   "backgroundColor": "#7DCE7E",
   "navigationBarTitleText": "记事卡",
   "usingComponents": {
-    "tab-bar": "/components/tab-bar/tab-bar"
+    "tab-bar": "/components/tab-bar/tab-bar",
+    "pull-create-trigger": "/components/pull-create-trigger/pull-create-trigger"
   }
 }

@@ -31,21 +31,15 @@ Page({
   data: {
     cards: [],
     calendarDays: [],
+    weekDays: [],
     selectedIndex: 0,
-    sheetTopPercent: 48,
     statusBarHeight: 44,
-    windowWidth: 375,
-    windowHeight: 812,
     reminderEnabled: true
   },
 
   onLoad() {
     this.updateSystemInfo();
     this.updateCalendar();
-  },
-
-  onReady() {
-    this.measureSheetPositions();
   },
 
   onShow() {
@@ -61,9 +55,7 @@ Page({
     try {
       const sys = wx.getSystemInfoSync();
       this.setData({
-        statusBarHeight: sys.statusBarHeight || 44,
-        windowWidth: sys.windowWidth || 375,
-        windowHeight: sys.windowHeight || 812
+        statusBarHeight: sys.statusBarHeight || 44
       });
     } catch (e) {
       // 使用默认值
@@ -99,8 +91,17 @@ Page({
 
     this.setData({
       calendarDays: days,
+      weekDays: this.buildWeekDays(days, todayIndex),
       selectedIndex: todayIndex
     });
+  },
+
+  buildWeekDays(days, selectedIndex) {
+    return days.map((day, index) => ({
+      label: day.week,
+      date: String(day.day),
+      active: index === selectedIndex
+    }));
   },
 
   formatDate(date) {
@@ -116,20 +117,14 @@ Page({
       a.getDate() === b.getDate();
   },
 
-  measureSheetPositions() {
-    const query = wx.createSelectorQuery();
-    query.select('.header').boundingClientRect((rect) => {
-      if (!rect || !this.data.windowHeight) return;
-      const headerVh = (rect.height / this.data.windowHeight) * 100;
-      this.setData({ sheetTopPercent: Math.max(42, headerVh - 4) });
-    }).exec();
-  },
-
   selectDay(event) {
-    const index = Number(event.currentTarget.dataset.index);
+    const index = Number(event.detail && event.detail.index);
     if (Number.isNaN(index)) return;
 
-    this.setData({ selectedIndex: index });
+    this.setData({
+      selectedIndex: index,
+      weekDays: this.buildWeekDays(this.data.calendarDays, index)
+    });
     this.loadCards();
   },
 
@@ -198,6 +193,12 @@ Page({
   goIntake() {
     wx.navigateTo({
       url: '/pages/intake/intake'
+    });
+  },
+
+  onPullCreate() {
+    wx.navigateTo({
+      url: '/pages/intake/intake?source=pull_create&type=requirement'
     });
   },
 
