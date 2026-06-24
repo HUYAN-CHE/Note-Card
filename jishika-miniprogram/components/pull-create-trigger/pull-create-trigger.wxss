@@ -87,6 +87,7 @@
   margin: 34rpx 0 60rpx;
   left: 50%;
   transform: translateX(-50%);
+  background: red;
 }
 
 .capsule-canvas,
