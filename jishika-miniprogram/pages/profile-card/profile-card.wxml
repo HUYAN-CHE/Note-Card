@@ -1,0 +1,59 @@
+<view class="page">
+  <view class="profile-hero">
+    <image class="profile-logo" src="/assets/logo.png" mode="aspectFit" />
+    <view class="profile-name">张三</view>
+    <view class="profile-role">品牌与服务顾问</view>
+    <view class="profile-desc">把你的需求整理成可确认、可跟进的服务卡。</view>
+  </view>
+
+  <view class="card panel section">
+    <view class="section-title">可协助</view>
+    <view class="service-list">
+      <text class="service-pill">官网设计</text>
+      <text class="service-pill">品牌梳理</text>
+      <text class="service-pill">宣传物料</text>
+      <text class="service-pill">私域运营</text>
+    </view>
+  </view>
+
+  <view class="card panel section">
+    <view class="section-title">说说你的需求</view>
+    <view class="field">
+      <text class="label">称呼</text>
+      <input class="input" value="{{form.customerName}}" placeholder="怎么称呼你" bindinput="onFormInput" data-field="customerName" aria-label="客户称呼" />
+    </view>
+    <view class="field">
+      <text class="label">手机号</text>
+      <input class="input" value="{{form.phone}}" placeholder="用于后续确认" type="number" bindinput="onFormInput" data-field="phone" aria-label="客户手机号" />
+    </view>
+    <view class="field">
+      <text class="label">需求</text>
+      <textarea class="textarea" value="{{form.need}}" placeholder="简单说一下你想做什么" bindinput="onFormInput" data-field="need" aria-label="客户需求描述" />
+    </view>
+    <button class="primary-action" bindtap="submitNeed" data-action="submit_need" aria-label="提交需求并生成需求卡">
+      <view>
+        <text class="title">生成需求卡</text>
+        <text class="desc">提交后进入确认流程</text>
+      </view>
+      <text class="arrow">→</text>
+    </button>
+  </view>
+
+  <view class="action-dock">
+    <button class="primary-action" bindtap="bookMeeting" data-action="book_meeting" aria-label="预约沟通">
+      <view>
+        <text class="title">预约沟通</text>
+        <text class="desc">选择时间或补充上下文</text>
+      </view>
+      <text class="arrow">→</text>
+    </button>
+    <view class="action-tools">
+      <button class="tool-button" open-type="share" data-action="share_profile" aria-label="分享服务名片">
+        <text class="tool-icon" aria-hidden="true">↗</text>
+        <text class="tool-label">名片</text>
+      </button>
+    </view>
+  </view>
+
+  <tab-bar activeTab="service" />
+</view>

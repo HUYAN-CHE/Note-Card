@@ -1,0 +1,83 @@
+<view class="page home-page">
+  <view class="topbar">
+    <view class="brand">
+      <image class="brand-logo" src="/assets/logo.png" mode="aspectFit" />
+      <view>
+        <view class="brand-title">记事卡</view>
+        <view class="brand-subtitle">客户事成卡</view>
+      </view>
+    </view>
+    <text class="tag">办公工具</text>
+  </view>
+
+  <view class="home-hero" aria-hidden="true">
+    <view class="hero-card hero-card-back">
+      <view class="hero-line short"></view>
+      <view class="hero-line"></view>
+      <view class="hero-line tiny"></view>
+    </view>
+    <view class="hero-card hero-card-front">
+      <view class="hero-chip">AI</view>
+      <view class="hero-title">这段聊天，记成卡</view>
+      <view class="hero-desc">需求 · 确认 · 进度</view>
+      <view class="hero-dots">
+        <text></text>
+        <text></text>
+        <text></text>
+      </view>
+    </view>
+  </view>
+
+  <button class="primary-action hero-action" bindtap="goIntake" data-action="create_from_chat" aria-label="从聊天整理生成记事卡">
+    <view>
+      <text class="title">开始整理</text>
+      <text class="desc">粘贴 / 截图 / AI 上下文</text>
+    </view>
+    <text class="arrow">＋</text>
+  </button>
+
+  <view wx:if="{{launchHint}}" class="ai-hint card panel">
+    <view class="item-title">检测到微信 AI 上下文</view>
+    <view class="item-meta">{{launchHint}}</view>
+    <button class="plain-button hint-button" bindtap="continueAIContext" data-action="continue_ai_context" aria-label="继续整理微信 AI 上下文">继续整理</button>
+  </view>
+
+  <view class="quick-grid section">
+    <button class="quick-card card" bindtap="goProfile" data-action="open_service_profile" aria-label="打开服务名片">
+      <text class="quick-icon" aria-hidden="true">□</text>
+      <text class="quick-title">服务名片</text>
+      <text class="quick-desc">发给客户收需求</text>
+    </button>
+    <button class="quick-card card" bindtap="newBlankCard" data-action="new_blank_card" aria-label="新建记事卡">
+      <text class="quick-icon" aria-hidden="true">＋</text>
+      <text class="quick-title">新建记事卡</text>
+      <text class="quick-desc">手动记录事项</text>
+    </button>
+  </view>
+
+  <view class="section">
+    <view class="section-title">今天要跟</view>
+    <view class="card panel today-card">
+      <view class="today-number">{{todoCount}}</view>
+      <view>
+        <view class="item-title">{{todoTitle}}</view>
+        <view class="item-meta">优先处理待客户确认、待补资料和当前节点。</view>
+      </view>
+    </view>
+  </view>
+
+  <view class="section">
+    <view class="section-title">最近记事卡</view>
+    <view wx:if="{{cards.length}}" class="list">
+      <view wx:for="{{cards}}" wx:key="id" class="list-item" bindtap="openCard" data-id="{{item.id}}" data-action="open_card" aria-label="打开记事卡 {{item.projectName || '未命名事项'}}">
+        <view class="row">
+          <view class="item-title">{{item.projectName || '未命名事项'}}</view>
+          <text class="tag {{item.status === 'draft' ? 'warning' : ''}}">{{item.stage || '待处理'}}</text>
+        </view>
+        <view class="item-meta">{{item.customerName || '未填写客户'}}｜{{item.typeLabel}}｜{{item.updatedText}}</view>
+        <view class="summary">{{item.summary}}</view>
+      </view>
+    </view>
+    <view wx:else class="empty">还没有记事卡，先从一段聊天开始。</view>
+  </view>
+</view>

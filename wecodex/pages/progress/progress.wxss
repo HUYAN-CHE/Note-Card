@@ -1,0 +1,78 @@
+.timeline {
+  margin-top: 30rpx;
+  padding: 8rpx 0;
+}
+
+.node {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  min-height: 108rpx;
+  margin-top: 12rpx;
+  padding: 18rpx;
+  border: 1rpx solid rgba(255, 255, 255, 0.7);
+  border-radius: 16rpx;
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.node:first-child {
+  margin-top: 0;
+}
+
+.node-mark {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 42rpx;
+  height: 42rpx;
+  border-radius: 50%;
+  border: 2rpx solid rgba(38, 58, 48, 0.2);
+  color: #132416;
+  flex: 0 0 42rpx;
+  font-size: 24rpx;
+  font-weight: 700;
+}
+
+.node.done .node-mark {
+  border-color: #101816;
+  background: #101816;
+  color: #f7f2e8;
+}
+
+.node.current .node-mark {
+  border-color: #68d6e9;
+  background: #b8edf1;
+  color: #102423;
+}
+
+.node-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.node-title {
+  font-size: 28rpx;
+  font-weight: 650;
+}
+
+.node-status {
+  margin-top: 6rpx;
+  color: #68705f;
+  font-size: 22rpx;
+}
+
+.node-action {
+  min-width: 96rpx;
+  height: 58rpx;
+  border-radius: 999rpx;
+  background: #e8fbfb;
+  color: #203824;
+  font-size: 24rpx;
+  font-weight: 600;
+}
+
+.button-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}

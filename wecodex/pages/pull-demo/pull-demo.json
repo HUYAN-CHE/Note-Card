@@ -1,0 +1,6 @@
+{
+  "navigationStyle": "custom",
+  "usingComponents": {
+    "pull-create-trigger": "/components/pull-create-trigger/pull-create-trigger"
+  }
+}

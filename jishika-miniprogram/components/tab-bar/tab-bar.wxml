@@ -1,0 +1,22 @@
+<view class="tab-bar" style="bottom: calc(24rpx + env(safe-area-inset-bottom));">
+  <view
+    class="tab-item {{activeTab === 'home' ? 'active' : ''}}"
+    bindtap="switchTab"
+    data-tab="home"
+    data-action="switch_tab_home"
+    aria-label="事项"
+  >
+    <text class="tab-icon">☰</text>
+    <text class="tab-label">事项</text>
+  </view>
+  <view
+    class="tab-item {{activeTab === 'service' ? 'active' : ''}}"
+    bindtap="switchTab"
+    data-tab="service"
+    data-action="switch_tab_service"
+    aria-label="服务"
+  >
+    <text class="tab-icon">○</text>
+    <text class="tab-label">服务</text>
+  </view>
+</view>

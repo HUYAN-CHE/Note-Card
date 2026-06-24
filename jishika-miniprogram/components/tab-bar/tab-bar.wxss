@@ -1,0 +1,53 @@
+/* 底部 Tab */
+.tab-bar {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  box-sizing: border-box;
+  height: 100rpx;
+  padding: 14rpx;
+  border-radius: 999rpx;
+  background: #fff;
+  box-shadow: 0 12rpx 40rpx rgba(0, 0, 0, 0.12);
+}
+
+.tab-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12rpx;
+  min-width: 220rpx;
+  height: 100%;
+  padding: 0 42rpx;
+  border-radius: 999rpx;
+  transition: all 0.2s ease;
+}
+
+.tab-item.active {
+  background: #DCFCE7;
+}
+
+.tab-icon {
+  font-size: 32rpx;
+  color: #9CA3AF;
+}
+
+.tab-item.active .tab-icon {
+  color: #166534;
+}
+
+.tab-label {
+  font-size: 28rpx;
+  font-weight: 500;
+  color: #9CA3AF;
+}
+
+.tab-item.active .tab-label {
+  font-size: 28rpx;
+  font-weight: 700;
+  color: #166534;
+}

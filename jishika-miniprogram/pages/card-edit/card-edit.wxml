@@ -1,0 +1,64 @@
+<view class="page">
+  <view class="topbar">
+    <view>
+      <view class="brand-title">{{card.id ? '编辑记事卡' : '记事卡草稿'}}</view>
+      <view class="brand-subtitle">发送给客户前，请先确认内容</view>
+    </view>
+    <text class="tag">{{card.typeLabel || '需求确认卡'}}</text>
+  </view>
+
+  <view class="card panel">
+    <view class="field">
+      <text class="label">客户称呼</text>
+      <input class="input" value="{{card.customerName}}" placeholder="如 王女士" bindinput="onFieldInput" data-field="customerName" aria-label="客户称呼" />
+    </view>
+    <view class="field">
+      <text class="label">手机号</text>
+      <input class="input" value="{{card.phone}}" placeholder="用于客户唯一识别" type="number" bindinput="onFieldInput" data-field="phone" aria-label="客户手机号" />
+    </view>
+    <view class="field">
+      <text class="label">项目 / 事项</text>
+      <input class="input" value="{{card.projectName}}" placeholder="如 官网改版" bindinput="onFieldInput" data-field="projectName" aria-label="项目或事项名称" />
+    </view>
+    <view class="field">
+      <text class="label">摘要</text>
+      <textarea class="textarea compact" value="{{card.summary}}" placeholder="一句话说明客户要做什么" bindinput="onFieldInput" data-field="summary" aria-label="记事卡摘要" />
+    </view>
+    <view class="field">
+      <text class="label">重点事项</text>
+      <textarea class="textarea compact" value="{{keyPointsText}}" placeholder="每行一个重点" bindinput="onListInput" data-field="keyPoints" aria-label="重点事项，每行一个" />
+    </view>
+    <view class="field">
+      <text class="label">待客户确认</text>
+      <textarea class="textarea compact" value="{{questionsText}}" placeholder="每行一个问题" bindinput="onListInput" data-field="questions" aria-label="待客户确认的问题，每行一个" />
+    </view>
+    <view class="field">
+      <text class="label">下一步</text>
+      <input class="input" value="{{card.nextStep}}" placeholder="如 发给客户确认需求" bindinput="onFieldInput" data-field="nextStep" aria-label="下一步动作" />
+    </view>
+    <view class="field">
+      <text class="label">提醒备注</text>
+      <input class="input" value="{{card.reminderText}}" placeholder="如 明天 10:00 跟进" bindinput="onFieldInput" data-field="reminderText" aria-label="提醒备注" />
+    </view>
+  </view>
+
+  <view class="action-dock">
+    <button class="primary-action" bindtap="saveAndPreview" data-action="save_and_preview_customer_card" aria-label="保存并预览客户卡">
+      <view>
+        <text class="title">预览客户卡</text>
+        <text class="desc">保存后查看客户侧</text>
+      </view>
+      <text class="arrow">→</text>
+    </button>
+    <view class="action-tools">
+      <button class="tool-button" open-type="share" data-action="share_saved_customer_card" aria-label="分享已保存的客户卡">
+        <text class="tool-icon" aria-hidden="true">↗</text>
+        <text class="tool-label">分享</text>
+      </button>
+      <button class="tool-button" bindtap="goProgress" data-action="open_progress" aria-label="进入服务进度">
+        <text class="tool-icon" aria-hidden="true">•</text>
+        <text class="tool-label">进度</text>
+      </button>
+    </view>
+  </view>
+</view>

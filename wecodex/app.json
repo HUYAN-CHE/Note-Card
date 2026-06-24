@@ -1,0 +1,20 @@
+{
+  "pages": [
+    "pages/home/home",
+    "pages/pull-demo/pull-demo",
+    "pages/intake/intake",
+    "pages/card-edit/card-edit",
+    "pages/customer-confirm/customer-confirm",
+    "pages/progress/progress",
+    "pages/profile-card/profile-card"
+  ],
+  "window": {
+    "navigationBarTitleText": "记事卡",
+    "navigationBarBackgroundColor": "#d9f6fb",
+    "navigationBarTextStyle": "black",
+    "backgroundColor": "#d9f6fb",
+    "backgroundTextStyle": "dark"
+  },
+  "style": "v2",
+  "lazyCodeLoading": "requiredComponents"
+}

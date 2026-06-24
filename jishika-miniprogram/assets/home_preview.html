@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>记事卡首页预览</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Helvetica Neue', Arial, sans-serif;
+    }
+    .phone {
+      width: 100%;
+      max-width: 414px;
+      height: 100%;
+      margin: 0 auto;
+      position: relative;
+      overflow: hidden;
+      background: linear-gradient(180deg, #9EE0A0 0%, #7DCE7E 100%);
+    }
+    .status-bar {
+      height: 44px;
+      flex-shrink: 0;
+    }
+    .header {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      padding: 12px 20px 60px;
+    }
+    .section-label {
+      margin-bottom: 14px;
+      font-size: 16px;
+      font-weight: 600;
+      color: #1a3c1a;
+    }
+    .date-scroll-wrap {
+      position: relative;
+      width: 100%;
+      margin: 20px 0 30px;
+    }
+    .date-scroll {
+      position: relative;
+      z-index: 2;
+      width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+    .date-scroll::-webkit-scrollbar { display: none; }
+    .day-selector-frame {
+      position: absolute;
+      z-index: 1;
+      top: 0;
+      left: 50%;
+      width: 42px;
+      height: 70px;
+      transform: translateX(-50%);
+      border-radius: 999px;
+      background: #fff;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      pointer-events: none;
+    }
+    .date-selector {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      width: auto;
+      padding: 0 calc((100vw - 42px) / 2);
+    }
+    .day-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: 42px;
+      height: 70px;
+      margin-right: 8px;
+      border-radius: 999px;
+      color: #1a3c1a;
+      flex-shrink: 0;
+    }
+    .day-item:last-child { margin-right: 0; }
+    .day-item.selected .day-number { font-weight: 700; }
+    .day-item.selected .day-number {
+      font-weight: 700;
+    }
+    .day-week { font-size: 13px; opacity: 0.85; }
+    .day-number { margin-top: 4px; font-size: 20px; font-weight: 700; }
+    .day-dot {
+      width: 4px;
+      height: 4px;
+      margin-top: 5px;
+      border-radius: 50%;
+      background: rgba(26,60,26,0.45);
+    }
+    .slogan {
+      align-self: center;
+      margin-bottom: 24px;
+      color: #fff;
+      font-size: 22px;
+      font-weight: 500;
+      text-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    }
+    .cta-wrap {
+      align-self: center;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .cta-pill {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 180px;
+      padding: 12px 24px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.35);
+      border: 1px solid rgba(255,255,255,0.55);
+      color: #fff;
+      font-size: 15px;
+    }
+    .progress-ring {
+      position: absolute;
+      z-index: 1;
+      top: 50%;
+      left: 50%;
+      width: calc(100% + 18px);
+      height: calc(100% + 18px);
+      transform: translate(-50%, -50%) rotate(-90deg);
+      opacity: 0;
+      transition: opacity 0.15s;
+      pointer-events: none;
+    }
+    .progress-ring.active { opacity: 1; }
+    .progress-ring-track, .progress-ring-fill {
+      fill: none;
+      stroke-width: 3;
+    }
+    .progress-ring-track { stroke: rgba(255,255,255,0.25); }
+    .progress-ring-fill { stroke: #fff; stroke-linecap: round; }
+
+    .bottom-sheet {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      top: auto;
+      height: calc(55% + 30px);
+      border-radius: 24px 24px 0 0;
+      background: #fff;
+      box-shadow: 0 -4px 20px rgba(0,0,0,0.08);
+      padding: 20px 16px calc(80px + env(safe-area-inset-bottom));
+      display: flex;
+      flex-direction: column;
+    }
+    .sheet-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+    .sheet-title { font-size: 18px; font-weight: 700; color: #1a1a1a; }
+    .sheet-subtitle { font-size: 13px; color: #9CA3AF; margin-top: 4px; }
+    .switch {
+      width: 48px;
+      height: 28px;
+      border-radius: 14px;
+      background: #22C55E;
+      position: relative;
+    }
+    .switch::after {
+      content: '';
+      position: absolute;
+      top: 2px;
+      right: 2px;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: #fff;
+    }
+    .card-list { overflow-y: auto; flex: 1; }
+    .card-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 16px;
+      border-radius: 14px;
+      background: #F8F9FB;
+      margin-bottom: 10px;
+    }
+    .card-icon {
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
+      background: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      flex-shrink: 0;
+    }
+    .card-info { flex: 1; min-width: 0; }
+    .card-title { font-size: 20px; font-weight: 500; color: #1a1a1a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .card-meta { font-size: 13px; color: #9CA3AF; margin-top: 4px; }
+    .card-status {
+      padding: 6px 12px;
+      border-radius: 999px;
+      border: 1px solid #E5E7EB;
+      font-size: 13px;
+      color: #6B7280;
+      flex-shrink: 0;
+    }
+    .tab-bar {
+      position: absolute;
+      left: 50%;
+      bottom: calc(14px + env(safe-area-inset-bottom));
+      transform: translateX(-50%);
+      display: flex;
+      gap: 8px;
+      padding: 6px;
+      border-radius: 999px;
+      background: #fff;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+      z-index: 20;
+    }
+    .tab-item {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      min-width: 110px;
+      padding: 10px 20px;
+      border-radius: 999px;
+      font-size: 15px;
+      color: #6B7280;
+    }
+    .tab-item.active { background: #22C55E; color: #fff; }
+  </style>
+</head>
+<body>
+  <div class="phone">
+    <div class="status-bar"></div>
+    <div class="header" id="header">
+      <div class="section-label">This week</div>
+      <div class="date-scroll" id="dateScroll">
+        <div class="date-selector" id="dateSelector"></div>
+      </div>
+      <div class="slogan">生活由无数的小事组成</div>
+      <div class="cta-wrap">
+        <svg class="progress-ring" id="progressRing" viewBox="0 0 100 100">
+          <circle class="progress-ring-track" cx="50" cy="50" r="46"></circle>
+          <circle class="progress-ring-fill" id="progressFill" cx="50" cy="50" r="46" stroke-dasharray="0, 289"></circle>
+        </svg>
+        <div class="cta-pill">下拉新建事项</div>
+      </div>
+    </div>
+
+    <div class="bottom-sheet">
+      <div class="sheet-header">
+        <div>
+          <div class="sheet-title">最近记事卡</div>
+          <div class="sheet-subtitle">打开临近消息提醒</div>
+        </div>
+        <div class="switch"></div>
+      </div>
+      <div class="card-list">
+        <div class="card-item">
+          <div class="card-icon">💊</div>
+          <div class="card-info">
+            <div class="card-title">Lisinopril</div>
+            <div class="card-meta">截止日期 08:30 PM</div>
+          </div>
+          <div class="card-status">待确认</div>
+        </div>
+        <div class="card-item">
+          <div class="card-icon">💊</div>
+          <div class="card-info">
+            <div class="card-title">Atorvastatin</div>
+            <div class="card-meta">截止日期 08:30 PM</div>
+          </div>
+          <div class="card-status">已确认</div>
+        </div>
+        <div class="card-item">
+          <div class="card-icon">💊</div>
+          <div class="card-info">
+            <div class="card-title">Paracetamol</div>
+            <div class="card-meta">截止日期 09:00 PM</div>
+          </div>
+          <div class="card-status">已完成</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tab-bar">
+      <div class="tab-item active">☰ 事项</div>
+      <div class="tab-item">○ 服务</div>
+    </div>
+  </div>
+
+  <script>
+    const WEEK_LABELS = ['M','T','W','T','F','S','S'];
+    const today = new Date();
+    const dayOfWeek = today.getDay() || 7;
+    const currentWeekStart = new Date(today);
+    currentWeekStart.setDate(today.getDate() - dayOfWeek + 1);
+
+    const selector = document.getElementById('dateSelector');
+    const dateScroll = document.getElementById('dateScroll');
+
+    const DAY_COUNT = 31;
+    const CENTER_INDEX = Math.floor(DAY_COUNT / 2);
+    const start = new Date(today);
+    start.setDate(today.getDate() - CENTER_INDEX);
+
+    for (let i = 0; i < DAY_COUNT; i++) {
+      const date = new Date(start);
+      date.setDate(start.getDate() + i);
+      const isToday = date.toDateString() === today.toDateString();
+      const weekIndex = date.getDay() === 0 ? 6 : date.getDay() - 1;
+      const dayEl = document.createElement('div');
+      dayEl.className = 'day-item' + (isToday ? ' active' : '');
+      dayEl.innerHTML = `
+        <div class="day-week">${WEEK_LABELS[weekIndex]}</div>
+        <div class="day-number">${date.getDate()}</div>
+        <div class="day-dot"></div>
+      `;
+      selector.appendChild(dayEl);
+    }
+
+    // 滚动到今天居中
+    setTimeout(() => {
+      const itemWidth = 42 + 8; // px
+      dateScroll.scrollLeft = CENTER_INDEX * itemWidth - (dateScroll.clientWidth - 42) / 2;
+    }, 0);
+
+    // 下拉进度环演示
+    const header = document.getElementById('header');
+    const progressFill = document.getElementById('progressFill');
+    const progressRing = document.getElementById('progressRing');
+    let startY = 0;
+
+    header.addEventListener('touchstart', (e) => {
+      startY = e.touches[0].clientY;
+    }, { passive: true });
+
+    header.addEventListener('touchmove', (e) => {
+      const deltaY = e.touches[0].clientY - startY;
+      if (deltaY > 0) {
+        const progress = Math.min(deltaY / 160, 1);
+        progressRing.classList.add('active');
+        progressFill.setAttribute('stroke-dasharray', `${progress * 289}, 289`);
+      }
+    }, { passive: true });
+
+    header.addEventListener('touchend', () => {
+      progressRing.classList.remove('active');
+      progressFill.setAttribute('stroke-dasharray', '0, 289');
+    });
+  </script>
+</body>
+</html>

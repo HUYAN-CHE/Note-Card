@@ -1,0 +1,342 @@
+@font-face {
+  font-family: 'Glow Sans SC';
+  src: url('assets/fonts/GlowSansSC-Normal-Light.subset.woff2') format('woff2'),
+       url('assets/fonts/GlowSansSC-Normal-Light.subset.otf') format('opentype');
+  font-weight: 300;
+  font-display: swap;
+}
+
+page {
+  min-height: 100%;
+  background: linear-gradient(155deg, #d9f6fb 0%, #d9f4df 44%, #f7f1e4 100%);
+  color: #162116;
+  font-family: 'Glow Sans SC', -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Helvetica Neue', Arial, sans-serif;
+  font-size: 28rpx;
+}
+
+view,
+text,
+button,
+input,
+textarea {
+  box-sizing: border-box;
+}
+
+button {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  line-height: 1.2;
+  background: transparent;
+}
+
+button::after {
+  border: 0;
+}
+
+.page {
+  min-height: 100vh;
+  padding: 34rpx 28rpx calc(140rpx + env(safe-area-inset-bottom));
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.2) 0%, rgba(246, 240, 228, 0.5) 58%, rgba(246, 240, 228, 0.88) 100%),
+    linear-gradient(155deg, #d9f6fb 0%, #d9f4df 44%, #f7f1e4 100%);
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 28rpx;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 18rpx;
+  min-width: 0;
+}
+
+.brand-logo {
+  width: 68rpx;
+  height: 68rpx;
+  border-radius: 18rpx;
+  box-shadow: 0 12rpx 34rpx rgba(17, 36, 21, 0.18);
+  flex: 0 0 68rpx;
+}
+
+.brand-title {
+  font-size: 40rpx;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.brand-subtitle {
+  margin-top: 6rpx;
+  color: #5f746d;
+  font-size: 24rpx;
+}
+
+.section {
+  margin-top: 28rpx;
+}
+
+.section-title {
+  margin-bottom: 16rpx;
+  color: #263a30;
+  font-size: 28rpx;
+  font-weight: 700;
+}
+
+.card {
+  border: 1rpx solid rgba(255, 255, 255, 0.78);
+  border-radius: 16rpx;
+  background: rgba(255, 255, 255, 0.72);
+  box-shadow: 0 24rpx 60rpx rgba(74, 116, 102, 0.14);
+}
+
+.panel {
+  padding: 28rpx;
+}
+
+.primary-action {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  min-height: 112rpx;
+  padding: 28rpx 30rpx;
+  border-radius: 999rpx;
+  background: #101816;
+  color: #f7f2e8;
+  box-shadow: 0 18rpx 42rpx rgba(16, 24, 22, 0.22);
+  text-align: left;
+}
+
+.primary-action .title {
+  display: block;
+  font-size: 32rpx;
+  font-weight: 700;
+}
+
+.primary-action .desc {
+  display: block;
+  margin-top: 8rpx;
+  color: rgba(248, 240, 221, 0.7);
+  font-size: 24rpx;
+}
+
+.primary-action .arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 58rpx;
+  height: 58rpx;
+  border-radius: 50%;
+  background: #68d6e9;
+  color: #101816;
+  font-size: 40rpx;
+  font-weight: 700;
+  flex: 0 0 58rpx;
+}
+
+.ghost-button,
+.plain-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 88rpx;
+  padding: 0 24rpx;
+  border-radius: 999rpx;
+  font-size: 28rpx;
+  font-weight: 600;
+}
+
+.ghost-button {
+  border: 1rpx solid rgba(255, 255, 255, 0.8);
+  background: rgba(255, 255, 255, 0.66);
+  color: #172519;
+  box-shadow: 0 14rpx 36rpx rgba(74, 116, 102, 0.1);
+}
+
+.plain-button {
+  background: #b8edf1;
+  color: #102423;
+  box-shadow: 0 14rpx 34rpx rgba(64, 163, 174, 0.18);
+}
+
+.danger-text {
+  color: #9b4f32;
+}
+
+.button-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16rpx;
+  width: 100%;
+  min-width: 0;
+}
+
+.action-dock {
+  display: flex;
+  align-items: stretch;
+  gap: 14rpx;
+  margin-top: 28rpx;
+  padding: 14rpx;
+  border: 1rpx solid rgba(255, 255, 255, 0.78);
+  border-radius: 16rpx;
+  background: rgba(255, 255, 255, 0.58);
+  box-shadow: 0 20rpx 52rpx rgba(74, 116, 102, 0.14);
+}
+
+.action-dock .primary-action {
+  flex: 1;
+  min-height: 92rpx;
+  padding: 20rpx 24rpx;
+}
+
+.action-dock .primary-action .title {
+  font-size: 30rpx;
+}
+
+.action-dock .primary-action .desc {
+  margin-top: 6rpx;
+  font-size: 22rpx;
+}
+
+.action-tools {
+  display: flex;
+  gap: 12rpx;
+}
+
+.tool-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  width: 96rpx;
+  min-height: 92rpx;
+  border-radius: 16rpx;
+  border: 1rpx solid rgba(255, 255, 255, 0.78);
+  background: rgba(255, 255, 255, 0.7);
+  color: #14211c;
+  box-shadow: 0 12rpx 32rpx rgba(74, 116, 102, 0.1);
+}
+
+.tool-icon {
+  color: #101816;
+  font-size: 30rpx;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.tool-label {
+  margin-top: 8rpx;
+  color: #44554e;
+  font-size: 20rpx;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.single-action {
+  margin-top: 28rpx;
+}
+
+.field {
+  margin-bottom: 22rpx;
+}
+
+.label {
+  display: block;
+  margin-bottom: 10rpx;
+  color: #485541;
+  font-size: 24rpx;
+  font-weight: 600;
+}
+
+.input,
+.textarea {
+  width: 100%;
+  border: 1rpx solid rgba(255, 255, 255, 0.8);
+  border-radius: 16rpx;
+  background: rgba(255, 255, 255, 0.72);
+  color: #162116;
+  font-size: 28rpx;
+  box-shadow: inset 0 1rpx 0 rgba(255, 255, 255, 0.72);
+}
+
+.input {
+  height: 88rpx;
+  padding: 0 22rpx;
+}
+
+.textarea {
+  min-height: 220rpx;
+  padding: 22rpx;
+  line-height: 1.55;
+}
+
+.muted {
+  color: #68705f;
+}
+
+.small {
+  font-size: 24rpx;
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  min-height: 46rpx;
+  padding: 0 16rpx;
+  border-radius: 999rpx;
+  background: rgba(255, 255, 255, 0.62);
+  color: #2b423a;
+  font-size: 22rpx;
+  border: 1rpx solid rgba(255, 255, 255, 0.8);
+}
+
+.tag.warning {
+  background: rgba(255, 236, 194, 0.78);
+  color: #714b20;
+}
+
+.divider {
+  height: 1rpx;
+  margin: 24rpx 0;
+  background: rgba(22, 33, 22, 0.1);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.list-item {
+  padding: 22rpx;
+  border: 1rpx solid rgba(255, 255, 255, 0.78);
+  border-radius: 16rpx;
+  background: rgba(255, 255, 255, 0.64);
+  box-shadow: 0 16rpx 42rpx rgba(74, 116, 102, 0.1);
+}
+
+.item-title {
+  font-size: 30rpx;
+  font-weight: 650;
+  line-height: 1.35;
+}
+
+.item-meta {
+  margin-top: 8rpx;
+  color: #68705f;
+  font-size: 24rpx;
+  line-height: 1.45;
+}
+
+.empty {
+  padding: 34rpx 26rpx;
+  border: 1rpx dashed rgba(22, 33, 22, 0.18);
+  border-radius: 16rpx;
+  color: #68705f;
+  text-align: center;
+}

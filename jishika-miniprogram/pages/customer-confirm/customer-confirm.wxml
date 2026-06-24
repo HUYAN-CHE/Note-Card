@@ -1,0 +1,51 @@
+<view class="page">
+  <view class="topbar">
+    <view>
+      <view class="brand-title">请确认你的需求</view>
+      <view class="brand-subtitle">确认后会进入服务进度跟踪</view>
+    </view>
+    <text class="tag">{{card.typeLabel}}</text>
+  </view>
+
+  <view wx:if="{{card.id}}" class="card panel">
+    <view class="confirm-title">{{card.projectName}}</view>
+    <view class="confirm-summary">{{card.summary}}</view>
+
+    <view class="divider"></view>
+
+    <view class="block-title">目前理解</view>
+    <view wx:for="{{card.keyPoints}}" wx:key="*this" class="check-line">
+      <text class="check-dot">✓</text>
+      <text>{{item}}</text>
+    </view>
+
+    <view wx:if="{{card.questions.length}}" class="block-title questions-title">还需要确认</view>
+    <view wx:for="{{card.questions}}" wx:key="*this" class="question-line">
+      <text class="question-dot">?</text>
+      <text>{{item}}</text>
+    </view>
+
+    <view class="field supplement-field">
+      <text class="label">我要补充</text>
+      <textarea class="textarea compact" value="{{supplement}}" placeholder="有不准确或需要补充的地方，可以写在这里" bindinput="onSupplementInput" data-field="supplement" aria-label="客户补充内容" />
+    </view>
+  </view>
+
+  <view wx:else class="empty">这张记事卡不存在或已被删除。</view>
+
+  <view wx:if="{{card.id}}" class="action-dock">
+    <button class="primary-action" bindtap="confirmCard" data-action="confirm_card" aria-label="确认需求无误">
+      <view>
+        <text class="title">确认无误</text>
+        <text class="desc">进入服务进度</text>
+      </view>
+      <text class="arrow">✓</text>
+    </button>
+    <view class="action-tools">
+      <button class="tool-button" bindtap="submitSupplement" data-action="submit_supplement" aria-label="提交补充内容">
+        <text class="tool-icon" aria-hidden="true">＋</text>
+        <text class="tool-label">补充</text>
+      </button>
+    </view>
+  </view>
+</view>

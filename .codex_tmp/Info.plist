@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+  "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>CFBundleIdentifier</key>
+  <string>local.codex.TranscribeSegment</string>
+  <key>CFBundleName</key>
+  <string>Codex Transcribe Segment</string>
+  <key>NSSpeechRecognitionUsageDescription</key>
+  <string>Transcribe a local podcast segment to verify the quoted board game.</string>
+  <key>NSMicrophoneUsageDescription</key>
+  <string>Not used for recording; included for Speech framework compatibility.</string>
+</dict>
+</plist>
