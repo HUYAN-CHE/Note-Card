@@ -9,7 +9,7 @@
     max-drag="{{188}}"
     week-days="{{weekDays}}"
   >
-    <view slot="nav" class="home-nav">
+    <view slot="nav" class="home-nav" style="padding-top: {{statusBarHeight}}px;">
       <text class="nav-title">This week</text>
       <view class="nav-capsule">
         <view class="nav-btn" bindtap="onMenuTap" aria-label="菜单">

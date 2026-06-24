@@ -1,5 +1,5 @@
 <view class="pull-create-trigger">
-  <view class="pull-hero" aria-hidden="true">
+  <view class="pull-hero">
     <slot name="nav"></slot>
     <view class="week-row">
       <view
