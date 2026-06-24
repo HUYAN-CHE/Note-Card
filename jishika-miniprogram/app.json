@@ -9,9 +9,9 @@
   ],
   "window": {
     "navigationBarTitleText": "记事卡",
-    "navigationBarBackgroundColor": "#d9f6fb",
+    "navigationBarBackgroundColor": "#bdf5b8",
     "navigationBarTextStyle": "black",
-    "backgroundColor": "#d9f6fb",
+    "backgroundColor": "#bdf5b8",
     "backgroundTextStyle": "dark"
   },
   "style": "v2",

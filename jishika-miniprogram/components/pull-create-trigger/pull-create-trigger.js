@@ -64,6 +64,12 @@ Component({
     }
   },
 
+  pageLifetimes: {
+    show() {
+      this.resetToIdle(0);
+    }
+  },
+
   methods: {
     onSelectDay(event) {
       const index = Number(event.currentTarget.dataset.index);
