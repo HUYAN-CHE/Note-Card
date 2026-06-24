@@ -29,7 +29,7 @@
 }
 
 .sheet-subtitle {
-  margin-top: 10rpx;
+  margin-top: 4rpx;
   color: #9aa19c;
   font-size: 26rpx;
   line-height: 36rpx;
