@@ -84,7 +84,9 @@
   position: relative;
   width: 460rpx;
   height: 120rpx;
-  margin: 34rpx auto 60rpx;
+  margin: 34rpx 0 60rpx;
+  left: 50%;
+  transform: translateX(-50%);
 }
 
 .capsule-canvas,
