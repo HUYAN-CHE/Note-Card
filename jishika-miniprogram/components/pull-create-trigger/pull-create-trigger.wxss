@@ -151,7 +151,7 @@
 .pull-sheet {
   position: relative;
   min-height: 780rpx;
-  margin-top: -18rpx;
+  margin-top: 20rpx;
   padding: 42rpx 40rpx calc(110rpx + env(safe-area-inset-bottom));
   border-radius: 44rpx 44rpx 0 0;
   background: rgba(255, 255, 255, 0.98);
