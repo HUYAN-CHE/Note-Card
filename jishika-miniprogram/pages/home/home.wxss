@@ -5,7 +5,7 @@
   min-height: 100vh;
   padding: 0;
   overflow: hidden;
-  background: #bdf5b8;
+  background: linear-gradient(180deg, #b8f0b0 0%, #5fc26b 100%);
 }
 
 /* Sheet 头部 */
