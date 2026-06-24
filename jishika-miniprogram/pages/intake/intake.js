@@ -11,10 +11,12 @@ Page({
     selectedType: 'requirement',
     contextText: '',
     source: 'manual',
-    files: []
+    files: [],
+    statusBarHeight: 44
   },
 
   onLoad(options = {}) {
+    this.updateSystemInfo();
     const contextText = options.context ? decodeURIComponent(options.context) : '';
     const selectedType = options.type || 'requirement';
 
@@ -23,6 +25,21 @@ Page({
       selectedType,
       source: options.source || 'manual'
     });
+  },
+
+  updateSystemInfo() {
+    try {
+      const sys = wx.getSystemInfoSync();
+      this.setData({
+        statusBarHeight: sys.statusBarHeight || 44
+      });
+    } catch (e) {
+      // 使用默认值
+    }
+  },
+
+  goBack() {
+    wx.navigateBack();
   },
 
   selectType(event) {

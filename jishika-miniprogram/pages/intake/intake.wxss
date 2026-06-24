@@ -1,6 +1,39 @@
 .intake-page {
-  padding-top: 28rpx;
+  padding-top: 0;
   overflow-x: hidden;
+}
+
+.custom-nav {
+  display: flex;
+  align-items: center;
+  height: 88rpx;
+  padding: 0 28rpx;
+  background: transparent;
+}
+
+.nav-back {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64rpx;
+  height: 64rpx;
+  margin-left: -12rpx;
+}
+
+.nav-back-icon {
+  color: #162116;
+  font-size: 52rpx;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.nav-title {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  color: #162116;
+  font-size: 32rpx;
+  font-weight: 700;
 }
 
 .intro-card {
