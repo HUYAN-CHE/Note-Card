@@ -139,17 +139,17 @@
 }
 
 .empty-title {
-  font-size: 32rpx;
+  font-size: 30rpx;
   font-weight: 400;
   color: #111816;
-  line-height: 44rpx;
+  line-height: 42rpx;
 }
 
 .empty-sub {
   font-size: 26rpx;
   color: #9aa19c;
-  line-height: 38rpx;
-  margin-top: 12rpx;
+  line-height: 36rpx;
+  margin-top: 4rpx;
   text-align: center;
   padding: 0 60rpx;
 }
