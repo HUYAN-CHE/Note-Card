@@ -1,16 +1,8 @@
-@font-face {
-  font-family: 'Glow Sans SC';
-  src: url('assets/fonts/GlowSansSC-Normal-Light.subset.woff2') format('woff2'),
-       url('assets/fonts/GlowSansSC-Normal-Light.subset.otf') format('opentype');
-  font-weight: 300;
-  font-display: swap;
-}
-
 page {
   min-height: 100%;
   background: linear-gradient(155deg, #d9f6fb 0%, #d9f4df 44%, #f7f1e4 100%);
   color: #162116;
-  font-family: 'Glow Sans SC', -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Helvetica Neue', Arial, sans-serif;
+  font-family: 'PingFang SC', -apple-system, BlinkMacSystemFont, 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
   font-size: 28rpx;
 }
 
