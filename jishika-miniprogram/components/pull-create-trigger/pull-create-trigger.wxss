@@ -105,6 +105,10 @@
   padding: 0;
 }
 
+.capsule-canvas {
+  display: block;
+}
+
 .capsule-inner {
   position: absolute;
   top: 0;

@@ -54,7 +54,9 @@ Component({
 
   lifetimes: {
     ready() {
-      this.drawProgress(0);
+      this.measureCanvas(() => {
+        this.drawProgress(0);
+      });
     },
 
     detached() {
@@ -175,27 +177,41 @@ Component({
       }
     },
 
+    measureCanvas(callback) {
+      this.createSelectorQuery()
+        .select('.capsule-canvas')
+        .boundingClientRect((rect) => {
+          this._canvasWidth = rect ? rect.width : CANVAS_WIDTH;
+          this._canvasHeight = rect ? rect.height : CANVAS_HEIGHT;
+          if (typeof callback === 'function') {
+            callback();
+          }
+        })
+        .exec();
+    },
+
     drawProgress(progress) {
       const safeProgress = Math.max(0, Math.min(1, Number(progress) || 0));
+      const canvasWidth = this._canvasWidth || CANVAS_WIDTH;
+      const canvasHeight = this._canvasHeight || CANVAS_HEIGHT;
       const ctx = wx.createCanvasContext('capsuleProgress', this);
-      const x = 4;
-      const y = 4;
-      const width = CANVAS_WIDTH - x * 2;
-      const height = CANVAS_HEIGHT - y * 2;
+      const inset = 4 * (canvasWidth / CANVAS_WIDTH);
+      const width = canvasWidth - inset * 2;
+      const height = canvasHeight - inset * 2;
       const radius = height / 2;
 
-      ctx.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
-      ctx.setLineWidth(STROKE_WIDTH);
+      ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+      ctx.setLineWidth(STROKE_WIDTH * (canvasWidth / CANVAS_WIDTH));
       ctx.setStrokeStyle('rgba(255, 255, 255, 0.42)');
       ctx.setLineCap('round');
-      drawCapsule(ctx, x, y, width, height, radius);
+      drawCapsule(ctx, inset, inset, width, height, radius);
       ctx.stroke();
 
       if (safeProgress > 0) {
-        ctx.setLineWidth(PROGRESS_WIDTH);
+        ctx.setLineWidth(PROGRESS_WIDTH * (canvasWidth / CANVAS_WIDTH));
         ctx.setStrokeStyle('rgba(255, 255, 255, 0.98)');
         ctx.setLineCap('round');
-        drawCapsuleProgress(ctx, x, y, width, height, radius, safeProgress);
+        drawCapsuleProgress(ctx, inset, inset, width, height, radius, safeProgress);
         ctx.stroke();
       }
 
