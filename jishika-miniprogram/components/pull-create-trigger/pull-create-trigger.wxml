@@ -22,8 +22,8 @@
     <view class="capsule-wrap" data-action="pull_create_progress" aria-label="{{label}}">
       <canvas class="capsule-canvas" canvas-id="capsuleProgress"></canvas>
       <view class="capsule-inner">
-        <text class="capsule-plus">＋</text>
-        <text>{{label}}</text>
+        <view class="capsule-plus">＋</view>
+        <view class="capsule-label">{{label}}</view>
       </view>
     </view>
   </view>
