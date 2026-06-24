@@ -21,7 +21,7 @@
   align-self: flex-start;
   display: flex;
   align-items: center;
-  height: 88rpx;
+  height: 64rpx;
   margin-bottom: 24rpx;
 }
 

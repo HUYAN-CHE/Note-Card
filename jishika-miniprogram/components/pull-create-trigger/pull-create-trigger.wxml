@@ -1,5 +1,5 @@
 <view class="pull-create-trigger">
-  <view class="pull-hero" style="padding-top: {{statusBarHeight + 12}}px;">
+  <view class="pull-hero" style="padding-top: {{statusBarHeight}}px;">
     <view class="hero-nav">
       <text class="hero-nav-title">This week</text>
     </view>
