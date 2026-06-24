@@ -7,5 +7,4 @@
 # Product documents (keep local, don't sync to GitHub)
 /*.md
 !/AGENTS.md
-!/WORKFLOW.md
 *.bak
