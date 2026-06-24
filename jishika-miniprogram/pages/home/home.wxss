@@ -24,7 +24,7 @@
 .sheet-title {
   color: #111816;
   font-size: 34rpx;
-  font-weight: 800;
+  font-weight: 400;
   line-height: 48rpx;
 }
 
@@ -140,7 +140,7 @@
 
 .empty-title {
   font-size: 32rpx;
-  font-weight: 700;
+  font-weight: 400;
   color: #111816;
   line-height: 44rpx;
 }
