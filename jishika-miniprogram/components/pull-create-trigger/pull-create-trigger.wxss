@@ -84,7 +84,7 @@
   position: relative;
   width: 460rpx;
   height: 120rpx;
-  margin: 34rpx auto 0;
+  margin: 34rpx auto 60rpx;
 }
 
 .capsule-canvas,
