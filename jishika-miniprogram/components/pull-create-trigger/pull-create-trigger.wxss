@@ -96,32 +96,31 @@
 .capsule-canvas,
 .capsule-inner {
   position: absolute;
+  margin: 0;
+  padding: 0;
+}
+
+.capsule-canvas {
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
   width: 460rpx;
   height: 120rpx;
-  margin: 0;
-  padding: 0;
-}
-
-.capsule-canvas {
   display: block;
 }
 
 .capsule-inner {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  top: 8rpx;
+  left: 8rpx;
+  right: 8rpx;
+  bottom: 8rpx;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 14rpx;
   border-radius: 999rpx;
-  background: rgba(255, 255, 255, 0.01);
+  background: rgba(255, 255, 255, 0.15);
   color: rgba(255, 255, 255, 0.92);
   font-size: 32rpx;
   font-weight: 750;
