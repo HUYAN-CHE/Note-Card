@@ -35,8 +35,8 @@
 .week-strip {
   position: relative;
   width: calc(100% + 88rpx);
-  height: 140rpx;
-  margin: 40rpx -44rpx 0;
+  height: 180rpx;
+  margin: 40rpx -44rpx -40rpx;
   overflow: hidden;
 }
 
@@ -49,7 +49,7 @@
   height: 118rpx;
   border-radius: 54rpx;
   background: rgba(255, 255, 255, 0.96);
-  box-shadow: 0 12rpx 32rpx rgba(58, 112, 54, 0.12);
+  box-shadow: 0 16rpx 44rpx rgba(58, 112, 54, 0.14);
   transform: translate(-50%, -50%);
   pointer-events: none;
 }
