@@ -226,6 +226,11 @@ Component({
       this.setSelectedIndex(targetIndex);
     },
 
+    onHeroTouchMove() {
+      // 拦截 hero 区域内的 touchmove，防止冒泡到 sheet 触发下拉或页面滚动
+      // 什么都不做，catchtouchmove 会自动阻止冒泡
+    },
+
     onTouchStart(event) {
       if (!event.touches || !event.touches.length) return;
 

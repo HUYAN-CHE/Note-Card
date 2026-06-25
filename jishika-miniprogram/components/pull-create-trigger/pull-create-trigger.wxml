@@ -1,5 +1,5 @@
 <view class="pull-create-trigger">
-  <view class="pull-hero" style="padding-top: {{statusBarHeight}}px;">
+  <view class="pull-hero" style="padding-top: {{statusBarHeight}}px;" catchtouchmove="onHeroTouchMove">
     <view class="hero-nav">
       <text class="hero-nav-title">This week</text>
     </view>
@@ -10,7 +10,7 @@
         class="week-track"
         style="transform: translate3d({{trackX}}vw, 0, 0); {{isSnapping ? 'transition: transform 200ms ease-out;' : ''}}"
         bindtouchstart="onStripTouchStart"
-        catchtouchmove="onStripTouchMove"
+        bindtouchmove="onStripTouchMove"
         bindtouchend="onStripTouchEnd"
         bindtouchcancel="onStripTouchEnd"
       >
