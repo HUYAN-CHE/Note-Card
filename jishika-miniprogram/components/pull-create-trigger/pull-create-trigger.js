@@ -4,6 +4,8 @@ const STROKE_WIDTH = 2;
 const PROGRESS_WIDTH = 3;
 const DAY_RANGE = 15; // 今天左右各 15 天，共 31 天
 const SPACER_COUNT = 2;
+const DAY_WIDTH_RPX = 150;
+const RPX_PER_PX = 750 / (wx.getSystemInfoSync().windowWidth || 375);
 
 function buildDefaultWeekDays() {
   const today = new Date();
@@ -94,8 +96,9 @@ Component({
     dragY: 0,
     isReturning: false,
     calendarItems: [],
-    calendarCurrent: DAY_RANGE,
-    activeIndex: DAY_RANGE
+    activeIndex: DAY_RANGE,
+    trackX: 0,
+    isSnapping: false
   },
 
   lifetimes: {
@@ -104,7 +107,7 @@ Component({
         this.drawProgress(0);
       });
       this._initialized = true;
-      this.rebuildCalendarItems();
+      this.setSelectedIndex(this.data.selectedIndex, false);
     },
 
     detached() {
@@ -125,6 +128,17 @@ Component({
   },
 
   methods: {
+    getTrackXForIndex(index) {
+      return -index * DAY_WIDTH_RPX;
+    },
+
+    clampTrackX(trackX) {
+      const maxIndex = this.data.weekDays.length - 1;
+      const minX = this.getTrackXForIndex(maxIndex);
+      const maxX = this.getTrackXForIndex(0);
+      return Math.max(minX, Math.min(maxX, trackX));
+    },
+
     rebuildCalendarItems() {
       const activeIndex = this.data.activeIndex;
       const calendarItems = buildCalendarItems(this.data.weekDays, activeIndex);
@@ -134,7 +148,7 @@ Component({
     setSelectedIndex(index, emitEvent = true) {
       const maxIndex = this.data.weekDays.length - 1;
       const targetIndex = Math.max(0, Math.min(maxIndex, index));
-      const calendarCurrent = targetIndex;
+      const trackX = this.getTrackXForIndex(targetIndex);
 
       const weekDays = this.data.weekDays.map((day, i) => ({
         ...day,
@@ -146,7 +160,8 @@ Component({
       this.setData({
         selectedIndex: targetIndex,
         activeIndex: targetIndex,
-        calendarCurrent,
+        trackX,
+        isSnapping: true,
         weekDays,
         calendarItems
       });
@@ -156,11 +171,39 @@ Component({
       }
     },
 
-    onSwiperChange(event) {
-      const current = event.detail.current;
-      if (typeof current !== 'number') return;
+    onStripTouchStart(event) {
+      if (!event.touches || !event.touches.length) return;
+      this._stripStartX = event.touches[0].clientX;
+      this._stripTrackStartX = this.data.trackX || 0;
+      this._isStripDragging = true;
+      this.setData({ isSnapping: false });
+    },
 
-      const targetIndex = current;
+    onStripTouchMove(event) {
+      if (!this._isStripDragging || !event.touches || !event.touches.length) return;
+
+      const deltaX = event.touches[0].clientX - this._stripStartX;
+      const deltaRpx = deltaX * RPX_PER_PX;
+      const trackX = this.clampTrackX(this._stripTrackStartX + deltaRpx);
+      this.setData({ trackX });
+    },
+
+    onStripTouchEnd(event) {
+      if (!this._isStripDragging) return;
+      this._isStripDragging = false;
+
+      const currentTrackX = this.data.trackX || 0;
+      const rawIndex = Math.round(-currentTrackX / DAY_WIDTH_RPX);
+      const currentIndex = this.data.activeIndex;
+      let targetIndex = Math.max(0, Math.min(this.data.weekDays.length - 1, rawIndex));
+
+      // 一次最多移动一格
+      if (targetIndex > currentIndex + 1) {
+        targetIndex = currentIndex + 1;
+      } else if (targetIndex < currentIndex - 1) {
+        targetIndex = currentIndex - 1;
+      }
+
       this.setSelectedIndex(targetIndex);
     },
 

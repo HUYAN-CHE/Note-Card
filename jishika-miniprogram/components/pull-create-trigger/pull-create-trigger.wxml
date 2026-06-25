@@ -6,17 +6,15 @@
 
     <view class="week-strip">
       <view class="selection-frame"></view>
-      <swiper
-        class="week-swiper"
-        display-multiple-items="5"
-        current="{{calendarCurrent}}"
-        duration="260"
-        circular="{{false}}"
-        indicator-dots="{{false}}"
-        skip-hidden-item-layout
-        bindchange="onSwiperChange"
+      <view
+        class="week-track"
+        style="transform: translate3d({{trackX}}rpx, 0, 0); {{isSnapping ? 'transition: transform 200ms ease-out;' : ''}}"
+        bindtouchstart="onStripTouchStart"
+        bindtouchmove="onStripTouchMove"
+        bindtouchend="onStripTouchEnd"
+        bindtouchcancel="onStripTouchEnd"
       >
-        <swiper-item
+        <view
           wx:for="{{calendarItems}}"
           wx:key="id"
           class="day-slot {{item.isToday ? 'today' : ''}} {{item.active ? 'active' : ''}}"
@@ -30,8 +28,8 @@
             <text class="day-label">{{item.label}}</text>
             <text class="day-date">{{item.date}}</text>
           </view>
-        </swiper-item>
-      </swiper>
+        </view>
+      </view>
     </view>
 
     <view class="hero-title">{{title}}</view>
