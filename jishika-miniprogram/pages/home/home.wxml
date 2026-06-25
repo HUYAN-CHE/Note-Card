@@ -37,6 +37,8 @@
     >
       <view slot="refresher" class="create-refresher"></view>
 
+      <view class="sheet-grabber"></view>
+
       <view wx:if="{{cards.length}}" class="card-list">
         <view
           wx:for="{{cards}}"
