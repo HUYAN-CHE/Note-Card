@@ -93,7 +93,6 @@ Component({
 
   data: {
     dragY: 0,
-    isReturning: false,
     calendarItems: [],
     activeIndex: DAY_RANGE,
     trackX: 0,
@@ -125,7 +124,7 @@ Component({
       this._lastProgress = 0;
       this._triggered = false;
       this.clearProgressTimer();
-      this.setData({ dragY: 0, isReturning: false });
+      this.setData({ dragY: 0 });
       this.drawProgress(0);
       this.measureHeroHeight();
     }
@@ -305,8 +304,7 @@ Component({
       this._triggered = false;
 
       this.setData({
-        dragY: 0,
-        isReturning: true
+        dragY: 0
       });
 
       this.animateProgressBack(fromProgress);

@@ -30,6 +30,7 @@
       refresher-type="custom"
       pull-down-height="{{80}}"
       refreshing="{{refreshing}}"
+      show-loading="{{false}}"
       bind:onrefresh="onPullCreateFromRefresh"
       bind:onpulling="onPullCreatePulling"
       bind:refreshclose="onPullCreateClose"
