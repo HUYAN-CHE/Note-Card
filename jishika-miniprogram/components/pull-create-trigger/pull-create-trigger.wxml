@@ -1,7 +1,5 @@
 <view class="pull-create-trigger">
-  <view class="hero-bg"></view>
-
-  <view class="hero-calendar" style="padding-top: {{statusBarHeight}}px;" catchtouchmove="onHeroTouchMove">
+  <view class="pull-hero" style="padding-top: {{statusBarHeight}}px;" catchtouchmove="onHeroTouchMove">
     <view class="hero-nav">
       <text class="hero-nav-title">This week</text>
     </view>
@@ -34,10 +32,9 @@
         </view>
       </view>
     </view>
-  </view>
 
-  <view class="hero-content" style="margin-top: {{calendarHeight}}px;">
     <view class="hero-title">{{title}}</view>
+
     <view class="capsule-wrap" data-action="pull_create_progress" aria-label="{{label}}" bindtap="onTapCapsule">
       <canvas class="capsule-canvas" canvas-id="capsuleProgress"></canvas>
       <view class="capsule-inner">
@@ -48,13 +45,14 @@
   </view>
 
   <view
-    wx:if="{{isSheetFixed}}"
-    class="sheet-placeholder"
-    style="height: 100vh;"
-  ></view>
-  <view
-    class="pull-sheet {{isSheetFixed ? 'fixed' : ''}}"
-    style="{{isSheetFixed ? 'top:' + sheetTop + 'px;' : ''}}"
+    class="pull-sheet {{isReturning ? 'returning' : ''}}"
+    style="margin-top: {{heroHeight}}px; transform: translate3d(0, {{dragY}}px, 0);"
+    data-action="drag_sheet_create"
+    aria-label="下拉卡片，新建事项"
+    bindtouchstart="onTouchStart"
+    catchtouchmove="onTouchMove"
+    bindtouchend="onTouchEnd"
+    bindtouchcancel="onTouchEnd"
   >
     <view class="sheet-grabber"></view>
     <slot></slot>

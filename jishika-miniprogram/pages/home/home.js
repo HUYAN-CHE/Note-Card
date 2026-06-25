@@ -34,9 +34,7 @@ Page({
     weekDays: [],
     selectedIndex: 0,
     statusBarHeight: 44,
-    reminderEnabled: true,
-    isRefreshing: false,
-    pageScrollTop: 0
+    reminderEnabled: true
   },
 
   onLoad() {
@@ -51,10 +49,6 @@ Page({
     if (this.todayDate && this.todayDate !== today) {
       this.updateCalendar();
     }
-  },
-
-  onPageScroll(event) {
-    this.setData({ pageScrollTop: event.scrollTop });
   },
 
   updateSystemInfo() {
@@ -250,14 +244,6 @@ Page({
     wx.navigateTo({
       url: '/pages/intake/intake?source=pull_create&type=requirement'
     });
-  },
-
-  onPullCreateFromRefresh() {
-    this.setData({ isRefreshing: true });
-    setTimeout(() => {
-      this.setData({ isRefreshing: false });
-    }, 300);
-    this.onPullCreate();
   },
 
   openCard(event) {

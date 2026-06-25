@@ -88,15 +88,6 @@ Component({
     statusBarHeight: {
       type: Number,
       value: 44
-    },
-    pageScrollTop: {
-      type: Number,
-      value: 0,
-      observer(newVal) {
-        if (this._layoutReady) {
-          this.updateSheetPosition(newVal);
-        }
-      }
     }
   },
 
@@ -107,9 +98,7 @@ Component({
     activeIndex: DAY_RANGE,
     trackX: 0,
     isSnapping: false,
-    calendarHeight: 300,
-    sheetTop: 300,
-    isSheetFixed: false
+    heroHeight: 0
   },
 
   lifetimes: {
@@ -118,7 +107,7 @@ Component({
         this.drawProgress(0);
       });
       wx.nextTick(() => {
-        this.measureLayout();
+        this.measureHeroHeight();
         this._initialized = true;
         this.setSelectedIndex(this.data.selectedIndex, false);
       });
@@ -138,32 +127,19 @@ Component({
       this.clearProgressTimer();
       this.setData({ dragY: 0, isReturning: false });
       this.drawProgress(0);
-      this.measureLayout();
+      this.measureHeroHeight();
     }
   },
 
   methods: {
-    measureLayout() {
+    measureHeroHeight() {
       this.createSelectorQuery()
-        .select('.hero-calendar')
-        .boundingClientRect((calendarRect) => {
-          if (!calendarRect) return;
-          const calendarHeight = calendarRect.height;
-          const sheetTop = calendarRect.bottom;
-          this.setData({ calendarHeight, sheetTop }, () => {
-            this._layoutReady = true;
-            this.updateSheetPosition(this.data.pageScrollTop);
-          });
+        .select('.pull-hero')
+        .boundingClientRect((rect) => {
+          const heroHeight = rect ? rect.height : 0;
+          this.setData({ heroHeight });
         })
         .exec();
-    },
-
-    updateSheetPosition(scrollTop) {
-      const sheetTop = this.data.sheetTop;
-      const isSheetFixed = scrollTop >= sheetTop;
-      if (isSheetFixed !== this.data.isSheetFixed) {
-        this.setData({ isSheetFixed });
-      }
     },
 
     getTrackXForIndex(index) {

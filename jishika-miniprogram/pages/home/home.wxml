@@ -10,7 +10,6 @@
     week-days="{{weekDays}}"
     selected-index="{{selectedIndex}}"
     status-bar-height="{{statusBarHeight}}"
-    page-scroll-top="{{pageScrollTop}}"
   >
     <view class="sheet-head">
       <view class="sheet-title-wrap">
@@ -26,16 +25,7 @@
       />
     </view>
 
-    <pull-refresh-view
-      class="card-list-scroll"
-      bindonrefresh="onPullCreateFromRefresh"
-      refreshing="{{isRefreshing}}"
-      showLoading="{{false}}"
-      pullDownHeight="{{150}}"
-      pullText="下拉新建事项"
-      releaseText="松开立即新建"
-      refreshText="正在打开..."
-    >
+    <scroll-view scroll-y class="card-list-scroll" enhanced show-scrollbar="{{false}}">
       <view wx:if="{{cards.length}}" class="card-list">
         <view
           wx:for="{{cards}}"
@@ -64,7 +54,7 @@
         <text class="empty-title">还没有记事卡</text>
         <text class="empty-sub">下拉或点击上方按钮，从聊天记录生成一张记事卡</text>
       </view>
-    </pull-refresh-view>
+    </scroll-view>
   </pull-create-trigger>
 
   <tab-bar activeTab="home" />
