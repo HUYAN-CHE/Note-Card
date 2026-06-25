@@ -34,24 +34,39 @@
 
 .week-strip {
   position: relative;
-  width: 100vw;
+  width: 750rpx;
   height: 140rpx;
-  margin-top: 40rpx;
-  margin-left: -44rpx;
+  margin: 40rpx auto 0;
   overflow: hidden;
 }
 
+.selection-frame {
+  position: absolute;
+  z-index: 1;
+  left: 50%;
+  top: 50%;
+  width: 150rpx;
+  height: 118rpx;
+  border-radius: 60rpx;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 12rpx 32rpx rgba(58, 112, 54, 0.12);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
 .week-swiper {
-  width: 100%;
-  height: 100%;
+  position: relative;
+  z-index: 2;
+  width: 750rpx;
+  height: 140rpx;
 }
 
 .day-slot {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 100%;
-  height: 100%;
+  width: 150rpx;
+  height: 140rpx;
 }
 
 .day-item {
@@ -59,14 +74,10 @@
   align-items: center;
   justify-content: center;
   flex-direction: column;
-  width: 108rpx;
+  width: 150rpx;
   height: 118rpx;
-  border-radius: 54rpx;
-}
-
-.day-slot.active .day-item {
-  background: rgba(255, 255, 255, 0.96);
-  box-shadow: 0 12rpx 32rpx rgba(58, 112, 54, 0.12);
+  border-radius: 60rpx;
+  background: transparent;
 }
 
 .day-label {

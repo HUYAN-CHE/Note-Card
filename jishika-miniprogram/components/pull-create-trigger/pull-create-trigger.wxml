@@ -3,26 +3,32 @@
     <view class="hero-nav">
       <text class="hero-nav-title">This week</text>
     </view>
+
     <view class="week-strip">
+      <view class="selection-frame"></view>
       <swiper
         class="week-swiper"
-        previous-margin="300rpx"
-        next-margin="300rpx"
-        current="{{selectedIndex}}"
-        bindchange="onSwiperChange"
+        display-multiple-items="5"
+        current="{{calendarCurrent}}"
+        duration="260"
         circular="{{false}}"
         indicator-dots="{{false}}"
-        display-multiple-items="1"
+        skip-hidden-item-layout
+        bindchange="onSwiperChange"
       >
         <swiper-item
-          wx:for="{{weekDays}}"
-          wx:key="fullDate"
+          wx:for="{{calendarItems}}"
+          wx:key="id"
           class="day-slot {{item.isToday ? 'today' : ''}} {{item.active ? 'active' : ''}}"
         >
-          <view class="day-item">
+          <view
+            wx:if="{{!item.spacer}}"
+            class="day-item"
+            data-index="{{item.dateIndex}}"
+            bindtap="onCalendarTap"
+          >
             <text class="day-label">{{item.label}}</text>
             <text class="day-date">{{item.date}}</text>
-            <text wx:if="{{item.active}}" class="day-dot"></text>
           </view>
         </swiper-item>
       </swiper>

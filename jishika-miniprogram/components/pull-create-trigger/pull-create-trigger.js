@@ -3,6 +3,7 @@ const CANVAS_HEIGHT = 60;
 const STROKE_WIDTH = 2;
 const PROGRESS_WIDTH = 3;
 const DAY_RANGE = 15; // 今天左右各 15 天，共 31 天
+const SPACER_COUNT = 2;
 
 function buildDefaultWeekDays() {
   const today = new Date();
@@ -16,11 +17,27 @@ function buildDefaultWeekDays() {
       label,
       date: String(date.getDate()),
       fullDate: `${date.getMonth() + 1}-${date.getDate()}`,
-      isToday: i === 0,
-      active: i === 0
+      isToday: i === 0
     });
   }
   return days;
+}
+
+function buildCalendarItems(weekDays, activeIndex) {
+  const items = weekDays.map((day, i) => ({
+    ...day,
+    id: day.fullDate || `day-${i}`,
+    dateIndex: i,
+    active: i === activeIndex
+  }));
+
+  return [
+    { id: 'spacer-left-1', spacer: true },
+    { id: 'spacer-left-2', spacer: true },
+    ...items,
+    { id: 'spacer-right-1', spacer: true },
+    { id: 'spacer-right-2', spacer: true }
+  ];
 }
 
 Component({
@@ -51,13 +68,18 @@ Component({
     },
     weekDays: {
       type: Array,
-      value: buildDefaultWeekDays()
+      value: buildDefaultWeekDays(),
+      observer() {
+        if (this._initialized) {
+          this.rebuildCalendarItems();
+        }
+      }
     },
     selectedIndex: {
       type: Number,
       value: DAY_RANGE,
       observer(newVal) {
-        if (typeof newVal === 'number' && this._initialized) {
+        if (typeof newVal === 'number' && this._initialized && newVal !== this.data.activeIndex) {
           this.setSelectedIndex(newVal, false);
         }
       }
@@ -70,7 +92,10 @@ Component({
 
   data: {
     dragY: 0,
-    isReturning: false
+    isReturning: false,
+    calendarItems: [],
+    calendarCurrent: DAY_RANGE,
+    activeIndex: DAY_RANGE
   },
 
   lifetimes: {
@@ -79,6 +104,7 @@ Component({
         this.drawProgress(0);
       });
       this._initialized = true;
+      this.rebuildCalendarItems();
     },
 
     detached() {
@@ -99,17 +125,30 @@ Component({
   },
 
   methods: {
+    rebuildCalendarItems() {
+      const activeIndex = this.data.activeIndex;
+      const calendarItems = buildCalendarItems(this.data.weekDays, activeIndex);
+      this.setData({ calendarItems });
+    },
+
     setSelectedIndex(index, emitEvent = true) {
       const maxIndex = this.data.weekDays.length - 1;
       const targetIndex = Math.max(0, Math.min(maxIndex, index));
+      const calendarCurrent = targetIndex + SPACER_COUNT;
+
       const weekDays = this.data.weekDays.map((day, i) => ({
         ...day,
         active: i === targetIndex
       }));
 
+      const calendarItems = buildCalendarItems(weekDays, targetIndex);
+
       this.setData({
         selectedIndex: targetIndex,
-        weekDays
+        activeIndex: targetIndex,
+        calendarCurrent,
+        weekDays,
+        calendarItems
       });
 
       if (emitEvent) {
@@ -118,8 +157,16 @@ Component({
     },
 
     onSwiperChange(event) {
-      const targetIndex = event.detail.current;
-      if (typeof targetIndex !== 'number') return;
+      const current = event.detail.current;
+      if (typeof current !== 'number') return;
+
+      const targetIndex = current - SPACER_COUNT;
+      this.setSelectedIndex(targetIndex);
+    },
+
+    onCalendarTap(event) {
+      const targetIndex = Number(event.currentTarget.dataset.index);
+      if (Number.isNaN(targetIndex)) return;
       this.setSelectedIndex(targetIndex);
     },
 
@@ -347,4 +394,6 @@ function drawCapsuleProgress(ctx, x, y, width, height, radius, progress) {
 
     remaining -= segment.length;
   }
+
+  ctx.stroke();
 }
