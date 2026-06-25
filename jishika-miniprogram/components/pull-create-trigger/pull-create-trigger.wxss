@@ -45,9 +45,9 @@
   z-index: 1;
   left: 50%;
   top: 50%;
-  width: 20vw;
+  width: 108rpx;
   height: 118rpx;
-  border-radius: 60rpx;
+  border-radius: 54rpx;
   background: rgba(255, 255, 255, 0.96);
   box-shadow: 0 12rpx 32rpx rgba(58, 112, 54, 0.12);
   transform: translate(-50%, -50%);

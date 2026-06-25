@@ -27,6 +27,7 @@
           >
             <text class="day-label">{{item.label}}</text>
             <text class="day-date">{{item.date}}</text>
+            <text wx:if="{{item.active}}" class="day-dot"></text>
           </view>
         </view>
       </view>
