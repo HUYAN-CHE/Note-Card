@@ -28,14 +28,12 @@
     <pull-refresh-view
       class="card-list-scroll"
       refresher-type="custom"
-      pull-down-height="{{150}}"
+      pull-down-height="{{80}}"
       refreshing="{{refreshing}}"
       bind:onrefresh="onPullCreateFromRefresh"
+      bind:onpulling="onPullCreatePulling"
     >
-      <view slot="refresher" class="create-refresher">
-        <view class="create-refresher-line"></view>
-        <text class="create-refresher-text">继续下拉新建事项</text>
-      </view>
+      <view slot="refresher" class="create-refresher"></view>
 
       <view wx:if="{{cards.length}}" class="card-list">
         <view

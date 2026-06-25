@@ -95,7 +95,7 @@ Component({
           pullState: 1
         })
       }
-      this.triggerEvent('onpulling',this.data.pullState);
+      this.triggerEvent('onpulling', { pullState: this.data.pullState, dy: y });
     },
     //滚动到顶部
     _onScrollTop: function (e){
