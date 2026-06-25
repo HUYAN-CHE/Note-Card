@@ -233,6 +233,11 @@ Component({
       // 什么都不做，catchtouchmove 会自动阻止冒泡
     },
 
+    onGrabberTouchMove() {
+      // 拦截 sheet 顶部 grabber 的 touchmove，防止触发下方 pull-refresh-view 的下拉新建
+      // 什么都不做，catchtouchmove 会自动阻止冒泡
+    },
+
     onTouchStart(event) {
       if (!event.touches || !event.touches.length) return;
 
