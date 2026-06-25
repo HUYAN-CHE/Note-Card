@@ -4,8 +4,7 @@ const STROKE_WIDTH = 2;
 const PROGRESS_WIDTH = 3;
 const DAY_RANGE = 15; // 今天左右各 15 天，共 31 天
 const SPACER_COUNT = 2;
-const DAY_WIDTH_RPX = 150;
-const RPX_PER_PX = 750 / (wx.getSystemInfoSync().windowWidth || 375);
+const DAY_WIDTH_PERCENT = 20; // 一屏 5 个，每个占 20%
 
 function buildDefaultWeekDays() {
   const today = new Date();
@@ -129,7 +128,7 @@ Component({
 
   methods: {
     getTrackXForIndex(index) {
-      return -index * DAY_WIDTH_RPX;
+      return -index * DAY_WIDTH_PERCENT;
     },
 
     clampTrackX(trackX) {
@@ -183,8 +182,9 @@ Component({
       if (!this._isStripDragging || !event.touches || !event.touches.length) return;
 
       const deltaX = event.touches[0].clientX - this._stripStartX;
-      const deltaRpx = deltaX * RPX_PER_PX;
-      const trackX = this.clampTrackX(this._stripTrackStartX + deltaRpx);
+      const windowWidth = wx.getSystemInfoSync().windowWidth || 375;
+      const deltaPercent = (deltaX / windowWidth) * 100;
+      const trackX = this.clampTrackX(this._stripTrackStartX + deltaPercent);
       this.setData({ trackX });
     },
 
@@ -193,7 +193,7 @@ Component({
       this._isStripDragging = false;
 
       const currentTrackX = this.data.trackX || 0;
-      const rawIndex = Math.round(-currentTrackX / DAY_WIDTH_RPX);
+      const rawIndex = Math.round(-currentTrackX / DAY_WIDTH_PERCENT);
       const currentIndex = this.data.activeIndex;
       let targetIndex = Math.max(0, Math.min(this.data.weekDays.length - 1, rawIndex));
 
