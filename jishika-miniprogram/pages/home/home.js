@@ -46,9 +46,10 @@ Page({
   onShow() {
     this.setData({ refreshing: false });
     const trigger = this.selectComponent('.home-pull-trigger');
-    if (trigger && typeof trigger.drawProgress === 'function') {
-      trigger.drawProgress(0);
+    if (trigger && typeof trigger.resetToIdle === 'function') {
+      trigger.resetToIdle(this._lastPullProgress || 0);
     }
+    this._lastPullProgress = 0;
     this.loadCards();
 
     const today = this.formatDate(new Date());
@@ -255,10 +256,19 @@ Page({
   onPullCreatePulling(event) {
     const dy = event.detail && typeof event.detail.dy === 'number' ? event.detail.dy : 0;
     const progress = Math.min(1, Math.max(0, dy / 80));
+    this._lastPullProgress = progress;
     const trigger = this.selectComponent('.home-pull-trigger');
     if (trigger && typeof trigger.drawProgress === 'function') {
       trigger.drawProgress(progress);
     }
+  },
+
+  onPullCreateClose() {
+    const trigger = this.selectComponent('.home-pull-trigger');
+    if (trigger && typeof trigger.resetToIdle === 'function') {
+      trigger.resetToIdle(this._lastPullProgress || 0);
+    }
+    this._lastPullProgress = 0;
   },
 
   onPullCreateFromRefresh() {

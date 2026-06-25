@@ -32,6 +32,7 @@
       refreshing="{{refreshing}}"
       bind:onrefresh="onPullCreateFromRefresh"
       bind:onpulling="onPullCreatePulling"
+      bind:onrefreshclose="onPullCreateClose"
     >
       <view slot="refresher" class="create-refresher"></view>
 
