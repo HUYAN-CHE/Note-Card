@@ -117,6 +117,13 @@ Component({
       this.resetToIdle(this._lastProgress || 0);
     },
 
+    onTapCapsule() {
+      this.triggerEvent('trigger', {
+        source: 'tap_capsule',
+        progress: 1
+      });
+    },
+
     fireTrigger() {
       if (this._triggered) return;
 
