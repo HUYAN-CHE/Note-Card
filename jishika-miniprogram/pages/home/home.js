@@ -35,7 +35,8 @@ Page({
     selectedIndex: 0,
     statusBarHeight: 44,
     reminderEnabled: true,
-    isRefreshing: false
+    isRefreshing: false,
+    pageScrollTop: 0
   },
 
   onLoad() {
@@ -50,6 +51,10 @@ Page({
     if (this.todayDate && this.todayDate !== today) {
       this.updateCalendar();
     }
+  },
+
+  onPageScroll(event) {
+    this.setData({ pageScrollTop: event.scrollTop });
   },
 
   updateSystemInfo() {

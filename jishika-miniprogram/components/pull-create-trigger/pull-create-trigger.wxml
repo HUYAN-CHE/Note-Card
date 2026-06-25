@@ -48,8 +48,13 @@
   </view>
 
   <view
-    class="pull-sheet {{isReturning ? 'returning' : ''}}"
-    style="top: {{sheetTop}}px; transform: translate3d(0, {{dragY}}px, 0);"
+    wx:if="{{isSheetFixed}}"
+    class="sheet-placeholder"
+    style="height: 100vh;"
+  ></view>
+  <view
+    class="pull-sheet {{isSheetFixed ? 'fixed' : ''}} {{isReturning ? 'returning' : ''}}"
+    style="{{isSheetFixed ? 'top:' + sheetTop + 'px;' : ''}} transform: translate3d(0, {{dragY}}px, 0);"
     data-action="drag_sheet_create"
     aria-label="下拉卡片，新建事项"
     bindtouchstart="onTouchStart"

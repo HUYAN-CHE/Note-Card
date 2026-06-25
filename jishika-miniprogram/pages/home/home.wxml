@@ -10,6 +10,7 @@
     week-days="{{weekDays}}"
     selected-index="{{selectedIndex}}"
     status-bar-height="{{statusBarHeight}}"
+    page-scroll-top="{{pageScrollTop}}"
   >
     <view class="sheet-head">
       <view class="sheet-title-wrap">
@@ -30,6 +31,10 @@
       bindonrefresh="onPullCreateFromRefresh"
       refreshing="{{isRefreshing}}"
       showLoading="{{false}}"
+      pullDownHeight="{{150}}"
+      pullText="下拉新建事项"
+      releaseText="松开立即新建"
+      refreshText="正在打开..."
     >
       <view wx:if="{{cards.length}}" class="card-list">
         <view

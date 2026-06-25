@@ -220,9 +220,8 @@
 }
 
 .pull-sheet {
-  position: sticky;
+  position: relative;
   z-index: 1;
-  top: 0;
   display: flex;
   flex-direction: column;
   min-height: 100vh;
@@ -232,6 +231,19 @@
   box-shadow: 0 -24rpx 72rpx rgba(71, 135, 65, 0.12);
   will-change: transform;
   box-sizing: border-box;
+}
+
+.pull-sheet.fixed {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  min-height: auto;
+  margin-top: 0;
+}
+
+.sheet-placeholder {
+  width: 100%;
 }
 
 .pull-sheet.returning {

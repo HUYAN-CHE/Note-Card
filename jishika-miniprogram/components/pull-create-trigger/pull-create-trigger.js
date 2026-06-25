@@ -88,6 +88,15 @@ Component({
     statusBarHeight: {
       type: Number,
       value: 44
+    },
+    pageScrollTop: {
+      type: Number,
+      value: 0,
+      observer(newVal) {
+        if (this._layoutReady) {
+          this.updateSheetPosition(newVal);
+        }
+      }
     }
   },
 
@@ -99,7 +108,8 @@ Component({
     trackX: 0,
     isSnapping: false,
     calendarHeight: 300,
-    sheetTop: 300
+    sheetTop: 300,
+    isSheetFixed: false
   },
 
   lifetimes: {
@@ -140,9 +150,20 @@ Component({
           if (!calendarRect) return;
           const calendarHeight = calendarRect.height;
           const sheetTop = calendarRect.bottom;
-          this.setData({ calendarHeight, sheetTop });
+          this.setData({ calendarHeight, sheetTop }, () => {
+            this._layoutReady = true;
+            this.updateSheetPosition(this.data.pageScrollTop);
+          });
         })
         .exec();
+    },
+
+    updateSheetPosition(scrollTop) {
+      const sheetTop = this.data.sheetTop;
+      const isSheetFixed = scrollTop >= sheetTop;
+      if (isSheetFixed !== this.data.isSheetFixed) {
+        this.setData({ isSheetFixed });
+      }
     },
 
     getTrackXForIndex(index) {
