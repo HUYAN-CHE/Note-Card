@@ -45,10 +45,6 @@ Page({
 
   onShow() {
     this.setData({ refreshing: false });
-    const trigger = this.selectComponent('.home-pull-trigger');
-    if (trigger && typeof trigger.resetToIdle === 'function') {
-      trigger.resetToIdle(this._lastPullProgress || 0);
-    }
     this._lastPullProgress = 0;
     this.loadCards();
 
@@ -243,29 +239,17 @@ Page({
   },
 
   onPullCreatePulling(event) {
+    // 顶部胶囊进度环不响应卡片列表区域的下拉，仅作为下拉距离的内部记录
     const dy = event.detail && typeof event.detail.dy === 'number' ? event.detail.dy : 0;
-    const progress = Math.min(1, Math.max(0, dy / 80));
-    this._lastPullProgress = progress;
-    const trigger = this.selectComponent('.home-pull-trigger');
-    if (trigger && typeof trigger.drawProgress === 'function') {
-      trigger.drawProgress(progress);
-    }
+    this._lastPullProgress = Math.min(1, Math.max(0, dy / 80));
   },
 
   onPullCreateClose() {
-    const trigger = this.selectComponent('.home-pull-trigger');
-    if (trigger && typeof trigger.resetToIdle === 'function') {
-      trigger.resetToIdle(this._lastPullProgress || 0);
-    }
     this._lastPullProgress = 0;
   },
 
   onPullCreateFromRefresh() {
     this.setData({ refreshing: true });
-    const trigger = this.selectComponent('.home-pull-trigger');
-    if (trigger && typeof trigger.drawProgress === 'function') {
-      trigger.drawProgress(1);
-    }
     wx.navigateTo({
       url: '/pages/intake/intake?source=pull_create&type=requirement'
     });
