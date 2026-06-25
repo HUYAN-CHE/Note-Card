@@ -103,7 +103,7 @@ Component({
     },
     //下拉刷新关闭了
     _onClose: function (e) {
-      this.triggerEvent('onrefreshclose', e);
+      this.triggerEvent('refreshclose', e);
     },
     //下拉刷新执行
     _onRefresh: function (e) {

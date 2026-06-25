@@ -8,6 +8,7 @@
  bindrefresherpulling="_onPulling"
  refresher-default-style="none"
  bindrefresherrestore="_onClose"
+ bindrefresherabort="_onClose"
  bindscrolltoupper="_onScrollTop"
  refresher-threshold="{{pullDownHeight}}"
  scroll-into-view="{{scrollToView}}"
