@@ -66,7 +66,13 @@ Component({
 
   pageLifetimes: {
     show() {
-      this.resetToIdle(0);
+      // 从新建页返回时直接硬复位，避免白卡从下拉位置弹回的动画
+      this._startY = null;
+      this._lastProgress = 0;
+      this._triggered = false;
+      this.clearProgressTimer();
+      this.setData({ dragY: 0, isReturning: false });
+      this.drawProgress(0);
     }
   },
 
