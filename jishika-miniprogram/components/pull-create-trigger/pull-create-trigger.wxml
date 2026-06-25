@@ -8,7 +8,7 @@
       <view class="selection-frame"></view>
       <view
         class="week-track"
-        style="transform: translate3d({{trackX}}%, 0, 0); {{isSnapping ? 'transition: transform 200ms ease-out;' : ''}}"
+        style="transform: translate3d({{trackX}}vw, 0, 0); {{isSnapping ? 'transition: transform 200ms ease-out;' : ''}}"
         bindtouchstart="onStripTouchStart"
         bindtouchmove="onStripTouchMove"
         bindtouchend="onStripTouchEnd"
