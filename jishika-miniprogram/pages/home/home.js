@@ -149,19 +149,8 @@ Page({
   },
 
   buildTestCards() {
-    const today = new Date();
-    return Array.from({ length: 12 }, (_, i) => {
-      const date = new Date(today);
-      date.setDate(today.getDate() - i);
-      return {
-        id: `demo-${i}`,
-        type: i % 3 === 0 ? 'requirement' : (i % 3 === 1 ? 'todo' : 'meeting'),
-        status: i % 4 === 0 ? 'completed' : 'pending_confirm',
-        projectName: `测试项目 ${i + 1}`,
-        reminderText: '明天 10:00 跟进客户确认',
-        updatedAt: date.toISOString()
-      };
-    });
+    // 保留函数占位，默认返回空数组以展示空状态
+    return [];
   },
 
   async loadCards(selectedDateStr) {
