@@ -2,6 +2,26 @@ const CANVAS_WIDTH = 230;
 const CANVAS_HEIGHT = 60;
 const STROKE_WIDTH = 2;
 const PROGRESS_WIDTH = 3;
+const DAY_RANGE = 15; // 今天左右各 15 天，共 31 天
+
+function buildDefaultWeekDays() {
+  const today = new Date();
+  const days = [];
+  for (let i = -DAY_RANGE; i <= DAY_RANGE; i += 1) {
+    const date = new Date(today);
+    date.setDate(today.getDate() + i);
+    const weekDay = date.getDay();
+    const label = ['S', 'M', 'T', 'W', 'T', 'F', 'S'][weekDay];
+    days.push({
+      label,
+      date: String(date.getDate()),
+      fullDate: `${date.getMonth() + 1}-${date.getDate()}`,
+      isToday: i === 0,
+      active: i === 0
+    });
+  }
+  return days;
+}
 
 Component({
   properties: {
@@ -31,15 +51,16 @@ Component({
     },
     weekDays: {
       type: Array,
-      value: [
-        { label: 'S', date: '20' },
-        { label: 'S', date: '21' },
-        { label: 'M', date: '22' },
-        { label: 'T', date: '23', active: true },
-        { label: 'W', date: '24' },
-        { label: 'T', date: '25' },
-        { label: 'F', date: '26' }
-      ]
+      value: buildDefaultWeekDays()
+    },
+    selectedIndex: {
+      type: Number,
+      value: DAY_RANGE,
+      observer(newVal) {
+        if (typeof newVal === 'number' && this._initialized) {
+          this.setSelectedIndex(newVal, false);
+        }
+      }
     },
     statusBarHeight: {
       type: Number,
@@ -57,6 +78,7 @@ Component({
       this.measureCanvas(() => {
         this.drawProgress(0);
       });
+      this._initialized = true;
     },
 
     detached() {
@@ -77,11 +99,28 @@ Component({
   },
 
   methods: {
-    onSelectDay(event) {
-      const index = Number(event.currentTarget.dataset.index);
-      if (Number.isNaN(index)) return;
+    setSelectedIndex(index, emitEvent = true) {
+      const maxIndex = this.data.weekDays.length - 1;
+      const targetIndex = Math.max(0, Math.min(maxIndex, index));
+      const weekDays = this.data.weekDays.map((day, i) => ({
+        ...day,
+        active: i === targetIndex
+      }));
 
-      this.triggerEvent('selectDay', { index });
+      this.setData({
+        selectedIndex: targetIndex,
+        weekDays
+      });
+
+      if (emitEvent) {
+        this.triggerEvent('selectDay', { index: targetIndex });
+      }
+    },
+
+    onSwiperChange(event) {
+      const targetIndex = event.detail.current;
+      if (typeof targetIndex !== 'number') return;
+      this.setSelectedIndex(targetIndex);
     },
 
     onTouchStart(event) {

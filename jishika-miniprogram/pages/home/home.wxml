@@ -8,6 +8,7 @@
     threshold="{{150}}"
     max-drag="{{188}}"
     week-days="{{weekDays}}"
+    selected-index="{{selectedIndex}}"
     status-bar-height="{{statusBarHeight}}"
   >
     <view class="sheet-head">

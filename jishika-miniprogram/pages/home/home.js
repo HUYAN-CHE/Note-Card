@@ -64,12 +64,13 @@ Page({
 
   updateCalendar() {
     const today = new Date();
-    const DAY_COUNT = 7;
+    const DAY_RANGE = 15;
+    const DAY_COUNT = DAY_RANGE * 2 + 1;
     const start = new Date(today);
-    start.setDate(today.getDate() - 3);
+    start.setDate(today.getDate() - DAY_RANGE);
 
     const days = [];
-    let todayIndex = 3;
+    let todayIndex = DAY_RANGE;
     for (let i = 0; i < DAY_COUNT; i += 1) {
       const date = new Date(start);
       date.setDate(start.getDate() + i);
@@ -79,7 +80,7 @@ Page({
       }
       days.push({
         date: this.formatDate(date),
-        fullDate: `${date.getMonth() + 1}月${date.getDate()}日`,
+        fullDate: `${date.getMonth() + 1}-${date.getDate()}`,
         week: WEEK_LABELS[date.getDay()],
         day: date.getDate(),
         isToday,
@@ -88,6 +89,7 @@ Page({
     }
 
     this.todayDate = this.formatDate(today);
+    this._lastCardRange = null;
 
     this.setData({
       calendarDays: days,
@@ -100,6 +102,8 @@ Page({
     return days.map((day, index) => ({
       label: day.week,
       date: String(day.day),
+      fullDate: day.fullDate,
+      isToday: day.isToday,
       active: index === selectedIndex
     }));
   },
@@ -121,19 +125,43 @@ Page({
     const index = Number(event.detail && event.detail.index);
     if (Number.isNaN(index)) return;
 
+    const selectedDay = this.data.calendarDays[index];
+    if (!selectedDay) return;
+
+    const rangeKey = this.formatDate(selectedDay);
+
     this.setData({
       selectedIndex: index,
       weekDays: this.buildWeekDays(this.data.calendarDays, index)
     });
-    this.loadCards();
+
+    if (this._lastCardRange !== rangeKey) {
+      this._lastCardRange = rangeKey;
+      this.loadCards(selectedDay.date);
+    }
   },
 
-  async loadCards() {
+  async loadCards(selectedDateStr) {
     const app = getApp();
     const launchContext = app.globalData.launchContext;
     const cards = SHOW_DEMO_CARDS ? await ensureDemoCards() : [];
 
-    const decoratedCards = cards.slice(0, 6).map((card) => ({
+    const selectedDay = this.data.calendarDays[this.data.selectedIndex];
+    const endDate = selectedDateStr
+      ? new Date(selectedDateStr)
+      : (selectedDay ? new Date(selectedDay.date) : new Date());
+    const startDate = new Date(endDate);
+    startDate.setDate(endDate.getDate() - 6);
+    startDate.setHours(0, 0, 0, 0);
+    endDate.setHours(23, 59, 59, 999);
+
+    const filteredCards = cards.filter((card) => {
+      if (!card.updatedAt) return false;
+      const updated = new Date(card.updatedAt);
+      return updated >= startDate && updated <= endDate;
+    });
+
+    const decoratedCards = filteredCards.slice(0, 6).map((card) => ({
       ...card,
       emoji: EMOJIS[card.type] || EMOJIS.default,
       statusText: STATUS_TEXT[card.status] || '待确认',
