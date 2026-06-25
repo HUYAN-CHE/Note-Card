@@ -98,7 +98,9 @@ Component({
     activeIndex: DAY_RANGE,
     trackX: 0,
     isSnapping: false,
-    heroHeight: 0
+    heroHeight: 0,
+    sheetTop: 0,
+    sheetHeight: 0
   },
 
   lifetimes: {
@@ -106,9 +108,12 @@ Component({
       this.measureCanvas(() => {
         this.drawProgress(0);
       });
-      this.measureHeroHeight();
-      this._initialized = true;
-      this.setSelectedIndex(this.data.selectedIndex, false);
+      wx.nextTick(() => {
+        this.measureHeroHeight();
+        this.measureSheetLayout();
+        this._initialized = true;
+        this.setSelectedIndex(this.data.selectedIndex, false);
+      });
     },
 
     detached() {
@@ -126,6 +131,7 @@ Component({
       this.setData({ dragY: 0, isReturning: false });
       this.drawProgress(0);
       this.measureHeroHeight();
+      this.measureSheetLayout();
     }
   },
 
@@ -136,6 +142,19 @@ Component({
         .boundingClientRect((rect) => {
           const heroHeight = rect ? rect.height : 0;
           this.setData({ heroHeight });
+        })
+        .exec();
+    },
+
+    measureSheetLayout() {
+      this.createSelectorQuery()
+        .select('.week-strip')
+        .boundingClientRect((rect) => {
+          if (!rect) return;
+          const sheetTop = rect.bottom;
+          const windowHeight = wx.getSystemInfoSync().windowHeight || 667;
+          const sheetHeight = windowHeight - sheetTop;
+          this.setData({ sheetTop, sheetHeight });
         })
         .exec();
     },

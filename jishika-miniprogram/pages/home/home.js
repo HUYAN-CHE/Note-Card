@@ -34,7 +34,8 @@ Page({
     weekDays: [],
     selectedIndex: 0,
     statusBarHeight: 44,
-    reminderEnabled: true
+    reminderEnabled: true,
+    isRefreshing: false
   },
 
   onLoad() {
@@ -228,6 +229,14 @@ Page({
     wx.navigateTo({
       url: '/pages/intake/intake?source=pull_create&type=requirement'
     });
+  },
+
+  onPullCreateFromRefresh() {
+    this.setData({ isRefreshing: true });
+    setTimeout(() => {
+      this.setData({ isRefreshing: false });
+    }, 300);
+    this.onPullCreate();
   },
 
   openCard(event) {
