@@ -134,7 +134,7 @@ Component({
     setSelectedIndex(index, emitEvent = true) {
       const maxIndex = this.data.weekDays.length - 1;
       const targetIndex = Math.max(0, Math.min(maxIndex, index));
-      const calendarCurrent = targetIndex + SPACER_COUNT;
+      const calendarCurrent = targetIndex;
 
       const weekDays = this.data.weekDays.map((day, i) => ({
         ...day,
@@ -160,7 +160,7 @@ Component({
       const current = event.detail.current;
       if (typeof current !== 'number') return;
 
-      const targetIndex = current - SPACER_COUNT;
+      const targetIndex = current;
       this.setSelectedIndex(targetIndex);
     },
 
