@@ -34,10 +34,9 @@
 
 .week-strip {
   position: relative;
-  width: 100vw;
+  width: calc(100% + 88rpx);
   height: 140rpx;
-  margin-top: 40rpx;
-  margin-left: -44rpx;
+  margin: 40rpx -44rpx 0;
   overflow: hidden;
 }
 
@@ -46,7 +45,7 @@
   z-index: 1;
   left: 50%;
   top: 50%;
-  width: 20vw;
+  width: calc((100% + 88rpx) / 5);
   height: 118rpx;
   border-radius: 60rpx;
   background: rgba(255, 255, 255, 0.96);
@@ -58,7 +57,7 @@
 .week-swiper {
   position: relative;
   z-index: 2;
-  width: 100vw;
+  width: calc(100% + 88rpx);
   height: 140rpx;
 }
 
@@ -66,7 +65,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 20vw;
+  width: calc((100% + 88rpx) / 5);
   height: 140rpx;
 }
 
