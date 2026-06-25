@@ -97,7 +97,8 @@ Component({
     calendarItems: [],
     activeIndex: DAY_RANGE,
     trackX: 0,
-    isSnapping: false
+    isSnapping: false,
+    heroHeight: 0
   },
 
   lifetimes: {
@@ -105,6 +106,7 @@ Component({
       this.measureCanvas(() => {
         this.drawProgress(0);
       });
+      this.measureHeroHeight();
       this._initialized = true;
       this.setSelectedIndex(this.data.selectedIndex, false);
     },
@@ -123,10 +125,21 @@ Component({
       this.clearProgressTimer();
       this.setData({ dragY: 0, isReturning: false });
       this.drawProgress(0);
+      this.measureHeroHeight();
     }
   },
 
   methods: {
+    measureHeroHeight() {
+      this.createSelectorQuery()
+        .select('.pull-hero')
+        .boundingClientRect((rect) => {
+          const heroHeight = rect ? rect.height : 0;
+          this.setData({ heroHeight });
+        })
+        .exec();
+    },
+
     getTrackXForIndex(index) {
       return -index * DAY_WIDTH_VW;
     },

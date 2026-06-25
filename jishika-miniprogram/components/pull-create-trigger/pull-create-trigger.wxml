@@ -46,7 +46,7 @@
 
   <view
     class="pull-sheet {{isReturning ? 'returning' : ''}}"
-    style="transform: translate3d(0, {{dragY}}px, 0);"
+    style="margin-top: {{heroHeight}}px; transform: translate3d(0, {{dragY}}px, 0);"
     data-action="drag_sheet_create"
     aria-label="下拉卡片，新建事项"
     bindtouchstart="onTouchStart"
