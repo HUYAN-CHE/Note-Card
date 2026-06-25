@@ -25,7 +25,18 @@
       />
     </view>
 
-    <scroll-view scroll-y class="card-list-scroll" enhanced show-scrollbar="{{false}}">
+    <pull-refresh-view
+      class="card-list-scroll"
+      refresher-type="custom"
+      pull-down-height="{{150}}"
+      refreshing="{{refreshing}}"
+      bind:onrefresh="onPullCreateFromRefresh"
+    >
+      <view slot="refresher" class="create-refresher">
+        <view class="create-refresher-line"></view>
+        <text class="create-refresher-text">继续下拉新建事项</text>
+      </view>
+
       <view wx:if="{{cards.length}}" class="card-list">
         <view
           wx:for="{{cards}}"
@@ -54,7 +65,7 @@
         <text class="empty-title">还没有记事卡</text>
         <text class="empty-sub">下拉或点击上方按钮，从聊天记录生成一张记事卡</text>
       </view>
-    </scroll-view>
+    </pull-refresh-view>
   </pull-create-trigger>
 
   <tab-bar activeTab="home" />

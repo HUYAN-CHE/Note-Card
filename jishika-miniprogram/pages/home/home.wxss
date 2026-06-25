@@ -44,9 +44,32 @@
 .card-list-scroll {
   flex: 1;
   min-height: 0;
+  height: 100%;
   margin-top: 34rpx;
-  padding: 0 0 calc(120rpx + env(safe-area-inset-bottom));
+}
+
+.create-refresher {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  height: 150px;
+  padding-bottom: 24rpx;
   box-sizing: border-box;
+}
+
+.create-refresher-line {
+  width: 48rpx;
+  height: 6rpx;
+  border-radius: 999rpx;
+  background: rgba(34, 197, 94, 0.35);
+  margin-bottom: 16rpx;
+}
+
+.create-refresher-text {
+  font-size: 26rpx;
+  color: #22C55E;
+  line-height: 1;
 }
 
 .card-list {

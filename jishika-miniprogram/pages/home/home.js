@@ -34,7 +34,8 @@ Page({
     weekDays: [],
     selectedIndex: 0,
     statusBarHeight: 44,
-    reminderEnabled: true
+    reminderEnabled: true,
+    refreshing: false
   },
 
   onLoad() {
@@ -43,6 +44,7 @@ Page({
   },
 
   onShow() {
+    this.setData({ refreshing: false });
     this.loadCards();
 
     const today = this.formatDate(new Date());
@@ -241,6 +243,13 @@ Page({
   },
 
   onPullCreate() {
+    wx.navigateTo({
+      url: '/pages/intake/intake?source=pull_create&type=requirement'
+    });
+  },
+
+  onPullCreateFromRefresh() {
+    this.setData({ refreshing: true });
     wx.navigateTo({
       url: '/pages/intake/intake?source=pull_create&type=requirement'
     });
