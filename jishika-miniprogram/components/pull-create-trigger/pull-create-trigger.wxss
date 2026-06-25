@@ -203,7 +203,9 @@
 .pull-sheet {
   position: relative;
   z-index: 2;
-  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  min-height: 520rpx;
   margin-top: 10rpx;
   padding: 42rpx 40rpx calc(110rpx + env(safe-area-inset-bottom));
   border-radius: 44rpx 44rpx 0 0;

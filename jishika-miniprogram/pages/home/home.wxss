@@ -43,6 +43,7 @@
 /* 卡片列表 */
 .card-list-scroll {
   flex: 1;
+  min-height: 0;
   margin-top: 34rpx;
   padding: 0 0 calc(120rpx + env(safe-area-inset-bottom));
   box-sizing: border-box;

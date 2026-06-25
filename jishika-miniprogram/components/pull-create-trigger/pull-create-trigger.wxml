@@ -46,13 +46,7 @@
 
   <view
     class="pull-sheet {{isReturning ? 'returning' : ''}}"
-    style="margin-top: {{heroHeight}}px; transform: translate3d(0, {{dragY}}px, 0);"
-    data-action="drag_sheet_create"
-    aria-label="下拉卡片，新建事项"
-    bindtouchstart="onTouchStart"
-    catchtouchmove="onTouchMove"
-    bindtouchend="onTouchEnd"
-    bindtouchcancel="onTouchEnd"
+    style="margin-top: {{heroHeight}}px; height: calc(100vh - {{heroHeight}}px);"
   >
     <view class="sheet-grabber"></view>
     <slot></slot>
