@@ -98,9 +98,8 @@ Component({
     activeIndex: DAY_RANGE,
     trackX: 0,
     isSnapping: false,
-    heroHeight: 0,
-    sheetTop: 0,
-    sheetHeight: 0
+    calendarHeight: 300,
+    sheetTop: 300
   },
 
   lifetimes: {
@@ -109,8 +108,7 @@ Component({
         this.drawProgress(0);
       });
       wx.nextTick(() => {
-        this.measureHeroHeight();
-        this.measureSheetLayout();
+        this.measureLayout();
         this._initialized = true;
         this.setSelectedIndex(this.data.selectedIndex, false);
       });
@@ -130,31 +128,19 @@ Component({
       this.clearProgressTimer();
       this.setData({ dragY: 0, isReturning: false });
       this.drawProgress(0);
-      this.measureHeroHeight();
-      this.measureSheetLayout();
+      this.measureLayout();
     }
   },
 
   methods: {
-    measureHeroHeight() {
+    measureLayout() {
       this.createSelectorQuery()
-        .select('.pull-hero')
-        .boundingClientRect((rect) => {
-          const heroHeight = rect ? rect.height : 0;
-          this.setData({ heroHeight });
-        })
-        .exec();
-    },
-
-    measureSheetLayout() {
-      this.createSelectorQuery()
-        .select('.week-strip')
-        .boundingClientRect((rect) => {
-          if (!rect) return;
-          const sheetTop = rect.bottom;
-          const windowHeight = wx.getSystemInfoSync().windowHeight || 667;
-          const sheetHeight = windowHeight - sheetTop;
-          this.setData({ sheetTop, sheetHeight });
+        .select('.hero-calendar')
+        .boundingClientRect((calendarRect) => {
+          if (!calendarRect) return;
+          const calendarHeight = calendarRect.height;
+          const sheetTop = calendarRect.bottom;
+          this.setData({ calendarHeight, sheetTop });
         })
         .exec();
     },
