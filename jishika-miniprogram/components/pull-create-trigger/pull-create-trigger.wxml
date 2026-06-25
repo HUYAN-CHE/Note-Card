@@ -10,7 +10,7 @@
         class="week-track"
         style="transform: translate3d({{trackX}}vw, 0, 0); {{isSnapping ? 'transition: transform 200ms ease-out;' : ''}}"
         bindtouchstart="onStripTouchStart"
-        bindtouchmove="onStripTouchMove"
+        catchtouchmove="onStripTouchMove"
         bindtouchend="onStripTouchEnd"
         bindtouchcancel="onStripTouchEnd"
       >
