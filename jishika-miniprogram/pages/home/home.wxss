@@ -8,6 +8,14 @@
   background: linear-gradient(180deg, #b8f0b0 0%, #5fc26b 100%);
 }
 
+.home-capsule-progress {
+  position: fixed;
+  top: 420rpx;
+  left: 50%;
+  z-index: 100;
+  transform: translateX(-50%);
+}
+
 /* Sheet 头部 */
 .sheet-head {
   display: flex;

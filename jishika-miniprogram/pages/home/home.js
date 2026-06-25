@@ -35,7 +35,8 @@ Page({
     selectedIndex: 0,
     statusBarHeight: 44,
     reminderEnabled: true,
-    refreshing: false
+    refreshing: false,
+    pullProgress: 0
   },
 
   onLoad() {
@@ -44,11 +45,7 @@ Page({
   },
 
   onShow() {
-    this.setData({ refreshing: false });
-    const trigger = this.selectComponent('.home-pull-trigger');
-    if (trigger && typeof trigger.resetToIdle === 'function') {
-      trigger.resetToIdle(this._lastPullProgress || 0);
-    }
+    this.setData({ refreshing: false, pullProgress: 0 });
     this._lastPullProgress = 0;
     this.loadCards();
 
@@ -246,26 +243,16 @@ Page({
     const dy = event.detail && typeof event.detail.dy === 'number' ? event.detail.dy : 0;
     const progress = Math.min(1, Math.max(0, dy / 80));
     this._lastPullProgress = progress;
-    const trigger = this.selectComponent('.home-pull-trigger');
-    if (trigger && typeof trigger.drawProgress === 'function') {
-      trigger.drawProgress(progress);
-    }
+    this.setData({ pullProgress: progress });
   },
 
   onPullCreateClose() {
-    const trigger = this.selectComponent('.home-pull-trigger');
-    if (trigger && typeof trigger.resetToIdle === 'function') {
-      trigger.resetToIdle(this._lastPullProgress || 0);
-    }
     this._lastPullProgress = 0;
+    this.setData({ pullProgress: 0 });
   },
 
   onPullCreateFromRefresh() {
-    this.setData({ refreshing: true });
-    const trigger = this.selectComponent('.home-pull-trigger');
-    if (trigger && typeof trigger.drawProgress === 'function') {
-      trigger.drawProgress(1);
-    }
+    this.setData({ refreshing: true, pullProgress: 1 });
     wx.navigateTo({
       url: '/pages/intake/intake?source=pull_create&type=requirement'
     });
