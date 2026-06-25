@@ -211,10 +211,3 @@
   box-shadow: 0 -24rpx 72rpx rgba(71, 135, 65, 0.12);
 }
 
-.sheet-grabber {
-  width: 58rpx;
-  height: 8rpx;
-  margin: 0 auto 34rpx;
-  border-radius: 999rpx;
-  background: rgba(19, 30, 21, 0.16);
-}

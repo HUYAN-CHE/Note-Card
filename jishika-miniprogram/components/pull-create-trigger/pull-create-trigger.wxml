@@ -48,7 +48,6 @@
     class="pull-sheet {{isReturning ? 'returning' : ''}}"
     style="margin-top: {{heroHeight}}px; height: calc(100vh - {{heroHeight}}px);"
   >
-    <view class="sheet-grabber"></view>
     <slot></slot>
   </view>
 </view>
