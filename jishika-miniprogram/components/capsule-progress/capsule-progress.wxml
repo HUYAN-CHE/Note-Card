@@ -1,7 +1,0 @@
-<view class="capsule-wrap" data-action="pull_create_progress" aria-label="{{label}}" bindtap="onTapCapsule">
-  <canvas class="capsule-canvas" canvas-id="capsuleProgress"></canvas>
-  <view class="capsule-inner">
-    <view class="capsule-plus">＋</view>
-    <view class="capsule-label">{{label}}</view>
-  </view>
-</view>

@@ -1,11 +1,4 @@
 <view class="page home-page">
-  <capsule-progress
-    class="home-capsule-progress"
-    label="下拉新建事项"
-    progress="{{pullProgress}}"
-    bind:trigger="onPullCreate"
-  />
-
   <pull-create-trigger
     class="home-pull-trigger"
     bind:trigger="onPullCreate"
