@@ -56,6 +56,7 @@
     class="pull-sheet {{isSheetFixed ? 'fixed' : ''}}"
     style="{{isSheetFixed ? 'top:' + sheetTop + 'px;' : ''}}"
   >
+    <view class="sheet-grabber"></view>
     <slot></slot>
   </view>
 </view>
