@@ -1,6 +1,7 @@
 {
   "navigationStyle": "custom",
   "enablePullDownRefresh": false,
+  "disableScroll": true,
   "backgroundTextStyle": "light",
   "backgroundColor": "#bdf5b8",
   "navigationBarTitleText": "记事卡",
