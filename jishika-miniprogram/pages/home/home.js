@@ -151,15 +151,8 @@ Page({
   },
 
   buildTestCards() {
-    // 临时生成测试数据，用于验证有项目状态的滚动和下拉行为
-    const now = new Date();
-    return Array.from({ length: 20 }, (_, i) => ({
-      id: `test-${i}`,
-      projectName: `测试项目 ${i + 1}`,
-      type: i % 3 === 0 ? 'requirement' : (i % 3 === 1 ? 'todo' : 'meeting'),
-      status: i % 2 === 0 ? 'in_progress' : 'draft',
-      updatedAt: new Date(now.getTime() - i * 3600000).toISOString()
-    }));
+    // 保留函数占位，默认返回空数组以展示空状态
+    return [];
   },
 
   async loadCards(selectedDateStr) {
