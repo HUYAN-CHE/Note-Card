@@ -232,6 +232,38 @@ Component({
       // 什么都不做，catchtouchmove 会自动阻止冒泡
     },
 
+    onSheetHeadTouchStart(event) {
+      if (!event.touches || !event.touches.length) return;
+      this._sheetHeadStartY = event.touches[0].clientY;
+      this._sheetHeadTriggered = false;
+      this.clearProgressTimer();
+    },
+
+    onSheetHeadTouchMove(event) {
+      if (!event.touches || !event.touches.length || typeof this._sheetHeadStartY !== 'number') return;
+
+      const distance = Math.max(0, event.touches[0].clientY - this._sheetHeadStartY);
+      const progress = Math.min(1, distance / this.properties.threshold);
+      this._lastSheetHeadProgress = progress;
+      this.drawProgress(progress);
+
+      if (progress >= 1 && !this._sheetHeadTriggered) {
+        this._sheetHeadTriggered = true;
+        if (this.properties.vibrate && wx.vibrateShort) {
+          wx.vibrateShort({ type: 'light' });
+        }
+        this.triggerEvent('trigger', { source: 'pull_create_sheet_head', progress: 1 });
+      }
+    },
+
+    onSheetHeadTouchEnd() {
+      if (this._sheetHeadTriggered) {
+        this.resetToIdle(1);
+        return;
+      }
+      this.resetToIdle(this._lastSheetHeadProgress || 0);
+    },
+
     onTouchStart(event) {
       if (!event.touches || !event.touches.length) return;
 

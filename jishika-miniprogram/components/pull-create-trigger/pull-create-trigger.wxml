@@ -48,7 +48,15 @@
     class="pull-sheet {{isReturning ? 'returning' : ''}}"
     style="margin-top: {{heroHeight}}px; height: calc(100vh - {{heroHeight}}px);"
   >
-    <view class="sheet-grabber"></view>
+    <view
+      class="sheet-head-wrap"
+      bindtouchstart="onSheetHeadTouchStart"
+      catchtouchmove="onSheetHeadTouchMove"
+      bindtouchend="onSheetHeadTouchEnd"
+      bindtouchcancel="onSheetHeadTouchEnd"
+    >
+      <slot name="sheet-head"></slot>
+    </view>
     <slot></slot>
   </view>
 </view>
