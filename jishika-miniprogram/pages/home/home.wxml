@@ -10,7 +10,7 @@
     week-days="{{weekDays}}"
     selected-index="{{selectedIndex}}"
     status-bar-height="{{statusBarHeight}}"
-    body-pull-enabled="{{!cards.length}}"
+    body-pull-enabled="{{!cards.length || !bodyCanScroll}}"
   >
     <view slot="sheet-head">
       <view class="sheet-grabber"></view>
@@ -33,16 +33,13 @@
     <pull-refresh-view
       wx:if="{{cards.length}}"
       class="card-list-scroll"
-      refresher-type="custom"
-      pull-down-height="{{80}}"
+      refresher-enable="{{false}}"
+      scroll-y="{{true}}"
       refreshing="{{refreshing}}"
       show-loading="{{false}}"
-      bind:onrefresh="onPullCreateFromRefresh"
-      bind:onpulling="onPullCreatePulling"
+      bindscroll="onBodyScroll"
       bind:refreshclose="onPullCreateClose"
     >
-      <view slot="refresher" class="create-refresher"></view>
-
       <view class="card-list">
         <view
           wx:for="{{cards}}"

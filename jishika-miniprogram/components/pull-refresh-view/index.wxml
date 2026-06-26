@@ -1,6 +1,8 @@
 <!--支持下拉刷新-上拉加载的组件-->
 
 <scroll-view scroll-y="{{scrollY}}" class="prv-container"
+ enhanced
+ show-scrollbar="{{false}}"
  refresher-enabled="{{refresherEnable}}"
  bindrefresherrefresh="_onRefresh"
  refresher-triggered="{{refreshing}}"
@@ -9,7 +11,7 @@
  refresher-default-style="none"
  bindrefresherrestore="_onClose"
  bindrefresherabort="_onClose"
- bindscrolltoupper="_onScrollTop"
+ bindscroll="_onScroll" bindscrolltoupper="_onScrollTop"
  refresher-threshold="{{pullDownHeight}}"
  scroll-into-view="{{scrollToView}}"
  scroll-with-animation="{{scrollWithAnimation}}">

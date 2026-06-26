@@ -35,7 +35,9 @@ Page({
     selectedIndex: 0,
     statusBarHeight: 44,
     reminderEnabled: true,
-    refreshing: false
+    refreshing: false,
+    bodyScrollTop: 0,
+    bodyCanScroll: false
   },
 
   onLoad() {
@@ -44,7 +46,7 @@ Page({
   },
 
   onShow() {
-    this.setData({ refreshing: false });
+    this.setData({ refreshing: false, bodyScrollTop: 0 });
     const trigger = this.selectComponent('.home-pull-trigger');
     if (trigger && typeof trigger.resetToIdle === 'function') {
       trigger.resetToIdle(this._lastPullProgress || 0);
@@ -149,8 +151,15 @@ Page({
   },
 
   buildTestCards() {
-    // 保留函数占位，默认返回空数组以展示空状态
-    return [];
+    // 临时生成测试数据，用于验证有项目状态的滚动和下拉行为
+    const now = new Date();
+    return Array.from({ length: 20 }, (_, i) => ({
+      id: `test-${i}`,
+      projectName: `测试项目 ${i + 1}`,
+      type: i % 3 === 0 ? 'requirement' : (i % 3 === 1 ? 'todo' : 'meeting'),
+      status: i % 2 === 0 ? 'in_progress' : 'draft',
+      updatedAt: new Date(now.getTime() - i * 3600000).toISOString()
+    }));
   },
 
   async loadCards(selectedDateStr) {
@@ -184,9 +193,38 @@ Page({
     this.setData({
       cards: decoratedCards,
       launchHint: launchContext && !launchContext.consumed ? buildLaunchHint(launchContext) : ''
+    }, () => {
+      wx.nextTick(() => {
+        this.measureBodyCanScroll();
+      });
     });
 
     this.updateDayCounts(cards);
+  },
+
+  onBodyScroll(event) {
+    const scrollTop = event.detail && typeof event.detail.scrollTop === 'number' ? event.detail.scrollTop : 0;
+    this.setData({ bodyScrollTop: scrollTop });
+  },
+
+  measureBodyCanScroll() {
+    if (!this.data.cards.length) {
+      this.setData({ bodyCanScroll: false });
+      return;
+    }
+    this.createSelectorQuery()
+      .select('.card-list-scroll')
+      .boundingClientRect((containerRect) => {
+        if (!containerRect) return;
+        this.createSelectorQuery()
+          .select('.card-list')
+          .boundingClientRect((contentRect) => {
+            const canScroll = contentRect ? contentRect.height > containerRect.height : false;
+            this.setData({ bodyCanScroll: canScroll });
+          })
+          .exec();
+      })
+      .exec();
   },
 
   formatDeadline(card) {
