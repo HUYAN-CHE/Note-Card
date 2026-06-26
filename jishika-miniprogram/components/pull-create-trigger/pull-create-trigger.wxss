@@ -215,6 +215,10 @@
   display: block;
 }
 
+.pull-sheet.returning {
+  transition: transform 260ms cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+
 .sheet-grabber {
   width: 58rpx;
   height: 8rpx;

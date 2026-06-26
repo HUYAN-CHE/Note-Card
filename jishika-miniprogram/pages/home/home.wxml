@@ -12,6 +12,8 @@
     status-bar-height="{{statusBarHeight}}"
   >
     <view slot="sheet-head">
+      <view class="sheet-grabber"></view>
+
       <view class="sheet-head">
         <view class="sheet-title-wrap">
           <text class="sheet-title">最近记事卡</text>
@@ -25,8 +27,6 @@
           aria-label="打开临近消息提醒"
         />
       </view>
-
-      <view class="sheet-grabber"></view>
     </view>
 
     <pull-refresh-view

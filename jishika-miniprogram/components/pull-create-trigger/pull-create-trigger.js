@@ -42,6 +42,10 @@ function buildCalendarItems(weekDays, activeIndex) {
 }
 
 Component({
+  options: {
+    multipleSlots: true
+  },
+
   properties: {
     title: {
       type: String,
@@ -97,7 +101,9 @@ Component({
     activeIndex: DAY_RANGE,
     trackX: 0,
     isSnapping: false,
-    heroHeight: 0
+    heroHeight: 0,
+    sheetOffsetY: 0,
+    isReturning: false
   },
 
   lifetimes: {
@@ -237,14 +243,17 @@ Component({
       this._sheetHeadStartY = event.touches[0].clientY;
       this._sheetHeadTriggered = false;
       this.clearProgressTimer();
+      this.setData({ sheetOffsetY: 0, isReturning: false });
     },
 
     onSheetHeadTouchMove(event) {
       if (!event.touches || !event.touches.length || typeof this._sheetHeadStartY !== 'number') return;
 
       const distance = Math.max(0, event.touches[0].clientY - this._sheetHeadStartY);
+      const offset = Math.min(distance, this.properties.threshold);
       const progress = Math.min(1, distance / this.properties.threshold);
       this._lastSheetHeadProgress = progress;
+      this.setData({ sheetOffsetY: offset });
       this.drawProgress(progress);
 
       if (progress >= 1 && !this._sheetHeadTriggered) {
@@ -258,10 +267,12 @@ Component({
 
     onSheetHeadTouchEnd() {
       if (this._sheetHeadTriggered) {
-        this.resetToIdle(1);
+        // 触发后：canvas 和白卡立即回弹
+        this.resetToIdle(1, false);
         return;
       }
-      this.resetToIdle(this._lastSheetHeadProgress || 0);
+      // 未触发：白卡弹性回弹
+      this.resetToIdle(this._lastSheetHeadProgress || 0, true);
     },
 
     onTouchStart(event) {
@@ -330,10 +341,18 @@ Component({
       }, 180);
     },
 
-    resetToIdle(fromProgress = 0) {
+    resetToIdle(fromProgress = 0, animateSheet = false) {
       this._startY = null;
       this._lastProgress = 0;
       this._triggered = false;
+
+      if (animateSheet) {
+        this.setData({ isReturning: true }, () => {
+          this.setData({ sheetOffsetY: 0 });
+        });
+      } else {
+        this.setData({ sheetOffsetY: 0, isReturning: false });
+      }
 
       this.setData({
         dragY: 0
