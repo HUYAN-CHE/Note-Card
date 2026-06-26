@@ -243,15 +243,17 @@ Component({
     },
 
     onSheetHeadTouchStart(event) {
-      if (!event.touches || !event.touches.length) return;
+      if (this.shouldIgnorePull(event) || !event.touches || !event.touches.length) return;
       this._sheetHeadStartY = event.touches[0].clientY;
       this._sheetHeadTriggered = false;
+      this._sheetHeadMoved = false;
       this.clearProgressTimer();
       this.setData({ sheetOffsetY: 0, isReturning: false });
     },
 
     onSheetHeadTouchMove(event) {
-      if (!event.touches || !event.touches.length || typeof this._sheetHeadStartY !== 'number') return;
+      if (this.shouldIgnorePull(event) || !event.touches || !event.touches.length || typeof this._sheetHeadStartY !== 'number') return;
+      this._sheetHeadMoved = true;
 
       const distance = Math.max(0, event.touches[0].clientY - this._sheetHeadStartY);
       const offset = Math.min(distance, this.properties.threshold);
@@ -269,7 +271,8 @@ Component({
       }
     },
 
-    onSheetHeadTouchEnd() {
+    onSheetHeadTouchEnd(event) {
+      if (this.shouldIgnorePull(event) || !this._sheetHeadMoved) return;
       if (this._sheetHeadTriggered) {
         // 触发后：canvas 和白卡立即回弹
         this.resetToIdle(1, false);
@@ -280,15 +283,17 @@ Component({
     },
 
     onBodyTouchStart(event) {
-      if (!this.properties.bodyPullEnabled || !event.touches || !event.touches.length) return;
+      if (this.shouldIgnorePull(event) || !this.properties.bodyPullEnabled || !event.touches || !event.touches.length) return;
       this._sheetHeadStartY = event.touches[0].clientY;
       this._sheetHeadTriggered = false;
+      this._sheetHeadMoved = false;
       this.clearProgressTimer();
       this.setData({ sheetOffsetY: 0, isReturning: false });
     },
 
     onBodyTouchMove(event) {
-      if (!this.properties.bodyPullEnabled || !event.touches || !event.touches.length || typeof this._sheetHeadStartY !== 'number') return;
+      if (this.shouldIgnorePull(event) || !this.properties.bodyPullEnabled || !event.touches || !event.touches.length || typeof this._sheetHeadStartY !== 'number') return;
+      this._sheetHeadMoved = true;
 
       const distance = Math.max(0, event.touches[0].clientY - this._sheetHeadStartY);
       const offset = Math.min(distance, this.properties.threshold);
@@ -306,8 +311,8 @@ Component({
       }
     },
 
-    onBodyTouchEnd() {
-      if (!this.properties.bodyPullEnabled) return;
+    onBodyTouchEnd(event) {
+      if (this.shouldIgnorePull(event) || !this.properties.bodyPullEnabled || !this._sheetHeadMoved) return;
       if (this._sheetHeadTriggered) {
         this.resetToIdle(1, false);
         return;
@@ -352,6 +357,11 @@ Component({
       }
 
       this.resetToIdle(this._lastProgress || 0);
+    },
+
+    shouldIgnorePull(event) {
+      const target = event.target || {};
+      return !!(target.dataset && target.dataset.ignorePull);
     },
 
     onTapCapsule() {

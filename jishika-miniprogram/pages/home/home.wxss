@@ -35,6 +35,12 @@
   line-height: 36rpx;
 }
 
+.reminder-switch-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
 .reminder-switch {
   transform: scale(0.84);
   transform-origin: right top;

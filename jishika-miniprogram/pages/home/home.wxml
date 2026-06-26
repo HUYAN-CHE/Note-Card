@@ -20,13 +20,18 @@
           <text class="sheet-title">最近记事卡</text>
           <text class="sheet-subtitle">打开临近消息提醒</text>
         </view>
-        <switch
-          class="reminder-switch"
-          checked="{{reminderEnabled}}"
-          color="#22C55E"
-          bindchange="toggleReminder"
-          aria-label="打开临近消息提醒"
-        />
+        <view
+          class="reminder-switch-wrap"
+          catchtouchmove="onPreventTouchMove"
+        >
+          <switch
+            class="reminder-switch"
+            checked="{{reminderEnabled}}"
+            color="#22C55E"
+            bindchange="toggleReminder"
+            aria-label="打开临近消息提醒"
+          />
+        </view>
       </view>
     </view>
 

@@ -251,6 +251,10 @@ Page({
     this.setData({ reminderEnabled: event.detail.value });
   },
 
+  onPreventTouchMove() {
+    // 阻止 switch 外层 wrap 的 touch 事件冒泡到 sheet-head-wrap
+  },
+
   onMenuTap() {
     // 菜单入口，保留占位
   },
