@@ -10,6 +10,7 @@
     week-days="{{weekDays}}"
     selected-index="{{selectedIndex}}"
     status-bar-height="{{statusBarHeight}}"
+    body-pull-enabled="{{!cards.length}}"
   >
     <view slot="sheet-head">
       <view class="sheet-grabber"></view>
@@ -30,6 +31,7 @@
     </view>
 
     <pull-refresh-view
+      wx:if="{{cards.length}}"
       class="card-list-scroll"
       refresher-type="custom"
       pull-down-height="{{80}}"
@@ -41,7 +43,7 @@
     >
       <view slot="refresher" class="create-refresher"></view>
 
-      <view wx:if="{{cards.length}}" class="card-list">
+      <view class="card-list">
         <view
           wx:for="{{cards}}"
           wx:key="id"
@@ -63,13 +65,13 @@
           </view>
         </view>
       </view>
-
-      <view wx:else class="empty-state">
-        <image class="empty-image" src="/assets/images/empty-state-ref.png" mode="aspectFit" aria-hidden="true" />
-        <text class="empty-title">还没有记事卡</text>
-        <text class="empty-sub">下拉或点击上方按钮，从聊天记录生成一张记事卡</text>
-      </view>
     </pull-refresh-view>
+
+    <view wx:else class="empty-state">
+      <image class="empty-image" src="/assets/images/empty-state-ref.png" mode="aspectFit" aria-hidden="true" />
+      <text class="empty-title">还没有记事卡</text>
+      <text class="empty-sub">下拉或点击上方按钮，从聊天记录生成一张记事卡</text>
+    </view>
   </pull-create-trigger>
 
   <tab-bar activeTab="home" />

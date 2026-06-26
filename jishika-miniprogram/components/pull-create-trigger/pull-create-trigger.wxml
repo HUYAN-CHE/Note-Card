@@ -57,6 +57,16 @@
     >
       <slot name="sheet-head"></slot>
     </view>
-    <slot></slot>
+    <view class="sheet-body-wrap">
+      <slot></slot>
+      <view
+        wx:if="{{bodyPullEnabled}}"
+        class="sheet-body-touch-layer"
+        bindtouchstart="onBodyTouchStart"
+        catchtouchmove="onBodyTouchMove"
+        bindtouchend="onBodyTouchEnd"
+        bindtouchcancel="onBodyTouchEnd"
+      ></view>
+    </view>
   </view>
 </view>
