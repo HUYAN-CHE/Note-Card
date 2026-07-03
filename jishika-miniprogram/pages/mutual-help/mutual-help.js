@@ -27,6 +27,41 @@ const MOCK_CARDS = [
     desc: '客户跟进小程序，方便双方确认进度和提醒',
     creatorName: '米娅林的朋友',
     status: '预约沟通'
+  },
+  {
+    id: 'c4',
+    title: '公众号内容规划',
+    desc: '需要制定三个月的内容排期，偏行业干货',
+    creatorName: '何诗怡的朋友',
+    status: '需求确认'
+  },
+  {
+    id: 'c5',
+    title: '产品摄影需求',
+    desc: '新品上市需要一组白底图和场景图，共30张',
+    creatorName: '李群的朋友',
+    status: '服务进度'
+  },
+  {
+    id: 'c6',
+    title: '线下活动策划',
+    desc: '季度客户沙龙，需要场地、流程和物料方案',
+    creatorName: '王珏什的朋友',
+    status: '预约沟通'
+  },
+  {
+    id: 'c7',
+    title: 'VI 视觉升级',
+    desc: '公司品牌视觉整体升级，Logo 和配色需要调整',
+    creatorName: '米娅林的朋友',
+    status: '需求确认'
+  },
+  {
+    id: 'c8',
+    title: '短视频脚本',
+    desc: '抖音账号需要10条产品种草脚本，偏轻科普',
+    creatorName: '何诗怡的朋友',
+    status: '服务进度'
   }
 ];
 
