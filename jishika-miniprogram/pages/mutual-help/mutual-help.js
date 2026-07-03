@@ -1,9 +1,14 @@
 const MOCK_HELPERS = [
   { id: 'add', type: 'add', name: '添加', avatar: '' },
-  { id: 'u1', type: 'user', name: '李群', avatar: '' },
-  { id: 'u2', type: 'user', name: '王珏什', avatar: '' },
-  { id: 'u3', type: 'user', name: '米娅林', avatar: '' },
-  { id: 'u4', type: 'user', name: '何诗怡', avatar: '' }
+  { id: 'u1', type: 'user', name: '李群', avatar: '', color: '#4A90E2', initial: '李' },
+  { id: 'u2', type: 'user', name: '王珏什', avatar: '', color: '#7B61FF', initial: '王' },
+  { id: 'u3', type: 'user', name: '米娅林', avatar: '', color: '#FF9F43', initial: '米' },
+  { id: 'u4', type: 'user', name: '何诗怡', avatar: '', color: '#FF6B81', initial: '何' },
+  { id: 'u5', type: 'user', name: '张明', avatar: '', color: '#2ECC71', initial: '张' },
+  { id: 'u6', type: 'user', name: '刘洋', avatar: '', color: '#1ABC9C', initial: '刘' },
+  { id: 'u7', type: 'user', name: '陈静', avatar: '', color: '#E74C3C', initial: '陈' },
+  { id: 'u8', type: 'user', name: '赵磊', avatar: '', color: '#9B59B6', initial: '赵' },
+  { id: 'u9', type: 'user', name: '孙婷', avatar: '', color: '#3498DB', initial: '孙' }
 ];
 
 // 每个一度人脉对应其朋友（二度人脉）的记事卡

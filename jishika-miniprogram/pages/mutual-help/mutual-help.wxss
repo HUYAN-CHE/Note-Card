@@ -130,6 +130,12 @@
   border-radius: 50%;
 }
 
+.avatar-initial {
+  font-size: 40rpx;
+  font-weight: 600;
+  color: #ffffff;
+}
+
 .helper-name {
   font-size: 24rpx;
   opacity: 0.95;

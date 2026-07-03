@@ -38,8 +38,9 @@
             data-id="{{item.id}}"
             data-action="select_helper"
           >
-            <view class="helper-avatar">
-              <image class="avatar-img" src="{{item.avatar || '/assets/logo.png'}}" mode="aspectFill" />
+            <view class="helper-avatar" style="background: {{item.color}};">
+              <image wx:if="{{item.avatar}}" class="avatar-img" src="{{item.avatar}}" mode="aspectFill" />
+              <text wx:else class="avatar-initial">{{item.initial}}</text>
             </view>
             <text class="helper-name">{{item.name}}</text>
           </view>
