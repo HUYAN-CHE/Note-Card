@@ -49,7 +49,7 @@
 
 .hero-text {
   margin-bottom: 40rpx;
-  padding-left: 32rpx;
+  padding-left: 52rpx;
 }
 
 .hero-title {
@@ -146,7 +146,7 @@
 
 .section-header {
   margin-bottom: 24rpx;
-  padding: 0 60rpx;
+  padding: 0 80rpx;
 }
 
 .section-title {
@@ -177,7 +177,7 @@
   padding: 28rpx;
   border-radius: 32rpx;
   background: #f5f7fa;
-  margin: 0 60rpx;
+  margin: 0 80rpx;
 }
 
 
