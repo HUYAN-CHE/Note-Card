@@ -1,9 +1,0 @@
-.compact {
-  min-height: 156rpx;
-}
-
-.button-stack {
-  display: flex;
-  flex-direction: column;
-  gap: 16rpx;
-}
