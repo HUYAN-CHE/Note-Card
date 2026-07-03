@@ -12,7 +12,7 @@
   z-index: 1;
   flex: 0 0 auto;
   width: 100%;
-  padding: 28rpx 28rpx 80rpx;
+  padding: 28rpx 28rpx 120rpx;
   border-radius: 0 0 48rpx 48rpx;
   background: linear-gradient(180deg, #00c853 0%, #00e676 45%, #1de9b6 100%);
   color: #ffffff;
@@ -22,6 +22,7 @@
 .hero-header {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   margin-bottom: 40rpx;
 }
 
@@ -56,9 +57,9 @@
 }
 
 .hero-subtitle {
-  margin-top: 12rpx;
-  font-size: 28rpx;
-  font-weight: 300;
+  margin-top: 16rpx;
+  font-size: 60rpx;
+  font-weight: 100;
   opacity: 0.9;
 }
 
@@ -137,12 +138,13 @@
 .content-scroll {
   width: 100%;
   height: 100%;
-  padding: 48rpx 28rpx 0;
+  padding: 48rpx 0 0;
   box-sizing: border-box;
 }
 
 .section-header {
   margin-bottom: 24rpx;
+  padding: 0 28rpx;
 }
 
 .section-title {
@@ -173,6 +175,7 @@
   padding: 28rpx;
   border-radius: 32rpx;
   background: #f5f7fa;
+  margin: 0 28rpx;
 }
 
 .lucky-card:nth-child(even) {
