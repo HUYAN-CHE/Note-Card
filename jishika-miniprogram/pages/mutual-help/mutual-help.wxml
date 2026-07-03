@@ -36,11 +36,11 @@
 
   <!-- 内容区 -->
   <view class="content">
-    <scroll-view class="content-scroll" scroll-y enhanced show-scrollbar="{{false}}">
-      <view class="section-header">
-        <text class="section-title">TA和朋友们需要什么</text>
-      </view>
+    <view class="section-header">
+      <text class="section-title">TA和朋友们需要什么</text>
+    </view>
 
+    <scroll-view class="content-scroll" scroll-y enhanced show-scrollbar="{{false}}">
       <view class="card-list">
         <view
           wx:for="{{cards}}"

@@ -139,16 +139,15 @@
   box-sizing: border-box;
 }
 
+.section-header {
+  padding: 72rpx 60rpx 48rpx;
+  background: #ffffff;
+}
+
 .content-scroll {
   width: 100%;
   flex: 1;
-  padding: 72rpx 0 0;
   box-sizing: border-box;
-}
-
-.section-header {
-  margin-bottom: 48rpx;
-  padding: 0 60rpx;
 }
 
 .section-title {
