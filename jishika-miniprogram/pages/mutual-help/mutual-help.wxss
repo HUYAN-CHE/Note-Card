@@ -266,7 +266,7 @@
   right: 0;
   bottom: 0;
   z-index: 15;
-  height: calc(340rpx + env(safe-area-inset-bottom));
+  height: calc(240rpx + env(safe-area-inset-bottom));
   pointer-events: none;
   background: linear-gradient(0deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.95) 40%, rgba(255, 255, 255, 0.98) 60%, rgba(255, 255, 255, 0.75) 80%, rgba(255, 255, 255, 0) 100%);
 }
