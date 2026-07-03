@@ -231,5 +231,5 @@
   z-index: 10;
   height: 120rpx;
   pointer-events: none;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.85) 60%, #ffffff 100%);
+  background: linear-gradient(0deg, #ffffff 0%, rgba(255, 255, 255, 0.85) 50%, rgba(255, 255, 255, 0) 100%);
 }
