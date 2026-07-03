@@ -1,0 +1,5 @@
+<view class="page card-detail-page">
+  <view class="section-title">记事卡详情</view>
+  <view class="section-subtitle">开发中，后续展示二度人脉可浏览的记事卡详情</view>
+  <button class="plain-button" bindtap="onApplyJoin">申请加入</button>
+</view>

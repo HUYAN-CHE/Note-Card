@@ -10,7 +10,7 @@
 
 1. 打开微信开发者工具。
 2. 选择「导入项目」。
-3. 项目目录选择：`/Users/huche/Desktop/Kimi/Codex/jishika-miniprogram`。
+3. 项目目录选择：`/Users/huche/Desktop/CODE/wechat/jishika-miniprogram`。
 4. AppID 可继续使用 `touristappid` 预览，正式开发时替换成真实小程序 AppID。
 
 ## 第一版页面
@@ -20,7 +20,7 @@
 - `pages/card-edit/card-edit`：商家编辑记事卡草稿，发给客户确认前必须人工确认。
 - `pages/customer-confirm/customer-confirm`：客户确认需求或补充信息。
 - `pages/progress/progress`：服务进度节点，商家可更新节点，客户只看当前进度。
-- `pages/profile-card/profile-card`：服务名片，同时作为需求入口。
+- `pages/mutual-help/mutual-help`：互助页，查看协作朋友及其朋友的需求。
 
 ## 微信 AI 适配方式
 

@@ -32,7 +32,7 @@
 - `create_progress_card`：生成服务进度卡。
 - `create_group_todo`：整理群聊待办。
 - `create_meeting_record`：生成预约记录。
-- `open_service_profile`：打开服务名片。
+- `open_mutual_help`：打开互助页。
 
 ## 重要边界
 

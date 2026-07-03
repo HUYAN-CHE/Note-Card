@@ -18,7 +18,7 @@
 |---|---|---|
 | 首页 | `create_from_chat` | 从聊天整理生成记事卡 |
 | 首页 | `continue_ai_context` | 继续整理微信 AI 带来的上下文 |
-| 首页 | `open_service_profile` | 打开服务名片 |
+| 首页 | `open_mutual_help` | 打开互助页 |
 | 首页 | `new_blank_card` | 新建空白记事卡 |
 | 首页 | `open_card` | 打开已有记事卡 |
 | 从聊天整理 | `select_card_type` | 选择整理类型 |
@@ -34,9 +34,9 @@
 | 服务进度 | `request_reminder` | 设置节点提醒 |
 | 服务进度 | `share_progress` | 分享进度给客户 |
 | 服务进度 | `complete_service` | 标记服务完成 |
-| 服务名片 | `submit_need` | 提交需求并生成需求卡 |
-| 服务名片 | `share_profile` | 分享服务名片 |
-| 服务名片 | `book_meeting` | 预约沟通 |
+| 互助页 | `select_helper` | 选择协作朋友 |
+| 互助页 | `open_card_detail` | 打开记事卡详情 |
+| 互助页 | `open_my_home` | 打开我的主页 |
 
 ## 视觉调整注意
 

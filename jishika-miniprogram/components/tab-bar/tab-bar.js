@@ -15,9 +15,9 @@ Component({
         wx.redirectTo({
           url: '/pages/home/home'
         });
-      } else if (tab === 'service') {
+      } else if (tab === 'mutual-help') {
         wx.redirectTo({
-          url: '/pages/profile-card/profile-card'
+          url: '/pages/mutual-help/mutual-help'
         });
       }
     }

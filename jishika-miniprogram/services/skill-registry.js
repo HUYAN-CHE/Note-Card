@@ -34,12 +34,12 @@ const SKILLS = {
     defaultType: 'meeting',
     action: 'generate_draft'
   },
-  open_service_profile: {
-    name: 'open_service_profile',
-    title: '打开服务名片',
-    page: '/pages/profile-card/profile-card',
+  open_mutual_help: {
+    name: 'open_mutual_help',
+    title: '打开互助页',
+    page: '/pages/mutual-help/mutual-help',
     defaultType: '',
-    action: 'open_service_profile'
+    action: 'open_mutual_help'
   }
 };
 
@@ -54,7 +54,7 @@ function listSkills() {
 function inferSkillName(text = '', intent = '') {
   const value = `${intent} ${text}`;
 
-  if (/名片|介绍|服务入口/.test(value)) return 'open_service_profile';
+  if (/互助|朋友|协作圈|服务入口/.test(value)) return 'open_mutual_help';
   if (/会议|开会|预约|约个时间|沟通时间/.test(value)) return 'create_meeting_record';
   if (/群聊|群里|待办|负责|谁来|截止/.test(value)) return 'create_group_todo';
   if (/进度|节点|补资料|阶段|完成|服务到哪/.test(value)) return 'create_progress_card';
@@ -66,7 +66,7 @@ function inferSkillName(text = '', intent = '') {
 function buildSkillLaunchUrl(name, params = {}) {
   const skill = getSkill(name) || SKILLS.create_card_from_chat;
 
-  if (skill.name === 'open_service_profile') {
+  if (skill.name === 'open_mutual_help') {
     return `${skill.page}?source=${params.source || 'wechat_ai'}`;
   }
 

@@ -261,7 +261,7 @@ Page({
 
   onProfileTap() {
     wx.navigateTo({
-      url: '/pages/profile-card/profile-card'
+      url: '/pages/mutual-help/mutual-help'
     });
   },
 
@@ -340,7 +340,7 @@ Page({
   onShareAppMessage() {
     return {
       title: '记事卡｜把客户事记成卡',
-      path: '/pages/profile-card/profile-card',
+      path: '/pages/mutual-help/mutual-help',
       imageUrl: '/assets/logo.png'
     };
   }

@@ -1,0 +1,4 @@
+<view class="page my-home-page">
+  <view class="section-title">我的主页</view>
+  <view class="section-subtitle">开发中，后续展示个人资料、服务标签和我的记事卡</view>
+</view>

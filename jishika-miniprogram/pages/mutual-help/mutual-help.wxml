@@ -1,0 +1,62 @@
+<view class="page mutual-help-page">
+  <!-- 顶部绿色 Hero -->
+  <view class="hero" style="padding-top: {{statusBarHeight + 20}}rpx;">
+    <view class="hero-header">
+      <view class="my-avatar-wrap" bindtap="onMyProfileTap" data-action="open_my_home">
+        <view class="my-avatar"></view>
+        <text class="my-name">Julian</text>
+      </view>
+    </view>
+
+    <view class="hero-title">一起协作过的人</view>
+    <view class="hero-subtitle">同频的人，终会相遇</view>
+
+    <!-- 协作人头像列表 -->
+    <scroll-view class="helper-scroll" scroll-x enhanced show-scrollbar="{{false}}">
+      <view class="helper-list">
+        <view
+          wx:for="{{helpers}}"
+          wx:key="id"
+          class="helper-item {{item.id === selectedHelperId ? 'active' : ''}} {{item.type === 'add' ? 'add' : ''}}"
+          bindtap="onHelperTap"
+          data-id="{{item.id}}"
+          data-action="select_helper"
+        >
+          <view class="helper-avatar">
+            <text wx:if="{{item.type === 'add'}}" class="add-icon">+</text>
+            <image wx:else class="avatar-img" src="{{item.avatar || '/assets/logo.png'}}" mode="aspectFill" />
+          </view>
+          <text class="helper-name">{{item.name}}</text>
+        </view>
+      </view>
+    </scroll-view>
+  </view>
+
+  <!-- 内容区 -->
+  <view class="content">
+    <view class="section-header">
+      <text class="section-title">TA和朋友们需要什么</text>
+      <text class="section-hint">{{hintText}}</text>
+    </view>
+
+    <view class="card-list">
+      <view
+        wx:for="{{cards}}"
+        wx:key="id"
+        class="lucky-card"
+        bindtap="onCardTap"
+        data-id="{{item.id}}"
+        data-action="open_card_detail"
+      >
+        <view class="lucky-circle"></view>
+        <view class="lucky-info">
+          <text class="lucky-title">{{item.title}}</text>
+          <text class="lucky-desc">{{item.desc}}</text>
+          <text class="lucky-meta">{{item.creatorName}} · {{item.status}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <tab-bar activeTab="mutual-help" />
+</view>

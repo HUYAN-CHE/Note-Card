@@ -10,13 +10,13 @@
     <text class="tab-label">事项</text>
   </view>
   <view
-    class="tab-item {{activeTab === 'service' ? 'active' : ''}}"
+    class="tab-item {{activeTab === 'mutual-help' ? 'active' : ''}}"
     bindtap="switchTab"
-    data-tab="service"
-    data-action="switch_tab_service"
-    aria-label="服务"
+    data-tab="mutual-help"
+    data-action="switch_tab_mutual_help"
+    aria-label="互助"
   >
     <text class="tab-icon">○</text>
-    <text class="tab-label">服务</text>
+    <text class="tab-label">互助</text>
   </view>
 </view>

@@ -98,21 +98,21 @@
       "output": "预约记录草稿"
     },
     {
-      "name": "open_service_profile",
-      "title": "打开服务名片",
-      "description": "打开商家的服务名片，便于发给客户收集需求。",
+      "name": "open_mutual_help",
+      "title": "打开互助页",
+      "description": "打开互助页，查看协作朋友及其朋友的需求。",
       "triggers": [
-        "发服务名片",
-        "给客户发我的介绍",
-        "让客户说说需求",
-        "打开我的服务入口"
+        "打开互助页",
+        "看看朋友需要什么",
+        "我的协作圈",
+        "朋友最近有什么需求"
       ],
       "required_params": [],
       "launch": {
-        "page": "/pages/profile-card/profile-card",
+        "page": "/pages/mutual-help/mutual-help",
         "query": "source=wechat_ai"
       },
-      "output": "服务名片页"
+      "output": "互助页"
     }
   ]
 }

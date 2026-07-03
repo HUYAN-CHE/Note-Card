@@ -24,7 +24,7 @@
 - 用户说“进度、节点、补资料、服务到哪一步”：选择 `create_progress_card`。
 - 用户说“群聊、待办、谁负责、截止时间”：选择 `create_group_todo`。
 - 用户说“预约、开会、约时间、沟通安排”：选择 `create_meeting_record`。
-- 用户说“名片、介绍、发给客户”：选择 `open_service_profile`。
+- 用户说“互助、朋友、协作圈、看看朋友需要什么”：选择 `open_mutual_help`。
 - 不确定时选择 `create_card_from_chat`。
 
 ## 输出格式

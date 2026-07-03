@@ -1,0 +1,193 @@
+.mutual-help-page {
+  min-height: 100vh;
+  padding-bottom: calc(140rpx + env(safe-area-inset-bottom));
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.2) 0%, rgba(246, 240, 228, 0.5) 58%, rgba(246, 240, 228, 0.88) 100%),
+    linear-gradient(155deg, #d9f6fb 0%, #d9f4df 44%, #f7f1e4 100%);
+}
+
+/* Hero */
+.hero {
+  position: relative;
+  padding: 28rpx 28rpx 48rpx;
+  border-radius: 0 0 40rpx 40rpx;
+  background: linear-gradient(135deg, #22c55e 0%, #10b981 50%, #059669 100%);
+  color: #ffffff;
+  overflow: hidden;
+}
+
+.hero-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 32rpx;
+}
+
+.my-avatar-wrap {
+  display: flex;
+  align-items: center;
+  gap: 14rpx;
+}
+
+.my-avatar {
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  border: 2rpx solid rgba(255, 255, 255, 0.6);
+}
+
+.my-name {
+  font-size: 32rpx;
+  font-weight: 600;
+}
+
+.hero-title {
+  font-size: 48rpx;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.hero-subtitle {
+  margin-top: 10rpx;
+  margin-bottom: 40rpx;
+  font-size: 28rpx;
+  opacity: 0.9;
+}
+
+/* Helper list */
+.helper-scroll {
+  width: 100%;
+  white-space: nowrap;
+}
+
+.helper-list {
+  display: inline-flex;
+  gap: 28rpx;
+  padding: 8rpx 4rpx 16rpx;
+}
+
+.helper-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.helper-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 112rpx;
+  height: 112rpx;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.25);
+  border: 4rpx solid transparent;
+  transition: border-color 0.2s;
+}
+
+.helper-item.active .helper-avatar {
+  border-color: #ffffff;
+  background: rgba(255, 255, 255, 0.4);
+}
+
+.helper-item.add .helper-avatar {
+  background: rgba(255, 255, 255, 0.2);
+  border: 2rpx dashed rgba(255, 255, 255, 0.6);
+}
+
+.add-icon {
+  font-size: 48rpx;
+  font-weight: 300;
+  color: #ffffff;
+}
+
+.avatar-img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+}
+
+.helper-name {
+  font-size: 24rpx;
+  opacity: 0.95;
+  max-width: 120rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Content */
+.content {
+  padding: 32rpx 28rpx;
+}
+
+.section-header {
+  margin-bottom: 24rpx;
+}
+
+.section-title {
+  display: block;
+  font-size: 32rpx;
+  font-weight: 700;
+  color: #162116;
+}
+
+.section-hint {
+  display: block;
+  margin-top: 8rpx;
+  font-size: 24rpx;
+  color: #5f746d;
+}
+
+/* Lucky cards */
+.card-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+}
+
+.lucky-card {
+  display: flex;
+  align-items: center;
+  gap: 24rpx;
+  padding: 28rpx;
+  border: 1rpx solid rgba(255, 255, 255, 0.78);
+  border-radius: 20rpx;
+  background: rgba(255, 255, 255, 0.72);
+  box-shadow: 0 24rpx 60rpx rgba(74, 116, 102, 0.14);
+}
+
+.lucky-circle {
+  width: 96rpx;
+  height: 96rpx;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #22c55e 0%, #10b981 100%);
+  flex: 0 0 96rpx;
+}
+
+.lucky-info {
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+  min-width: 0;
+  flex: 1;
+}
+
+.lucky-title {
+  font-size: 32rpx;
+  font-weight: 700;
+  color: #162116;
+}
+
+.lucky-desc {
+  font-size: 26rpx;
+  color: #5f746d;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lucky-meta {
+  font-size: 22rpx;
+  color: #8da39a;
+}

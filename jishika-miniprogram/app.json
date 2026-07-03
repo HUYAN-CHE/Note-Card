@@ -5,7 +5,9 @@
     "pages/card-edit/card-edit",
     "pages/customer-confirm/customer-confirm",
     "pages/progress/progress",
-    "pages/profile-card/profile-card"
+    "pages/mutual-help/mutual-help",
+    "pages/my-home/my-home",
+    "pages/card-detail/card-detail"
   ],
   "window": {
     "navigationBarTitleText": "记事卡",

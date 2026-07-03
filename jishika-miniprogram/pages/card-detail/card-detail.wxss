@@ -1,0 +1,16 @@
+.card-detail-page {
+  padding: 40rpx;
+}
+
+.section-title {
+  font-size: 40rpx;
+  font-weight: 700;
+  color: #162116;
+}
+
+.section-subtitle {
+  margin-top: 16rpx;
+  margin-bottom: 40rpx;
+  font-size: 28rpx;
+  color: #5f746d;
+}
