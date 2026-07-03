@@ -128,9 +128,7 @@
   flex: 1;
   width: 100%;
   margin-top: -60rpx;
-  border-radius: 64rpx 64rpx 0 0;
   background: #ffffff;
-  box-shadow: 0 -16rpx 60rpx rgba(0, 0, 0, 0.06);
   overflow: hidden;
   box-sizing: border-box;
 }
@@ -171,10 +169,9 @@
   display: flex;
   align-items: center;
   gap: 24rpx;
-  padding: 28rpx;
-  border-radius: 40rpx;
-  background: #f5f7fa;
-}
+  padding: 28rpx 0;
+  border-bottom: 1rpx solid #f0f2f5;
+  background: transparent;}
 
 .lucky-circle {
   width: 96rpx;
