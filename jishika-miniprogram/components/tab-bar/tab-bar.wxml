@@ -6,7 +6,11 @@
     data-action="switch_tab_home"
     aria-label="事项"
   >
-    <text class="tab-icon">☰</text>
+    <view class="tab-icon tab-icon-home menu-icon">
+      <view class="menu-line"></view>
+      <view class="menu-line"></view>
+      <view class="menu-line"></view>
+    </view>
     <text class="tab-label">事项</text>
   </view>
   <view
@@ -16,7 +20,9 @@
     data-action="switch_tab_mutual_help"
     aria-label="互助"
   >
-    <text class="tab-icon">○</text>
+    <view class="tab-icon mutual-icon">
+      <view class="mutual-ring"></view>
+    </view>
     <text class="tab-label">互助</text>
   </view>
 </view>
