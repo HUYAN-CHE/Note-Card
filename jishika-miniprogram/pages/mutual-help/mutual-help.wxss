@@ -177,7 +177,7 @@
   padding: 28rpx;
   border-radius: 32rpx;
   background: #f5f7fa;
-  margin: 0 80rpx;
+  margin: 0 48rpx;
 }
 
 
