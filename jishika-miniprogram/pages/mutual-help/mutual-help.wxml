@@ -14,24 +14,38 @@
     </view>
 
     <!-- 协作人头像列表 -->
-    <scroll-view class="helper-scroll" scroll-x enhanced show-scrollbar="{{false}}">
-      <view class="helper-list">
-        <view
-          wx:for="{{helpers}}"
-          wx:key="id"
-          class="helper-item {{item.id === selectedHelperId ? 'active' : ''}} {{item.type === 'add' ? 'add' : ''}}"
-          bindtap="onHelperTap"
-          data-id="{{item.id}}"
-          data-action="select_helper"
-        >
-          <view class="helper-avatar">
-            <text wx:if="{{item.type === 'add'}}" class="add-icon">+</text>
-            <image wx:else class="avatar-img" src="{{item.avatar || '/assets/logo.png'}}" mode="aspectFill" />
-          </view>
-          <text class="helper-name">{{item.name}}</text>
+    <view class="helper-row">
+      <view
+        class="helper-item add"
+        bindtap="onHelperTap"
+        data-id="add"
+        data-action="add_helper"
+      >
+        <view class="helper-avatar">
+          <text class="add-icon">+</text>
         </view>
+        <text class="helper-name">添加</text>
       </view>
-    </scroll-view>
+
+      <scroll-view class="helper-scroll" scroll-x enhanced show-scrollbar="{{false}}">
+        <view class="helper-list">
+          <view
+            wx:for="{{helpers}}"
+            wx:key="id"
+            wx:if="{{item.type !== 'add'}}"
+            class="helper-item {{item.id === selectedHelperId ? 'active' : ''}}"
+            bindtap="onHelperTap"
+            data-id="{{item.id}}"
+            data-action="select_helper"
+          >
+            <view class="helper-avatar">
+              <image class="avatar-img" src="{{item.avatar || '/assets/logo.png'}}" mode="aspectFill" />
+            </view>
+            <text class="helper-name">{{item.name}}</text>
+          </view>
+        </view>
+      </scroll-view>
+    </view>
   </view>
 
   <!-- 内容区 -->
