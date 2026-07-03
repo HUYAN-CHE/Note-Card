@@ -35,8 +35,8 @@
   width: 64rpx;
   height: 64rpx;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.35);
-  border: 2rpx solid rgba(255, 255, 255, 0.7);
+  background: rgba(255, 255, 255, 0.9);
+  border: 2rpx solid rgba(255, 255, 255, 0.95);
 }
 
 .my-name {
@@ -50,7 +50,7 @@
 }
 
 .hero-title {
-  font-size: 52rpx;
+  font-size: 60rpx;
   font-weight: 700;
   line-height: 1.2;
 }
@@ -58,6 +58,7 @@
 .hero-subtitle {
   margin-top: 12rpx;
   font-size: 28rpx;
+  font-weight: 300;
   opacity: 0.9;
 }
 
@@ -97,8 +98,8 @@
 }
 
 .helper-item.add .helper-avatar {
-  background: rgba(255, 255, 255, 0.2);
-  border: 2rpx dashed rgba(255, 255, 255, 0.7);
+  background: rgba(255, 255, 255, 0.25);
+  border: 2rpx solid rgba(255, 255, 255, 0.4);
 }
 
 .add-icon {
@@ -169,9 +170,24 @@
   display: flex;
   align-items: center;
   gap: 24rpx;
-  padding: 28rpx 0;
-  border-bottom: 1rpx solid #f0f2f5;
-  background: transparent;}
+  padding: 28rpx;
+  border-radius: 32rpx;
+  background: #f5f7fa;
+}
+
+.lucky-card:nth-child(even) {
+  flex-direction: row-reverse;
+}
+
+.lucky-card:nth-child(even) .lucky-info {
+  align-items: flex-end;
+}
+
+.lucky-card:nth-child(even) .lucky-title,
+.lucky-card:nth-child(even) .lucky-desc,
+.lucky-card:nth-child(even) .lucky-meta {
+  text-align: right;
+}
 
 .lucky-circle {
   width: 96rpx;
