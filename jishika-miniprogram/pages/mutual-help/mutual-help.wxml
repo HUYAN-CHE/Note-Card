@@ -63,5 +63,6 @@
     </scroll-view>
   </view>
 
+  <view class="bottom-fade"></view>
   <tab-bar activeTab="mutual-help" />
 </view>
