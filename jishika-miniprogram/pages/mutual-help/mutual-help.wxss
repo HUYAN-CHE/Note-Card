@@ -219,7 +219,7 @@
 }
 
 .content-bottom-space {
-  height: calc(200rpx + env(safe-area-inset-bottom));
+  height: calc(260rpx + env(safe-area-inset-bottom));
 }
 
 /* 底部渐变遮罩，防止滚动内容遮挡 tab-bar */
@@ -229,7 +229,7 @@
   right: 0;
   bottom: calc(100rpx + env(safe-area-inset-bottom));
   z-index: 10;
-  height: 180rpx;
+  height: 240rpx;
   pointer-events: none;
-  background: linear-gradient(0deg, #ffffff 0%, #ffffff 35%, rgba(255, 255, 255, 0.85) 70%, rgba(255, 255, 255, 0) 100%);
+  background: linear-gradient(0deg, #ffffff 0%, #ffffff 45%, rgba(255, 255, 255, 0.9) 75%, rgba(255, 255, 255, 0) 100%);
 }
