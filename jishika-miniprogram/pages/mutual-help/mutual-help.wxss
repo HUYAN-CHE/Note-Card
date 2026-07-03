@@ -12,7 +12,7 @@
   z-index: 1;
   flex: 0 0 auto;
   width: 100%;
-  padding: 28rpx 28rpx 120rpx;
+  padding: 28rpx 28rpx 160rpx;
   border-radius: 0 0 48rpx 48rpx;
   background: linear-gradient(180deg, #00c853 0%, #00e676 45%, #1de9b6 100%);
   color: #ffffff;
@@ -48,7 +48,7 @@
 }
 
 .hero-text {
-  margin-bottom: 40rpx;
+  margin-bottom: 16rpx;
   padding-left: 32rpx;
 }
 
@@ -89,7 +89,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 18rpx;
+  gap: 24rpx;
 }
 
 .helper-avatar {
@@ -137,10 +137,10 @@
 }
 
 .helper-name {
+  width: 100rpx;
   font-size: 24rpx;
   text-align: center;
   opacity: 0.95;
-  max-width: 120rpx;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
