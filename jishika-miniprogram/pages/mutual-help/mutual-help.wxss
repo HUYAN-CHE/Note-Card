@@ -151,8 +151,8 @@
 
 .section-title {
   display: block;
-  font-size: 32rpx;
-  font-weight: 700;
+  font-size: 28rpx;
+  font-weight: 600;
   color: #162116;
 }
 

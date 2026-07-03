@@ -39,7 +39,6 @@
     <scroll-view class="content-scroll" scroll-y enhanced show-scrollbar="{{false}}">
       <view class="section-header">
         <text class="section-title">TA和朋友们需要什么</text>
-        <text class="section-hint">{{hintText}}</text>
       </view>
 
       <view class="card-list">

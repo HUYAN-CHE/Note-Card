@@ -9,24 +9,24 @@ const MOCK_HELPERS = [
 const MOCK_CARDS = [
   {
     id: 'c1',
-    title: 'I\'m Feeling Lucky',
-    desc: 'Not sure who to talk to? Try someone random',
+    title: '企业官网改版',
+    desc: '需要移动端适配，希望6月底前上线，品牌感强一点',
     creatorName: '李群的朋友',
-    status: '进行中'
+    status: '需求确认'
   },
   {
     id: 'c2',
-    title: 'I\'m Feeling Lucky',
-    desc: 'Not sure who to talk to? Try someone random',
+    title: '品牌物料设计',
+    desc: '活动海报和易拉宝，下周要用，风格活泼',
     creatorName: '王珏什的朋友',
-    status: '待确认'
+    status: '服务进度'
   },
   {
     id: 'c3',
-    title: 'I\'m Feeling Lucky',
-    desc: 'Not sure who to talk to? Try someone random',
+    title: '小程序需求沟通',
+    desc: '客户跟进小程序，方便双方确认进度和提醒',
     creatorName: '米娅林的朋友',
-    status: '进行中'
+    status: '预约沟通'
   }
 ];
 
