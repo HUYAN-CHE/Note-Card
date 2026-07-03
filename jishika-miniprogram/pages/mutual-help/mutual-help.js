@@ -6,64 +6,32 @@ const MOCK_HELPERS = [
   { id: 'u4', type: 'user', name: '何诗怡', avatar: '' }
 ];
 
-const MOCK_CARDS = [
-  {
-    id: 'c1',
-    title: '企业官网改版',
-    desc: '需要移动端适配，希望6月底前上线，品牌感强一点',
-    creatorName: '李群的朋友',
-    status: '需求确认'
-  },
-  {
-    id: 'c2',
-    title: '品牌物料设计',
-    desc: '活动海报和易拉宝，下周要用，风格活泼',
-    creatorName: '王珏什的朋友',
-    status: '服务进度'
-  },
-  {
-    id: 'c3',
-    title: '小程序需求沟通',
-    desc: '客户跟进小程序，方便双方确认进度和提醒',
-    creatorName: '米娅林的朋友',
-    status: '预约沟通'
-  },
-  {
-    id: 'c4',
-    title: '公众号内容规划',
-    desc: '需要制定三个月的内容排期，偏行业干货',
-    creatorName: '何诗怡的朋友',
-    status: '需求确认'
-  },
-  {
-    id: 'c5',
-    title: '产品摄影需求',
-    desc: '新品上市需要一组白底图和场景图，共30张',
-    creatorName: '李群的朋友',
-    status: '服务进度'
-  },
-  {
-    id: 'c6',
-    title: '线下活动策划',
-    desc: '季度客户沙龙，需要场地、流程和物料方案',
-    creatorName: '王珏什的朋友',
-    status: '预约沟通'
-  },
-  {
-    id: 'c7',
-    title: 'VI 视觉升级',
-    desc: '公司品牌视觉整体升级，Logo 和配色需要调整',
-    creatorName: '米娅林的朋友',
-    status: '需求确认'
-  },
-  {
-    id: 'c8',
-    title: '短视频脚本',
-    desc: '抖音账号需要10条产品种草脚本，偏轻科普',
-    creatorName: '何诗怡的朋友',
-    status: '服务进度'
-  }
-];
+// 每个一度人脉对应其朋友（二度人脉）的记事卡
+const MOCK_NETWORK_CARDS = {
+  u1: [
+    { id: 'c1', title: '企业官网改版', desc: '需要移动端适配，希望6月底前上线', creatorName: '张明', relation: '李群的朋友', status: '需求确认' },
+    { id: 'c2', title: '品牌物料设计', desc: '活动海报和易拉宝，下周活动用', creatorName: '刘洋', relation: '李群的朋友', status: '服务进度' },
+    { id: 'c3', title: '小程序需求沟通', desc: '客户跟进小程序，方便确认进度', creatorName: '陈静', relation: '李群的朋友', status: '预约沟通' },
+    { id: 'c4', title: '公众号内容规划', desc: '三个月内容排期，偏行业干货', creatorName: '赵磊', relation: '李群的朋友', status: '需求确认' },
+    { id: 'c5', title: '产品摄影需求', desc: '新品白底图和场景图，共30张', creatorName: '孙婷', relation: '李群的朋友', status: '服务进度' }
+  ],
+  u2: [
+    { id: 'c6', title: '线下活动策划', desc: '季度客户沙龙，需要场地和物料', creatorName: '周强', relation: '王珏什的朋友', status: '预约沟通' },
+    { id: 'c7', title: 'VI 视觉升级', desc: '品牌视觉整体升级，Logo配色调整', creatorName: '吴芳', relation: '王珏什的朋友', status: '需求确认' },
+    { id: 'c8', title: '短视频脚本', desc: '10条产品种草脚本，偏轻科普', creatorName: '郑伟', relation: '王珏什的朋友', status: '服务进度' },
+    { id: 'c9', title: '电商详情页', desc: '主推产品详情页设计，强调卖点', creatorName: '黄丽', relation: '王珏什的朋友', status: '需求确认' }
+  ],
+  u3: [
+    { id: 'c10', title: '培训课件制作', desc: '新员工培训PPT，约50页', creatorName: '林峰', relation: '米娅林的朋友', status: '服务进度' },
+    { id: 'c11', title: '展厅导视设计', desc: '办公展厅导视系统，现代简约风', creatorName: '徐娜', relation: '米娅林的朋友', status: '预约沟通' },
+    { id: 'c12', title: '包装设计', desc: '礼盒包装升级，环保材质方向', creatorName: '马超', relation: '米娅林的朋友', status: '需求确认' }
+  ],
+  u4: [
+    { id: 'c13', title: '社群运营方案', desc: '私域社群月度运营方案和执行', creatorName: '朱迪', relation: '何诗怡的朋友', status: '需求确认' },
+    { id: 'c14', title: '直播间搭建', desc: '产品直播间背景和设备清单', creatorName: '胡凯', relation: '何诗怡的朋友', status: '服务进度' },
+    { id: 'c15', title: '周年庆策划', desc: '公司十周年庆活动整体策划', creatorName: '杨帆', relation: '何诗怡的朋友', status: '预约沟通' }
+  ]
+};
 
 Page({
   data: {
@@ -71,15 +39,17 @@ Page({
     heroPaddingTop: 64,
     selectedHelperId: '',
     helpers: MOCK_HELPERS,
-    cards: MOCK_CARDS,
-    hintText: '你的朋友也可能看到，方便大家一起帮忙'
+    cards: []
   },
 
   onLoad() {
     this.updateSystemInfo();
     const firstUser = this.data.helpers.find((h) => h.type === 'user');
     if (firstUser) {
-      this.setData({ selectedHelperId: firstUser.id });
+      this.setData({
+        selectedHelperId: firstUser.id,
+        cards: MOCK_NETWORK_CARDS[firstUser.id] || []
+      });
     }
   },
 
@@ -117,13 +87,13 @@ Page({
       return;
     }
     this.setData({ selectedHelperId: id });
-    // TODO: 刷新列表
     this.refreshCards(id);
   },
 
   refreshCards(helperId) {
-    // 静态阶段仅切换选中状态，后续接入 getNetworkCards
-    console.log('refreshCards for helper:', helperId);
+    // 静态阶段从 mock 数据切换，后续接入 getNetworkCards
+    const cards = MOCK_NETWORK_CARDS[helperId] || [];
+    this.setData({ cards });
   },
 
   onInviteTap() {

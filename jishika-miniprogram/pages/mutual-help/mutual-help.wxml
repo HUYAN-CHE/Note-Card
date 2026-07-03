@@ -54,7 +54,7 @@
           <view class="lucky-info">
             <text class="lucky-title">{{item.title}}</text>
             <text class="lucky-desc">{{item.desc}}</text>
-            <text class="lucky-meta">{{item.creatorName}} · {{item.status}}</text>
+            <text class="lucky-meta">{{item.creatorName}} · {{item.relation}} · {{item.status}}</text>
           </view>
         </view>
       </view>
