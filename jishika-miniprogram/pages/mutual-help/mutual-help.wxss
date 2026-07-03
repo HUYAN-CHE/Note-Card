@@ -180,19 +180,6 @@
   margin: 0 28rpx;
 }
 
-.lucky-card:nth-child(even) {
-  flex-direction: row-reverse;
-}
-
-.lucky-card:nth-child(even) .lucky-info {
-  align-items: flex-end;
-}
-
-.lucky-card:nth-child(even) .lucky-title,
-.lucky-card:nth-child(even) .lucky-desc,
-.lucky-card:nth-child(even) .lucky-meta {
-  text-align: right;
-}
 
 .lucky-circle {
   width: 96rpx;
