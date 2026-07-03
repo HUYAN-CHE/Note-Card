@@ -1,6 +1,6 @@
 <view class="mutual-help-page">
   <!-- 顶部绿色 Hero -->
-  <view class="hero" style="padding-top: {{statusBarHeight + 4}}rpx;">
+  <view class="hero" style="padding-top: {{heroPaddingTop}}rpx;">
     <view class="hero-header">
       <view class="my-avatar-wrap" bindtap="onMyProfileTap" data-action="open_my_home">
         <view class="my-avatar"></view>

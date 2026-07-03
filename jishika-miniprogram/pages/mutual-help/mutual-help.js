@@ -33,6 +33,7 @@ const MOCK_CARDS = [
 Page({
   data: {
     statusBarHeight: 44,
+    heroPaddingTop: 64,
     selectedHelperId: '',
     helpers: MOCK_HELPERS,
     cards: MOCK_CARDS,
@@ -54,11 +55,23 @@ Page({
   updateSystemInfo() {
     try {
       const sys = wx.getSystemInfoSync();
+      const menuButtonRect = wx.getMenuButtonBoundingClientRect();
+      const screenWidth = sys.screenWidth || 375;
+      const menuCenterPx = menuButtonRect.top + menuButtonRect.height / 2;
+      const menuCenterRpx = menuCenterPx * (750 / screenWidth);
+      const avatarCenterOffsetRpx = 32; // 头像区域 64rpx，中心在 32rpx
+      const heroPaddingTop = Math.max(20, menuCenterRpx - avatarCenterOffsetRpx);
+
       this.setData({
-        statusBarHeight: sys.statusBarHeight || 44
+        statusBarHeight: sys.statusBarHeight || 44,
+        heroPaddingTop
       });
     } catch (e) {
       // 使用默认值
+      this.setData({
+        statusBarHeight: 44,
+        heroPaddingTop: 64
+      });
     }
   },
 
