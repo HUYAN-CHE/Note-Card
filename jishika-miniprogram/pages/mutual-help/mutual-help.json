@@ -1,4 +1,7 @@
 {
   "navigationBarTitleText": "互助",
-  "navigationStyle": "custom"
+  "navigationStyle": "custom",
+  "usingComponents": {
+    "tab-bar": "/components/tab-bar/tab-bar"
+  }
 }

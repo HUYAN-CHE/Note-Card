@@ -1,16 +1,15 @@
 .mutual-help-page {
   min-height: 100vh;
   padding-bottom: calc(140rpx + env(safe-area-inset-bottom));
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.2) 0%, rgba(246, 240, 228, 0.5) 58%, rgba(246, 240, 228, 0.88) 100%),
-    linear-gradient(155deg, #d9f6fb 0%, #d9f4df 44%, #f7f1e4 100%);
+  background: linear-gradient(155deg, #d9f6fb 0%, #d9f4df 44%, #f7f1e4 100%);
 }
 
 /* Hero */
 .hero {
   position: relative;
-  padding: 28rpx 28rpx 48rpx;
-  border-radius: 0 0 40rpx 40rpx;
+  min-height: 54vh;
+  padding: 28rpx 28rpx 80rpx;
+  border-radius: 0 0 48rpx 48rpx;
   background: linear-gradient(135deg, #22c55e 0%, #10b981 50%, #059669 100%);
   color: #ffffff;
   overflow: hidden;
@@ -118,7 +117,12 @@
 
 /* Content */
 .content {
-  padding: 32rpx 28rpx;
+  position: relative;
+  z-index: 2;
+  margin-top: -52rpx;
+  padding: 32rpx 28rpx calc(40rpx + env(safe-area-inset-bottom));
+  border-radius: 32rpx 32rpx 0 0;
+  background: linear-gradient(155deg, #d9f6fb 0%, #d9f4df 44%, #f7f1e4 100%);
 }
 
 .section-header {
