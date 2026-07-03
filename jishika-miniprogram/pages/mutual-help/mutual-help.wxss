@@ -13,7 +13,7 @@
   flex: 0 0 auto;
   width: 100%;
   padding: 28rpx 28rpx 80rpx;
-  border-radius: 0 0 120rpx 120rpx;
+  border-radius: 0 0 48rpx 48rpx;
   background: linear-gradient(180deg, #00c853 0%, #00e676 45%, #1de9b6 100%);
   color: #ffffff;
   box-sizing: border-box;
@@ -46,6 +46,7 @@
 
 .hero-text {
   margin-bottom: 56rpx;
+  padding-left: 24rpx;
 }
 
 .hero-title {
