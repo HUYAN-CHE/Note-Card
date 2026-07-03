@@ -1,4 +1,4 @@
-<view class="page mutual-help-page">
+<view class="mutual-help-page">
   <!-- 顶部绿色 Hero -->
   <view class="hero" style="padding-top: {{statusBarHeight + 20}}rpx;">
     <view class="hero-header">
@@ -8,8 +8,10 @@
       </view>
     </view>
 
-    <view class="hero-title">一起协作过的人</view>
-    <view class="hero-subtitle">同频的人，终会相遇</view>
+    <view class="hero-text">
+      <view class="hero-title">一起协作过的人</view>
+      <view class="hero-subtitle">同频的人，终会相遇</view>
+    </view>
 
     <!-- 协作人头像列表 -->
     <scroll-view class="helper-scroll" scroll-x enhanced show-scrollbar="{{false}}">
@@ -34,28 +36,32 @@
 
   <!-- 内容区 -->
   <view class="content">
-    <view class="section-header">
-      <text class="section-title">TA和朋友们需要什么</text>
-      <text class="section-hint">{{hintText}}</text>
-    </view>
+    <scroll-view class="content-scroll" scroll-y enhanced show-scrollbar="{{false}}">
+      <view class="section-header">
+        <text class="section-title">TA和朋友们需要什么</text>
+        <text class="section-hint">{{hintText}}</text>
+      </view>
 
-    <view class="card-list">
-      <view
-        wx:for="{{cards}}"
-        wx:key="id"
-        class="lucky-card"
-        bindtap="onCardTap"
-        data-id="{{item.id}}"
-        data-action="open_card_detail"
-      >
-        <view class="lucky-circle"></view>
-        <view class="lucky-info">
-          <text class="lucky-title">{{item.title}}</text>
-          <text class="lucky-desc">{{item.desc}}</text>
-          <text class="lucky-meta">{{item.creatorName}} · {{item.status}}</text>
+      <view class="card-list">
+        <view
+          wx:for="{{cards}}"
+          wx:key="id"
+          class="lucky-card"
+          bindtap="onCardTap"
+          data-id="{{item.id}}"
+          data-action="open_card_detail"
+        >
+          <view class="lucky-circle"></view>
+          <view class="lucky-info">
+            <text class="lucky-title">{{item.title}}</text>
+            <text class="lucky-desc">{{item.desc}}</text>
+            <text class="lucky-meta">{{item.creatorName}} · {{item.status}}</text>
+          </view>
         </view>
       </view>
-    </view>
+
+      <view class="content-bottom-space"></view>
+    </scroll-view>
   </view>
 
   <tab-bar activeTab="mutual-help" />
