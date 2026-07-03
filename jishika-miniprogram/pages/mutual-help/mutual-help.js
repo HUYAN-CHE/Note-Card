@@ -37,6 +37,7 @@ Page({
   data: {
     statusBarHeight: 44,
     heroPaddingTop: 64,
+    contentScrollHeight: 500,
     selectedHelperId: '',
     helpers: MOCK_HELPERS,
     cards: []
@@ -50,6 +51,29 @@ Page({
         selectedHelperId: firstUser.id,
         cards: MOCK_NETWORK_CARDS[firstUser.id] || []
       });
+    }
+    this.calcScrollHeight();
+  },
+
+  calcScrollHeight() {
+    try {
+      const sys = wx.getSystemInfoSync();
+      const windowHeight = sys.windowHeight || 667;
+      const safeAreaBottom = sys.safeArea ? (sys.screenHeight - sys.safeArea.bottom) : 0;
+      const tabBarHeight = 50 + safeAreaBottom;
+
+      const query = wx.createSelectorQuery();
+      query.select('.hero').boundingClientRect();
+      query.select('.section-header').boundingClientRect();
+      query.exec((res) => {
+        const heroRect = res[0];
+        const headerRect = res[1];
+        if (!heroRect || !headerRect) return;
+        const scrollHeight = windowHeight - heroRect.height - headerRect.height - tabBarHeight;
+        this.setData({ contentScrollHeight: Math.max(200, scrollHeight) });
+      });
+    } catch (e) {
+      // 使用默认值
     }
   },
 

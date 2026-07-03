@@ -40,7 +40,7 @@
       <text class="section-title">TA和朋友们需要什么</text>
     </view>
 
-    <scroll-view class="content-scroll" scroll-y enhanced show-scrollbar="{{false}}">
+    <scroll-view class="content-scroll" scroll-y enhanced show-scrollbar="{{false}}" style="height: {{contentScrollHeight}}px">
       <view class="card-list">
         <view
           wx:for="{{cards}}"
