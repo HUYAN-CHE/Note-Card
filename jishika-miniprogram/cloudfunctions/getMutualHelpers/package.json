@@ -1,0 +1,9 @@
+{
+  "name": "getMutualHelpers",
+  "version": "1.0.0",
+  "description": "拉取当前用户的一度人脉（协作人）",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "latest"
+  }
+}

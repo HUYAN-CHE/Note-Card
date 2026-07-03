@@ -56,7 +56,11 @@
     </view>
 
     <scroll-view class="content-scroll" scroll-y enhanced show-scrollbar="{{false}}" style="height: {{contentScrollHeight}}px">
-      <view class="card-list">
+      <view class="card-loading" wx:if="{{loadingCards}}">
+        <text class="card-loading-text">加载中…</text>
+      </view>
+
+      <view class="card-list" wx:if="{{!loadingCards}}">
         <view
           wx:for="{{cards}}"
           wx:key="id"
@@ -72,6 +76,10 @@
             <text class="lucky-meta">{{item.relation}} · {{item.creatorName}} · {{item.status}}</text>
           </view>
         </view>
+      </view>
+
+      <view class="card-empty" wx:if="{{!loadingCards && cards.length === 0}}">
+        <text class="card-empty-text">暂时没有可见的协作事项</text>
       </view>
 
       <view class="content-bottom-space"></view>

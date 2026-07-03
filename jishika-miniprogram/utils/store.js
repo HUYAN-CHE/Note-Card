@@ -49,9 +49,13 @@ async function getCard(id) {
 }
 
 async function saveCard(card) {
+  const creatorId = card.creatorId || getCurrentOpenid();
   const nextCard = {
     ...card,
     id: card.id || uid(),
+    creatorId,
+    helperIds: card.helperIds || [],
+    visibility: card.visibility || 'friends',
     updatedAt: Date.now(),
     updatedText: nowText()
   };
@@ -68,6 +72,15 @@ async function saveCard(card) {
   return saveLocalCard(nextCard);
 }
 
+function getCurrentOpenid() {
+  try {
+    const app = getApp();
+    return (app.globalData && app.globalData.openid) || wx.getStorageSync('JISHIKA_OPENID') || '';
+  } catch (error) {
+    return '';
+  }
+}
+
 async function createCardFromDraft(draft) {
   return saveCard({
     ...draft,
@@ -76,7 +89,10 @@ async function createCardFromDraft(draft) {
     stage: draft.stage || '待商家确认',
     customerVisible: true,
     internalNote: '',
-    progressNodes: draft.progressNodes || buildDefaultNodes(draft.type)
+    progressNodes: draft.progressNodes || buildDefaultNodes(draft.type),
+    creatorId: getCurrentOpenid(),
+    helperIds: draft.helperIds || [],
+    visibility: draft.visibility || 'friends'
   });
 }
 

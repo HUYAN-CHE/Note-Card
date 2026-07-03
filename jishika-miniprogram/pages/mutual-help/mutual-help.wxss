@@ -240,6 +240,21 @@
   color: #9baaa3;
 }
 
+.card-loading,
+.card-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 120rpx 48rpx;
+}
+
+.card-loading-text,
+.card-empty-text {
+  font-size: 26rpx;
+  color: #9baaa3;
+  text-align: center;
+}
+
 .content-bottom-space {
   height: calc(260rpx + env(safe-area-inset-bottom));
 }

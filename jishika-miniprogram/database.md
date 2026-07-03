@@ -22,6 +22,22 @@
 - `stage`：阶段展示名。
 - `source`：来源，手动、名片、聊天粘贴、微信 AI 等。
 - `updatedAt`：更新时间。
+- `creatorId`：创建者 openid，用于判断卡片归属和权限。
+- `helperIds`：协助者 openid 数组，互助页据此聚合一度人脉。
+- `visibility`：可见范围，`private`（仅协作人）、`friends`（一度人脉可见）、`public`（公开）。
+
+## users
+
+保存用户基础档案，用于互助页头像、昵称展示。
+
+核心字段：
+
+- `openid`：微信用户唯一标识，集合主键。
+- `nickName`：昵称。
+- `avatarUrl`：头像 URL。
+- `color`：无头像时的背景色。
+- `initial`：无头像时的首字占位。
+- `updatedAt`：更新时间。
 
 ## customers
 

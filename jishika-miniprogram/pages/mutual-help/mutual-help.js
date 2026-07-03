@@ -45,19 +45,77 @@ Page({
     contentScrollHeight: 500,
     selectedHelperId: '',
     helpers: MOCK_HELPERS,
-    cards: []
+    cards: [],
+    loadingHelpers: false,
+    loadingCards: false
   },
 
   onLoad() {
     this.updateSystemInfo();
-    const firstUser = this.data.helpers.find((h) => h.type === 'user');
-    if (firstUser) {
+    this.loadHelpers();
+  },
+
+  async loadHelpers() {
+    this.setData({ loadingHelpers: true });
+
+    try {
+      const res = await wx.cloud.callFunction({ name: 'getMutualHelpers' });
+      const helpers = (res.result && res.result.data) || [];
+
+      if (helpers.length) {
+        const list = [{ id: 'add', type: 'add', name: '添加', avatar: '' }, ...helpers];
+        const firstUser = list.find((h) => h.type === 'user');
+        this.setData({
+          helpers: list,
+          selectedHelperId: firstUser ? firstUser.id : ''
+        });
+        if (firstUser) {
+          await this.loadNetworkCards(firstUser.id);
+        }
+      } else {
+        // 云端没有数据时回退到 mock
+        const firstUser = MOCK_HELPERS.find((h) => h.type === 'user');
+        this.setData({
+          helpers: MOCK_HELPERS,
+          selectedHelperId: firstUser ? firstUser.id : ''
+        });
+        if (firstUser) {
+          this.setData({ cards: MOCK_NETWORK_CARDS[firstUser.id] || [] });
+        }
+      }
+    } catch (error) {
+      // 云函数未部署或调用失败时回退到 mock
+      const firstUser = MOCK_HELPERS.find((h) => h.type === 'user');
       this.setData({
-        selectedHelperId: firstUser.id,
-        cards: MOCK_NETWORK_CARDS[firstUser.id] || []
+        helpers: MOCK_HELPERS,
+        selectedHelperId: firstUser ? firstUser.id : ''
       });
+      if (firstUser) {
+        this.setData({ cards: MOCK_NETWORK_CARDS[firstUser.id] || [] });
+      }
+    } finally {
+      this.setData({ loadingHelpers: false });
+      this.calcScrollHeight();
     }
-    this.calcScrollHeight();
+  },
+
+  async loadNetworkCards(helperId) {
+    if (!helperId || helperId === 'add') return;
+    this.setData({ loadingCards: true });
+
+    try {
+      const res = await wx.cloud.callFunction({
+        name: 'getNetworkCards',
+        data: { helperOpenid: helperId }
+      });
+      const cards = (res.result && res.result.data) || [];
+      this.setData({ cards });
+    } catch (error) {
+      // 回退到 mock
+      this.setData({ cards: MOCK_NETWORK_CARDS[helperId] || [] });
+    } finally {
+      this.setData({ loadingCards: false });
+    }
   },
 
   calcScrollHeight() {
@@ -120,9 +178,7 @@ Page({
   },
 
   refreshCards(helperId) {
-    // 静态阶段从 mock 数据切换，后续接入 getNetworkCards
-    const cards = MOCK_NETWORK_CARDS[helperId] || [];
-    this.setData({ cards });
+    this.loadNetworkCards(helperId);
   },
 
   onInviteTap() {

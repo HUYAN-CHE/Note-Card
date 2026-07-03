@@ -3,6 +3,7 @@ module.exports = {
   cloudEnvId: '',
   collections: {
     cards: 'cards',
-    customers: 'customers'
+    customers: 'customers',
+    users: 'users'
   }
 };

@@ -1,0 +1,9 @@
+{
+  "name": "getNetworkCards",
+  "version": "1.0.0",
+  "description": "拉取选中人脉的二度人脉记事卡",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "latest"
+  }
+}
