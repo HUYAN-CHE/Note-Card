@@ -13,8 +13,8 @@
   flex: 0 0 auto;
   width: 100%;
   padding: 28rpx 28rpx 80rpx;
-  border-radius: 0 0 80rpx 80rpx;
-  background: linear-gradient(160deg, #00d26a 0%, #00c2a8 100%);
+  border-radius: 0 0 120rpx 120rpx;
+  background: linear-gradient(180deg, #00c853 0%, #00e676 45%, #1de9b6 100%);
   color: #ffffff;
   box-sizing: border-box;
 }
@@ -128,8 +128,9 @@
   flex: 1;
   width: 100%;
   margin-top: -60rpx;
-  border-radius: 48rpx 48rpx 0 0;
+  border-radius: 64rpx 64rpx 0 0;
   background: #ffffff;
+  box-shadow: 0 -16rpx 60rpx rgba(0, 0, 0, 0.06);
   overflow: hidden;
   box-sizing: border-box;
 }
@@ -171,9 +172,8 @@
   align-items: center;
   gap: 24rpx;
   padding: 28rpx;
-  border-radius: 24rpx;
-  background: #f7f8fa;
-  box-shadow: 0 8rpx 30rpx rgba(0, 0, 0, 0.04);
+  border-radius: 40rpx;
+  background: #f5f7fa;
 }
 
 .lucky-circle {
