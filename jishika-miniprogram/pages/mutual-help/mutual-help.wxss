@@ -49,7 +49,7 @@
 
 .hero-text {
   margin-bottom: 40rpx;
-  padding-left: 48rpx;
+  padding-left: 20rpx;
 }
 
 .hero-title {
