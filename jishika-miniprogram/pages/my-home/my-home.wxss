@@ -12,10 +12,11 @@
   z-index: 1;
   flex: 0 0 auto;
   width: 100%;
-  padding: 28rpx 40rpx 60rpx;
+  padding: 28rpx 40rpx 80rpx;
   border-radius: 0 0 48rpx 48rpx;
-  background: linear-gradient(180deg, #00c853 0%, #00e676 45%, #1de9b6 100%);
-  color: #ffffff;
+  background: #ffffff;
+  color: #162116;
+  box-shadow: 0 12rpx 40rpx rgba(0, 0, 0, 0.04);
   box-sizing: border-box;
 }
 
@@ -30,9 +31,9 @@
   margin-left: auto;
   padding: 12rpx 28rpx;
   border-radius: 999rpx;
-  background: rgba(255, 255, 255, 0.2);
+  background: #f5f7fa;
   font-size: 24rpx;
-  color: #ffffff;
+  color: #162116;
 }
 
 .profile-avatar {
@@ -42,20 +43,26 @@
   width: 120rpx;
   height: 120rpx;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.25);
-  border: 4rpx solid rgba(255, 255, 255, 0.4);
+  background: #f5f7fa;
+  border: 4rpx solid #e8eef5;
   flex-shrink: 0;
 }
 
 .avatar-edit {
   padding: 0;
   margin: 0;
-  background: rgba(255, 255, 255, 0.25);
+  background: #f5f7fa;
   line-height: 1;
 }
 
 .avatar-edit::after {
   border: none;
+}
+
+.profile-initial {
+  font-size: 48rpx;
+  font-weight: 600;
+  color: #00c853;
 }
 
 .nickname-edit {
@@ -64,7 +71,7 @@
   background: transparent;
   font-size: 44rpx;
   font-weight: 700;
-  color: #ffffff;
+  color: #162116;
   line-height: 1;
   text-align: left;
 }
@@ -94,11 +101,12 @@
 .profile-name {
   font-size: 44rpx;
   font-weight: 700;
+  color: #162116;
 }
 
 .profile-intro {
   font-size: 26rpx;
-  opacity: 0.9;
+  color: #6b7a73;
 }
 
 .profile-tags {
@@ -110,9 +118,9 @@
 .profile-tag {
   padding: 10rpx 24rpx;
   border-radius: 999rpx;
-  background: rgba(255, 255, 255, 0.2);
+  background: #f5f7fa;
   font-size: 24rpx;
-  color: #ffffff;
+  color: #162116;
 }
 
 .profile-tags-edit {
@@ -126,15 +134,15 @@
   width: 100%;
   padding: 16rpx 24rpx;
   border-radius: 16rpx;
-  background: rgba(255, 255, 255, 0.15);
-  color: #ffffff;
+  background: #f5f7fa;
+  color: #162116;
   font-size: 26rpx;
   box-sizing: border-box;
 }
 
 .tags-input::placeholder,
 .intro-input::placeholder {
-  color: rgba(255, 255, 255, 0.6);
+  color: #9baaa3;
 }
 
 .intro-input {
@@ -155,14 +163,14 @@
 }
 
 .edit-action.save {
-  background: #ffffff;
-  color: #00c853;
+  background: #00c853;
+  color: #ffffff;
   font-weight: 600;
 }
 
 .edit-action.cancel {
-  background: rgba(255, 255, 255, 0.2);
-  color: #ffffff;
+  background: #f5f7fa;
+  color: #162116;
 }
 
 /* 内容区 */
