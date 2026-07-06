@@ -49,13 +49,18 @@
 }
 
 .avatar-edit {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 120rpx;
   height: 120rpx;
+  min-width: 0;
   padding: 0;
   margin: 0;
   background: #f5f7fa;
   border-radius: 50%;
   line-height: 1;
+  overflow: hidden;
 }
 
 .avatar-edit::after {
