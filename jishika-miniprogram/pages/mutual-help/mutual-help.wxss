@@ -58,13 +58,22 @@
 }
 
 .my-avatar-btn {
-  padding: 0;
-  margin: 0;
+  width: 64rpx !important;
+  height: 64rpx !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: none !important;
+  border-radius: 50% !important;
+  background: rgba(255, 255, 255, 0.9) !important;
   line-height: 1;
+  overflow: hidden;
+  box-sizing: border-box;
 }
 
 .my-avatar-btn::after {
-  border: none;
+  display: none;
 }
 
 .my-name {
