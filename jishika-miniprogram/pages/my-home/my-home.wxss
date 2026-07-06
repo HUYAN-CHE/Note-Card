@@ -49,9 +49,12 @@
 }
 
 .avatar-edit {
+  width: 120rpx;
+  height: 120rpx;
   padding: 0;
   margin: 0;
   background: #f5f7fa;
+  border-radius: 50%;
   line-height: 1;
 }
 
@@ -78,12 +81,6 @@
 
 .nickname-edit::after {
   border: none;
-}
-
-.profile-initial {
-  font-size: 48rpx;
-  font-weight: 600;
-  color: #ffffff;
 }
 
 .profile-avatar-img {
