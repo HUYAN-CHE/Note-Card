@@ -4,11 +4,11 @@
     <view class="profile-header">
       <block wx:if="{{!isEditing}}">
         <view class="profile-avatar" bindtap="startEdit">
-          <text class="profile-initial avatar-hint" wx:if="{{!user.avatar}}">授权头像</text>
+          <text class="profile-initial" wx:if="{{!user.avatar}}">{{user.initial || '我'}}</text>
           <image wx:else class="profile-avatar-img" src="{{user.avatar}}" mode="aspectFill" />
         </view>
         <view class="profile-info" bindtap="startEdit">
-          <text class="profile-name">{{user.nickname || '授权昵称'}}</text>
+          <text class="profile-name">{{user.nickname || '我'}}</text>
         </view>
         <view class="edit-btn" bindtap="startEdit">编辑资料</view>
       </block>
