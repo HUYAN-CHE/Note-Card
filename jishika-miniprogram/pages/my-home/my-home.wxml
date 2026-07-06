@@ -1,5 +1,5 @@
 <view class="page my-home-page">
-  <!-- 顶部绿色 Hero -->
+  <!-- 顶部资料区 -->
   <view class="profile-hero" style="padding-top: {{heroPaddingTop}}rpx;">
     <view class="profile-header">
       <block wx:if="{{!isEditing}}">
