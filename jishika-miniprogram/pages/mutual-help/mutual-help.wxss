@@ -76,6 +76,10 @@
   display: none;
 }
 
+.my-avatar-unauthorized {
+  background: #e0e4e8 !important;
+}
+
 .my-name {
   font-size: 32rpx;
   font-weight: 600;

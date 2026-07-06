@@ -60,6 +60,7 @@ Page({
       avatar: '',
       initial: ''
     },
+    authorized: false,
     loadingHelpers: false,
     loadingCards: false
   },
@@ -67,7 +68,6 @@ Page({
   onLoad() {
     this.updateSystemInfo();
     this.loadMyProfile();
-    this.loadHelpers();
   },
 
   async loadMyProfile() {
@@ -106,7 +106,12 @@ Page({
       // 忽略云端读取失败
     }
 
-    this.setData({ myProfile: profile });
+    const authorized = Boolean(profile.nickname && profile.avatar);
+    this.setData({ myProfile: profile, authorized });
+
+    if (authorized) {
+      this.loadHelpers();
+    }
   },
 
   async loadHelpers() {
@@ -258,14 +263,17 @@ Page({
   async saveMyProfile(patch) {
     const { myProfile } = this.data;
     const nickname = patch.nickname !== undefined ? patch.nickname : myProfile.nickname;
+    const avatar = patch.avatar !== undefined ? patch.avatar : myProfile.avatar;
     const nextProfile = {
       ...myProfile,
       ...patch,
       nickname,
+      avatar,
       initial: getInitial(nickname)
     };
 
-    this.setData({ myProfile: nextProfile });
+    const authorized = Boolean(nextProfile.nickname && nextProfile.avatar);
+    this.setData({ myProfile: nextProfile, authorized });
 
     const fullProfile = { ...nextProfile, serviceTags: [] };
     wx.setStorageSync(STORAGE_KEY, fullProfile);
@@ -273,6 +281,10 @@ Page({
       const app = getApp();
       if (app.globalData) app.globalData.userProfile = fullProfile;
     } catch (e) {}
+
+    if (authorized) {
+      this.loadHelpers();
+    }
 
     try {
       const app = getApp();
