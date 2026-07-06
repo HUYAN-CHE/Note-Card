@@ -76,9 +76,18 @@ Page({
     const local = wx.getStorageSync(STORAGE_KEY);
     const cached = globalProfile || local;
 
-    let profile = cached && (cached.nickname || cached.avatar)
+    let profile = cached && cached.nickname && cached.avatar
       ? { nickname: cached.nickname, avatar: cached.avatar, initial: cached.initial || cached.nickname.charAt(0) }
       : { nickname: '', avatar: '', initial: '' };
+
+    // 资料不完整时清除旧缓存，避免误判为已授权
+    if (!profile.nickname || !profile.avatar) {
+      wx.removeStorageSync(STORAGE_KEY);
+      try {
+        const app = getApp();
+        if (app.globalData) app.globalData.userProfile = null;
+      } catch (e) {}
+    }
 
     try {
       if (app.globalData && app.globalData.cloudReady && wx.cloud) {
