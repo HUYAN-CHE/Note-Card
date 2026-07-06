@@ -42,6 +42,7 @@ Page({
     bodyScrollTop: 0,
     bodyCanScroll: false,
     showAuthModal: false,
+    authFallback: false,
     authProfile: {
       nickname: '',
       avatar: '',
@@ -78,6 +79,34 @@ Page({
     }
   },
 
+  onAuthLogin() {
+    if (!wx.getUserProfile) {
+      this.setData({ authFallback: true });
+      return;
+    }
+
+    wx.getUserProfile({
+      desc: '用于展示用户头像和昵称',
+      success: (res) => {
+        const { nickName, avatarUrl } = res.userInfo || {};
+        if (nickName && avatarUrl) {
+          const profile = {
+            nickname: nickName,
+            avatar: avatarUrl,
+            initial: nickName.trim().charAt(0),
+            serviceTags: []
+          };
+          this.finishAuth(profile);
+        } else {
+          this.setData({ authFallback: true });
+        }
+      },
+      fail: () => {
+        this.setData({ authFallback: true });
+      }
+    });
+  },
+
   onAuthAvatar(event) {
     const avatarUrl = event.detail.avatarUrl;
     if (!avatarUrl) return;
@@ -99,15 +128,17 @@ Page({
   async tryFinishAuth() {
     const { authProfile } = this.data;
     if (!authProfile.nickname || !authProfile.avatar) return;
+    await this.finishAuth({ ...authProfile, serviceTags: [] });
+  },
 
-    const profile = { ...authProfile, serviceTags: [] };
+  async finishAuth(profile) {
     wx.setStorageSync(USER_PROFILE_KEY, profile);
     try {
       const app = getApp();
       if (app.globalData) app.globalData.userProfile = profile;
     } catch (e) {}
 
-    this.setData({ showAuthModal: false });
+    this.setData({ showAuthModal: false, authFallback: false });
 
     try {
       const app = getApp();
@@ -121,9 +152,9 @@ Page({
             .get();
           const data = {
             openid,
-            nickName: authProfile.nickname,
-            avatarUrl: authProfile.avatar,
-            initial: authProfile.initial,
+            nickName: profile.nickname,
+            avatarUrl: profile.avatar,
+            initial: profile.initial,
             updatedAt: Date.now()
           };
           if (res.data && res.data[0] && res.data[0]._id) {
