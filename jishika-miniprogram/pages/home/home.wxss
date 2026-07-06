@@ -226,21 +226,26 @@
 }
 
 .auth-avatar-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 140rpx;
-  height: 140rpx;
-  padding: 0;
-  margin: 0;
-  border-radius: 50%;
-  background: #f5f7fa;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 140rpx !important;
+  height: 140rpx !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: none !important;
+  border-radius: 50% !important;
+  background: #f5f7fa !important;
   font-size: 24rpx;
   color: #6b7a73;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .auth-avatar-btn::after {
-  border: none;
+  display: none;
 }
 
 .auth-avatar-img {
