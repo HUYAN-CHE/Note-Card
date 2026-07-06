@@ -51,7 +51,7 @@ Page({
     this.setData({ loading: true });
 
     try {
-      // TODO: 接入真实用户资料
+      // TODO: 接入真实用户资料（users 集合 / getUserProfile 云函数）
       // TODO: 我协助的卡需要云函数支持，目前先按 creatorId 过滤
       const allCards = await getCards();
       this.setData({ allCards });
