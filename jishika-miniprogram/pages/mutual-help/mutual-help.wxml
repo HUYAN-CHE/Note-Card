@@ -25,7 +25,7 @@
     </view>
 
     <!-- 协作人头像列表 -->
-    <view class="helper-row" wx:if="{{authorized}}">
+    <view class="helper-row">
       <view
         class="helper-item add"
         bindtap="onHelperTap"
@@ -38,7 +38,7 @@
         <text class="helper-name">添加</text>
       </view>
 
-      <scroll-view class="helper-scroll" scroll-x enhanced show-scrollbar="{{false}}">
+      <scroll-view class="helper-scroll" scroll-x enhanced show-scrollbar="{{false}}" wx:if="{{authorized}}">
         <view class="helper-list">
           <view
             wx:for="{{helpers}}"
