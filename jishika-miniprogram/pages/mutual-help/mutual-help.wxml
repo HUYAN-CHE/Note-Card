@@ -2,12 +2,12 @@
   <!-- 顶部绿色 Hero -->
   <view class="hero" style="padding-top: {{heroPaddingTop}}rpx;">
     <view class="hero-header">
-      <view class="my-avatar-wrap" bindtap="onMyProfileTap" data-action="open_my_home">
-        <view class="my-avatar">
+      <view class="my-avatar-wrap">
+        <button class="my-avatar my-avatar-btn" open-type="chooseAvatar" bind:chooseavatar="onChooseAvatar">
           <text class="my-avatar-initial" wx:if="{{!myProfile.avatar}}">{{myProfile.initial || '我'}}</text>
           <image wx:else class="my-avatar-img" src="{{myProfile.avatar}}" mode="aspectFill" />
-        </view>
-        <text class="my-name">{{myProfile.nickname || '我'}}</text>
+        </button>
+        <button class="my-name my-name-btn" open-type="chooseNickname" bind:choosenickname="onChooseNickname">{{myProfile.nickname || '我'}}</button>
       </view>
     </view>
 

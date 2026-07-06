@@ -1,3 +1,12 @@
+const { collections } = require('../../config/env');
+
+const STORAGE_KEY = 'JISHIKA_USER_PROFILE';
+
+function getInitial(name) {
+  if (!name) return '';
+  return name.trim().charAt(0);
+}
+
 const MOCK_HELPERS = [
   { id: 'add', type: 'add', name: '添加', avatar: '' },
   { id: 'u1', type: 'user', name: '李群', avatar: '', color: '#4A90E2', initial: '李' },
@@ -238,6 +247,70 @@ Page({
     wx.navigateTo({
       url: '/pages/my-home/my-home'
     });
+  },
+
+  onChooseAvatar(event) {
+    const avatarUrl = event.detail.avatarUrl;
+    if (avatarUrl) {
+      this.saveMyProfile({ avatar: avatarUrl });
+    }
+  },
+
+  onChooseNickname(event) {
+    const nickname = event.detail.value;
+    if (nickname) {
+      this.saveMyProfile({ nickname });
+    }
+  },
+
+  async saveMyProfile(patch) {
+    const { myProfile } = this.data;
+    const nickname = patch.nickname !== undefined ? patch.nickname : myProfile.nickname;
+    const nextProfile = {
+      ...myProfile,
+      ...patch,
+      nickname,
+      initial: getInitial(nickname)
+    };
+
+    this.setData({ myProfile: nextProfile });
+
+    const fullProfile = { ...nextProfile, serviceTags: [] };
+    wx.setStorageSync(STORAGE_KEY, fullProfile);
+    try {
+      const app = getApp();
+      if (app.globalData) app.globalData.userProfile = fullProfile;
+    } catch (e) {}
+
+    try {
+      const app = getApp();
+      if (app.globalData && app.globalData.cloudReady && wx.cloud) {
+        const openid = app.globalData.openid || wx.getStorageSync('JISHIKA_OPENID');
+        if (openid) {
+          const db = wx.cloud.database();
+          const res = await db.collection(collections.users)
+            .where({ openid })
+            .limit(1)
+            .get();
+          const data = {
+            openid,
+            nickName: nextProfile.nickname,
+            avatarUrl: nextProfile.avatar,
+            initial: nextProfile.initial,
+            updatedAt: Date.now()
+          };
+          if (res.data && res.data[0] && res.data[0]._id) {
+            await db.collection(collections.users).doc(res.data[0]._id).update({ data });
+          } else {
+            await db.collection(collections.users).add({
+              data: { ...data, createdAt: Date.now() }
+            });
+          }
+        }
+      }
+    } catch (error) {
+      // 忽略云端保存失败
+    }
   },
 
   onCardTap(event) {
