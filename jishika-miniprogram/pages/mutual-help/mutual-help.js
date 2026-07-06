@@ -230,11 +230,35 @@ Page({
   onHelperTap(event) {
     const id = event.currentTarget.dataset.id;
     if (id === 'add') {
+      if (!this.data.authorized) {
+        this.requestAuth();
+        return;
+      }
       this.onInviteTap();
       return;
     }
     this.setData({ selectedHelperId: id });
     this.refreshCards(id);
+  },
+
+  requestAuth() {
+    if (!wx.getUserProfile) {
+      wx.showToast({ title: '请授权头像昵称', icon: 'none' });
+      return;
+    }
+
+    wx.getUserProfile({
+      desc: '用于展示用户头像和昵称',
+      success: (res) => {
+        const { nickName, avatarUrl } = res.userInfo || {};
+        if (nickName && avatarUrl) {
+          this.saveMyProfile({ nickname: nickName, avatar: avatarUrl });
+        }
+      },
+      fail: () => {
+        wx.showToast({ title: '授权后可邀请朋友', icon: 'none' });
+      }
+    });
   },
 
   refreshCards(helperId) {
