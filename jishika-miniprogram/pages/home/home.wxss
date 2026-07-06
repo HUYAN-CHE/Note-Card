@@ -180,16 +180,17 @@
   right: 0;
   bottom: 0;
   z-index: 100;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   background: rgba(0, 0, 0, 0.5);
 }
 
 .auth-modal {
-  width: 560rpx;
-  padding: 48rpx;
-  border-radius: 32rpx;
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  padding: 48rpx 48rpx calc(48rpx + env(safe-area-inset-bottom));
+  border-radius: 32rpx 32rpx 0 0;
   background: #ffffff;
   box-sizing: border-box;
 }
