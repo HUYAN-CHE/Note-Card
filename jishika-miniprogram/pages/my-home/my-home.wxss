@@ -26,6 +26,15 @@
   margin-bottom: 32rpx;
 }
 
+.edit-btn {
+  margin-left: auto;
+  padding: 12rpx 28rpx;
+  border-radius: 999rpx;
+  background: rgba(255, 255, 255, 0.2);
+  font-size: 24rpx;
+  color: #ffffff;
+}
+
 .profile-avatar {
   display: flex;
   align-items: center;
@@ -36,6 +45,32 @@
   background: rgba(255, 255, 255, 0.25);
   border: 4rpx solid rgba(255, 255, 255, 0.4);
   flex-shrink: 0;
+}
+
+.avatar-edit {
+  padding: 0;
+  margin: 0;
+  background: rgba(255, 255, 255, 0.25);
+  line-height: 1;
+}
+
+.avatar-edit::after {
+  border: none;
+}
+
+.nickname-edit {
+  padding: 0;
+  margin: 0;
+  background: transparent;
+  font-size: 44rpx;
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 1;
+  text-align: left;
+}
+
+.nickname-edit::after {
+  border: none;
 }
 
 .profile-initial {
@@ -77,6 +112,56 @@
   border-radius: 999rpx;
   background: rgba(255, 255, 255, 0.2);
   font-size: 24rpx;
+  color: #ffffff;
+}
+
+.profile-tags-edit {
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+}
+
+.tags-input,
+.intro-input {
+  width: 100%;
+  padding: 16rpx 24rpx;
+  border-radius: 16rpx;
+  background: rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+  font-size: 26rpx;
+  box-sizing: border-box;
+}
+
+.tags-input::placeholder,
+.intro-input::placeholder {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.intro-input {
+  height: 120rpx;
+}
+
+.edit-actions {
+  display: flex;
+  gap: 24rpx;
+}
+
+.edit-action {
+  flex: 1;
+  padding: 18rpx 0;
+  border-radius: 999rpx;
+  text-align: center;
+  font-size: 28rpx;
+}
+
+.edit-action.save {
+  background: #ffffff;
+  color: #00c853;
+  font-weight: 600;
+}
+
+.edit-action.cancel {
+  background: rgba(255, 255, 255, 0.2);
   color: #ffffff;
 }
 

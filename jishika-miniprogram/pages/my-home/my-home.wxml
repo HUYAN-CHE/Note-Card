@@ -2,18 +2,50 @@
   <!-- 顶部绿色 Hero -->
   <view class="profile-hero" style="padding-top: {{heroPaddingTop}}rpx;">
     <view class="profile-header">
-      <view class="profile-avatar">
-        <text class="profile-initial" wx:if="{{!user.avatar}}">{{user.initial || '我'}}</text>
-        <image wx:else class="profile-avatar-img" src="{{user.avatar}}" mode="aspectFill" />
-      </view>
-      <view class="profile-info">
-        <text class="profile-name">{{user.nickname || '我'}}</text>
-        <text class="profile-intro">{{user.intro || '还没有个性签名'}}</text>
-      </view>
+      <block wx:if="{{!isEditing}}">
+        <view class="profile-avatar">
+          <text class="profile-initial" wx:if="{{!user.avatar}}">{{user.initial || '我'}}</text>
+          <image wx:else class="profile-avatar-img" src="{{user.avatar}}" mode="aspectFill" />
+        </view>
+        <view class="profile-info">
+          <text class="profile-name">{{user.nickname || '我'}}</text>
+          <text class="profile-intro">{{user.intro || '还没有个性签名'}}</text>
+        </view>
+        <view class="edit-btn" bindtap="startEdit">编辑资料</view>
+      </block>
+
+      <block wx:else>
+        <button class="profile-avatar avatar-edit" open-type="chooseAvatar" bind:chooseavatar="onChooseAvatar">
+          <text class="profile-initial" wx:if="{{!editForm.avatar}}">{{editForm.initial || '我'}}</text>
+          <image wx:else class="profile-avatar-img" src="{{editForm.avatar}}" mode="aspectFill" />
+        </button>
+        <view class="profile-info">
+          <button class="nickname-edit" open-type="chooseNickname" bind:choosenickname="onChooseNickname">{{editForm.nickname || '点击设置昵称'}}</button>
+        </view>
+      </block>
     </view>
 
-    <view class="profile-tags" wx:if="{{serviceTags.length}}">
+    <view class="profile-tags" wx:if="{{!isEditing && serviceTags.length}}">
       <text class="profile-tag" wx:for="{{serviceTags}}" wx:key="*this">{{item}}</text>
+    </view>
+
+    <view class="profile-tags-edit" wx:if="{{isEditing}}">
+      <input
+        class="tags-input"
+        value="{{editForm.tagsText}}"
+        bindinput="onTagsInput"
+        placeholder="服务标签，用空格分隔"
+      />
+      <textarea
+        class="intro-input"
+        value="{{editForm.intro}}"
+        bindinput="onIntroInput"
+        placeholder="个人简介"
+      />
+      <view class="edit-actions">
+        <view class="edit-action save" bindtap="saveProfile">保存</view>
+        <view class="edit-action cancel" bindtap="cancelEdit">取消</view>
+      </view>
     </view>
   </view>
 

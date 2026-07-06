@@ -1,29 +1,41 @@
 const { getCards } = require('../../utils/store');
+const { collections } = require('../../config/env');
 
-const MOCK_USER = {
-  nickname: 'Julian',
-  intro: '品牌设计师，专注官网与视觉系统',
+const DEFAULT_USER = {
+  nickname: '我',
+  intro: '',
   avatar: '',
-  initial: 'J'
+  initial: '我'
 };
 
-const MOCK_SERVICE_TAGS = ['官网设计', '品牌梳理', '视觉系统'];
+const DEFAULT_TAGS = ['官网设计', '品牌梳理', '视觉系统'];
+
+const STORAGE_KEY = 'JISHIKA_USER_PROFILE';
 
 Page({
   data: {
     statusBarHeight: 44,
     heroPaddingTop: 64,
-    user: MOCK_USER,
-    serviceTags: MOCK_SERVICE_TAGS,
+    user: { ...DEFAULT_USER },
+    serviceTags: [...DEFAULT_TAGS],
     activeTab: 'mine',
     cards: [],
     allCards: [],
-    loading: false
+    loading: false,
+    isEditing: false,
+    editForm: {
+      nickname: '',
+      intro: '',
+      avatar: '',
+      initial: '我',
+      tagsText: ''
+    }
   },
 
   onLoad() {
     this.updateSystemInfo();
-    this.loadData();
+    this.loadUserProfile();
+    this.loadCards();
   },
 
   updateSystemInfo() {
@@ -47,15 +59,54 @@ Page({
     }
   },
 
-  async loadData() {
+  async loadUserProfile() {
+    // 1. 先读本地缓存
+    const local = wx.getStorageSync(STORAGE_KEY);
+    let user = local && local.nickname ? local : { ...DEFAULT_USER };
+    let tags = (local && local.serviceTags) ? local.serviceTags : [...DEFAULT_TAGS];
+
+    // 2. 云开发可用时从 users 集合拉取
+    try {
+      const app = getApp();
+      if (app.globalData && app.globalData.cloudReady && wx.cloud) {
+        const openid = app.globalData.openid || wx.getStorageSync('JISHIKA_OPENID');
+        if (openid) {
+          const res = await wx.cloud.database()
+            .collection(collections.users)
+            .where({ openid })
+            .limit(1)
+            .get();
+          const cloudUser = res.data && res.data[0];
+          if (cloudUser) {
+            user = {
+              nickname: cloudUser.nickName || user.nickname,
+              intro: cloudUser.intro || user.intro,
+              avatar: cloudUser.avatarUrl || user.avatar,
+              initial: cloudUser.initial || user.initial
+            };
+            tags = cloudUser.tags || tags;
+            wx.setStorageSync(STORAGE_KEY, { ...user, serviceTags: tags });
+          }
+        }
+      }
+    } catch (error) {
+      // 忽略云端读取失败
+    }
+
+    this.setData({
+      user: { ...user, initial: user.initial || this.getInitial(user.nickname) },
+      serviceTags: tags
+    });
+  },
+
+  async loadCards() {
     this.setData({ loading: true });
 
     try {
-      // TODO: 接入真实用户资料（users 集合 / getUserProfile 云函数）
-      // TODO: 我协助的卡需要云函数支持，目前先按 creatorId 过滤
       const allCards = await getCards();
-      this.setData({ allCards });
-      this.filterCards();
+      this.setData({ allCards }, () => {
+        this.filterCards();
+      });
     } catch (error) {
       this.setData({ cards: [] });
     } finally {
@@ -91,6 +142,117 @@ Page({
     if (tab === this.data.activeTab) return;
     this.setData({ activeTab: tab }, () => {
       this.filterCards();
+    });
+  },
+
+  startEdit() {
+    const { user, serviceTags } = this.data;
+    this.setData({
+      isEditing: true,
+      editForm: {
+        nickname: user.nickname,
+        intro: user.intro,
+        avatar: user.avatar,
+        initial: user.initial,
+        tagsText: serviceTags.join(' ')
+      }
+    });
+  },
+
+  cancelEdit() {
+    this.setData({ isEditing: false });
+  },
+
+  onChooseAvatar(event) {
+    const avatarUrl = event.detail.avatarUrl;
+    this.setData({
+      'editForm.avatar': avatarUrl,
+      'editForm.initial': ''
+    });
+  },
+
+  onChooseNickname(event) {
+    const nickname = event.detail.value;
+    this.setData({
+      'editForm.nickname': nickname,
+      'editForm.initial': this.getInitial(nickname)
+    });
+  },
+
+  onTagsInput(event) {
+    this.setData({ 'editForm.tagsText': event.detail.value });
+  },
+
+  onIntroInput(event) {
+    this.setData({ 'editForm.intro': event.detail.value });
+  },
+
+  getInitial(name) {
+    if (!name) return '我';
+    return name.trim().charAt(0);
+  },
+
+  async saveProfile() {
+    const { editForm } = this.data;
+    const nickname = editForm.nickname.trim() || '我';
+    const intro = editForm.intro.trim();
+    const avatar = editForm.avatar;
+    const serviceTags = editForm.tagsText
+      .split(/\s+/)
+      .map((t) => t.trim())
+      .filter(Boolean);
+
+    const user = {
+      nickname,
+      intro,
+      avatar,
+      initial: this.getInitial(nickname)
+    };
+
+    // 本地缓存
+    wx.setStorageSync(STORAGE_KEY, { ...user, serviceTags });
+
+    // 同步到 users 集合
+    try {
+      const app = getApp();
+      if (app.globalData && app.globalData.cloudReady && wx.cloud) {
+        const openid = app.globalData.openid || wx.getStorageSync('JISHIKA_OPENID');
+        if (openid) {
+          const db = wx.cloud.database();
+          const res = await db.collection(collections.users)
+            .where({ openid })
+            .limit(1)
+            .get();
+          const data = {
+            openid,
+            nickName: nickname,
+            avatarUrl: avatar,
+            intro,
+            initial: user.initial,
+            tags: serviceTags,
+            color: this.data.user.color || '#00c853',
+            updatedAt: Date.now()
+          };
+
+          if (res.data && res.data[0] && res.data[0]._id) {
+            await db.collection(collections.users)
+              .doc(res.data[0]._id)
+              .update({ data });
+          } else {
+            await db.collection(collections.users).add({
+              data: { ...data, createdAt: Date.now() }
+            });
+          }
+        }
+      }
+    } catch (error) {
+      // 云端同步失败不影响本地保存
+    }
+
+    this.setData({
+      user,
+      serviceTags,
+      isEditing: false
     });
   },
 
