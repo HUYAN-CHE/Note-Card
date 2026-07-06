@@ -53,7 +53,7 @@ Page({
     heroPaddingTop: 64,
     contentScrollHeight: 500,
     selectedHelperId: '',
-    helpers: MOCK_HELPERS,
+    helpers: [{ id: 'add', type: 'add', name: '添加', avatar: '' }],
     cards: [],
     myProfile: {
       nickname: '',
@@ -127,26 +127,18 @@ Page({
           await this.loadNetworkCards(firstUser.id);
         }
       } else {
-        // 云端没有数据时回退到 mock
-        const firstUser = MOCK_HELPERS.find((h) => h.type === 'user');
+        // 没有一度人脉，只显示添加按钮
         this.setData({
-          helpers: MOCK_HELPERS,
-          selectedHelperId: firstUser ? firstUser.id : ''
+          helpers: [{ id: 'add', type: 'add', name: '添加', avatar: '' }],
+          selectedHelperId: ''
         });
-        if (firstUser) {
-          this.setData({ cards: MOCK_NETWORK_CARDS[firstUser.id] || [] });
-        }
       }
     } catch (error) {
-      // 云函数未部署或调用失败时回退到 mock
-      const firstUser = MOCK_HELPERS.find((h) => h.type === 'user');
+      // 云函数调用失败时显示空状态
       this.setData({
-        helpers: MOCK_HELPERS,
-        selectedHelperId: firstUser ? firstUser.id : ''
+        helpers: [{ id: 'add', type: 'add', name: '添加', avatar: '' }],
+        selectedHelperId: ''
       });
-      if (firstUser) {
-        this.setData({ cards: MOCK_NETWORK_CARDS[firstUser.id] || [] });
-      }
     } finally {
       this.setData({ loadingHelpers: false });
       this.calcScrollHeight();
@@ -165,8 +157,8 @@ Page({
       const cards = (res.result && res.result.data) || [];
       this.setData({ cards });
     } catch (error) {
-      // 回退到 mock
-      this.setData({ cards: MOCK_NETWORK_CARDS[helperId] || [] });
+      // 云函数调用失败时显示空状态
+      this.setData({ cards: [] });
     } finally {
       this.setData({ loadingCards: false });
     }

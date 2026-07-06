@@ -82,7 +82,7 @@
       </view>
 
       <view class="card-empty" wx:if="{{!loadingCards && cards.length === 0}}">
-        <text class="card-empty-text">暂时没有可见的协作事项</text>
+        <text class="card-empty-text">{{selectedHelperId ? '这位朋友暂时没有可见的协作事项' : '先添加协作人，或去事项页创建记事卡'}}</text>
       </view>
 
       <view class="content-bottom-space"></view>
