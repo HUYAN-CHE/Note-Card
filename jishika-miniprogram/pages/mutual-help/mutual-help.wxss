@@ -31,7 +31,7 @@
   display: flex;
   align-items: center;
   height: 64rpx;
-  gap: 12rpx;
+  gap: 8rpx;
   width: auto;
 }
 
@@ -89,6 +89,7 @@
 
 .my-avatar-unauthorized {
   background: #e0e4e8 !important;
+  border: none !important;
 }
 
 .my-name {
