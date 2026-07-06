@@ -60,14 +60,24 @@ Page({
   },
 
   async loadUserProfile() {
-    // 1. 先读本地缓存
+    // 1. 先读全局缓存 / 本地缓存
+    const app = getApp();
+    const globalProfile = app.globalData && app.globalData.userProfile;
     const local = wx.getStorageSync(STORAGE_KEY);
-    let user = local && local.nickname ? local : { ...DEFAULT_USER };
-    let tags = (local && local.serviceTags) ? local.serviceTags : [...DEFAULT_TAGS];
+    const cached = globalProfile || local;
 
-    // 2. 云开发可用时从 users 集合拉取
+    let user = cached && (cached.nickname || cached.avatar)
+      ? {
+          nickname: cached.nickname || '',
+          intro: cached.intro || '',
+          avatar: cached.avatar || '',
+          initial: cached.initial || this.getInitial(cached.nickname)
+        }
+      : { ...DEFAULT_USER };
+    let tags = (cached && cached.serviceTags) ? cached.serviceTags : [...DEFAULT_TAGS];
+
+    // 2. 云开发可用时从 users 集合拉取最新
     try {
-      const app = getApp();
       if (app.globalData && app.globalData.cloudReady && wx.cloud) {
         const openid = app.globalData.openid || wx.getStorageSync('JISHIKA_OPENID');
         if (openid) {
@@ -85,7 +95,9 @@ Page({
               initial: cloudUser.initial || user.initial
             };
             tags = cloudUser.tags || tags;
-            wx.setStorageSync(STORAGE_KEY, { ...user, serviceTags: tags });
+            const profile = { ...user, serviceTags: tags };
+            wx.setStorageSync(STORAGE_KEY, profile);
+            app.globalData.userProfile = profile;
           }
         }
       }
@@ -209,8 +221,13 @@ Page({
       initial: this.getInitial(nickname)
     };
 
-    // 本地缓存
-    wx.setStorageSync(STORAGE_KEY, { ...user, serviceTags });
+    // 本地缓存 + 全局缓存
+    const profile = { ...user, serviceTags };
+    wx.setStorageSync(STORAGE_KEY, profile);
+    try {
+      const app = getApp();
+      if (app.globalData) app.globalData.userProfile = profile;
+    } catch (e) {}
 
     // 同步到 users 集合
     try {

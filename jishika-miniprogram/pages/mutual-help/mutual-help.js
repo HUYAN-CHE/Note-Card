@@ -62,13 +62,16 @@ Page({
   },
 
   async loadMyProfile() {
+    const app = getApp();
+    const globalProfile = app.globalData && app.globalData.userProfile;
     const local = wx.getStorageSync(STORAGE_KEY);
-    let profile = local && (local.nickname || local.avatar)
-      ? { nickname: local.nickname, avatar: local.avatar, initial: local.initial }
+    const cached = globalProfile || local;
+
+    let profile = cached && (cached.nickname || cached.avatar)
+      ? { nickname: cached.nickname, avatar: cached.avatar, initial: cached.initial || cached.nickname.charAt(0) }
       : { nickname: '', avatar: '', initial: '' };
 
     try {
-      const app = getApp();
       if (app.globalData && app.globalData.cloudReady && wx.cloud) {
         const openid = app.globalData.openid || wx.getStorageSync('JISHIKA_OPENID');
         if (openid) {
@@ -84,6 +87,9 @@ Page({
               avatar: cloudUser.avatarUrl || '',
               initial: cloudUser.initial || ''
             };
+            const nextProfile = { ...profile, serviceTags: cloudUser.tags || [] };
+            wx.setStorageSync(STORAGE_KEY, nextProfile);
+            app.globalData.userProfile = nextProfile;
           }
         }
       }
