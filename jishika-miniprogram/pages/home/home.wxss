@@ -171,3 +171,93 @@
   text-align: center;
   padding: 0 60rpx;
 }
+
+/* 授权弹窗 */
+.auth-mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.auth-modal {
+  width: 560rpx;
+  padding: 48rpx;
+  border-radius: 32rpx;
+  background: #ffffff;
+  box-sizing: border-box;
+}
+
+.auth-title {
+  font-size: 36rpx;
+  font-weight: 700;
+  color: #162116;
+  text-align: center;
+}
+
+.auth-desc {
+  margin-top: 16rpx;
+  font-size: 26rpx;
+  color: #6b7a73;
+  text-align: center;
+}
+
+.auth-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24rpx;
+  margin-top: 40rpx;
+}
+
+.auth-avatar-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 140rpx;
+  height: 140rpx;
+  padding: 0;
+  margin: 0;
+  border-radius: 50%;
+  background: #f5f7fa;
+  font-size: 24rpx;
+  color: #6b7a73;
+}
+
+.auth-avatar-btn::after {
+  border: none;
+}
+
+.auth-avatar-img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+}
+
+.auth-nickname-btn {
+  width: 100%;
+  height: 80rpx;
+  padding: 0;
+  margin: 0;
+  border-radius: 999rpx;
+  background: #f5f7fa;
+  font-size: 28rpx;
+  color: #162116;
+}
+
+.auth-nickname-btn::after {
+  border: none;
+}
+
+.auth-close {
+  margin-top: 32rpx;
+  font-size: 26rpx;
+  color: #9baaa3;
+  text-align: center;
+}

@@ -1,5 +1,8 @@
 const { ensureDemoCards } = require('../../utils/store');
 const { buildSkillLaunchUrl, getSkill } = require('../../services/skill-registry');
+const { collections } = require('../../config/env');
+
+const USER_PROFILE_KEY = 'JISHIKA_USER_PROFILE';
 
 const SHOW_DEMO_CARDS = false;
 
@@ -37,7 +40,13 @@ Page({
     reminderEnabled: true,
     refreshing: false,
     bodyScrollTop: 0,
-    bodyCanScroll: false
+    bodyCanScroll: false,
+    showAuthModal: false,
+    authProfile: {
+      nickname: '',
+      avatar: '',
+      initial: ''
+    }
   },
 
   onLoad() {
@@ -53,11 +62,90 @@ Page({
     }
     this._lastPullProgress = 0;
     this.loadCards();
+    this.checkAuth();
 
     const today = this.formatDate(new Date());
     if (this.todayDate && this.todayDate !== today) {
       this.updateCalendar();
     }
+  },
+
+  checkAuth() {
+    const profile = wx.getStorageSync(USER_PROFILE_KEY) || {};
+    const authorized = Boolean(profile.nickname && profile.avatar);
+    if (!authorized) {
+      this.setData({ showAuthModal: true });
+    }
+  },
+
+  onAuthAvatar(event) {
+    const avatarUrl = event.detail.avatarUrl;
+    if (!avatarUrl) return;
+    this.setData({ 'authProfile.avatar': avatarUrl });
+    this.tryFinishAuth();
+  },
+
+  onAuthNickname(event) {
+    const nickname = event.detail.value;
+    if (!nickname) return;
+    const initial = nickname.trim().charAt(0);
+    this.setData({
+      'authProfile.nickname': nickname,
+      'authProfile.initial': initial
+    });
+    this.tryFinishAuth();
+  },
+
+  async tryFinishAuth() {
+    const { authProfile } = this.data;
+    if (!authProfile.nickname || !authProfile.avatar) return;
+
+    const profile = { ...authProfile, serviceTags: [] };
+    wx.setStorageSync(USER_PROFILE_KEY, profile);
+    try {
+      const app = getApp();
+      if (app.globalData) app.globalData.userProfile = profile;
+    } catch (e) {}
+
+    this.setData({ showAuthModal: false });
+
+    try {
+      const app = getApp();
+      if (app.globalData && app.globalData.cloudReady && wx.cloud) {
+        const openid = app.globalData.openid || wx.getStorageSync('JISHIKA_OPENID');
+        if (openid) {
+          const db = wx.cloud.database();
+          const res = await db.collection(collections.users)
+            .where({ openid })
+            .limit(1)
+            .get();
+          const data = {
+            openid,
+            nickName: authProfile.nickname,
+            avatarUrl: authProfile.avatar,
+            initial: authProfile.initial,
+            updatedAt: Date.now()
+          };
+          if (res.data && res.data[0] && res.data[0]._id) {
+            await db.collection(collections.users).doc(res.data[0]._id).update({ data });
+          } else {
+            await db.collection(collections.users).add({
+              data: { ...data, createdAt: Date.now() }
+            });
+          }
+        }
+      }
+    } catch (error) {
+      // 忽略云端保存失败
+    }
+  },
+
+  closeAuthModal() {
+    this.setData({ showAuthModal: false });
+  },
+
+  onPreventBubble() {
+    // 阻止事件冒泡
   },
 
   updateSystemInfo() {

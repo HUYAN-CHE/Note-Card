@@ -2,12 +2,20 @@
   <!-- 顶部绿色 Hero -->
   <view class="hero" style="padding-top: {{heroPaddingTop}}rpx;">
     <view class="hero-header">
-      <view class="my-avatar-wrap">
-        <button class="my-avatar my-avatar-btn {{authorized ? '' : 'my-avatar-unauthorized'}}" open-type="chooseAvatar" bind:chooseavatar="onChooseAvatar">
-          <text class="my-avatar-initial" wx:if="{{!myProfile.avatar}}">{{authorized ? (myProfile.initial || '我') : ''}}</text>
-          <image wx:else class="my-avatar-img" src="{{myProfile.avatar}}" mode="aspectFill" />
+      <!-- 未授权：点击头像/昵称分别授权 -->
+      <view class="my-avatar-wrap" wx:if="{{!authorized}}">
+        <button class="my-avatar my-avatar-btn my-avatar-unauthorized" open-type="chooseAvatar" bind:chooseavatar="onChooseAvatar">
+          <text class="my-avatar-initial"></text>
         </button>
-        <button class="my-name my-name-btn" open-type="chooseNickname" bind:choosenickname="onChooseNickname">{{authorized ? (myProfile.nickname || '我') : '点击授权'}}</button>
+        <button class="my-name my-name-btn" open-type="chooseNickname" bind:choosenickname="onChooseNickname">点击授权</button>
+      </view>
+
+      <!-- 已授权：点击进入我的主页 -->
+      <view class="my-avatar-wrap my-avatar-wrap-link" wx:else bindtap="onMyProfileTap" data-action="open_my_home">
+        <view class="my-avatar">
+          <image class="my-avatar-img" src="{{myProfile.avatar}}" mode="aspectFill" />
+        </view>
+        <text class="my-name">{{myProfile.nickname}}</text>
       </view>
     </view>
 
