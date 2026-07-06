@@ -42,7 +42,6 @@ Page({
     bodyScrollTop: 0,
     bodyCanScroll: false,
     showAuthModal: false,
-    authFallback: false,
     authProfile: {
       nickname: '',
       avatar: '',
@@ -77,34 +76,6 @@ Page({
     if (!authorized) {
       this.setData({ showAuthModal: true });
     }
-  },
-
-  onAuthLogin() {
-    if (!wx.getUserProfile) {
-      this.setData({ authFallback: true });
-      return;
-    }
-
-    wx.getUserProfile({
-      desc: '用于展示用户头像和昵称',
-      success: (res) => {
-        const { nickName, avatarUrl } = res.userInfo || {};
-        if (nickName && avatarUrl) {
-          const profile = {
-            nickname: nickName,
-            avatar: avatarUrl,
-            initial: nickName.trim().charAt(0),
-            serviceTags: []
-          };
-          this.finishAuth(profile);
-        } else {
-          this.setData({ authFallback: true });
-        }
-      },
-      fail: () => {
-        this.setData({ authFallback: true });
-      }
-    });
   },
 
   onAuthAvatar(event) {

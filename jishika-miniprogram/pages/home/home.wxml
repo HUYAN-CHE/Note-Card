@@ -84,14 +84,11 @@
       <view class="auth-title">授权登录</view>
       <view class="auth-desc">授权头像和昵称，即可查看协作人脉</view>
       <view class="auth-actions">
-        <button class="auth-login-btn" bindtap="onAuthLogin">微信授权登录</button>
-        <view class="auth-fallback" wx:if="{{authFallback}}">
-          <button class="auth-avatar-btn" open-type="chooseAvatar" bind:chooseavatar="onAuthAvatar">
-            <text wx:if="{{!authProfile.avatar}}">授权头像</text>
-            <image wx:else class="auth-avatar-img" src="{{authProfile.avatar}}" mode="aspectFill" />
-          </button>
-          <button class="auth-nickname-btn" open-type="chooseNickname" bind:choosenickname="onAuthNickname">{{authProfile.nickname || '授权昵称'}}</button>
-        </view>
+        <button class="auth-avatar-btn" open-type="chooseAvatar" bind:chooseavatar="onAuthAvatar">
+          <text wx:if="{{!authProfile.avatar}}">授权头像</text>
+          <image wx:else class="auth-avatar-img" src="{{authProfile.avatar}}" mode="aspectFill" />
+        </button>
+        <button class="auth-nickname-btn" open-type="chooseNickname" bind:choosenickname="onAuthNickname">{{authProfile.nickname || '授权昵称'}}</button>
       </view>
       <view class="auth-close" bindtap="closeAuthModal">稍后再说</view>
     </view>
