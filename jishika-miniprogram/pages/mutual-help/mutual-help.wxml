@@ -3,8 +3,11 @@
   <view class="hero" style="padding-top: {{heroPaddingTop}}rpx;">
     <view class="hero-header">
       <view class="my-avatar-wrap" bindtap="onMyProfileTap" data-action="open_my_home">
-        <view class="my-avatar"></view>
-        <text class="my-name">Julian</text>
+        <view class="my-avatar">
+          <text class="my-avatar-initial" wx:if="{{!myProfile.avatar}}">{{myProfile.initial || '我'}}</text>
+          <image wx:else class="my-avatar-img" src="{{myProfile.avatar}}" mode="aspectFill" />
+        </view>
+        <text class="my-name">{{myProfile.nickname || '我'}}</text>
       </view>
     </view>
 

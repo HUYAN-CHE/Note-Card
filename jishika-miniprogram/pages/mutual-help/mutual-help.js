@@ -46,13 +46,52 @@ Page({
     selectedHelperId: '',
     helpers: MOCK_HELPERS,
     cards: [],
+    myProfile: {
+      nickname: '',
+      avatar: '',
+      initial: ''
+    },
     loadingHelpers: false,
     loadingCards: false
   },
 
   onLoad() {
     this.updateSystemInfo();
+    this.loadMyProfile();
     this.loadHelpers();
+  },
+
+  async loadMyProfile() {
+    const local = wx.getStorageSync(STORAGE_KEY);
+    let profile = local && (local.nickname || local.avatar)
+      ? { nickname: local.nickname, avatar: local.avatar, initial: local.initial }
+      : { nickname: '', avatar: '', initial: '' };
+
+    try {
+      const app = getApp();
+      if (app.globalData && app.globalData.cloudReady && wx.cloud) {
+        const openid = app.globalData.openid || wx.getStorageSync('JISHIKA_OPENID');
+        if (openid) {
+          const res = await wx.cloud.database()
+            .collection(collections.users)
+            .where({ openid })
+            .limit(1)
+            .get();
+          const cloudUser = res.data && res.data[0];
+          if (cloudUser) {
+            profile = {
+              nickname: cloudUser.nickName || '',
+              avatar: cloudUser.avatarUrl || '',
+              initial: cloudUser.initial || ''
+            };
+          }
+        }
+      }
+    } catch (error) {
+      // 忽略云端读取失败
+    }
+
+    this.setData({ myProfile: profile });
   },
 
   async loadHelpers() {
