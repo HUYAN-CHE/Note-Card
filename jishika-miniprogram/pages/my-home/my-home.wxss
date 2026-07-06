@@ -49,23 +49,27 @@
 }
 
 .avatar-edit {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 120rpx;
-  height: 120rpx;
-  min-width: 0;
-  padding: 0;
-  margin: 0;
-  background: #f5f7fa;
-  border-radius: 50%;
+  width: 120rpx !important;
+  height: 120rpx !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  background: #f5f7fa !important;
+  border: none !important;
+  border-radius: 50% !important;
   line-height: 1;
   overflow: hidden;
   flex-shrink: 0;
+  box-sizing: border-box;
 }
 
 .avatar-edit::after {
-  border: none;
+  display: none;
 }
 
 .profile-initial {
