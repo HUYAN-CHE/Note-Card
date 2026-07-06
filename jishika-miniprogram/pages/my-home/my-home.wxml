@@ -1,4 +1,60 @@
 <view class="page my-home-page">
-  <view class="section-title">我的主页</view>
-  <view class="section-subtitle">开发中，后续展示个人资料、服务标签和我的记事卡</view>
+  <!-- 顶部绿色 Hero -->
+  <view class="profile-hero" style="padding-top: {{heroPaddingTop}}rpx;">
+    <view class="profile-header">
+      <view class="profile-avatar">
+        <text class="profile-initial" wx:if="{{!user.avatar}}">{{user.initial || '我'}}</text>
+        <image wx:else class="profile-avatar-img" src="{{user.avatar}}" mode="aspectFill" />
+      </view>
+      <view class="profile-info">
+        <text class="profile-name">{{user.nickname || '我'}}</text>
+        <text class="profile-intro">{{user.intro || '还没有个性签名'}}</text>
+      </view>
+    </view>
+
+    <view class="profile-tags" wx:if="{{serviceTags.length}}">
+      <text class="profile-tag" wx:for="{{serviceTags}}" wx:key="*this">{{item}}</text>
+    </view>
+  </view>
+
+  <!-- 内容区 -->
+  <view class="content">
+    <!-- Tab 切换 -->
+    <view class="tab-header">
+      <view
+        class="tab-item {{activeTab === 'mine' ? 'active' : ''}}"
+        bindtap="switchTab"
+        data-tab="mine"
+      >我的卡</view>
+      <view
+        class="tab-item {{activeTab === 'helped' ? 'active' : ''}}"
+        bindtap="switchTab"
+        data-tab="helped"
+      >我协助的</view>
+    </view>
+
+    <scroll-view class="card-scroll" scroll-y enhanced show-scrollbar="{{false}}">
+      <view class="card-list" wx:if="{{cards.length}}">
+        <view
+          wx:for="{{cards}}"
+          wx:key="id"
+          class="card-item"
+          bindtap="openCard"
+          data-id="{{item.id}}"
+        >
+          <view class="card-main">
+            <text class="card-title">{{item.projectName || item.title || '未命名事项'}}</text>
+            <text class="card-desc">{{item.summary || item.desc || '暂无描述'}}</text>
+          </view>
+          <view class="card-status">{{item.status || item.stage || '进行中'}}</view>
+        </view>
+      </view>
+
+      <view class="card-empty" wx:if="{{!loading && cards.length === 0}}">
+        <text class="card-empty-text">{{activeTab === 'mine' ? '还没有我创建的记事卡' : '还没有我协助的记事卡'}}</text>
+      </view>
+
+      <view class="content-bottom-space"></view>
+    </scroll-view>
+  </view>
 </view>
