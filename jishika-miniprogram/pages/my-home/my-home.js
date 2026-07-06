@@ -2,10 +2,10 @@ const { getCards } = require('../../utils/store');
 const { collections } = require('../../config/env');
 
 const DEFAULT_USER = {
-  nickname: '我',
+  nickname: '',
   intro: '',
   avatar: '',
-  initial: '我'
+  initial: ''
 };
 
 const DEFAULT_TAGS = ['官网设计', '品牌梳理', '视觉系统'];
@@ -153,7 +153,7 @@ Page({
         nickname: user.nickname,
         intro: user.intro,
         avatar: user.avatar,
-        initial: user.initial,
+        initial: user.initial || this.getInitial(user.nickname),
         tagsText: serviceTags.join(' ')
       }
     });
@@ -188,7 +188,7 @@ Page({
   },
 
   getInitial(name) {
-    if (!name) return '我';
+    if (!name) return '';
     return name.trim().charAt(0);
   },
 

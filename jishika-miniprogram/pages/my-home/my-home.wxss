@@ -78,6 +78,13 @@
   color: #00c853;
 }
 
+.profile-initial.avatar-hint {
+  font-size: 22rpx;
+  font-weight: 400;
+  text-align: center;
+  padding: 0 16rpx;
+}
+
 .nickname-edit {
   width: 100%;
   padding: 0;

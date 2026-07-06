@@ -3,23 +3,23 @@
   <view class="profile-hero" style="padding-top: {{heroPaddingTop}}rpx;">
     <view class="profile-header">
       <block wx:if="{{!isEditing}}">
-        <view class="profile-avatar">
-          <text class="profile-initial" wx:if="{{!user.avatar}}">{{user.initial || '我'}}</text>
+        <view class="profile-avatar" bindtap="startEdit">
+          <text class="profile-initial avatar-hint" wx:if="{{!user.avatar}}">授权头像</text>
           <image wx:else class="profile-avatar-img" src="{{user.avatar}}" mode="aspectFill" />
         </view>
-        <view class="profile-info">
-          <text class="profile-name">{{user.nickname || '我'}}</text>
+        <view class="profile-info" bindtap="startEdit">
+          <text class="profile-name">{{user.nickname || '授权昵称'}}</text>
         </view>
         <view class="edit-btn" bindtap="startEdit">编辑资料</view>
       </block>
 
       <block wx:else>
         <button class="profile-avatar avatar-edit" open-type="chooseAvatar" bind:chooseavatar="onChooseAvatar">
-          <text class="profile-initial" wx:if="{{!editForm.avatar}}">{{editForm.initial || '我'}}</text>
+          <text class="profile-initial avatar-hint" wx:if="{{!editForm.avatar}}">授权头像</text>
           <image wx:else class="profile-avatar-img" src="{{editForm.avatar}}" mode="aspectFill" />
         </button>
         <view class="profile-info">
-          <button class="nickname-edit" open-type="chooseNickname" bind:choosenickname="onChooseNickname">{{editForm.nickname || '点击设置昵称'}}</button>
+          <button class="nickname-edit" open-type="chooseNickname" bind:choosenickname="onChooseNickname">{{editForm.nickname || '授权昵称'}}</button>
         </view>
       </block>
     </view>
