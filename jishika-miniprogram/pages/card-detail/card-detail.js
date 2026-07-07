@@ -1,9 +1,10 @@
 const store = require('../../utils/store.js');
 
-const STATUS_TEXT = {
-  done: '已完成',
-  current: '进行中',
-  todo: '待开始'
+const STATUS_MAP = {
+  '进行中': 'doing',
+  '待确认': 'todo',
+  '待开始': 'todo',
+  '已完成': 'done'
 };
 
 Page({
@@ -11,19 +12,22 @@ Page({
     cardId: '',
     view: 'network',
     card: {},
-    creator: { nickname: '', avatar: '', initial: '?' },
+    creator: { nickname: '', avatar: '', initial: '?', relationText: '创立者' },
     helpers: [],
-    progressPercent: 0,
-    milestones: [],
-    applied: false,
+    keyPoints: [],
+    statusClass: 'doing',
     isCreator: false,
+    isNetworkView: true,
+    showApplySheet: false,
+    applyMessage: '',
+    userName: '我',
     loading: false
   },
 
   onLoad(options) {
     const cardId = options.id || '';
     const view = options.view || 'network';
-    this.setData({ cardId, view });
+    this.setData({ cardId, view, userName: this.getUserName() });
     if (cardId) {
       this.loadCard(cardId);
     } else {
@@ -36,17 +40,21 @@ Page({
     try {
       const card = await store.getCard(id) || {};
       const creator = this.normalizeUser(card.creatorId || card.creator || '未知用户');
+      creator.relationText = this.getRelationText(creator, this.data.view);
       const helpers = (card.helperIds || card.helpers || []).map(h => this.normalizeUser(h));
-      const milestones = this.buildMilestones(card);
-      const progressPercent = this.calcProgress(milestones);
+      const keyPoints = Array.isArray(card.keyPoints) ? card.keyPoints : [];
+      const status = card.status || card.stage || '进行中';
+      const statusClass = STATUS_MAP[status] || 'doing';
       const isCreator = this.isCurrentUser(creator.id || creator.nickname);
+      const isNetworkView = this.data.view === 'network' && !isCreator;
       this.setData({
         card,
         creator,
         helpers,
-        milestones,
-        progressPercent,
-        isCreator
+        keyPoints,
+        statusClass,
+        isCreator,
+        isNetworkView
       });
     } catch (e) {
       console.error('loadCard error', e);
@@ -75,6 +83,12 @@ Page({
     };
   },
 
+  getRelationText(creator, view) {
+    if (creator.isMe) return '我 · 创立者';
+    if (view === 'network') return '二度人脉 · 创立者';
+    return '一度人脉 · 创立者';
+  },
+
   isCurrentUser(value) {
     if (!value) return false;
     const myProfile = wx.getStorageSync('my_profile') || {};
@@ -83,50 +97,39 @@ Page({
     return value === myName || value === openid;
   },
 
+  getUserName() {
+    const myProfile = wx.getStorageSync('my_profile') || {};
+    return myProfile.nickname || '我';
+  },
+
   getInitial(name) {
     if (!name) return '?';
     return String(name).trim().charAt(0).toUpperCase() || '?';
   },
 
-  buildMilestones(card) {
-    const nodes = card.progressNodes || card.milestones || [];
-    if (nodes.length) {
-      return nodes.map(n => ({
-        id: n.id || String(Math.random()),
-        title: n.title,
-        status: n.status || 'todo',
-        statusText: STATUS_TEXT[n.status] || STATUS_TEXT.todo
-      }));
-    }
-    // 兜底：按 stage/status 生成简单节点
-    const fallback = [];
-    if (card.stage || card.status) {
-      fallback.push({ id: '1', title: card.stage || card.status, status: 'current', statusText: STATUS_TEXT.current });
-    }
-    if (card.nextStep) {
-      fallback.push({ id: '2', title: card.nextStep, status: 'todo', statusText: STATUS_TEXT.todo });
-    }
-    return fallback;
+  openApplySheet() {
+    this.setData({ showApplySheet: true, applyMessage: '' });
   },
 
-  calcProgress(milestones) {
-    if (!milestones.length) return 0;
-    const done = milestones.filter(m => m.status === 'done').length;
-    return Math.round((done / milestones.length) * 100);
+  closeApplySheet() {
+    this.setData({ showApplySheet: false });
   },
 
-  onApplyJoin() {
-    if (this.data.applied) return;
-    wx.showModal({
-      title: '申请加入',
-      content: '向创立者发送协助申请？',
-      confirmColor: '#00c853',
-      success: (res) => {
-        if (res.confirm) {
-          this.setData({ applied: true });
-          wx.showToast({ title: '申请已发送', icon: 'success' });
-        }
-      }
-    });
+  onApplyInput(e) {
+    this.setData({ applyMessage: e.detail.value });
+  },
+
+  noop() {},
+
+  onShareAppMessage() {
+    const { card, applyMessage } = this.data;
+    const title = applyMessage
+      ? `${this.data.userName} 想加入《${card.projectName || card.title || '这张记事卡'}》：${applyMessage}`
+      : `${this.data.userName} 想加入《${card.projectName || card.title || '这张记事卡'}》，请帮我引荐～`;
+    return {
+      title,
+      path: `/pages/card-detail/card-detail?id=${card.id || this.data.cardId}`,
+      imageUrl: ''
+    };
   }
 });

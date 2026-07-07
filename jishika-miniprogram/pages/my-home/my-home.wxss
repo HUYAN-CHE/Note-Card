@@ -1,82 +1,59 @@
 .my-home-page {
   min-height: 100vh;
   background: #ffffff;
+  padding-bottom: 40rpx;
+}
+
+/* 顶部资料卡 */
+.profile-card {
   display: flex;
   flex-direction: column;
-}
-
-/* 顶部资料区 */
-.profile-header {
-  padding: 120rpx 32rpx 40rpx;
-  background: #ffffff;
-}
-
-.profile-main {
-  display: flex;
   align-items: center;
+  padding: 100rpx 48rpx 48rpx;
+  text-align: center;
 }
 
 .profile-avatar {
-  width: 128rpx;
-  height: 128rpx;
+  width: 148rpx;
+  height: 148rpx;
   border-radius: 50%;
-  background: #f5f7fa;
+  background: linear-gradient(150deg, #00c853, #00a344);
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  flex-shrink: 0;
-  margin: 0;
-  padding: 0;
-  border: 2rpx solid #e8ecef;
-  box-sizing: border-box;
-}
-
-.profile-avatar::after {
-  display: none;
+  box-shadow: 0 8rpx 24rpx rgba(0, 200, 83, 0.22);
 }
 
 .profile-avatar-img {
-  width: 128rpx;
-  height: 128rpx;
+  width: 148rpx;
+  height: 148rpx;
 }
 
 .profile-initial {
-  font-size: 48rpx;
-  font-weight: 700;
-  color: #00c853;
-}
-
-.profile-info {
-  flex: 1;
-  margin-left: 28rpx;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
+  font-size: 56rpx;
+  font-weight: 800;
+  color: #fff;
 }
 
 .profile-name {
+  margin-top: 24rpx;
   font-size: 40rpx;
-  font-weight: 700;
+  font-weight: 800;
   color: #1a1a1a;
-  line-height: 1.4;
 }
 
 .profile-intro {
-  margin-top: 8rpx;
+  margin-top: 12rpx;
   font-size: 26rpx;
   color: #666;
   line-height: 1.5;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
+  max-width: 560rpx;
 }
 
-.edit-btn {
-  padding: 12rpx 24rpx;
+.profile-edit {
+  margin-top: 20rpx;
+  padding: 12rpx 28rpx;
   font-size: 26rpx;
   color: #00c853;
   border: 2rpx solid #00c853;
@@ -84,35 +61,53 @@
   font-weight: 500;
 }
 
-/* 编辑表单 */
-.avatar-edit {
-  background: #f0fdf4 !important;
-  border-color: #00c853;
+/* 编辑面板 */
+.edit-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 48rpx 48rpx;
+  text-align: center;
 }
 
-.nickname-edit {
+.edit-avatar {
+  width: 148rpx;
+  height: 148rpx;
+  border-radius: 50%;
+  background: linear-gradient(150deg, #00c853, #00a344);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  padding: 0;
   margin: 0;
+  border: none;
+  box-shadow: 0 8rpx 24rpx rgba(0, 200, 83, 0.22);
+}
+
+.edit-avatar::after {
+  display: none;
+}
+
+.edit-nickname {
+  margin-top: 24rpx;
   padding: 0;
   background: transparent;
   border: none;
   font-size: 40rpx;
-  font-weight: 700;
+  font-weight: 800;
   color: #1a1a1a;
   line-height: 1.4;
-  text-align: left;
 }
 
-.nickname-edit::after {
+.edit-nickname::after {
   display: none;
 }
 
-.profile-edit-form {
-  margin-top: 28rpx;
-}
-
-.intro-input {
+.edit-intro {
   width: 100%;
   min-height: 120rpx;
+  margin-top: 24rpx;
   padding: 20rpx 24rpx;
   box-sizing: border-box;
   background: #f8f9fa;
@@ -124,31 +119,42 @@
 
 .edit-actions {
   display: flex;
-  justify-content: flex-end;
-  margin-top: 20rpx;
-  gap: 20rpx;
+  justify-content: center;
+  margin-top: 28rpx;
+  gap: 24rpx;
 }
 
-.edit-action {
-  padding: 14rpx 36rpx;
-  border-radius: 32rpx;
+.edit-btn {
+  padding: 16rpx 48rpx;
+  border-radius: 36rpx;
   font-size: 28rpx;
   font-weight: 500;
 }
 
-.edit-action.save {
+.edit-btn.save {
   color: #fff;
   background: #00c853;
 }
 
-.edit-action.cancel {
+.edit-btn.cancel {
   color: #666;
   background: #f0f0f0;
 }
 
-/* 服务能力标签 */
+/* 分隔线 */
+.divider {
+  height: 1rpx;
+  background: #f0f0f0;
+  margin: 0 32rpx;
+}
+
+/* 区块 */
 .section {
-  margin: 0 32rpx 32rpx;
+  padding: 36rpx 32rpx 0;
+}
+
+.section-last {
+  padding-bottom: 40rpx;
 }
 
 .section-header {
@@ -170,16 +176,17 @@
   font-weight: 500;
 }
 
+/* 服务标签 */
 .tag-list {
   display: flex;
   flex-wrap: wrap;
   gap: 16rpx;
 }
 
-.tag {
+.tag-pill {
   display: inline-flex;
   align-items: center;
-  padding: 10rpx 22rpx;
+  padding: 12rpx 24rpx;
   background: #f0fdf4;
   border-radius: 28rpx;
 }
@@ -202,11 +209,11 @@
 .tag-empty {
   font-size: 26rpx;
   color: #999;
-  padding: 16rpx 0;
+  padding: 8rpx 0 16rpx;
 }
 
 .tag-edit-area {
-  margin-top: 16rpx;
+  margin-top: 8rpx;
 }
 
 .tag-input {
@@ -242,15 +249,139 @@
   border: 1rpx solid #e0f2e9;
 }
 
-/* 互助数据 */
-.stats-bar {
+/* 子标签 */
+.subtabs {
+  display: flex;
+  gap: 32rpx;
+  margin-bottom: 20rpx;
+}
+
+.subtab {
+  position: relative;
+  padding: 12rpx 0;
+  font-size: 28rpx;
+  color: #999;
+  font-weight: 500;
+}
+
+.subtab.on {
+  color: #1a1a1a;
+  font-weight: 700;
+}
+
+.subtab.on::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 4rpx;
+  background: #00c853;
+  border-radius: 2rpx;
+}
+
+/* 卡片列表 */
+.card-scroll {
+  max-height: 680rpx;
+}
+
+.card-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.ncard {
+  padding: 24rpx;
+  background: #ffffff;
+  border-radius: 20rpx;
+  box-shadow: 0 2rpx 16rpx rgba(0, 0, 0, 0.04);
+  border: 1rpx solid #f5f5f5;
+}
+
+.ncard-title {
+  display: block;
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #1a1a1a;
+  line-height: 1.4;
+}
+
+.ncard-meta {
+  display: flex;
+  align-items: center;
+  margin-top: 16rpx;
+  gap: 16rpx;
+}
+
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 8rpx 16rpx;
+  border-radius: 20rpx;
+  font-size: 24rpx;
+  font-weight: 500;
+}
+
+.status-pill .dot {
+  width: 12rpx;
+  height: 12rpx;
+  border-radius: 50%;
+  margin-right: 8rpx;
+}
+
+.status-pill.doing {
+  color: #00c853;
+  background: #f0fdf4;
+}
+
+.status-pill.doing .dot {
+  background: #00c853;
+}
+
+.status-pill.todo {
+  color: #c78000;
+  background: #fff8e6;
+}
+
+.status-pill.todo .dot {
+  background: #ffb300;
+}
+
+.status-pill.done {
+  color: #888;
+  background: #f5f5f5;
+}
+
+.status-pill.done .dot {
+  background: #bbb;
+}
+
+.ncard-when {
+  font-size: 24rpx;
+  color: #bbb;
+}
+
+.card-empty {
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 0 32rpx 40rpx;
-  padding: 32rpx 0;
-  background: #f8f9fa;
-  border-radius: 20rpx;
+  padding-top: 80rpx;
+}
+
+.card-empty-text {
+  font-size: 28rpx;
+  color: #bbb;
+}
+
+.content-bottom-space {
+  height: 24rpx;
+}
+
+/* 互助数据 */
+.stat-row {
+  display: flex;
+  gap: 24rpx;
 }
 
 .stat-item {
@@ -258,6 +389,9 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  padding: 28rpx 0;
+  background: #f8f9fa;
+  border-radius: 20rpx;
 }
 
 .stat-num {
@@ -271,124 +405,4 @@
   margin-top: 8rpx;
   font-size: 24rpx;
   color: #888;
-}
-
-.stat-divider {
-  width: 2rpx;
-  height: 60rpx;
-  background: #e0e0e0;
-}
-
-/* 内容区 */
-.content {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
-}
-
-.tab-header {
-  display: flex;
-  padding: 0 32rpx;
-  border-bottom: 1rpx solid #f0f0f0;
-}
-
-.tab-item {
-  position: relative;
-  padding: 24rpx 0;
-  margin-right: 48rpx;
-  font-size: 30rpx;
-  color: #999;
-  font-weight: 500;
-}
-
-.tab-item.active {
-  color: #1a1a1a;
-  font-weight: 700;
-}
-
-.tab-item.active::after {
-  content: '';
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: 4rpx;
-  background: #00c853;
-  border-radius: 2rpx;
-}
-
-.card-scroll {
-  flex: 1;
-  min-height: 0;
-}
-
-.card-list {
-  padding: 24rpx 32rpx;
-}
-
-.card-item {
-  display: flex;
-  align-items: center;
-  padding: 28rpx;
-  margin-bottom: 20rpx;
-  background: #ffffff;
-  border-radius: 20rpx;
-  box-shadow: 0 2rpx 16rpx rgba(0, 0, 0, 0.04);
-  border: 1rpx solid #f5f5f5;
-}
-
-.card-main {
-  flex: 1;
-  min-width: 0;
-}
-
-.card-title {
-  display: block;
-  font-size: 30rpx;
-  font-weight: 600;
-  color: #1a1a1a;
-  line-height: 1.4;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.card-desc {
-  display: block;
-  margin-top: 10rpx;
-  font-size: 26rpx;
-  color: #888;
-  line-height: 1.5;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-}
-
-.card-status {
-  margin-left: 20rpx;
-  padding: 8rpx 18rpx;
-  font-size: 24rpx;
-  color: #00c853;
-  background: #f0fdf4;
-  border-radius: 20rpx;
-  flex-shrink: 0;
-}
-
-.card-empty {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding-top: 120rpx;
-}
-
-.card-empty-text {
-  font-size: 28rpx;
-  color: #bbb;
-}
-
-.content-bottom-space {
-  height: 40rpx;
 }

@@ -1,91 +1,93 @@
 <view class="page card-detail-page">
-  <!-- 顶部标题 -->
-  <view class="detail-header">
-    <view class="detail-type" wx:if="{{card.typeLabel}}">{{card.typeLabel}}</view>
-    <view class="detail-type" wx:elif="{{card.type}}">{{card.type}}</view>
+  <!-- 顶部标题与创立者 -->
+  <view class="detail-hero">
     <text class="detail-title">{{card.projectName || card.title || '未命名事项'}}</text>
-    <view class="detail-meta">
-      <text class="detail-status" wx:if="{{card.status || card.stage}}">{{card.status || card.stage}}</text>
-      <text class="detail-date" wx:if="{{card.updatedText}}">更新于 {{card.updatedText}}</text>
-    </view>
-  </view>
-
-  <!-- 摘要 -->
-  <view class="detail-section" wx:if="{{card.summary}}">
-    <view class="section-title">摘要</view>
-    <text class="detail-summary">{{card.summary}}</text>
-  </view>
-
-  <!-- 客户 / 关键信息 -->
-  <view class="detail-section" wx:if="{{card.customerName || card.phone}}">
-    <view class="section-title">关键信息</view>
-    <view class="info-row" wx:if="{{card.customerName}}">
-      <text class="info-label">联系人</text>
-      <text class="info-value">{{card.customerName}}</text>
-    </view>
-    <view class="info-row" wx:if="{{card.phone}}">
-      <text class="info-label">电话</text>
-      <text class="info-value">{{card.phone}}</text>
-    </view>
-  </view>
-
-  <!-- 创立者 -->
-  <view class="detail-section">
-    <view class="section-title">创立者</view>
-    <view class="people-list">
-      <view class="people-item">
-        <view class="people-avatar">
-          <text wx:if="{{!creator.avatar}}">{{creator.initial}}</text>
-          <image wx:else src="{{creator.avatar}}" mode="aspectFill" />
-        </view>
-        <view class="people-info">
-          <text class="people-name">{{creator.nickname || '未知用户'}}</text>
-          <text class="people-tag" wx:if="{{creator.isMe}}">我</text>
-        </view>
+    <view class="creator">
+      <view class="creator-avatar">
+        <text wx:if="{{!creator.avatar}}">{{creator.initial}}</text>
+        <image wx:else src="{{creator.avatar}}" mode="aspectFill" />
+      </view>
+      <view class="creator-info">
+        <text class="creator-name">{{creator.nickname || '未知用户'}}</text>
+        <text class="creator-relation">{{creator.relationText}}</text>
       </view>
     </view>
   </view>
 
   <!-- 协助者 -->
-  <view class="detail-section" wx:if="{{helpers.length}}">
-    <view class="section-title">协助者</view>
-    <view class="people-list">
-      <view class="people-item" wx:for="{{helpers}}" wx:key="id">
-        <view class="people-avatar">
+  <view class="detail-section">
+    <view class="section-title">🤝 协助者</view>
+    <view class="helpers" wx:if="{{helpers.length}}">
+      <view class="helper" wx:for="{{helpers}}" wx:key="id">
+        <view class="helper-avatar">
           <text wx:if="{{!item.avatar}}">{{item.initial}}</text>
           <image wx:else src="{{item.avatar}}" mode="aspectFill" />
         </view>
-        <view class="people-info">
-          <text class="people-name">{{item.nickname || '未知用户'}}</text>
-          <text class="people-tag" wx:if="{{item.isMe}}">我</text>
-        </view>
+        <text class="helper-name">{{item.nickname}}</text>
       </view>
+    </view>
+    <view class="helpers-empty" wx:else>暂无协助者，成为第一个帮忙的人</view>
+  </view>
+
+  <!-- 需求摘要 -->
+  <view class="detail-section" wx:if="{{card.summary || card.desc}}">
+    <view class="section-title">📝 需求摘要</view>
+    <text class="detail-summary">{{card.summary || card.desc}}</text>
+  </view>
+
+  <!-- 重点 / 待确认 -->
+  <view class="detail-section" wx:if="{{keyPoints.length}}">
+    <view class="section-title">⭐ 重点 / 待确认</view>
+    <view class="keypoints">
+      <text class="keypoint" wx:for="{{keyPoints}}" wx:key="*this">{{item}}</text>
     </view>
   </view>
 
-  <!-- 进度 -->
+  <!-- 当前进度 -->
   <view class="detail-section">
-    <view class="section-title">进度</view>
-    <view class="progress-bar-wrap">
-      <view class="progress-track">
-        <view class="progress-fill" style="width: {{progressPercent}}%;"></view>
+    <view class="section-title">📊 当前进度</view>
+    <view class="kv-list">
+      <view class="kv-item">
+        <text class="kv-key">状态</text>
+        <text class="kv-value {{statusClass}}">{{card.status || card.stage || '进行中'}}</text>
       </view>
-      <text class="progress-text">{{progressPercent}}%</text>
-    </view>
-    <view class="milestone-list" wx:if="{{milestones.length}}">
-      <view class="milestone-item {{item.status}}" wx:for="{{milestones}}" wx:key="id">
-        <view class="milestone-dot"></view>
-        <text class="milestone-title">{{item.title}}</text>
-        <text class="milestone-status">{{item.statusText}}</text>
+      <view class="kv-item">
+        <text class="kv-key">更新于</text>
+        <text class="kv-value">{{card.updatedText || '今天'}}</text>
+      </view>
+      <view class="kv-item">
+        <text class="kv-key">联系方式</text>
+        <text class="kv-value muted">{{isNetworkView ? '对二度人脉隐藏' : (card.phone || '未填写')}}</text>
       </view>
     </view>
-    <view class="milestone-empty" wx:else>暂无进度节点</view>
   </view>
 
   <!-- 底部操作 -->
   <view class="detail-footer" wx:if="{{!isCreator}}">
-    <button class="apply-btn {{applied ? 'applied' : ''}}" bindtap="onApplyJoin" disabled="{{applied}}">
-      {{applied ? '已申请加入' : '申请加入'}}
-    </button>
+    <button class="apply-btn" bindtap="openApplySheet">申请加入</button>
+  </view>
+
+  <!-- 申请加入弹窗 -->
+  <view class="sheet-mask" wx:if="{{showApplySheet}}" bindtap="closeApplySheet">
+    <view class="sheet" catchtap="noop">
+      <view class="sheet-grab"></view>
+      <view class="sheet-title">请转发给阿哲</view>
+      <view class="sheet-desc">二度人脉不能直接加入，先请共同好友 <b>阿哲</b> 帮你向 {{creator.nickname || '创立者'}} 引荐。</view>
+      <view class="refer-card">
+        <text class="refer-emoji">🤝</text>
+        <text class="refer-text"><b>{{userName}}</b> 想加入《{{card.projectName || card.title || '这张记事卡'}}》，请帮我向 {{creator.nickname || 'TA'}} 说句好话～</text>
+      </view>
+      <textarea
+        class="refer-input"
+        value="{{applyMessage}}"
+        bindinput="onApplyInput"
+        placeholder="补充一句说明（可选）"
+        maxlength="100"
+      />
+      <view class="sheet-actions">
+        <button class="sheet-btn ghost" bindtap="closeApplySheet">取消</button>
+        <button class="sheet-btn primary" open-type="share">生成卡片并转发</button>
+      </view>
+    </view>
   </view>
 </view>

@@ -1,7 +1,13 @@
-const app = getApp();
 const store = require('../../utils/store.js');
 
 const DEFAULT_CANDIDATE_TAGS = ['法律咨询', '财务规划', '职业规划', '心理咨询', '编程开发', '设计创意', '文案写作', '摄影摄像', '健身指导', '家庭教育', '房产顾问', '留学移民'];
+
+const STATUS_MAP = {
+  '进行中': { text: '进行中', class: 'doing' },
+  '待确认': { text: '待确认', class: 'todo' },
+  '待开始': { text: '待开始', class: 'todo' },
+  '已完成': { text: '已完成', class: 'done' }
+};
 
 Page({
   data: {
@@ -14,6 +20,7 @@ Page({
     activeTab: 'mine',
     allCards: [],
     cards: [],
+    counts: { mine: 0, done: 0, helped: 0 },
     isEditing: false,
     editForm: {},
     loading: false,
@@ -58,10 +65,21 @@ Page({
     try {
       const allCards = await store.getCards() || [];
       this.setData({ allCards });
+      this.computeCounts();
       this.filterCards();
     } finally {
       this.setData({ loading: false });
     }
+  },
+
+  computeCounts() {
+    const { allCards, user } = this.data;
+    const myId = user.nickname || '我';
+    const mineCards = allCards.filter(c => c.creatorId === myId || !c.creatorId);
+    const mine = mineCards.filter(c => c.status !== '已完成' && c.stage !== '已完成').length;
+    const done = mineCards.filter(c => c.status === '已完成' || c.stage === '已完成').length;
+    const helped = allCards.filter(c => Array.isArray(c.helperIds) && c.helperIds.includes(myId)).length;
+    this.setData({ counts: { mine, done, helped } });
   },
 
   filterCards() {
@@ -78,12 +96,32 @@ Page({
       filtered = filtered.filter(c => c.status === '已完成' || c.stage === '已完成');
       emptyText = '还没有已完成的记事卡';
     } else if (activeTab === 'helped') {
-      filtered = allCards.filter(c =>
-        Array.isArray(c.helperIds) && c.helperIds.includes(myId)
-      );
+      filtered = allCards.filter(c => Array.isArray(c.helperIds) && c.helperIds.includes(myId));
       emptyText = '还没有协助过别人的记事卡';
     }
-    this.setData({ cards: filtered, emptyText });
+    this.setData({ cards: filtered.map(c => this.decorateCard(c)) , emptyText });
+  },
+
+  decorateCard(card) {
+    const status = card.status || card.stage || '进行中';
+    const mapped = STATUS_MAP[status] || { text: status, class: 'doing' };
+    return {
+      ...card,
+      statusText: mapped.text,
+      statusClass: mapped.class,
+      whenText: card.updatedText || this.formatWhen(card.updatedAt)
+    };
+  },
+
+  formatWhen(ts) {
+    if (!ts) return '';
+    const now = Date.now();
+    const diff = now - ts;
+    if (diff < 3600000) return '刚刚';
+    if (diff < 86400000) return `${Math.floor(diff / 3600000)} 小时前`;
+    if (diff < 172800000) return '昨天';
+    const d = new Date(ts);
+    return `${d.getMonth() + 1}-${d.getDate()}`;
   },
 
   switchTab(e) {
@@ -141,19 +179,16 @@ Page({
 
   onChooseAvatar(e) {
     const avatarUrl = e.detail.avatarUrl;
-    const editForm = { ...this.data.editForm, avatar: avatarUrl };
-    this.setData({ editForm });
+    this.setData({ editForm: { ...this.data.editForm, avatar: avatarUrl } });
   },
 
   onChooseNickname(e) {
     const nickname = e.detail.value;
-    const editForm = { ...this.data.editForm, nickname, initial: this.getInitial(nickname) };
-    this.setData({ editForm });
+    this.setData({ editForm: { ...this.data.editForm, nickname, initial: this.getInitial(nickname) } });
   },
 
   onIntroInput(e) {
-    const intro = e.detail.value;
-    this.setData({ editForm: { ...this.data.editForm, intro } });
+    this.setData({ editForm: { ...this.data.editForm, intro: e.detail.value } });
   },
 
   toggleTagEdit() {
@@ -165,14 +200,13 @@ Page({
   },
 
   addTag(e) {
-    let value = (e.detail.value || this.data.tagInput || '').trim();
+    const value = (e.detail.value || this.data.tagInput || '').trim();
     if (!value) return;
     this.addTagCore(value);
   },
 
   addCandidateTag(e) {
-    const value = e.currentTarget.dataset.tag;
-    this.addTagCore(value);
+    this.addTagCore(e.currentTarget.dataset.tag);
   },
 
   addTagCore(value) {
@@ -215,7 +249,7 @@ Page({
         wx.setStorageSync('my_profile', {
           nickname: '林小北',
           avatar: '',
-          intro: '专注产品设计与用户增长，愿意帮你梳理需求、打磨方案。',
+          intro: '帮朋友把想法落地 ✨',
           serviceTags: ['产品设计', '用户增长', '需求梳理'],
           helperIds: ['张律师', '王财税'],
           helpedCount: 0,
@@ -233,20 +267,15 @@ Page({
             typeLabel: '需求确认卡',
             projectName: '企业官网改版',
             summary: '客户希望重做企业官网，重点关注移动端适配和品牌感。',
+            keyPoints: ['移动端适配', '提升品牌感', '希望 6 月底前上线'],
             customerName: '王女士',
             phone: '13800001234',
             creatorId: '林小北',
             helperIds: [],
             status: '进行中',
-            progressNodes: [
-              { id: 'n1', title: '需求确认', status: 'done' },
-              { id: 'n2', title: '资料补充', status: 'current' },
-              { id: 'n3', title: '阶段沟通', status: 'todo' },
-              { id: 'n4', title: '服务完成', status: 'todo' }
-            ],
             createdAt: now,
             updatedAt: now,
-            updatedText: '07-02 19:00'
+            updatedText: '刚刚'
           },
           {
             id: 'card_demo_2',
@@ -254,18 +283,14 @@ Page({
             typeLabel: '方案卡',
             projectName: '小程序 MVP 方案',
             summary: '完成产品定位、核心流程与页面原型。',
+            keyPoints: ['预算 8k', '2 周交付'],
             customerName: '李老板',
             creatorId: '林小北',
             helperIds: [],
             status: '已完成',
-            progressNodes: [
-              { id: 'n5', title: '需求访谈', status: 'done' },
-              { id: 'n6', title: '方案输出', status: 'done' },
-              { id: 'n7', title: '客户确认', status: 'done' }
-            ],
             createdAt: now - 86400000,
             updatedAt: now - 86400000,
-            updatedText: '07-01 15:00'
+            updatedText: '昨天'
           },
           {
             id: 'card_demo_3',
@@ -273,17 +298,13 @@ Page({
             typeLabel: '待办卡',
             projectName: '社群运营 SOP',
             summary: '帮朋友梳理社群拉新、激活与转化流程。',
+            keyPoints: ['拉新渠道', '激活话术', '转化路径'],
             creatorId: '陈运营',
             helperIds: ['林小北'],
             status: '进行中',
-            progressNodes: [
-              { id: 'n8', title: '现状梳理', status: 'done' },
-              { id: 'n9', title: 'SOP 初稿', status: 'current' },
-              { id: 'n10', title: '试运行', status: 'todo' }
-            ],
             createdAt: now - 172800000,
             updatedAt: now - 172800000,
-            updatedText: '06-30 10:00'
+            updatedText: '前天'
           }
         ]);
       }
