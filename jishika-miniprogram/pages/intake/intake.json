@@ -1,3 +1,5 @@
 {
-  "navigationBarTitleText": "从聊天整理"
+  "navigationBarTitleText": "从聊天整理",
+  "navigationBarBackgroundColor": "#ffffff",
+  "navigationBarTextStyle": "black"
 }

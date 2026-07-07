@@ -1,128 +1,197 @@
 .intake-page {
-  padding-top: 28rpx;
-  overflow-x: hidden;
+  min-height: 100vh;
+  background: #ffffff;
+  padding: 32rpx 32rpx calc(40rpx + env(safe-area-inset-bottom));
+  box-sizing: border-box;
 }
 
-.intro-card {
-  position: relative;
-  overflow: hidden;
-  min-height: 286rpx;
-  padding: 38rpx;
-  background: linear-gradient(155deg, rgba(64, 206, 167, 0.88), rgba(117, 218, 239, 0.7));
-  color: #ffffff;
+/* 顶部说明 */
+.intake-header {
+  padding: 40rpx 32rpx;
+  background: linear-gradient(150deg, #00c853, #00a344);
+  border-radius: 28rpx;
+  color: #fff;
+  margin-bottom: 32rpx;
 }
 
-.intro-card::after {
-  content: "";
-  position: absolute;
-  right: -42rpx;
-  bottom: -48rpx;
-  width: 258rpx;
-  height: 184rpx;
-  border-radius: 16rpx;
-  background: rgba(255, 255, 255, 0.24);
-  transform: rotate(-10deg);
-}
-
-.intro-mark {
+.intake-mark {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 64rpx;
-  height: 64rpx;
+  width: 56rpx;
+  height: 56rpx;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.24);
-  color: #ffffff;
+  background: rgba(255, 255, 255, 0.25);
   font-size: 22rpx;
   font-weight: 800;
+  margin-bottom: 28rpx;
 }
 
-.intro-title {
-  position: relative;
-  margin-top: 34rpx;
-  font-size: 54rpx;
+.intake-title {
+  font-size: 48rpx;
   font-weight: 800;
-  line-height: 1.04;
-  z-index: 1;
+  line-height: 1.2;
 }
 
-.intro-title.second {
-  margin-top: 4rpx;
+.intake-subtitle {
+  margin-top: 16rpx;
+  font-size: 26rpx;
+  color: rgba(255, 255, 255, 0.85);
 }
 
-.intro-subtitle {
-  position: relative;
-  margin-top: 18rpx;
-  color: rgba(255, 255, 255, 0.82);
-  font-size: 24rpx;
-  z-index: 1;
+/* 区块标题 */
+.section-label {
+  font-size: 28rpx;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin-bottom: 18rpx;
 }
 
-.type-tabs {
+/* 类型选择 */
+.type-section {
+  margin-bottom: 32rpx;
+}
+
+.type-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 14rpx;
-  margin-top: 24rpx;
-}
-
-.type-tab {
-  min-height: 78rpx;
-  border: 1rpx solid rgba(255, 255, 255, 0.8);
-  border-radius: 999rpx;
-  background: rgba(255, 255, 255, 0.58);
-  color: #3a4736;
-  font-size: 26rpx;
-  font-weight: 600;
-}
-
-.type-tab.active {
-  background: #101816;
-  color: #f7f2e8;
-}
-
-.input-card {
-  margin-top: 22rpx;
-  overflow: hidden;
-}
-
-.input-card .textarea {
-  min-height: 184rpx;
-}
-
-.input-card .button-row {
-  display: flex;
   gap: 16rpx;
 }
 
-.input-card .ghost-button {
-  flex: 1;
-  min-width: 0;
+.type-pill {
+  padding: 22rpx 0;
+  text-align: center;
+  background: #f8f9fa;
+  border-radius: 16rpx;
+  font-size: 28rpx;
+  color: #555;
+  font-weight: 500;
+  border: 2rpx solid transparent;
 }
 
-.generate-action {
-  width: 440rpx;
-  min-height: 104rpx;
-  margin-left: auto;
-  margin-right: auto;
+.type-pill.active {
+  background: #f0fdf4;
+  color: #00c853;
+  border-color: #00c853;
+  font-weight: 700;
+}
+
+/* 输入卡片 */
+.input-card {
+  padding: 28rpx;
+  background: #f8f9fa;
+  border-radius: 24rpx;
+  margin-bottom: 32rpx;
+}
+
+.intake-textarea {
+  width: 100%;
+  min-height: 220rpx;
+  padding: 20rpx 24rpx;
+  box-sizing: border-box;
+  background: #ffffff;
+  border-radius: 16rpx;
+  font-size: 28rpx;
+  color: #333;
+  line-height: 1.5;
+}
+
+.input-actions {
+  display: flex;
+  gap: 16rpx;
+  margin-top: 20rpx;
+}
+
+.input-action {
+  flex: 1;
+  padding: 18rpx 0;
+  text-align: center;
+  background: #ffffff;
+  border-radius: 12rpx;
+  font-size: 28rpx;
+  color: #1a1a1a;
+  font-weight: 500;
+  border: 1rpx solid #e8e8e8;
 }
 
 .file-list {
   display: flex;
   flex-wrap: wrap;
   gap: 12rpx;
-  margin-top: 18rpx;
+  margin-top: 20rpx;
 }
 
 .file-pill {
   max-width: 100%;
-  padding: 10rpx 16rpx;
+  padding: 10rpx 18rpx;
   border-radius: 999rpx;
-  background: rgba(232, 251, 251, 0.92);
-  color: #34452f;
-  font-size: 22rpx;
+  background: #e8f5e9;
+  color: #00a344;
+  font-size: 24rpx;
 }
 
-.privacy {
-  background: rgba(255, 246, 220, 0.74);
-  margin-bottom: env(safe-area-inset-bottom);
+/* 生成按钮 */
+.generate-wrap {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 32rpx;
+}
+
+.generate-btn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 480rpx;
+  padding: 24rpx 32rpx;
+  background: #1a1a1a;
+  border-radius: 999rpx;
+  color: #fff;
+}
+
+.generate-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.generate-title {
+  font-size: 32rpx;
+  font-weight: 700;
+}
+
+.generate-desc {
+  margin-top: 4rpx;
+  font-size: 22rpx;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.generate-arrow {
+  width: 56rpx;
+  height: 56rpx;
+  border-radius: 50%;
+  background: #00c853;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28rpx;
+  color: #fff;
+}
+
+/* 隐私说明 */
+.privacy-card {
+  padding: 24rpx;
+  background: #fff8e6;
+  border-radius: 20rpx;
+}
+
+.privacy-title {
+  font-size: 28rpx;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin-bottom: 10rpx;
+}
+
+.privacy-desc {
+  font-size: 24rpx;
+  color: #888;
+  line-height: 1.5;
 }
