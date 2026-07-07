@@ -1,5 +1,91 @@
 <view class="page card-detail-page">
-  <view class="section-title">记事卡详情</view>
-  <view class="section-subtitle">开发中，后续展示二度人脉可浏览的记事卡详情</view>
-  <button class="plain-button" bindtap="onApplyJoin">申请加入</button>
+  <!-- 顶部标题 -->
+  <view class="detail-header">
+    <view class="detail-type" wx:if="{{card.typeLabel}}">{{card.typeLabel}}</view>
+    <view class="detail-type" wx:elif="{{card.type}}">{{card.type}}</view>
+    <text class="detail-title">{{card.projectName || card.title || '未命名事项'}}</text>
+    <view class="detail-meta">
+      <text class="detail-status" wx:if="{{card.status || card.stage}}">{{card.status || card.stage}}</text>
+      <text class="detail-date" wx:if="{{card.updatedText}}">更新于 {{card.updatedText}}</text>
+    </view>
+  </view>
+
+  <!-- 摘要 -->
+  <view class="detail-section" wx:if="{{card.summary}}">
+    <view class="section-title">摘要</view>
+    <text class="detail-summary">{{card.summary}}</text>
+  </view>
+
+  <!-- 客户 / 关键信息 -->
+  <view class="detail-section" wx:if="{{card.customerName || card.phone}}">
+    <view class="section-title">关键信息</view>
+    <view class="info-row" wx:if="{{card.customerName}}">
+      <text class="info-label">联系人</text>
+      <text class="info-value">{{card.customerName}}</text>
+    </view>
+    <view class="info-row" wx:if="{{card.phone}}">
+      <text class="info-label">电话</text>
+      <text class="info-value">{{card.phone}}</text>
+    </view>
+  </view>
+
+  <!-- 创立者 -->
+  <view class="detail-section">
+    <view class="section-title">创立者</view>
+    <view class="people-list">
+      <view class="people-item">
+        <view class="people-avatar">
+          <text wx:if="{{!creator.avatar}}">{{creator.initial}}</text>
+          <image wx:else src="{{creator.avatar}}" mode="aspectFill" />
+        </view>
+        <view class="people-info">
+          <text class="people-name">{{creator.nickname || '未知用户'}}</text>
+          <text class="people-tag" wx:if="{{creator.isMe}}">我</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 协助者 -->
+  <view class="detail-section" wx:if="{{helpers.length}}">
+    <view class="section-title">协助者</view>
+    <view class="people-list">
+      <view class="people-item" wx:for="{{helpers}}" wx:key="id">
+        <view class="people-avatar">
+          <text wx:if="{{!item.avatar}}">{{item.initial}}</text>
+          <image wx:else src="{{item.avatar}}" mode="aspectFill" />
+        </view>
+        <view class="people-info">
+          <text class="people-name">{{item.nickname || '未知用户'}}</text>
+          <text class="people-tag" wx:if="{{item.isMe}}">我</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 进度 -->
+  <view class="detail-section">
+    <view class="section-title">进度</view>
+    <view class="progress-bar-wrap">
+      <view class="progress-track">
+        <view class="progress-fill" style="width: {{progressPercent}}%;"></view>
+      </view>
+      <text class="progress-text">{{progressPercent}}%</text>
+    </view>
+    <view class="milestone-list" wx:if="{{milestones.length}}">
+      <view class="milestone-item {{item.status}}" wx:for="{{milestones}}" wx:key="id">
+        <view class="milestone-dot"></view>
+        <text class="milestone-title">{{item.title}}</text>
+        <text class="milestone-status">{{item.statusText}}</text>
+      </view>
+    </view>
+    <view class="milestone-empty" wx:else>暂无进度节点</view>
+  </view>
+
+  <!-- 底部操作 -->
+  <view class="detail-footer" wx:if="{{!isCreator}}">
+    <button class="apply-btn {{applied ? 'applied' : ''}}" bindtap="onApplyJoin" disabled="{{applied}}">
+      {{applied ? '已申请加入' : '申请加入'}}
+    </button>
+  </view>
 </view>

@@ -1,16 +1,275 @@
 .card-detail-page {
-  padding: 40rpx;
+  min-height: 100vh;
+  background: #ffffff;
+  padding: 32rpx 32rpx 160rpx;
+  box-sizing: border-box;
+}
+
+/* 顶部标题 */
+.detail-header {
+  margin-bottom: 40rpx;
+}
+
+.detail-type {
+  display: inline-block;
+  padding: 6rpx 18rpx;
+  margin-bottom: 16rpx;
+  font-size: 24rpx;
+  color: #00a344;
+  background: #f0fdf4;
+  border-radius: 20rpx;
+}
+
+.detail-title {
+  display: block;
+  font-size: 44rpx;
+  font-weight: 700;
+  color: #1a1a1a;
+  line-height: 1.4;
+}
+
+.detail-meta {
+  display: flex;
+  align-items: center;
+  margin-top: 16rpx;
+  gap: 16rpx;
+}
+
+.detail-status {
+  padding: 6rpx 16rpx;
+  font-size: 24rpx;
+  color: #00c853;
+  background: #f0fdf4;
+  border-radius: 16rpx;
+}
+
+.detail-date {
+  font-size: 24rpx;
+  color: #999;
+}
+
+/* 区块 */
+.detail-section {
+  margin-bottom: 40rpx;
 }
 
 .section-title {
-  font-size: 40rpx;
+  font-size: 30rpx;
   font-weight: 700;
-  color: #162116;
+  color: #1a1a1a;
+  margin-bottom: 20rpx;
 }
 
-.section-subtitle {
-  margin-top: 16rpx;
-  margin-bottom: 40rpx;
+.detail-summary {
   font-size: 28rpx;
-  color: #5f746d;
+  color: #555;
+  line-height: 1.7;
+}
+
+.info-row {
+  display: flex;
+  align-items: center;
+  padding: 18rpx 0;
+  border-bottom: 1rpx solid #f5f5f5;
+}
+
+.info-row:last-child {
+  border-bottom: none;
+}
+
+.info-label {
+  width: 140rpx;
+  font-size: 26rpx;
+  color: #999;
+}
+
+.info-value {
+  flex: 1;
+  font-size: 28rpx;
+  color: #333;
+}
+
+/* 人员 */
+.people-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20rpx;
+}
+
+.people-item {
+  display: flex;
+  align-items: center;
+  padding: 16rpx 20rpx;
+  background: #f8f9fa;
+  border-radius: 40rpx;
+}
+
+.people-avatar {
+  width: 56rpx;
+  height: 56rpx;
+  border-radius: 50%;
+  background: #e8f5e9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  font-size: 24rpx;
+  color: #00c853;
+  font-weight: 600;
+}
+
+.people-avatar image {
+  width: 56rpx;
+  height: 56rpx;
+}
+
+.people-info {
+  display: flex;
+  align-items: center;
+  margin-left: 14rpx;
+}
+
+.people-name {
+  font-size: 28rpx;
+  color: #333;
+}
+
+.people-tag {
+  margin-left: 10rpx;
+  padding: 2rpx 10rpx;
+  font-size: 20rpx;
+  color: #fff;
+  background: #00c853;
+  border-radius: 10rpx;
+}
+
+/* 进度 */
+.progress-bar-wrap {
+  display: flex;
+  align-items: center;
+  margin-bottom: 24rpx;
+}
+
+.progress-track {
+  flex: 1;
+  height: 16rpx;
+  background: #f0f0f0;
+  border-radius: 8rpx;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #00c853 0%, #64dd17 100%);
+  border-radius: 8rpx;
+  transition: width 0.3s ease;
+}
+
+.progress-text {
+  margin-left: 20rpx;
+  font-size: 28rpx;
+  font-weight: 700;
+  color: #00c853;
+  min-width: 70rpx;
+  text-align: right;
+}
+
+.milestone-list {
+  padding-left: 16rpx;
+}
+
+.milestone-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  padding: 18rpx 0 18rpx 36rpx;
+  border-left: 2rpx solid #e8e8e8;
+}
+
+.milestone-item:last-child {
+  padding-bottom: 0;
+}
+
+.milestone-dot {
+  position: absolute;
+  left: -12rpx;
+  top: 22rpx;
+  width: 22rpx;
+  height: 22rpx;
+  border-radius: 50%;
+  background: #e0e0e0;
+  border: 4rpx solid #fff;
+  box-shadow: 0 0 0 2rpx #e0e0e0;
+}
+
+.milestone-item.done .milestone-dot {
+  background: #00c853;
+  box-shadow: 0 0 0 2rpx #00c853;
+}
+
+.milestone-item.current .milestone-dot {
+  background: #fff;
+  box-shadow: 0 0 0 2rpx #00c853;
+}
+
+.milestone-title {
+  flex: 1;
+  font-size: 28rpx;
+  color: #555;
+}
+
+.milestone-item.current .milestone-title {
+  color: #1a1a1a;
+  font-weight: 600;
+}
+
+.milestone-status {
+  font-size: 24rpx;
+  color: #bbb;
+}
+
+.milestone-item.done .milestone-status {
+  color: #00c853;
+}
+
+.milestone-item.current .milestone-status {
+  color: #00c853;
+}
+
+.milestone-empty {
+  font-size: 26rpx;
+  color: #bbb;
+  padding: 20rpx 0;
+}
+
+/* 底部 */
+.detail-footer {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 24rpx 32rpx calc(24rpx + env(safe-area-inset-bottom));
+  background: #ffffff;
+  border-top: 1rpx solid #f0f0f0;
+}
+
+.apply-btn {
+  width: 100%;
+  height: 96rpx;
+  line-height: 96rpx;
+  background: #00c853;
+  color: #fff;
+  font-size: 32rpx;
+  font-weight: 600;
+  border-radius: 48rpx;
+  border: none;
+}
+
+.apply-btn::after {
+  display: none;
+}
+
+.apply-btn.applied {
+  background: #e0e0e0;
+  color: #999;
 }

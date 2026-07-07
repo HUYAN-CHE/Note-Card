@@ -1,7 +1,7 @@
 <view class="page my-home-page">
   <!-- 顶部资料区 -->
-  <view class="profile-hero" style="padding-top: {{heroPaddingTop}}rpx;">
-    <view class="profile-header">
+  <view class="profile-header" style="padding-top: {{heroPaddingTop}}rpx;">
+    <view class="profile-main">
       <block wx:if="{{!isEditing}}">
         <view class="profile-avatar" bindtap="startEdit">
           <text class="profile-initial" wx:if="{{!user.avatar}}">{{user.initial || '我'}}</text>
@@ -9,33 +9,31 @@
         </view>
         <view class="profile-info" bindtap="startEdit">
           <text class="profile-name">{{user.nickname || '我'}}</text>
+          <text class="profile-intro" wx:if="{{user.intro}}">{{user.intro}}</text>
         </view>
         <view class="edit-btn" bindtap="startEdit">编辑资料</view>
       </block>
 
       <block wx:else>
         <button class="profile-avatar avatar-edit" open-type="chooseAvatar" bind:chooseavatar="onChooseAvatar">
-          <text class="profile-initial avatar-hint" wx:if="{{!editForm.avatar}}">授权头像</text>
+          <text class="profile-initial" wx:if="{{!editForm.avatar}}">{{editForm.initial || '我'}}</text>
           <image wx:else class="profile-avatar-img" src="{{editForm.avatar}}" mode="aspectFill" />
         </button>
         <view class="profile-info">
-          <button class="nickname-edit" open-type="chooseNickname" bind:choosenickname="onChooseNickname">{{editForm.nickname || '授权昵称'}}</button>
+          <button class="nickname-edit" open-type="chooseNickname" bind:choosenickname="onChooseNickname">{{editForm.nickname || '点击设置昵称'}}</button>
         </view>
       </block>
     </view>
 
-    <view class="profile-tags" wx:if="{{!isEditing && serviceTags.length}}">
-      <text class="profile-tag" wx:for="{{serviceTags}}" wx:key="*this">{{item}}</text>
-    </view>
-
-    <view class="profile-tags-edit" wx:if="{{isEditing}}">
-      <input
-        class="tags-input"
-        value="{{editForm.tagsText}}"
-        bindinput="onTagsInput"
-        placeholder="服务标签，用空格分隔"
+    <!-- 编辑状态表单 -->
+    <view class="profile-edit-form" wx:if="{{isEditing}}">
+      <textarea
+        class="intro-input"
+        value="{{editForm.intro}}"
+        bindinput="onIntroInput"
+        placeholder="一句话介绍"
+        maxlength="60"
       />
-
       <view class="edit-actions">
         <view class="edit-action save" bindtap="saveProfile">保存</view>
         <view class="edit-action cancel" bindtap="cancelEdit">取消</view>
@@ -43,15 +41,68 @@
     </view>
   </view>
 
-  <!-- 内容区 -->
+  <!-- 服务能力标签 -->
+  <view class="section">
+    <view class="section-header">
+      <text class="section-title">我能提供的服务</text>
+      <view class="section-action" bindtap="toggleTagEdit">{{tagEditing ? '完成' : '+ 添加标签'}}</view>
+    </view>
+    <view class="tag-list" wx:if="{{serviceTags.length}}">
+      <view class="tag" wx:for="{{serviceTags}}" wx:key="*this">
+        <text class="tag-text">{{item}}</text>
+        <text class="tag-remove" wx:if="{{tagEditing}}" bindtap="removeTag" data-index="{{index}}">×</text>
+      </view>
+    </view>
+    <view class="tag-empty" wx:if="{{!serviceTags.length && !tagEditing}}">还没有标签，点击添加</view>
+
+    <!-- 添加标签输入 -->
+    <view class="tag-edit-area" wx:if="{{tagEditing}}">
+      <input
+        class="tag-input"
+        value="{{tagInput}}"
+        bindinput="onTagInput"
+        bindconfirm="addTag"
+        placeholder="输入标签，按回车添加"
+      />
+      <view class="candidate-tags" wx:if="{{candidateTags.length}}">
+        <text class="candidate-label">推荐：</text>
+        <text
+          class="candidate-tag"
+          wx:for="{{candidateTags}}"
+          wx:key="*this"
+          bindtap="addCandidateTag"
+          data-tag="{{item}}"
+        >{{item}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 互助数据 -->
+  <view class="stats-bar">
+    <view class="stat-item">
+      <text class="stat-num">{{stats.helperCount}}</text>
+      <text class="stat-label">协作过的人</text>
+    </view>
+    <view class="stat-divider"></view>
+    <view class="stat-item">
+      <text class="stat-num">{{stats.helpedCount}}</text>
+      <text class="stat-label">被求助次数</text>
+    </view>
+  </view>
+
+  <!-- 我的记事卡 Tabs -->
   <view class="content">
-    <!-- Tab 切换 -->
     <view class="tab-header">
       <view
         class="tab-item {{activeTab === 'mine' ? 'active' : ''}}"
         bindtap="switchTab"
         data-tab="mine"
-      >我的卡</view>
+      >未完成</view>
+      <view
+        class="tab-item {{activeTab === 'done' ? 'active' : ''}}"
+        bindtap="switchTab"
+        data-tab="done"
+      >已完成</view>
       <view
         class="tab-item {{activeTab === 'helped' ? 'active' : ''}}"
         bindtap="switchTab"
@@ -77,7 +128,7 @@
       </view>
 
       <view class="card-empty" wx:if="{{!loading && cards.length === 0}}">
-        <text class="card-empty-text">{{activeTab === 'mine' ? '还没有我创建的记事卡' : '还没有我协助的记事卡'}}</text>
+        <text class="card-empty-text">{{emptyText}}</text>
       </view>
 
       <view class="content-bottom-space"></view>

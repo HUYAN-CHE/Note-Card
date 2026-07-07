@@ -1,289 +1,294 @@
-const { getCards } = require('../../utils/store');
-const { collections } = require('../../config/env');
+const app = getApp();
+const store = require('../../utils/store.js');
 
-const DEFAULT_USER = {
-  nickname: '',
-  intro: '',
-  avatar: '',
-  initial: ''
-};
-
-const DEFAULT_TAGS = ['官网设计', '品牌梳理', '视觉系统'];
-
-const STORAGE_KEY = 'JISHIKA_USER_PROFILE';
+const DEFAULT_CANDIDATE_TAGS = ['法律咨询', '财务规划', '职业规划', '心理咨询', '编程开发', '设计创意', '文案写作', '摄影摄像', '健身指导', '家庭教育', '房产顾问', '留学移民'];
 
 Page({
   data: {
-    statusBarHeight: 44,
-    heroPaddingTop: 64,
-    user: { ...DEFAULT_USER },
-    serviceTags: [...DEFAULT_TAGS],
+    heroPaddingTop: 60,
+    user: { nickname: '', avatar: '', initial: '我', intro: '' },
+    serviceTags: [],
+    candidateTags: [],
+    tagInput: '',
+    tagEditing: false,
     activeTab: 'mine',
-    cards: [],
     allCards: [],
-    loading: false,
+    cards: [],
     isEditing: false,
-    editForm: {
-      nickname: '',
-      intro: '',
-      avatar: '',
-      initial: '我',
-      tagsText: ''
-    }
+    editForm: {},
+    loading: false,
+    emptyText: '还没有记事卡',
+    stats: { helperCount: 0, helpedCount: 0 }
   },
 
-  onLoad() {
-    this.updateSystemInfo();
-    this.loadUserProfile();
+  async onLoad() {
+    const sys = wx.getSystemInfoSync();
+    const heroPaddingTop = (sys.statusBarHeight || 20) + 12;
+    this.setData({ heroPaddingTop });
+    this.ensureMockData();
+    await this.loadUserProfile();
+    await this.loadStats();
+  },
+
+  onShow() {
     this.loadCards();
   },
 
-  updateSystemInfo() {
-    try {
-      const sys = wx.getSystemInfoSync();
-      const menuButtonRect = wx.getMenuButtonBoundingClientRect();
-      const screenWidth = sys.screenWidth || 375;
-      const menuCenterPx = menuButtonRect.top + menuButtonRect.height / 2;
-      const menuCenterRpx = menuCenterPx * (750 / screenWidth);
-      const heroPaddingTop = Math.max(20, menuCenterRpx - 60);
-
-      this.setData({
-        statusBarHeight: sys.statusBarHeight || 44,
-        heroPaddingTop
-      });
-    } catch (e) {
-      this.setData({
-        statusBarHeight: 44,
-        heroPaddingTop: 64
-      });
-    }
-  },
-
   async loadUserProfile() {
-    // 1. 先读全局缓存 / 本地缓存
-    const app = getApp();
-    const globalProfile = app.globalData && app.globalData.userProfile;
-    const local = wx.getStorageSync(STORAGE_KEY);
-    const cached = globalProfile || local;
-
-    let user = cached && (cached.nickname || cached.avatar)
-      ? {
-          nickname: cached.nickname || '',
-          intro: cached.intro || '',
-          avatar: cached.avatar || '',
-          initial: cached.initial || this.getInitial(cached.nickname)
-        }
-      : { ...DEFAULT_USER };
-    let tags = (cached && cached.serviceTags) ? cached.serviceTags : [...DEFAULT_TAGS];
-
-    // 2. 云开发可用时从 users 集合拉取最新
     try {
-      if (app.globalData && app.globalData.cloudReady && wx.cloud) {
-        const openid = app.globalData.openid || wx.getStorageSync('JISHIKA_OPENID');
-        if (openid) {
-          const res = await wx.cloud.database()
-            .collection(collections.users)
-            .where({ openid })
-            .limit(1)
-            .get();
-          const cloudUser = res.data && res.data[0];
-          if (cloudUser) {
-            user = {
-              nickname: cloudUser.nickName || user.nickname,
-              intro: cloudUser.intro || user.intro,
-              avatar: cloudUser.avatarUrl || user.avatar,
-              initial: cloudUser.initial || user.initial
-            };
-            tags = cloudUser.tags || tags;
-            const profile = { ...user, serviceTags: tags };
-            wx.setStorageSync(STORAGE_KEY, profile);
-            app.globalData.userProfile = profile;
-          }
-        }
-      }
-    } catch (error) {
-      // 忽略云端读取失败
+      const cached = wx.getStorageSync('my_profile');
+      const fallback = { nickname: '', avatar: '', intro: '', serviceTags: [] };
+      const profile = (cached && typeof cached === 'object') ? cached : fallback;
+      const user = {
+        nickname: profile.nickname || '',
+        avatar: profile.avatar || '',
+        initial: this.getInitial(profile.nickname),
+        intro: profile.intro || ''
+      };
+      const serviceTags = Array.isArray(profile.serviceTags) ? profile.serviceTags : [];
+      const candidateTags = DEFAULT_CANDIDATE_TAGS.filter(t => !serviceTags.includes(t));
+      this.setData({ user, serviceTags, candidateTags, editForm: { ...user, serviceTags: [...serviceTags] } });
+    } catch (e) {
+      console.error('loadUserProfile error', e);
     }
-
-    this.setData({
-      user: { ...user, initial: user.initial || this.getInitial(user.nickname) },
-      serviceTags: tags
-    });
   },
 
   async loadCards() {
     this.setData({ loading: true });
-
     try {
-      const allCards = await getCards();
-      this.setData({ allCards }, () => {
-        this.filterCards();
-      });
-    } catch (error) {
-      this.setData({ cards: [] });
+      const allCards = await store.getCards() || [];
+      this.setData({ allCards });
+      this.filterCards();
     } finally {
       this.setData({ loading: false });
     }
   },
 
   filterCards() {
-    const { activeTab, allCards } = this.data;
-    const openid = this.getCurrentOpenid();
-
-    const cards = allCards.filter((card) => {
-      if (activeTab === 'mine') {
-        return card.creatorId === openid || (!card.creatorId && !openid);
-      }
-      return (card.helperIds || []).includes(openid);
-    });
-
-    this.setData({ cards });
-  },
-
-  getCurrentOpenid() {
-    try {
-      const app = getApp();
-      return (app.globalData && app.globalData.openid) || '';
-    } catch (error) {
-      return '';
+    const { activeTab, allCards, user } = this.data;
+    const myId = user.nickname || '我';
+    let filtered = [];
+    let emptyText = '还没有记事卡';
+    if (activeTab === 'mine') {
+      filtered = allCards.filter(c => c.creatorId === myId || !c.creatorId);
+      filtered = filtered.filter(c => c.status !== '已完成' && c.stage !== '已完成');
+      emptyText = '还没有未完成的记事卡';
+    } else if (activeTab === 'done') {
+      filtered = allCards.filter(c => c.creatorId === myId || !c.creatorId);
+      filtered = filtered.filter(c => c.status === '已完成' || c.stage === '已完成');
+      emptyText = '还没有已完成的记事卡';
+    } else if (activeTab === 'helped') {
+      filtered = allCards.filter(c =>
+        Array.isArray(c.helperIds) && c.helperIds.includes(myId)
+      );
+      emptyText = '还没有协助过别人的记事卡';
     }
+    this.setData({ cards: filtered, emptyText });
   },
 
-  switchTab(event) {
-    const tab = event.currentTarget.dataset.tab;
-    if (tab === this.data.activeTab) return;
-    this.setData({ activeTab: tab }, () => {
-      this.filterCards();
-    });
+  switchTab(e) {
+    const tab = e.currentTarget.dataset.tab;
+    this.setData({ activeTab: tab }, () => this.filterCards());
+  },
+
+  async loadStats() {
+    const cached = wx.getStorageSync('my_profile');
+    const profile = (cached && typeof cached === 'object') ? cached : {};
+    const helperIds = Array.isArray(profile.helperIds) ? profile.helperIds : [];
+    const helperCount = helperIds.length || profile.helperCount || 0;
+    const allCards = await store.getCards() || [];
+    const myId = this.data.user.nickname || '我';
+    const helpedCount = allCards.filter(c => c.creatorId === myId).length || profile.helpedCount || 0;
+    this.setData({ stats: { helperCount, helpedCount } });
   },
 
   startEdit() {
-    const { user, serviceTags } = this.data;
     this.setData({
       isEditing: true,
-      editForm: {
-        nickname: user.nickname,
-        intro: user.intro,
-        avatar: user.avatar,
-        initial: user.initial || this.getInitial(user.nickname),
-        tagsText: serviceTags.join(' ')
-      }
+      editForm: { ...this.data.user, serviceTags: [...this.data.serviceTags] }
     });
   },
 
   cancelEdit() {
-    this.setData({ isEditing: false });
+    this.setData({ isEditing: false, tagEditing: false, tagInput: '' });
   },
 
-  onChooseAvatar(event) {
-    const avatarUrl = event.detail.avatarUrl;
+  saveProfile() {
+    const { editForm, serviceTags } = this.data;
+    const user = {
+      nickname: editForm.nickname || this.data.user.nickname || '我',
+      avatar: editForm.avatar || this.data.user.avatar || '',
+      initial: this.getInitial(editForm.nickname || this.data.user.nickname),
+      intro: editForm.intro || ''
+    };
+    const profile = {
+      ...user,
+      serviceTags: [...serviceTags],
+      updatedAt: Date.now()
+    };
+    wx.setStorageSync('my_profile', profile);
+    const candidateTags = DEFAULT_CANDIDATE_TAGS.filter(t => !serviceTags.includes(t));
     this.setData({
-      'editForm.avatar': avatarUrl,
-      'editForm.initial': ''
+      user,
+      serviceTags: [...serviceTags],
+      candidateTags,
+      isEditing: false,
+      tagEditing: false,
+      tagInput: ''
     });
+    wx.showToast({ title: '保存成功', icon: 'success' });
   },
 
-  onChooseNickname(event) {
-    const nickname = event.detail.value;
-    this.setData({
-      'editForm.nickname': nickname,
-      'editForm.initial': this.getInitial(nickname)
-    });
+  onChooseAvatar(e) {
+    const avatarUrl = e.detail.avatarUrl;
+    const editForm = { ...this.data.editForm, avatar: avatarUrl };
+    this.setData({ editForm });
   },
 
-  onTagsInput(event) {
-    this.setData({ 'editForm.tagsText': event.detail.value });
+  onChooseNickname(e) {
+    const nickname = e.detail.value;
+    const editForm = { ...this.data.editForm, nickname, initial: this.getInitial(nickname) };
+    this.setData({ editForm });
   },
 
-  onIntroInput(event) {
-    this.setData({ 'editForm.intro': event.detail.value });
+  onIntroInput(e) {
+    const intro = e.detail.value;
+    this.setData({ editForm: { ...this.data.editForm, intro } });
+  },
+
+  toggleTagEdit() {
+    this.setData({ tagEditing: !this.data.tagEditing });
+  },
+
+  onTagInput(e) {
+    this.setData({ tagInput: e.detail.value });
+  },
+
+  addTag(e) {
+    let value = (e.detail.value || this.data.tagInput || '').trim();
+    if (!value) return;
+    this.addTagCore(value);
+  },
+
+  addCandidateTag(e) {
+    const value = e.currentTarget.dataset.tag;
+    this.addTagCore(value);
+  },
+
+  addTagCore(value) {
+    const { serviceTags } = this.data;
+    if (serviceTags.includes(value)) {
+      wx.showToast({ title: '标签已存在', icon: 'none' });
+      return;
+    }
+    if (serviceTags.length >= 8) {
+      wx.showToast({ title: '最多 8 个标签', icon: 'none' });
+      return;
+    }
+    const next = [...serviceTags, value];
+    const candidateTags = DEFAULT_CANDIDATE_TAGS.filter(t => !next.includes(t));
+    this.setData({ serviceTags: next, candidateTags, tagInput: '' });
+  },
+
+  removeTag(e) {
+    const index = e.currentTarget.dataset.index;
+    const next = [...this.data.serviceTags];
+    next.splice(index, 1);
+    const candidateTags = DEFAULT_CANDIDATE_TAGS.filter(t => !next.includes(t));
+    this.setData({ serviceTags: next, candidateTags });
+  },
+
+  openCard(e) {
+    const id = e.currentTarget.dataset.id;
+    wx.navigateTo({ url: `/pages/card-detail/card-detail?id=${id}&view=owner` });
   },
 
   getInitial(name) {
-    if (!name) return '';
-    return name.trim().charAt(0);
+    if (!name) return '我';
+    return name.trim().charAt(0).toUpperCase() || '我';
   },
 
-  async saveProfile() {
-    const { editForm } = this.data;
-    const nickname = editForm.nickname.trim() || '我';
-    const intro = editForm.intro.trim();
-    const avatar = editForm.avatar;
-    const serviceTags = editForm.tagsText
-      .split(/\s+/)
-      .map((t) => t.trim())
-      .filter(Boolean);
-
-    const user = {
-      nickname,
-      intro,
-      avatar,
-      initial: this.getInitial(nickname)
-    };
-
-    // 本地缓存 + 全局缓存
-    const profile = { ...user, serviceTags };
-    wx.setStorageSync(STORAGE_KEY, profile);
+  ensureMockData() {
     try {
-      const app = getApp();
-      if (app.globalData) app.globalData.userProfile = profile;
-    } catch (e) {}
-
-    // 同步到 users 集合
-    try {
-      const app = getApp();
-      if (app.globalData && app.globalData.cloudReady && wx.cloud) {
-        const openid = app.globalData.openid || wx.getStorageSync('JISHIKA_OPENID');
-        if (openid) {
-          const db = wx.cloud.database();
-          const res = await db.collection(collections.users)
-            .where({ openid })
-            .limit(1)
-            .get();
-          const data = {
-            openid,
-            nickName: nickname,
-            avatarUrl: avatar,
-            intro,
-            initial: user.initial,
-            tags: serviceTags,
-            color: this.data.user.color || '#00c853',
-            updatedAt: Date.now()
-          };
-
-          if (res.data && res.data[0] && res.data[0]._id) {
-            await db.collection(collections.users)
-              .doc(res.data[0]._id)
-              .update({ data });
-          } else {
-            await db.collection(collections.users).add({
-              data: { ...data, createdAt: Date.now() }
-            });
-          }
-        }
+      const hasProfile = wx.getStorageSync('my_profile');
+      if (!hasProfile) {
+        wx.setStorageSync('my_profile', {
+          nickname: '林小北',
+          avatar: '',
+          intro: '专注产品设计与用户增长，愿意帮你梳理需求、打磨方案。',
+          serviceTags: ['产品设计', '用户增长', '需求梳理'],
+          helperIds: ['张律师', '王财税'],
+          helpedCount: 0,
+          updatedAt: Date.now()
+        });
       }
-    } catch (error) {
-      // 云端同步失败不影响本地保存
+
+      const cards = wx.getStorageSync('JISHIKA_CARDS') || [];
+      if (!cards.length) {
+        const now = Date.now();
+        wx.setStorageSync('JISHIKA_CARDS', [
+          {
+            id: 'card_demo_1',
+            type: 'requirement',
+            typeLabel: '需求确认卡',
+            projectName: '企业官网改版',
+            summary: '客户希望重做企业官网，重点关注移动端适配和品牌感。',
+            customerName: '王女士',
+            phone: '13800001234',
+            creatorId: '林小北',
+            helperIds: [],
+            status: '进行中',
+            progressNodes: [
+              { id: 'n1', title: '需求确认', status: 'done' },
+              { id: 'n2', title: '资料补充', status: 'current' },
+              { id: 'n3', title: '阶段沟通', status: 'todo' },
+              { id: 'n4', title: '服务完成', status: 'todo' }
+            ],
+            createdAt: now,
+            updatedAt: now,
+            updatedText: '07-02 19:00'
+          },
+          {
+            id: 'card_demo_2',
+            type: 'requirement',
+            typeLabel: '方案卡',
+            projectName: '小程序 MVP 方案',
+            summary: '完成产品定位、核心流程与页面原型。',
+            customerName: '李老板',
+            creatorId: '林小北',
+            helperIds: [],
+            status: '已完成',
+            progressNodes: [
+              { id: 'n5', title: '需求访谈', status: 'done' },
+              { id: 'n6', title: '方案输出', status: 'done' },
+              { id: 'n7', title: '客户确认', status: 'done' }
+            ],
+            createdAt: now - 86400000,
+            updatedAt: now - 86400000,
+            updatedText: '07-01 15:00'
+          },
+          {
+            id: 'card_demo_3',
+            type: 'todo',
+            typeLabel: '待办卡',
+            projectName: '社群运营 SOP',
+            summary: '帮朋友梳理社群拉新、激活与转化流程。',
+            creatorId: '陈运营',
+            helperIds: ['林小北'],
+            status: '进行中',
+            progressNodes: [
+              { id: 'n8', title: '现状梳理', status: 'done' },
+              { id: 'n9', title: 'SOP 初稿', status: 'current' },
+              { id: 'n10', title: '试运行', status: 'todo' }
+            ],
+            createdAt: now - 172800000,
+            updatedAt: now - 172800000,
+            updatedText: '06-30 10:00'
+          }
+        ]);
+      }
+    } catch (e) {
+      console.error('ensureMockData error', e);
     }
-
-    this.setData({
-      user,
-      serviceTags,
-      isEditing: false
-    });
-  },
-
-  openCard(event) {
-    const id = event.currentTarget.dataset.id;
-    wx.navigateTo({
-      url: `/pages/card-detail/card-detail?id=${id}`
-    });
-  },
-
-  onShareAppMessage() {
-    return {
-      title: '记事卡｜我的主页',
-      path: '/pages/my-home/my-home'
-    };
   }
 });

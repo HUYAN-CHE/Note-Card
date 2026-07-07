@@ -1,3 +1,5 @@
 {
-  "navigationBarTitleText": "记事卡详情"
+  "navigationBarTitleText": "记事卡详情",
+  "navigationBarBackgroundColor": "#ffffff",
+  "navigationBarTextStyle": "black"
 }
