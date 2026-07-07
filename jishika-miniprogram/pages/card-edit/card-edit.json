@@ -1,3 +1,4 @@
 {
-  "navigationBarTitleText": "记事卡草稿"
+  "navigationStyle": "custom",
+  "navigationBarTitleText": "新建记事卡"
 }

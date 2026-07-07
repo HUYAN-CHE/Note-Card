@@ -1,64 +1,111 @@
-<view class="page">
-  <view class="topbar">
-    <view>
-      <view class="brand-title">{{card.id ? '编辑记事卡' : '记事卡草稿'}}</view>
-      <view class="brand-subtitle">发送给客户前，请先确认内容</view>
-    </view>
-    <text class="tag">{{card.typeLabel || '需求确认卡'}}</text>
+<view class="page card-edit-page">
+  <!-- 自定义导航栏 -->
+  <view class="custom-nav" style="padding-top: {{statusBarHeight}}px;">
+    <view class="nav-back" bindtap="goBack">‹</view>
+    <text class="nav-title">新建记事卡</text>
+    <view class="nav-save" bindtap="saveAndBack">保存</view>
   </view>
 
-  <view class="card panel">
-    <view class="field">
-      <text class="label">客户称呼</text>
-      <input class="input" value="{{card.customerName}}" placeholder="如 王女士" bindinput="onFieldInput" data-field="customerName" aria-label="客户称呼" />
-    </view>
-    <view class="field">
-      <text class="label">手机号</text>
-      <input class="input" value="{{card.phone}}" placeholder="用于客户唯一识别" type="number" bindinput="onFieldInput" data-field="phone" aria-label="客户手机号" />
-    </view>
-    <view class="field">
-      <text class="label">项目 / 事项</text>
-      <input class="input" value="{{card.projectName}}" placeholder="如 官网改版" bindinput="onFieldInput" data-field="projectName" aria-label="项目或事项名称" />
-    </view>
-    <view class="field">
-      <text class="label">摘要</text>
-      <textarea class="textarea compact" value="{{card.summary}}" placeholder="一句话说明客户要做什么" bindinput="onFieldInput" data-field="summary" aria-label="记事卡摘要" />
-    </view>
-    <view class="field">
-      <text class="label">重点事项</text>
-      <textarea class="textarea compact" value="{{keyPointsText}}" placeholder="每行一个重点" bindinput="onListInput" data-field="keyPoints" aria-label="重点事项，每行一个" />
-    </view>
-    <view class="field">
-      <text class="label">待客户确认</text>
-      <textarea class="textarea compact" value="{{questionsText}}" placeholder="每行一个问题" bindinput="onListInput" data-field="questions" aria-label="待客户确认的问题，每行一个" />
-    </view>
-    <view class="field">
-      <text class="label">下一步</text>
-      <input class="input" value="{{card.nextStep}}" placeholder="如 发给客户确认需求" bindinput="onFieldInput" data-field="nextStep" aria-label="下一步动作" />
-    </view>
-    <view class="field">
-      <text class="label">提醒备注</text>
-      <input class="input" value="{{card.reminderText}}" placeholder="如 明天 10:00 跟进" bindinput="onFieldInput" data-field="reminderText" aria-label="提醒备注" />
-    </view>
+  <!-- 标题 -->
+  <view class="field">
+    <view class="field-label">标题</view>
+    <input
+      class="field-input"
+      value="{{card.projectName}}"
+      placeholder="如 品牌官网视觉改版"
+      bindinput="onFieldInput"
+      data-field="projectName"
+    />
   </view>
 
-  <view class="action-dock">
-    <button class="primary-action" bindtap="saveAndPreview" data-action="save_and_preview_customer_card" aria-label="保存并预览客户卡">
-      <view>
-        <text class="title">预览客户卡</text>
-        <text class="desc">保存后查看客户侧</text>
+  <!-- 需求描述 -->
+  <view class="field">
+    <view class="field-label">需求描述</view>
+    <textarea
+      class="field-textarea"
+      value="{{card.summary}}"
+      placeholder="描述一下需要帮忙的事"
+      bindinput="onFieldInput"
+      data-field="summary"
+    />
+  </view>
+
+  <!-- 重点 / 待确认 -->
+  <view class="field">
+    <view class="field-label">
+      重点 / 待确认
+      <text class="field-hint">用 · 分隔</text>
+    </view>
+    <input
+      class="field-input"
+      value="{{keyPointsText}}"
+      placeholder="预算 · 风格 · 交期"
+      bindinput="onKeyPointsInput"
+    />
+  </view>
+
+  <!-- 协助者 -->
+  <view class="field">
+    <view class="field-label">协助者</view>
+    <view class="helper-row">
+      <view class="helper-avatar" wx:for="{{helpers}}" wx:key="id">
+        <text wx:if="{{!item.avatar}}">{{item.initial}}</text>
+        <image wx:else src="{{item.avatar}}" mode="aspectFill" />
       </view>
-      <text class="arrow">→</text>
-    </button>
-    <view class="action-tools">
-      <button class="tool-button" open-type="share" data-action="share_saved_customer_card" aria-label="分享已保存的客户卡">
-        <text class="tool-icon" aria-hidden="true">↗</text>
-        <text class="tool-label">分享</text>
-      </button>
-      <button class="tool-button" bindtap="goProgress" data-action="open_progress" aria-label="进入服务进度">
-        <text class="tool-icon" aria-hidden="true">•</text>
-        <text class="tool-label">进度</text>
-      </button>
+      <view class="helper-add" bindtap="openInviteSheet">＋</view>
+    </view>
+  </view>
+
+  <!-- 可见性开关 -->
+  <view class="toggle-row" bindtap="toggleVisibility">
+    <view class="toggle-info">
+      <view class="toggle-title">让朋友的朋友也能看到</view>
+      <view class="toggle-desc">关闭后仅协助者可见，更私密</view>
+    </view>
+    <view class="switch {{card.isNetworkVisible ? 'on' : ''}}">
+      <view class="switch-knob"></view>
+    </view>
+  </view>
+
+  <!-- 底部操作 -->
+  <view class="footer">
+    <button class="footer-btn ghost" bindtap="saveDraft">存草稿</button>
+    <button class="footer-btn primary" bindtap="openInviteSheet">邀请一起用</button>
+  </view>
+
+  <!-- 邀请好友底部弹窗 -->
+  <view class="sheet-mask" wx:if="{{showInviteSheet}}" bindtap="closeInviteSheet">
+    <view class="sheet" catchtap="noop">
+      <view class="sheet-grab"></view>
+      <view class="sheet-title">邀请一起用</view>
+      <view class="sheet-sub">选择微信好友或群聊，发送后成为协助者</view>
+
+      <view class="friend-list">
+        <view
+          class="friend-item"
+          wx:for="{{friendCandidates}}"
+          wx:key="id"
+          bindtap="toggleFriend"
+          data-index="{{index}}"
+        >
+          <view class="friend-avatar">
+            <text wx:if="{{!item.avatar}}">{{item.initial}}</text>
+            <image wx:else src="{{item.avatar}}" mode="aspectFill" />
+          </view>
+          <view class="friend-info">
+            <text class="friend-name">{{item.nickname}}</text>
+            <text class="friend-status">{{item.status}}</text>
+          </view>
+          <view class="friend-check {{item.selected ? 'on' : ''}}">
+            <text wx:if="{{item.selected}}">✓</text>
+          </view>
+        </view>
+      </view>
+
+      <view class="sheet-actions">
+        <button class="sheet-btn ghost" bindtap="closeInviteSheet">取消</button>
+        <button class="sheet-btn primary" bindtap="sendInvite">发送邀请</button>
+      </view>
     </view>
   </view>
 </view>
