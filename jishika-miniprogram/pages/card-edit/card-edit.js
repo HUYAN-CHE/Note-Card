@@ -16,12 +16,19 @@ Page({
     helpers: [],
     isNetworkVisible: true,
     showInviteSheet: false,
-    friendCandidates: []
+    friendCandidates: [],
+    showImportPanel: false,
+    importText: '',
+    importFiles: []
   },
 
   onLoad(options = {}) {
     const sys = wx.getSystemInfoSync();
     this.setData({ statusBarHeight: (sys.statusBarHeight || 20) });
+    const fromImport = options.from === 'intake' || options.from === 'pull_create';
+    if (fromImport) {
+      this.setData({ showImportPanel: true });
+    }
     this.loadCard(options);
   },
 
@@ -82,6 +89,60 @@ Page({
 
   toggleVisibility() {
     this.setData({ 'card.isNetworkVisible': !this.data.card.isNetworkVisible });
+  },
+
+  toggleImportPanel() {
+    this.setData({ showImportPanel: !this.data.showImportPanel });
+  },
+
+  onImportTextInput(event) {
+    this.setData({ importText: event.detail.value });
+  },
+
+  useClipboard() {
+    wx.getClipboardData({
+      success: (res) => {
+        this.setData({ importText: res.data || this.data.importText });
+        wx.showToast({ title: '已粘贴', icon: 'success' });
+      },
+      fail: () => wx.showToast({ title: '无法读取剪贴板', icon: 'none' })
+    });
+  },
+
+  chooseScreenshot() {
+    const cb = (res) => {
+      this.setData({
+        importFiles: (res.tempFiles || []).map((file, index) => ({
+          name: file.name || `聊天截图 ${index + 1}`,
+          path: file.path || file.tempFilePath,
+          size: file.size
+        }))
+      });
+    };
+
+    if (wx.chooseMessageFile) {
+      wx.chooseMessageFile({ count: 3, type: 'image', success: cb, fail: () => {} });
+      return;
+    }
+    wx.chooseMedia({ count: 3, mediaType: ['image'], sourceType: ['album'], success: cb });
+  },
+
+  generateFromChat() {
+    const hasText = this.data.importText.trim().length > 0;
+    const hasFiles = this.data.importFiles.length > 0;
+    if (!hasText && !hasFiles) {
+      wx.showToast({ title: '先粘贴聊天或上传截图', icon: 'none' });
+      return;
+    }
+    const draft = buildDraftFromContext({
+      text: this.data.importText,
+      type: this.data.card.type || 'requirement',
+      source: 'import',
+      files: this.data.importFiles
+    });
+    this.setCard(draft);
+    this.setData({ showImportPanel: false, importText: '', importFiles: [] });
+    wx.showToast({ title: '已生成草稿', icon: 'success' });
   },
 
   openInviteSheet() {

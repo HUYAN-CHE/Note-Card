@@ -357,13 +357,13 @@ Page({
 
   goIntake() {
     wx.navigateTo({
-      url: '/pages/intake/intake'
+      url: '/pages/card-edit/card-edit?from=intake'
     });
   },
 
   onPullCreate() {
     wx.navigateTo({
-      url: '/pages/intake/intake?source=pull_create&type=requirement'
+      url: '/pages/card-edit/card-edit?from=pull_create&type=requirement'
     });
   },
 
@@ -392,7 +392,7 @@ Page({
       trigger.drawProgress(1);
     }
     wx.navigateTo({
-      url: '/pages/intake/intake?source=pull_create&type=requirement'
+      url: '/pages/card-edit/card-edit?from=pull_create&type=requirement'
     });
   },
 

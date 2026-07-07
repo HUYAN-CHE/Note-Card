@@ -24,7 +24,7 @@
       "optional_params": ["card_type", "source"],
       "card_type_values": ["requirement", "progress", "todo", "meeting"],
       "launch": {
-        "page": "/pages/intake/intake",
+        "page": "/pages/card-edit/card-edit",
         "query": "source=wechat_ai&type={card_type}&context={encoded_context}"
       },
       "output": "记事卡草稿"
@@ -41,7 +41,7 @@
       ],
       "required_params": ["context"],
       "launch": {
-        "page": "/pages/intake/intake",
+        "page": "/pages/card-edit/card-edit",
         "query": "source=wechat_ai&type=requirement&context={encoded_context}"
       },
       "output": "需求确认卡草稿"
@@ -58,7 +58,7 @@
       ],
       "required_params": ["context"],
       "launch": {
-        "page": "/pages/intake/intake",
+        "page": "/pages/card-edit/card-edit",
         "query": "source=wechat_ai&type=progress&context={encoded_context}"
       },
       "output": "服务进度卡草稿"
@@ -75,7 +75,7 @@
       ],
       "required_params": ["context"],
       "launch": {
-        "page": "/pages/intake/intake",
+        "page": "/pages/card-edit/card-edit",
         "query": "source=wechat_ai&type=todo&context={encoded_context}"
       },
       "output": "群聊待办草稿"
@@ -92,7 +92,7 @@
       ],
       "required_params": ["context"],
       "launch": {
-        "page": "/pages/intake/intake",
+        "page": "/pages/card-edit/card-edit",
         "query": "source=wechat_ai&type=meeting&context={encoded_context}"
       },
       "output": "预约记录草稿"

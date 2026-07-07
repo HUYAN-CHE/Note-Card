@@ -6,6 +6,34 @@
     <view class="nav-save" bindtap="saveAndBack">保存</view>
   </view>
 
+  <!-- 从聊天整理 -->
+  <view class="import-trigger" bindtap="toggleImportPanel">
+    <text class="import-icon">💬</text>
+    <text class="import-title">从聊天整理</text>
+    <text class="import-arrow {{showImportPanel ? 'up' : ''}}">›</text>
+  </view>
+
+  <view class="import-panel" wx:if="{{showImportPanel}}">
+    <view class="field">
+      <view class="field-label">聊天内容</view>
+      <textarea
+        class="field-textarea"
+        value="{{importText}}"
+        placeholder="把客户私聊、群聊摘要或语音整理结果粘贴到这里"
+        bindinput="onImportTextInput"
+        maxlength="4000"
+      />
+      <view class="input-actions">
+        <view class="input-action" bindtap="useClipboard">粘贴</view>
+        <view class="input-action" bindtap="chooseScreenshot">截图</view>
+      </view>
+      <view class="file-list" wx:if="{{importFiles.length}}">
+        <view wx:for="{{importFiles}}" wx:key="path" class="file-pill">{{item.name || '聊天截图'}}</view>
+      </view>
+    </view>
+    <view class="import-generate" bindtap="generateFromChat">生成草稿</view>
+  </view>
+
   <!-- 标题 -->
   <view class="field">
     <view class="field-label">标题</view>

@@ -2,35 +2,35 @@ const SKILLS = {
   create_card_from_chat: {
     name: 'create_card_from_chat',
     title: '从聊天整理记事卡',
-    page: '/pages/intake/intake',
+    page: '/pages/card-edit/card-edit',
     defaultType: 'requirement',
     action: 'create_from_chat'
   },
   create_requirement_card: {
     name: 'create_requirement_card',
     title: '生成需求确认卡',
-    page: '/pages/intake/intake',
+    page: '/pages/card-edit/card-edit',
     defaultType: 'requirement',
     action: 'generate_draft'
   },
   create_progress_card: {
     name: 'create_progress_card',
     title: '生成服务进度卡',
-    page: '/pages/intake/intake',
+    page: '/pages/card-edit/card-edit',
     defaultType: 'progress',
     action: 'generate_draft'
   },
   create_group_todo: {
     name: 'create_group_todo',
     title: '整理群聊待办',
-    page: '/pages/intake/intake',
+    page: '/pages/card-edit/card-edit',
     defaultType: 'todo',
     action: 'generate_draft'
   },
   create_meeting_record: {
     name: 'create_meeting_record',
     title: '生成预约记录',
-    page: '/pages/intake/intake',
+    page: '/pages/card-edit/card-edit',
     defaultType: 'meeting',
     action: 'generate_draft'
   },
