@@ -4,6 +4,21 @@ const DEFAULT_CANDIDATE_TAGS = ['法律咨询', '财务规划', '职业规划', 
 const REMARK_KEY = 'JISHIKA_MY_REMARK';
 const AUTH_PROFILE_KEY = 'JISHIKA_USER_PROFILE';
 
+function cleanNickname(name) {
+  if (!name || String(name).trim() === '我') return '';
+  return String(name).trim();
+}
+
+function cleanInitial(initial, name) {
+  if (!initial || String(initial).trim() === '我') return getInitial(name);
+  return String(initial).trim();
+}
+
+function getInitial(name) {
+  if (!name) return '';
+  return String(name).trim().charAt(0).toUpperCase();
+}
+
 Page({
   data: {
     heroPaddingTop: 60,
@@ -57,12 +72,12 @@ Page({
     const cloudProfile = data.profile || {};
     const authProfile = this.loadAuthProfile();
 
-    // 云端为空时，用本地授权信息兜底
-    const profile = {
-      nickname: cloudProfile.nickname || authProfile.nickname || '',
-      avatar: cloudProfile.avatar || authProfile.avatar || '',
-      initial: cloudProfile.initial || authProfile.initial || ''
-    };
+    // 优先使用云端昵称；若云端是“我”或为空，则用本地真实授权信息兜底
+    const nickname = cleanNickname(cloudProfile.nickname) || cleanNickname(authProfile.nickname);
+    const avatar = cloudProfile.avatar || authProfile.avatar || '';
+    const initial = cleanInitial(cloudProfile.initial, nickname) || cleanInitial(authProfile.initial, nickname);
+
+    const profile = { nickname, avatar, initial };
 
     const serviceTags = Array.isArray(cloudProfile.serviceTags)
       ? cloudProfile.serviceTags
@@ -99,9 +114,9 @@ Page({
 
     this.setData({
       user: {
-        nickname: profile.nickname || '',
+        nickname: cleanNickname(profile.nickname),
         avatar: profile.avatar || '',
-        initial: profile.initial || ''
+        initial: cleanInitial(profile.initial, profile.nickname)
       },
       remark,
       serviceTags,
@@ -129,9 +144,9 @@ Page({
     const fallback = { nickname: '', avatar: '', serviceTags: [] };
     const profile = (cached && typeof cached === 'object') ? cached : fallback;
     return {
-      nickname: profile.nickname || '',
+      nickname: cleanNickname(profile.nickname),
       avatar: profile.avatar || '',
-      initial: profile.initial || this.getInitial(profile.nickname),
+      initial: cleanInitial(profile.initial, profile.nickname),
       serviceTags: Array.isArray(profile.serviceTags) ? profile.serviceTags : []
     };
   },
@@ -235,8 +250,4 @@ Page({
     wx.navigateTo({ url: `/pages/card-detail/card-detail?id=${id}&view=owner` });
   },
 
-  getInitial(name) {
-    if (!name) return '';
-    return name.trim().charAt(0).toUpperCase();
-  }
 });

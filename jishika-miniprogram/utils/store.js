@@ -224,6 +224,14 @@ async function saveUserProfile(profile) {
   const openid = getCurrentOpenid();
   if (!openid || !isCloudReady() || !wx.cloud) return;
 
+  function cleanNickname(name) {
+    if (!name || String(name).trim() === '我') return '';
+    return String(name).trim();
+  }
+
+  const nickname = cleanNickname(profile.nickName || profile.nickname);
+  if (!nickname) return;
+
   try {
     const db = wx.cloud.database();
     const res = await db.collection(collections.users)
@@ -233,11 +241,11 @@ async function saveUserProfile(profile) {
 
     const data = {
       _openid: openid,
-      nickName: profile.nickName || profile.nickname || '',
+      nickName: nickname,
       avatarUrl: profile.avatarUrl || profile.avatar || '',
       intro: profile.intro || '',
       serviceTags: Array.isArray(profile.serviceTags) ? profile.serviceTags : [],
-      initial: profile.initial || getInitial(profile.nickName || profile.nickname),
+      initial: profile.initial && String(profile.initial).trim() !== '我' ? String(profile.initial).trim() : getInitial(nickname),
       color: profile.color || '',
       updatedAt: Date.now()
     };

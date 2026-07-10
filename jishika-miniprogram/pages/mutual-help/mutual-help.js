@@ -7,6 +7,16 @@ function getInitial(name) {
   return name.trim().charAt(0);
 }
 
+function cleanNickname(name) {
+  if (!name || String(name).trim() === '我') return '';
+  return String(name).trim();
+}
+
+function cleanInitial(initial, name) {
+  if (!initial || String(initial).trim() === '我') return getInitial(name);
+  return String(initial).trim();
+}
+
 Page({
   data: {
     statusBarHeight: 44,
@@ -36,8 +46,9 @@ Page({
     const local = wx.getStorageSync(STORAGE_KEY);
     const cached = globalProfile || local;
 
-    let profile = cached && cached.nickname && cached.avatar
-      ? { nickname: cached.nickname, avatar: cached.avatar, initial: cached.initial || cached.nickname.charAt(0) }
+    const cachedNickname = cleanNickname(cached && cached.nickname);
+    let profile = cachedNickname && cached.avatar
+      ? { nickname: cachedNickname, avatar: cached.avatar, initial: cleanInitial(cached.initial, cachedNickname) }
       : { nickname: '', avatar: '', initial: '' };
 
     try {
@@ -50,11 +61,12 @@ Page({
             .limit(1)
             .get();
           const cloudUser = res.data && res.data[0];
-          if (cloudUser && (cloudUser.nickName || cloudUser.avatarUrl)) {
+          const cloudNickname = cleanNickname(cloudUser && cloudUser.nickName);
+          if (cloudUser && (cloudNickname || cloudUser.avatarUrl)) {
             profile = {
-              nickname: cloudUser.nickName || profile.nickname,
+              nickname: cloudNickname || profile.nickname,
               avatar: cloudUser.avatarUrl || profile.avatar,
-              initial: cloudUser.initial || profile.initial || (cloudUser.nickName ? cloudUser.nickName.charAt(0) : '')
+              initial: cleanInitial(cloudUser.initial, cloudNickname || profile.nickname) || (cloudNickname ? cloudNickname.charAt(0) : '')
             };
             const nextProfile = { ...profile, serviceTags: cloudUser.serviceTags || [] };
             wx.setStorageSync(STORAGE_KEY, nextProfile);

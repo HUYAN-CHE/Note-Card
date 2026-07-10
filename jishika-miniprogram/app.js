@@ -77,6 +77,21 @@ App({
   async fetchUserProfile(openid) {
     if (!openid || !wx.cloud) return;
 
+    function cleanNickname(name) {
+      if (!name || String(name).trim() === '我') return '';
+      return String(name).trim();
+    }
+
+    function getInitial(name) {
+      if (!name) return '';
+      return String(name).trim().charAt(0).toUpperCase();
+    }
+
+    function cleanInitial(initial, name) {
+      if (!initial || String(initial).trim() === '我') return getInitial(name);
+      return String(initial).trim();
+    }
+
     try {
       const res = await wx.cloud.database()
         .collection(collections.users)
@@ -85,10 +100,11 @@ App({
         .get();
       const user = res.data && res.data[0];
       if (user) {
+        const nickname = cleanNickname(user.nickName);
         const profile = {
-          nickname: user.nickName || '',
+          nickname,
           avatar: user.avatarUrl || '',
-          initial: user.initial || '',
+          initial: cleanInitial(user.initial, nickname),
           serviceTags: user.serviceTags || []
         };
         this.globalData.userProfile = profile;

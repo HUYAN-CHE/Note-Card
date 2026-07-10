@@ -102,10 +102,25 @@ Page({
   },
 
   async finishAuth(profile) {
-    wx.setStorageSync(USER_PROFILE_KEY, profile);
+    function cleanNickname(name) {
+      if (!name || String(name).trim() === '我') return '';
+      return String(name).trim();
+    }
+
+    const safeProfile = {
+      nickname: cleanNickname(profile.nickname),
+      avatar: profile.avatar || '',
+      initial: profile.initial && String(profile.initial).trim() !== '我' ? String(profile.initial).trim() : '',
+      serviceTags: Array.isArray(profile.serviceTags) ? profile.serviceTags : []
+    };
+    if (safeProfile.nickname && !safeProfile.initial) {
+      safeProfile.initial = safeProfile.nickname.charAt(0).toUpperCase();
+    }
+
+    wx.setStorageSync(USER_PROFILE_KEY, safeProfile);
     try {
       const app = getApp();
-      if (app.globalData) app.globalData.userProfile = profile;
+      if (app.globalData) app.globalData.userProfile = safeProfile;
     } catch (e) {}
 
     this.setData({ showAuthModal: false, authFallback: false });
@@ -122,10 +137,10 @@ Page({
             .get();
           const data = {
             _openid: openid,
-            nickName: profile.nickname,
-            avatarUrl: profile.avatar,
-            initial: profile.initial,
-            serviceTags: profile.serviceTags || [],
+            nickName: safeProfile.nickname,
+            avatarUrl: safeProfile.avatar,
+            initial: safeProfile.initial,
+            serviceTags: safeProfile.serviceTags,
             updatedAt: Date.now()
           };
           if (res.data && res.data[0] && res.data[0]._id) {
