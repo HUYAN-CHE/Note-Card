@@ -78,7 +78,7 @@ Page({
       // 忽略云端读取失败
     }
 
-    const authorized = Boolean(profile.nickname && profile.avatar);
+    const authorized = Boolean(profile.nickname && profile.nickname !== '我' && profile.avatar);
     this.setData({ myProfile: profile, authorized });
 
     if (authorized) {

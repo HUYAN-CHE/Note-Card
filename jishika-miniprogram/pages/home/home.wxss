@@ -269,6 +269,15 @@
   border: none;
 }
 
+.auth-avatar-btn.done {
+  border: 2rpx solid #22c55e !important;
+}
+
+.auth-nickname-btn.done {
+  background: #e8f5e9;
+  color: #22c55e;
+}
+
 .auth-close {
   margin-top: 32rpx;
   font-size: 26rpx;

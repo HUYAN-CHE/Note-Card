@@ -82,13 +82,21 @@
   <view class="auth-mask" wx:if="{{showAuthModal}}" catchtap="closeAuthModal">
     <view class="auth-modal" catchtap="onPreventBubble">
       <view class="auth-title">授权登录</view>
-      <view class="auth-desc">授权头像和昵称，即可查看协作人脉</view>
+      <view class="auth-desc">分别点击头像和昵称完成授权</view>
       <view class="auth-actions">
-        <button class="auth-avatar-btn" open-type="chooseAvatar" bind:chooseavatar="onAuthAvatar">
-          <text wx:if="{{!authProfile.avatar}}">授权头像</text>
+        <button
+          class="auth-avatar-btn {{authProfile.avatar ? 'done' : ''}}"
+          open-type="chooseAvatar"
+          bind:chooseAvatar="onAuthAvatar"
+        >
+          <text wx:if="{{!authProfile.avatar}}">点击授权头像</text>
           <image wx:else class="auth-avatar-img" src="{{authProfile.avatar}}" mode="aspectFill" />
         </button>
-        <button class="auth-nickname-btn" open-type="chooseNickname" bind:choosenickname="onAuthNickname">{{authProfile.nickname || '授权昵称'}}</button>
+        <button
+          class="auth-nickname-btn {{authProfile.nickname ? 'done' : ''}}"
+          open-type="chooseNickname"
+          bind:chooseNickname="onAuthNickname"
+        >{{authProfile.nickname || '点击授权昵称'}}</button>
       </view>
       <view class="auth-close" bindtap="closeAuthModal">稍后再说</view>
     </view>

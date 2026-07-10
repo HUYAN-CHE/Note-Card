@@ -71,7 +71,8 @@ Page({
 
   checkAuth() {
     const profile = wx.getStorageSync(USER_PROFILE_KEY) || {};
-    const authorized = Boolean(profile.nickname && profile.avatar);
+    const nickname = profile.nickname && String(profile.nickname).trim();
+    const authorized = Boolean(nickname && nickname !== '我' && profile.avatar);
     if (!authorized) {
       this.setData({ showAuthModal: true });
     }
@@ -80,19 +81,21 @@ Page({
   onAuthAvatar(event) {
     const avatarUrl = event.detail.avatarUrl;
     if (!avatarUrl) return;
-    this.setData({ 'authProfile.avatar': avatarUrl });
-    this.tryFinishAuth();
+    this.setData({ 'authProfile.avatar': avatarUrl }, () => {
+      this.tryFinishAuth();
+    });
   },
 
   onAuthNickname(event) {
     const nickname = event.detail.value;
     if (!nickname) return;
-    const initial = nickname.trim().charAt(0);
+    const initial = nickname.trim().charAt(0).toUpperCase();
     this.setData({
       'authProfile.nickname': nickname,
       'authProfile.initial': initial
+    }, () => {
+      this.tryFinishAuth();
     });
-    this.tryFinishAuth();
   },
 
   async tryFinishAuth() {
@@ -123,7 +126,9 @@ Page({
       if (app.globalData) app.globalData.userProfile = safeProfile;
     } catch (e) {}
 
-    this.setData({ showAuthModal: false, authFallback: false });
+    this.setData({ showAuthModal: false, authFallback: false }, () => {
+      this.loadCards();
+    });
 
     try {
       const app = getApp();
@@ -252,6 +257,19 @@ Page({
   async loadCards(selectedDateStr) {
     const app = getApp();
     const launchContext = app.globalData.launchContext;
+
+    // 未授权时不展示任何事项
+    const profile = wx.getStorageSync(USER_PROFILE_KEY) || {};
+    const nickname = profile.nickname && String(profile.nickname).trim();
+    const authorized = Boolean(nickname && nickname !== '我' && profile.avatar);
+    if (!authorized) {
+      this.setData({ cards: [] }, () => {
+        this.updateDayCounts([]);
+        wx.nextTick(() => this.measureBodyCanScroll());
+      });
+      return;
+    }
+
     const cards = SHOW_DEMO_CARDS ? await ensureDemoCards() : this.buildTestCards();
 
     try {
