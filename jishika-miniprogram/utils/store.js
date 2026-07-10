@@ -285,8 +285,8 @@ async function getUserProfile(openid) {
 }
 
 function getInitial(name) {
-  if (!name) return '我';
-  return String(name).trim().charAt(0).toUpperCase() || '我';
+  if (!name) return '';
+  return String(name).trim().charAt(0).toUpperCase();
 }
 
 module.exports = {

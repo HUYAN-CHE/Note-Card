@@ -7,8 +7,8 @@ cloud.init({
 const db = cloud.database();
 
 function getInitial(name) {
-  if (!name) return '我';
-  return name.trim().charAt(0).toUpperCase() || '我';
+  if (!name) return '';
+  return name.trim().charAt(0).toUpperCase();
 }
 
 function getStatusClass(status) {
@@ -47,7 +47,7 @@ exports.main = async (event, context) => {
     const profile = {
       nickname: user ? user.nickName : '',
       avatar: user ? user.avatarUrl : '',
-      initial: user ? user.initial || getInitial(user.nickName) : '我',
+      initial: user ? user.initial || getInitial(user.nickName) : '',
       intro: user ? user.intro : '',
       serviceTags: user ? user.serviceTags || [] : []
     };

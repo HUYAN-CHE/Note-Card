@@ -2,10 +2,10 @@
   <!-- 顶部资料卡 -->
   <view class="profile-card" style="padding-top: {{heroPaddingTop}}rpx;">
     <view class="profile-avatar">
-      <text class="profile-initial" wx:if="{{!user.avatar}}">{{user.initial || '我'}}</text>
+      <text class="profile-initial" wx:if="{{!user.avatar}}">{{user.initial}}</text>
       <image wx:else class="profile-avatar-img" src="{{user.avatar}}" mode="aspectFill" />
     </view>
-    <text class="profile-name">{{user.nickname || '我'}}</text>
+    <text class="profile-name">{{user.nickname || '点击授权'}}</text>
     <view class="profile-edit" bindtap="startEditRemark">备注</view>
   </view>
 

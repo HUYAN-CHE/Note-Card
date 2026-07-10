@@ -54,7 +54,7 @@ Page({
             profile = {
               nickname: cloudUser.nickName || profile.nickname,
               avatar: cloudUser.avatarUrl || profile.avatar,
-              initial: cloudUser.initial || profile.initial || (cloudUser.nickName ? cloudUser.nickName.charAt(0) : '我')
+              initial: cloudUser.initial || profile.initial || (cloudUser.nickName ? cloudUser.nickName.charAt(0) : '')
             };
             const nextProfile = { ...profile, serviceTags: cloudUser.serviceTags || [] };
             wx.setStorageSync(STORAGE_KEY, nextProfile);
