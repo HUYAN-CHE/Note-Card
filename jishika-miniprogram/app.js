@@ -89,8 +89,7 @@ App({
           nickname: user.nickName || '',
           avatar: user.avatarUrl || '',
           initial: user.initial || '',
-          intro: user.intro || '',
-          serviceTags: user.tags || []
+          serviceTags: user.serviceTags || []
         };
         this.globalData.userProfile = profile;
         wx.setStorageSync('JISHIKA_USER_PROFILE', profile);

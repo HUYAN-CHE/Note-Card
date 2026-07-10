@@ -43,14 +43,6 @@
   color: #1a1a1a;
 }
 
-.profile-intro {
-  margin-top: 12rpx;
-  font-size: 26rpx;
-  color: #666;
-  line-height: 1.5;
-  max-width: 560rpx;
-}
-
 .profile-edit {
   margin-top: 20rpx;
   padding: 12rpx 28rpx;
@@ -63,51 +55,19 @@
 
 /* 编辑面板 */
 .edit-panel {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
   padding: 0 48rpx 48rpx;
-  text-align: center;
 }
 
-.edit-avatar {
-  width: 148rpx;
-  height: 148rpx;
-  border-radius: 50%;
-  background: linear-gradient(150deg, #00c853, #00a344);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-  padding: 0;
-  margin: 0;
-  border: none;
-  box-shadow: 0 8rpx 24rpx rgba(0, 200, 83, 0.22);
-}
-
-.edit-avatar::after {
-  display: none;
-}
-
-.edit-nickname {
-  margin-top: 24rpx;
-  padding: 0;
-  background: transparent;
-  border: none;
-  font-size: 40rpx;
-  font-weight: 800;
+.edit-title {
+  font-size: 30rpx;
+  font-weight: 700;
   color: #1a1a1a;
-  line-height: 1.4;
+  margin-bottom: 20rpx;
 }
 
-.edit-nickname::after {
-  display: none;
-}
-
-.edit-intro {
+.edit-remark {
   width: 100%;
-  min-height: 120rpx;
-  margin-top: 24rpx;
+  min-height: 180rpx;
   padding: 20rpx 24rpx;
   box-sizing: border-box;
   background: #f8f9fa;

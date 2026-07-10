@@ -40,13 +40,6 @@ Page({
       ? { nickname: cached.nickname, avatar: cached.avatar, initial: cached.initial || cached.nickname.charAt(0) }
       : { nickname: '', avatar: '', initial: '' };
 
-    if (!profile.nickname || !profile.avatar) {
-      wx.removeStorageSync(STORAGE_KEY);
-      try {
-        if (app.globalData) app.globalData.userProfile = null;
-      } catch (e) {}
-    }
-
     try {
       if (app.globalData && app.globalData.cloudReady && wx.cloud) {
         const openid = app.globalData.openid || wx.getStorageSync('JISHIKA_OPENID');
@@ -57,15 +50,15 @@ Page({
             .limit(1)
             .get();
           const cloudUser = res.data && res.data[0];
-          if (cloudUser) {
+          if (cloudUser && (cloudUser.nickName || cloudUser.avatarUrl)) {
             profile = {
-              nickname: cloudUser.nickName || '',
-              avatar: cloudUser.avatarUrl || '',
-              initial: cloudUser.initial || ''
+              nickname: cloudUser.nickName || profile.nickname,
+              avatar: cloudUser.avatarUrl || profile.avatar,
+              initial: cloudUser.initial || profile.initial || (cloudUser.nickName ? cloudUser.nickName.charAt(0) : '我')
             };
             const nextProfile = { ...profile, serviceTags: cloudUser.serviceTags || [] };
             wx.setStorageSync(STORAGE_KEY, nextProfile);
-            app.globalData.userProfile = nextProfile;
+            if (app.globalData) app.globalData.userProfile = nextProfile;
           }
         }
       }

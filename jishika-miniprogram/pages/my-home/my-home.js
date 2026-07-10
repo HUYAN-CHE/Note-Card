@@ -1,11 +1,13 @@
 const store = require('../../utils/store.js');
 
 const DEFAULT_CANDIDATE_TAGS = ['法律咨询', '财务规划', '职业规划', '心理咨询', '编程开发', '设计创意', '文案写作', '摄影摄像', '健身指导', '家庭教育', '房产顾问', '留学移民'];
+const REMARK_KEY = 'JISHIKA_MY_REMARK';
 
 Page({
   data: {
     heroPaddingTop: 60,
-    user: { nickname: '', avatar: '', initial: '我', intro: '' },
+    user: { nickname: '', avatar: '', initial: '我' },
+    remark: '',
     serviceTags: [],
     candidateTags: [],
     tagInput: '',
@@ -13,8 +15,8 @@ Page({
     activeTab: 'mine',
     cards: [],
     counts: { mine: 0, done: 0, helped: 0 },
-    isEditing: false,
-    editForm: {},
+    isEditingRemark: false,
+    editRemark: '',
     loading: false,
     emptyText: '还没有记事卡',
     stats: { helperCount: 0, helpedCount: 0 }
@@ -42,7 +44,6 @@ Page({
           return;
         }
       }
-      // 本地兜底
       await this.loadLocalData();
     } catch (e) {
       await this.loadLocalData();
@@ -56,21 +57,17 @@ Page({
     const serviceTags = Array.isArray(profile.serviceTags) ? profile.serviceTags : [];
     const candidateTags = (data.candidateTags || DEFAULT_CANDIDATE_TAGS)
       .filter((t) => !serviceTags.includes(t));
+    const remark = this.loadRemark();
 
     this.setData({
       user: {
         nickname: profile.nickname || '',
         avatar: profile.avatar || '',
-        initial: profile.initial || '我',
-        intro: profile.intro || ''
+        initial: profile.initial || '我'
       },
+      remark,
       serviceTags,
       candidateTags,
-      editForm: {
-        nickname: profile.nickname || '',
-        avatar: profile.avatar || '',
-        intro: profile.intro || ''
-      },
       allCards: data.allCards || [],
       counts: data.counts || { mine: 0, done: 0, helped: 0 },
       stats: data.stats || { helperCount: 0, helpedCount: 0 }
@@ -80,28 +77,25 @@ Page({
   },
 
   async loadLocalData() {
-    const cached = wx.getStorageSync('my_profile');
-    const fallback = { nickname: '', avatar: '', intro: '', serviceTags: [] };
-    const profile = (cached && typeof cached === 'object') ? cached : fallback;
-    const user = {
-      nickname: profile.nickname || '',
-      avatar: profile.avatar || '',
-      initial: this.getInitial(profile.nickname),
-      intro: profile.intro || ''
-    };
+    const profile = this.loadAuthProfile();
+    const remark = this.loadRemark();
     const serviceTags = Array.isArray(profile.serviceTags) ? profile.serviceTags : [];
     const candidateTags = DEFAULT_CANDIDATE_TAGS.filter((t) => !serviceTags.includes(t));
 
     const allCards = await store.getCards() || [];
-    const myId = user.nickname || store.getCurrentOpenid() || '我';
+    const myId = profile.nickname || store.getCurrentOpenid() || '我';
     const mineCards = allCards.filter((c) => c.creatorId === myId || !c.creatorId);
     const helpedCards = allCards.filter((c) => Array.isArray(c.helperIds) && c.helperIds.includes(myId));
 
     this.setData({
-      user,
+      user: {
+        nickname: profile.nickname || '',
+        avatar: profile.avatar || '',
+        initial: profile.initial || '我'
+      },
+      remark,
       serviceTags,
       candidateTags,
-      editForm: { ...user, serviceTags: [...serviceTags] },
       allCards,
       counts: {
         mine: mineCards.filter((c) => c.status !== 'done').length,
@@ -115,6 +109,25 @@ Page({
     }, () => {
       this.filterCards();
     });
+  },
+
+  loadAuthProfile() {
+    const app = getApp();
+    const globalProfile = app.globalData && app.globalData.userProfile;
+    const localProfile = wx.getStorageSync('JISHIKA_USER_PROFILE');
+    const cached = globalProfile || localProfile;
+    const fallback = { nickname: '', avatar: '', serviceTags: [] };
+    const profile = (cached && typeof cached === 'object') ? cached : fallback;
+    return {
+      nickname: profile.nickname || '',
+      avatar: profile.avatar || '',
+      initial: profile.initial || this.getInitial(profile.nickname),
+      serviceTags: Array.isArray(profile.serviceTags) ? profile.serviceTags : []
+    };
+  },
+
+  loadRemark() {
+    return wx.getStorageSync(REMARK_KEY) || '';
   },
 
   filterCards() {
@@ -144,59 +157,26 @@ Page({
     this.setData({ activeTab: tab }, () => this.filterCards());
   },
 
-  startEdit() {
+  startEditRemark() {
     this.setData({
-      isEditing: true,
-      editForm: { ...this.data.user, serviceTags: [...this.data.serviceTags] }
+      isEditingRemark: true,
+      editRemark: this.data.remark
     });
   },
 
-  cancelEdit() {
-    this.setData({ isEditing: false, tagEditing: false, tagInput: '' });
+  cancelEditRemark() {
+    this.setData({ isEditingRemark: false, editRemark: '' });
   },
 
-  async saveProfile() {
-    const { editForm, serviceTags } = this.data;
-    const user = {
-      nickname: editForm.nickname || this.data.user.nickname || '我',
-      avatar: editForm.avatar || this.data.user.avatar || '',
-      initial: this.getInitial(editForm.nickname || this.data.user.nickname),
-      intro: editForm.intro || ''
-    };
-    const profile = {
-      ...user,
-      serviceTags: [...serviceTags],
-      updatedAt: Date.now()
-    };
-
-    wx.setStorageSync('my_profile', profile);
-    const candidateTags = DEFAULT_CANDIDATE_TAGS.filter((t) => !serviceTags.includes(t));
-
-    this.setData({
-      user,
-      serviceTags: [...serviceTags],
-      candidateTags,
-      isEditing: false,
-      tagEditing: false,
-      tagInput: ''
-    });
-
-    await store.saveUserProfile(profile);
-    wx.showToast({ title: '保存成功', icon: 'success' });
+  onRemarkInput(e) {
+    this.setData({ editRemark: e.detail.value });
   },
 
-  onChooseAvatar(e) {
-    const avatarUrl = e.detail.avatarUrl;
-    this.setData({ editForm: { ...this.data.editForm, avatar: avatarUrl } });
-  },
-
-  onChooseNickname(e) {
-    const nickname = e.detail.value;
-    this.setData({ editForm: { ...this.data.editForm, nickname, initial: this.getInitial(nickname) } });
-  },
-
-  onIntroInput(e) {
-    this.setData({ editForm: { ...this.data.editForm, intro: e.detail.value } });
+  saveRemark() {
+    const remark = this.data.editRemark.trim();
+    wx.setStorageSync(REMARK_KEY, remark);
+    this.setData({ remark, isEditingRemark: false, editRemark: '' });
+    wx.showToast({ title: '备注已保存', icon: 'success' });
   },
 
   toggleTagEdit() {

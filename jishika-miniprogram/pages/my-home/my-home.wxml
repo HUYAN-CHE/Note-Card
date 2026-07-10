@@ -6,29 +6,22 @@
       <image wx:else class="profile-avatar-img" src="{{user.avatar}}" mode="aspectFill" />
     </view>
     <text class="profile-name">{{user.nickname || '我'}}</text>
-    <text class="profile-intro" wx:if="{{user.intro}}">{{user.intro}}</text>
-    <view class="profile-edit" bindtap="startEdit">编辑资料</view>
+    <view class="profile-edit" bindtap="startEditRemark">备注</view>
   </view>
 
-  <!-- 编辑资料表单 -->
-  <view class="edit-panel" wx:if="{{isEditing}}">
-    <button class="edit-avatar" open-type="chooseAvatar" bind:chooseavatar="onChooseAvatar">
-      <text class="profile-initial" wx:if="{{!editForm.avatar}}">{{editForm.initial || '我'}}</text>
-      <image wx:else class="profile-avatar-img" src="{{editForm.avatar}}" mode="aspectFill" />
-    </button>
-    <button class="edit-nickname" open-type="chooseNickname" bind:choosenickname="onChooseNickname">
-      {{editForm.nickname || '点击设置昵称'}}
-    </button>
+  <!-- 备注编辑表单 -->
+  <view class="edit-panel" wx:if="{{isEditingRemark}}">
+    <view class="edit-title">编辑备注</view>
     <textarea
-      class="edit-intro"
-      value="{{editForm.intro}}"
-      bindinput="onIntroInput"
-      placeholder="一句话介绍"
-      maxlength="60"
+      class="edit-remark"
+      value="{{editRemark}}"
+      bindinput="onRemarkInput"
+      placeholder="写点什么备注..."
+      maxlength="200"
     />
     <view class="edit-actions">
-      <view class="edit-btn save" bindtap="saveProfile">保存</view>
-      <view class="edit-btn cancel" bindtap="cancelEdit">取消</view>
+      <view class="edit-btn save" bindtap="saveRemark">保存</view>
+      <view class="edit-btn cancel" bindtap="cancelEditRemark">取消</view>
     </view>
   </view>
 
