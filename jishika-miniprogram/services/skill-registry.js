@@ -2,35 +2,35 @@ const SKILLS = {
   create_card_from_chat: {
     name: 'create_card_from_chat',
     title: '从聊天整理记事卡',
-    page: '/pages/card-edit/card-edit',
+    page: '/pages/card-import/card-import',
     defaultType: 'requirement',
     action: 'create_from_chat'
   },
   create_requirement_card: {
     name: 'create_requirement_card',
     title: '生成需求确认卡',
-    page: '/pages/card-edit/card-edit',
+    page: '/pages/card-import/card-import',
     defaultType: 'requirement',
     action: 'generate_draft'
   },
   create_progress_card: {
     name: 'create_progress_card',
     title: '生成服务进度卡',
-    page: '/pages/card-edit/card-edit',
+    page: '/pages/card-import/card-import',
     defaultType: 'progress',
     action: 'generate_draft'
   },
   create_group_todo: {
     name: 'create_group_todo',
     title: '整理群聊待办',
-    page: '/pages/card-edit/card-edit',
+    page: '/pages/card-import/card-import',
     defaultType: 'todo',
     action: 'generate_draft'
   },
   create_meeting_record: {
     name: 'create_meeting_record',
     title: '生成预约记录',
-    page: '/pages/card-edit/card-edit',
+    page: '/pages/card-import/card-import',
     defaultType: 'meeting',
     action: 'generate_draft'
   },
@@ -55,7 +55,7 @@ function inferSkillName(text = '', intent = '') {
   const value = `${intent} ${text}`;
 
   if (/互助|朋友|协作圈|服务入口/.test(value)) return 'open_mutual_help';
-  if (/会议|开会|预约|约个时间|沟通时间/.test(value)) return 'create_meeting_record';
+  if (/会议|开会|预约|约个时间/.test(value)) return 'create_meeting_record';
   if (/群聊|群里|待办|负责|谁来|截止/.test(value)) return 'create_group_todo';
   if (/进度|节点|补资料|阶段|完成|服务到哪/.test(value)) return 'create_progress_card';
   if (/需求|确认|范围|客户/.test(value)) return 'create_requirement_card';

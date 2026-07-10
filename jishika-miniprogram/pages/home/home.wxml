@@ -53,12 +53,12 @@
           bindtap="openCard"
           data-id="{{item.id}}"
           data-action="open_card"
-          aria-label="打开记事卡 {{item.projectName || '未命名事项'}}"
+          aria-label="打开记事卡 {{item.displayTitle}}"
         >
           <view class="card-icon">{{item.emoji}}</view>
 
           <view class="card-info">
-            <text class="card-title">{{item.projectName || '未命名事项'}}</text>
+            <text class="card-title">{{item.displayTitle}}</text>
             <text class="card-meta">截止日期 {{item.deadlineText}}</text>
           </view>
 

@@ -11,35 +11,31 @@ const MOCK_FRIENDS = [
 Page({
   data: {
     statusBarHeight: 44,
-    card: {},
+    card: {
+      title: '',
+      desc: '',
+      keyPoints: [],
+      status: 'draft',
+      isNetworkVisible: true,
+      helperIds: []
+    },
     keyPointsText: '',
     helpers: [],
-    isNetworkVisible: true,
     showInviteSheet: false,
-    friendCandidates: [],
-    showImportPanel: false,
-    importText: '',
-    importFiles: []
+    friendCandidates: []
   },
 
   onLoad(options = {}) {
     const sys = wx.getSystemInfoSync();
-    this.setData({ statusBarHeight: (sys.statusBarHeight || 20) });
-    const fromImport = options.from === 'intake' || options.from === 'pull_create';
-    if (fromImport) {
-      this.setData({ showImportPanel: true });
-    }
+    this.setData({ statusBarHeight: sys.statusBarHeight || 20 });
     this.loadCard(options);
   },
 
   async loadCard(options = {}) {
     const storedCard = options.id ? await getCard(options.id) : null;
     const pendingDraft = wx.getStorageSync('JISHIKA_PENDING_DRAFT');
-    const blankDraft = buildDraftFromContext({
-      text: '',
-      type: 'requirement',
-      source: 'manual'
-    });
+    const blankDraft = buildDraftFromContext({ text: '', type: 'requirement', source: 'manual' });
+
     const card = storedCard || pendingDraft || blankDraft;
     this.setCard(card);
   },
@@ -47,23 +43,30 @@ Page({
   setCard(card) {
     const keyPoints = Array.isArray(card.keyPoints) ? card.keyPoints : [];
     const helperIds = Array.isArray(card.helperIds) ? card.helperIds : [];
+
     this.setData({
       card: {
-        ...card,
+        title: card.title || '',
+        desc: card.desc || '',
+        keyPoints,
+        status: card.status || 'draft',
+        isNetworkVisible: card.isNetworkVisible !== false,
+        helperIds,
+        id: card.id || '',
         type: card.type || 'requirement',
         typeLabel: card.typeLabel || TYPE_LABELS[card.type || 'requirement'],
-        isNetworkVisible: card.isNetworkVisible !== false
+        source: card.source || 'manual'
       },
       keyPointsText: keyPoints.join(' · '),
-      helpers: helperIds.map(h => this.normalizeHelper(h)),
-      friendCandidates: MOCK_FRIENDS.map(f => ({ ...f }))
+      helpers: helperIds.map((h) => this.normalizeHelper(h)),
+      friendCandidates: MOCK_FRIENDS.map((f) => ({ ...f }))
     });
   },
 
   normalizeHelper(raw) {
     if (!raw) return { nickname: '未知', initial: '?', avatar: '' };
     if (typeof raw === 'string') {
-      return { nickname: raw, initial: this.getInitial(raw), avatar: '' };
+      return { id: raw, nickname: raw, initial: this.getInitial(raw), avatar: '' };
     }
     return {
       id: raw.id || '',
@@ -78,9 +81,12 @@ Page({
     return String(name).trim().charAt(0).toUpperCase() || '?';
   },
 
-  onFieldInput(event) {
-    const field = event.currentTarget.dataset.field;
-    this.setData({ [`card.${field}`]: event.detail.value });
+  onTitleInput(event) {
+    this.setData({ 'card.title': event.detail.value });
+  },
+
+  onDescInput(event) {
+    this.setData({ 'card.desc': event.detail.value });
   },
 
   onKeyPointsInput(event) {
@@ -89,60 +95,6 @@ Page({
 
   toggleVisibility() {
     this.setData({ 'card.isNetworkVisible': !this.data.card.isNetworkVisible });
-  },
-
-  toggleImportPanel() {
-    this.setData({ showImportPanel: !this.data.showImportPanel });
-  },
-
-  onImportTextInput(event) {
-    this.setData({ importText: event.detail.value });
-  },
-
-  useClipboard() {
-    wx.getClipboardData({
-      success: (res) => {
-        this.setData({ importText: res.data || this.data.importText });
-        wx.showToast({ title: '已粘贴', icon: 'success' });
-      },
-      fail: () => wx.showToast({ title: '无法读取剪贴板', icon: 'none' })
-    });
-  },
-
-  chooseScreenshot() {
-    const cb = (res) => {
-      this.setData({
-        importFiles: (res.tempFiles || []).map((file, index) => ({
-          name: file.name || `聊天截图 ${index + 1}`,
-          path: file.path || file.tempFilePath,
-          size: file.size
-        }))
-      });
-    };
-
-    if (wx.chooseMessageFile) {
-      wx.chooseMessageFile({ count: 3, type: 'image', success: cb, fail: () => {} });
-      return;
-    }
-    wx.chooseMedia({ count: 3, mediaType: ['image'], sourceType: ['album'], success: cb });
-  },
-
-  generateFromChat() {
-    const hasText = this.data.importText.trim().length > 0;
-    const hasFiles = this.data.importFiles.length > 0;
-    if (!hasText && !hasFiles) {
-      wx.showToast({ title: '先粘贴聊天或上传截图', icon: 'none' });
-      return;
-    }
-    const draft = buildDraftFromContext({
-      text: this.data.importText,
-      type: this.data.card.type || 'requirement',
-      source: 'import',
-      files: this.data.importFiles
-    });
-    this.setCard(draft);
-    this.setData({ showImportPanel: false, importText: '', importFiles: [] });
-    wx.showToast({ title: '已生成草稿', icon: 'success' });
   },
 
   openInviteSheet() {
@@ -163,7 +115,7 @@ Page({
   noop() {},
 
   async sendInvite() {
-    const saved = await this.persistCard({ status: 'pending_confirm' });
+    const saved = await this.persistCard({ status: 'todo' });
     this.closeInviteSheet();
     wx.showShareMenu({ withShareTicket: true });
     wx.showToast({ title: '请点击右上角转发', icon: 'none' });
@@ -182,7 +134,7 @@ Page({
   },
 
   async saveAndBack() {
-    const saved = await this.persistCard({ status: 'pending_confirm' });
+    const saved = await this.persistCard({ status: 'todo' });
     wx.showToast({ title: '保存成功', icon: 'success' });
     wx.navigateBack();
     return saved;
@@ -191,28 +143,26 @@ Page({
   async persistCard(extra = {}) {
     const keyPoints = this.data.keyPointsText
       .split('·')
-      .map(item => item.trim())
+      .map((item) => item.trim())
       .filter(Boolean);
 
     const selectedFriends = this.data.friendCandidates
-      .filter(f => f.selected)
-      .map(f => f.nickname);
+      .filter((f) => f.selected)
+      .map((f) => f.nickname);
 
-    const helperIds = [
-      ...new Set([
-        ...(this.data.helpers.map(h => h.nickname)),
-        ...selectedFriends
-      ])
-    ];
+    const helperIds = Array.from(new Set([
+      ...this.data.card.helperIds,
+      ...selectedFriends
+    ]));
 
     const card = {
       ...this.data.card,
       ...extra,
-      projectName: this.data.card.projectName || '未命名事项',
-      summary: this.data.card.summary || '',
+      title: this.data.card.title.trim() || '未命名事项',
+      desc: this.data.card.desc || '',
       keyPoints,
       helperIds,
-      visibility: this.data.card.isNetworkVisible ? 'network' : 'friends'
+      isNetworkVisible: this.data.card.isNetworkVisible
     };
 
     const saved = card.id ? await saveCard(card) : await createCardFromDraft(card);
@@ -223,8 +173,8 @@ Page({
 
   onShareAppMessage() {
     const card = this.data.card || {};
-    const title = card.projectName
-      ? `邀请你一起用《${card.projectName}》`
+    const title = card.title
+      ? `邀请你一起用《${card.title}》`
       : '邀请你一起用记事卡';
     return {
       title,

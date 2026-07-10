@@ -80,7 +80,7 @@ App({
     try {
       const res = await wx.cloud.database()
         .collection(collections.users)
-        .where({ openid })
+        .where({ _openid: openid })
         .limit(1)
         .get();
       const user = res.data && res.data[0];

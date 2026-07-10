@@ -1,13 +1,11 @@
 {
   "pages": [
     "pages/home/home",
-    "pages/intake/intake",
+    "pages/card-import/card-import",
     "pages/card-edit/card-edit",
-    "pages/customer-confirm/customer-confirm",
-    "pages/progress/progress",
+    "pages/card-detail/card-detail",
     "pages/mutual-help/mutual-help",
-    "pages/my-home/my-home",
-    "pages/card-detail/card-detail"
+    "pages/my-home/my-home"
   ],
   "window": {
     "navigationBarTitleText": "记事卡",

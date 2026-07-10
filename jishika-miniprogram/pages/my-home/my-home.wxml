@@ -101,7 +101,7 @@
           bindtap="openCard"
           data-id="{{item.id}}"
         >
-          <text class="ncard-title">{{item.projectName || item.title || '未命名事项'}}</text>
+          <text class="ncard-title">{{item.title || '未命名事项'}}</text>
           <view class="ncard-meta">
             <view class="status-pill {{item.statusClass}}">
               <view class="dot"></view>

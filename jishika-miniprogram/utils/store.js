@@ -15,63 +15,6 @@ function nowText() {
   return `${month}-${day} ${hour}:${minute}`;
 }
 
-async function getCards() {
-  if (isCloudReady()) {
-    try {
-      const db = wx.cloud.database();
-      const res = await db.collection(collections.cards)
-        .orderBy('updatedAt', 'desc')
-        .limit(50)
-        .get();
-
-      return (res.data || []).map(normalizeCloudCard);
-    } catch (error) {
-      setStoreMode('local');
-    }
-  }
-
-  return getLocalCards();
-}
-
-async function getCard(id) {
-  if (!id) return null;
-
-  if (isCloudReady()) {
-    try {
-      const card = await findCloudCardById(id);
-      if (card) return normalizeCloudCard(card);
-    } catch (error) {
-      setStoreMode('local');
-    }
-  }
-
-  return getLocalCard(id);
-}
-
-async function saveCard(card) {
-  const creatorId = card.creatorId || getCurrentOpenid();
-  const nextCard = {
-    ...card,
-    id: card.id || uid(),
-    creatorId,
-    helperIds: card.helperIds || [],
-    visibility: card.visibility || 'friends',
-    updatedAt: Date.now(),
-    updatedText: nowText()
-  };
-
-  if (isCloudReady()) {
-    try {
-      await upsertCloudCard(nextCard);
-      return nextCard;
-    } catch (error) {
-      setStoreMode('local');
-    }
-  }
-
-  return saveLocalCard(nextCard);
-}
-
 function getCurrentOpenid() {
   try {
     const app = getApp();
@@ -81,30 +24,39 @@ function getCurrentOpenid() {
   }
 }
 
-async function createCardFromDraft(draft) {
-  return saveCard({
-    ...draft,
-    id: uid(),
-    status: draft.status || 'draft',
-    stage: draft.stage || '待商家确认',
-    customerVisible: true,
-    internalNote: '',
-    progressNodes: draft.progressNodes || buildDefaultNodes(draft.type),
-    creatorId: getCurrentOpenid(),
-    helperIds: draft.helperIds || [],
-    visibility: draft.visibility || 'friends'
-  });
-}
-
-async function updateCard(id, patch) {
-  const card = await getCard(id);
-  if (!card) return null;
-
-  return saveCard({
+function normalizeCard(card) {
+  if (!card) return card;
+  return {
     ...card,
-    ...patch
-  });
+    cloudId: card._id || card.cloudId
+  };
 }
+
+function stripCloudMeta(card) {
+  const data = { ...card };
+  delete data._id;
+  delete data.cloudId;
+  return data;
+}
+
+function isCloudReady() {
+  try {
+    const app = getApp();
+    return Boolean(app.globalData && app.globalData.cloudReady && wx.cloud);
+  } catch (error) {
+    return false;
+  }
+}
+
+function setStoreMode(mode) {
+  try {
+    const app = getApp();
+    app.globalData.storeMode = mode;
+    if (mode === 'local') app.globalData.cloudReady = false;
+  } catch (error) {}
+}
+
+// ==================== 本地存储 ====================
 
 function getLocalCards() {
   const cards = wx.getStorageSync(CARDS_KEY) || [];
@@ -138,68 +90,7 @@ function saveLocalCard(card) {
   return nextCard;
 }
 
-function buildDefaultNodes(type) {
-  if (type === 'meeting') {
-    return [
-      { id: uid('node'), title: '确认沟通主题', status: 'done' },
-      { id: uid('node'), title: '确认会议时间', status: 'current' },
-      { id: uid('node'), title: '记录会议结论', status: 'todo' }
-    ];
-  }
-
-  if (type === 'todo') {
-    return [
-      { id: uid('node'), title: '整理群聊事项', status: 'done' },
-      { id: uid('node'), title: '明确负责人和截止时间', status: 'current' },
-      { id: uid('node'), title: '同步完成结果', status: 'todo' }
-    ];
-  }
-
-  return [
-    { id: uid('node'), title: '需求确认', status: 'current' },
-    { id: uid('node'), title: '资料补充', status: 'todo' },
-    { id: uid('node'), title: '阶段沟通', status: 'todo' },
-    { id: uid('node'), title: '服务完成', status: 'todo' }
-  ];
-}
-
-async function ensureDemoCards() {
-  const cards = await getCards();
-  if (cards.length) return cards;
-
-  const demo = await createCardFromDraft({
-    type: 'requirement',
-    typeLabel: '需求确认卡',
-    source: 'demo',
-    customerName: '王女士',
-    phone: '13800001234',
-    projectName: '官网改版',
-    summary: '客户希望重做企业官网，重点关注移动端适配和品牌感。',
-    keyPoints: ['移动端适配', '提升品牌感', '希望 6 月底前上线'],
-    questions: ['是否包含文案？', '是否需要多语言？'],
-    nextStep: '发给客户确认需求',
-    reminderText: '明天 10:00 跟进客户确认'
-  });
-
-  return [demo];
-}
-
-function isCloudReady() {
-  try {
-    const app = getApp();
-    return Boolean(app.globalData && app.globalData.cloudReady && wx.cloud);
-  } catch (error) {
-    return false;
-  }
-}
-
-function setStoreMode(mode) {
-  try {
-    const app = getApp();
-    app.globalData.storeMode = mode;
-    if (mode === 'local') app.globalData.cloudReady = false;
-  } catch (error) {}
-}
+// ==================== 云数据库 ====================
 
 async function findCloudCardById(id) {
   const db = wx.cloud.database();
@@ -207,7 +98,6 @@ async function findCloudCardById(id) {
     .where({ id })
     .limit(1)
     .get();
-
   return res.data && res.data[0] ? res.data[0] : null;
 }
 
@@ -216,80 +106,200 @@ async function upsertCloudCard(card) {
   const existing = await findCloudCardById(card.id);
   const data = stripCloudMeta(card);
 
-  try {
-    await upsertCustomerFromCard(card);
-  } catch (error) {}
-
   if (existing && existing._id) {
     return db.collection(collections.cards)
       .doc(existing._id)
-      .update({
-        data
-      });
+      .update({ data });
   }
 
-  return db.collection(collections.cards).add({
-    data
-  });
+  return db.collection(collections.cards).add({ data });
 }
 
-async function upsertCustomerFromCard(card) {
-  if (!card.phone) return null;
+// ==================== 卡片 CRUD ====================
 
-  const db = wx.cloud.database();
-  const res = await db.collection(collections.customers)
-    .where({ phone: card.phone })
-    .limit(1)
-    .get();
+async function getCards() {
+  if (isCloudReady()) {
+    try {
+      const db = wx.cloud.database();
+      const openid = getCurrentOpenid();
+      const res = await db.collection(collections.cards)
+        .where({
+          $or: [
+            { creatorId: openid },
+            { helperIds: openid }
+          ]
+        })
+        .orderBy('updatedAt', 'desc')
+        .limit(100)
+        .get();
+      return (res.data || []).map(normalizeCard);
+    } catch (error) {
+      setStoreMode('local');
+    }
+  }
+  return getLocalCards();
+}
 
-  const data = {
-    phone: card.phone,
-    customerName: card.customerName || '',
+async function getCard(id) {
+  if (!id) return null;
+
+  if (isCloudReady()) {
+    try {
+      const card = await findCloudCardById(id);
+      if (card) return normalizeCard(card);
+    } catch (error) {
+      setStoreMode('local');
+    }
+  }
+
+  return getLocalCard(id);
+}
+
+async function saveCard(card) {
+  const creatorId = card.creatorId || getCurrentOpenid();
+  const nextCard = {
+    ...card,
+    id: card.id || uid(),
+    creatorId,
+    helperIds: Array.isArray(card.helperIds) ? card.helperIds : [],
+    isNetworkVisible: card.isNetworkVisible !== false,
+    status: card.status || 'draft',
     updatedAt: Date.now(),
     updatedText: nowText()
   };
 
-  if (res.data && res.data[0] && res.data[0]._id) {
-    return db.collection(collections.customers)
-      .doc(res.data[0]._id)
-      .update({
-        data
-      });
+  if (isCloudReady()) {
+    try {
+      await upsertCloudCard(nextCard);
+      return nextCard;
+    } catch (error) {
+      setStoreMode('local');
+    }
   }
 
-  return db.collection(collections.customers).add({
-    data: {
-      ...data,
-      createdAt: Date.now()
-    }
+  return saveLocalCard(nextCard);
+}
+
+async function createCardFromDraft(draft) {
+  return saveCard({
+    ...draft,
+    id: uid(),
+    status: draft.status || 'draft',
+    helperIds: draft.helperIds || [],
+    isNetworkVisible: draft.isNetworkVisible !== false,
+    source: draft.source || 'manual'
   });
 }
 
-function normalizeCloudCard(card) {
-  if (!card) return card;
-
-  return {
-    ...card,
-    cloudId: card._id
-  };
+async function updateCard(id, patch) {
+  const card = await getCard(id);
+  if (!card) return null;
+  return saveCard({ ...card, ...patch });
 }
 
-function stripCloudMeta(card) {
-  const data = {
-    ...card
-  };
-  delete data._id;
-  delete data.cloudId;
-  return data;
+async function deleteCard(id) {
+  if (!id) return;
+
+  if (isCloudReady()) {
+    try {
+      const existing = await findCloudCardById(id);
+      if (existing && existing._id) {
+        await wx.cloud.database()
+          .collection(collections.cards)
+          .doc(existing._id)
+          .remove();
+      }
+    } catch (error) {
+      // 继续清理本地
+    }
+  }
+
+  const cards = getLocalCards().filter((card) => card.id !== id);
+  wx.setStorageSync(CARDS_KEY, cards);
+}
+
+// ==================== 用户资料 ====================
+
+async function saveUserProfile(profile) {
+  const openid = getCurrentOpenid();
+  if (!openid || !isCloudReady() || !wx.cloud) return;
+
+  try {
+    const db = wx.cloud.database();
+    const res = await db.collection(collections.users)
+      .where({ _openid: openid })
+      .limit(1)
+      .get();
+
+    const data = {
+      _openid: openid,
+      nickName: profile.nickName || profile.nickname || '',
+      avatarUrl: profile.avatarUrl || profile.avatar || '',
+      intro: profile.intro || '',
+      serviceTags: Array.isArray(profile.serviceTags) ? profile.serviceTags : [],
+      initial: profile.initial || getInitial(profile.nickName || profile.nickname),
+      color: profile.color || '',
+      updatedAt: Date.now()
+    };
+
+    if (res.data && res.data[0] && res.data[0]._id) {
+      await db.collection(collections.users).doc(res.data[0]._id).update({ data });
+    } else {
+      await db.collection(collections.users).add({
+        data: { ...data, createdAt: Date.now() }
+      });
+    }
+  } catch (error) {
+    // 忽略云端失败
+  }
+}
+
+async function getUserProfile(openid) {
+  if (!openid) return null;
+
+  if (isCloudReady()) {
+    try {
+      const db = wx.cloud.database();
+      const res = await db.collection(collections.users)
+        .where({ _openid: openid })
+        .limit(1)
+        .get();
+      return res.data && res.data[0] ? res.data[0] : null;
+    } catch (error) {
+      // fallback to local
+    }
+  }
+
+  const cached = wx.getStorageSync('JISHIKA_USER_PROFILE') || {};
+  if (cached.nickname || cached.nickName) {
+    return {
+      _openid: openid,
+      nickName: cached.nickname || cached.nickName || '',
+      avatarUrl: cached.avatar || cached.avatarUrl || '',
+      intro: cached.intro || '',
+      serviceTags: cached.serviceTags || cached.tags || []
+    };
+  }
+
+  return null;
+}
+
+function getInitial(name) {
+  if (!name) return '我';
+  return String(name).trim().charAt(0).toUpperCase() || '我';
 }
 
 module.exports = {
+  uid,
+  nowText,
+  getCurrentOpenid,
   getCards,
   getCard,
   saveCard,
   updateCard,
+  deleteCard,
   createCardFromDraft,
-  ensureDemoCards,
-  buildDefaultNodes,
-  nowText
+  saveUserProfile,
+  getUserProfile,
+  getInitial
 };

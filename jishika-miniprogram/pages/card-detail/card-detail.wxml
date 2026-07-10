@@ -1,7 +1,7 @@
 <view class="page card-detail-page">
   <!-- 顶部标题与创立者 -->
   <view class="detail-hero">
-    <text class="detail-title">{{card.projectName || card.title || '未命名事项'}}</text>
+    <text class="detail-title">{{card.title || '未命名事项'}}</text>
     <view class="creator">
       <view class="creator-avatar">
         <text wx:if="{{!creator.avatar}}">{{creator.initial}}</text>
@@ -9,7 +9,7 @@
       </view>
       <view class="creator-info">
         <text class="creator-name">{{creator.nickname || '未知用户'}}</text>
-        <text class="creator-relation">{{creator.relationText}}</text>
+        <text class="creator-relation">{{isCreator ? '我 · 创立者' : (isHelper ? '一度人脉 · 协助者' : (isNetworkView ? '二度人脉 · 创立者' : '创立者'))}}</text>
       </view>
     </view>
   </view>
@@ -29,10 +29,10 @@
     <view class="helpers-empty" wx:else>暂无协助者，成为第一个帮忙的人</view>
   </view>
 
-  <!-- 需求摘要 -->
-  <view class="detail-section" wx:if="{{card.summary || card.desc}}">
-    <view class="section-title">📝 需求摘要</view>
-    <text class="detail-summary">{{card.summary || card.desc}}</text>
+  <!-- 需求描述 -->
+  <view class="detail-section" wx:if="{{card.desc}}">
+    <view class="section-title">📝 需求描述</view>
+    <text class="detail-summary">{{card.desc}}</text>
   </view>
 
   <!-- 重点 / 待确认 -->
@@ -49,33 +49,38 @@
     <view class="kv-list">
       <view class="kv-item">
         <text class="kv-key">状态</text>
-        <text class="kv-value {{statusClass}}">{{card.status || card.stage || '进行中'}}</text>
+        <text class="kv-value {{statusClass}}">{{statusText}}</text>
       </view>
       <view class="kv-item">
         <text class="kv-key">更新于</text>
         <text class="kv-value">{{card.updatedText || '今天'}}</text>
       </view>
-      <view class="kv-item">
+      <view class="kv-item" wx:if="{{isNetworkView}}">
         <text class="kv-key">联系方式</text>
-        <text class="kv-value muted">{{isNetworkView ? '对二度人脉隐藏' : (card.phone || '未填写')}}</text>
+        <text class="kv-value muted">对二度人脉隐藏</text>
       </view>
     </view>
   </view>
 
   <!-- 底部操作 -->
   <view class="detail-footer" wx:if="{{!isCreator}}">
-    <button class="apply-btn" bindtap="openApplySheet">申请加入</button>
+    <button class="apply-btn" wx:if="{{isNetworkView}}" bindtap="openApplySheet">申请加入</button>
+    <button class="apply-btn" wx:if="{{canAcceptInvite}}" bindtap="acceptInvite">接受邀请</button>
+  </view>
+
+  <view class="detail-footer" wx:if="{{isCreator}}">
+    <button class="apply-btn" bindtap="noop">编辑记事卡</button>
   </view>
 
   <!-- 申请加入弹窗 -->
   <view class="sheet-mask" wx:if="{{showApplySheet}}" bindtap="closeApplySheet">
     <view class="sheet" catchtap="noop">
       <view class="sheet-grab"></view>
-      <view class="sheet-title">请转发给阿哲</view>
-      <view class="sheet-desc">二度人脉不能直接加入，先请共同好友 <b>阿哲</b> 帮你向 {{creator.nickname || '创立者'}} 引荐。</view>
+      <view class="sheet-title">请转发给 {{card.creatorName || '共同好友'}}</view>
+      <view class="sheet-desc">二度人脉不能直接加入，先请共同好友帮你向 <b>{{creator.nickname || '创立者'}}</b> 引荐。</view>
       <view class="refer-card">
         <text class="refer-emoji">🤝</text>
-        <text class="refer-text"><b>{{userName}}</b> 想加入《{{card.projectName || card.title || '这张记事卡'}}》，请帮我向 {{creator.nickname || 'TA'}} 说句好话～</text>
+        <text class="refer-text"><b>{{userName}}</b> 想加入《{{card.title || '这张记事卡'}}》，请帮我向 {{creator.nickname || 'TA'}} 说句好话～</text>
       </view>
       <textarea
         class="refer-input"
@@ -86,7 +91,7 @@
       />
       <view class="sheet-actions">
         <button class="sheet-btn ghost" bindtap="closeApplySheet">取消</button>
-        <button class="sheet-btn primary" open-type="share">生成卡片并转发</button>
+        <button class="sheet-btn primary" bindtap="submitApply">提交申请</button>
       </view>
     </view>
   </view>

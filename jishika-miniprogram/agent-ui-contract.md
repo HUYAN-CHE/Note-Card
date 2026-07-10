@@ -10,33 +10,32 @@
 - 输入框必须带 `data-field` 或 `aria-label`，用于理解字段含义。
 - 装饰性视觉元素使用 `aria-hidden="true"`，避免干扰读取。
 - 页面结构顺序必须符合真实任务流程，不为了视觉效果打乱内容顺序。
-- 客户侧页面只展示客户需要确认、补充和查看的内容。
+- 不同身份看到的内容应与权限一致：创作者可编辑，协助者可协作，二度访客只读。
 
 ## 当前核心动作
 
 | 页面 | data-action | 含义 |
 |---|---|---|
-| 首页 | `create_from_chat` | 从聊天整理生成记事卡 |
-| 首页 | `continue_ai_context` | 继续整理微信 AI 带来的上下文 |
-| 首页 | `open_mutual_help` | 打开互助页 |
-| 首页 | `new_blank_card` | 新建空白记事卡 |
-| 首页 | `open_card` | 打开已有记事卡 |
+| 事项首页 | `create_from_chat` | 从聊天整理生成记事卡 |
+| 事项首页 | `continue_ai_context` | 继续整理微信 AI 带来的上下文 |
+| 事项首页 | `open_mutual_help` | 打开互助页 |
+| 事项首页 | `new_blank_card` | 新建空白记事卡 |
+| 事项首页 | `open_card` | 打开已有记事卡 |
 | 从聊天整理 | `select_card_type` | 选择整理类型 |
 | 从聊天整理 | `paste_clipboard` | 粘贴剪贴板内容 |
 | 从聊天整理 | `upload_screenshot` | 上传聊天截图 |
 | 从聊天整理 | `generate_draft` | 生成记事卡草稿 |
-| 草稿编辑 | `save_and_preview_customer_card` | 保存并预览客户卡 |
-| 草稿编辑 | `share_saved_customer_card` | 分享已保存的客户卡 |
-| 草稿编辑 | `open_progress` | 进入服务进度 |
-| 客户确认 | `confirm_card` | 客户确认需求无误 |
-| 客户确认 | `submit_supplement` | 客户提交补充内容 |
-| 服务进度 | `complete_progress_node` | 完成某个进度节点 |
-| 服务进度 | `request_reminder` | 设置节点提醒 |
-| 服务进度 | `share_progress` | 分享进度给客户 |
-| 服务进度 | `complete_service` | 标记服务完成 |
+| 记事卡编辑 | `save_card` | 保存记事卡 |
+| 记事卡编辑 | `save_draft` | 存为草稿 |
+| 记事卡编辑 | `invite_helper` | 邀请协助者 |
+| 记事卡详情 | `apply_to_join` | 二度人脉申请加入 |
+| 记事卡详情 | `accept_invite` | 接受邀请成为协助者 |
+| 记事卡详情 | `edit_card` | 编辑记事卡（创作者） |
 | 互助页 | `select_helper` | 选择协作朋友 |
 | 互助页 | `open_card_detail` | 打开记事卡详情 |
 | 互助页 | `open_my_home` | 打开我的主页 |
+| 我的主页 | `edit_profile` | 编辑个人资料 |
+| 我的主页 | `add_service_tag` | 添加服务标签 |
 
 ## 视觉调整注意
 

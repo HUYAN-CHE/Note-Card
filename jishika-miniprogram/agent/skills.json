@@ -1,30 +1,30 @@
 {
   "product": "记事卡",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "purpose": "为微信 AI、后端云函数和小程序前端提供统一的能力描述，便于把用户上下文转成可执行的小程序动作。",
   "guardrails": [
     "不自动读取微信聊天记录，只处理用户主动提供或授权带入的上下文。",
-    "AI 只生成草稿，不直接替商家确认需求或进度。",
+    "AI 只生成草稿，不直接替用户确认需求或进度。",
     "不处理报价、合同、收款、发票和正式交付物。",
-    "发给客户前必须经过商家确认。",
-    "客户侧只展示当前阶段需要确认、补充或查看的信息。"
+    "发给他人前必须经过创立者确认。",
+    "互助网络中只展示当前用户有权限查看的信息。"
   ],
   "skills": [
     {
       "name": "create_card_from_chat",
       "title": "从聊天整理记事卡",
-      "description": "把用户提供的客户私聊、群聊摘要、截图 OCR 或语音摘要整理成记事卡草稿。",
+      "description": "把用户提供的私聊、群聊摘要、截图 OCR 或语音摘要整理成记事卡草稿。",
       "triggers": [
         "把这段聊天记成卡",
-        "帮我整理这个客户需求",
+        "帮我整理这个需求",
         "把群里刚才说的事记录下来",
-        "这个客户下一步怎么跟"
+        "这个需求下一步怎么跟"
       ],
       "required_params": ["context"],
       "optional_params": ["card_type", "source"],
       "card_type_values": ["requirement", "progress", "todo", "meeting"],
       "launch": {
-        "page": "/pages/card-edit/card-edit",
+        "page": "/pages/card-import/card-import",
         "query": "source=wechat_ai&type={card_type}&context={encoded_context}"
       },
       "output": "记事卡草稿"
@@ -32,16 +32,16 @@
     {
       "name": "create_requirement_card",
       "title": "生成需求确认卡",
-      "description": "把客户初步需求整理成商家可编辑、客户可确认的需求确认卡。",
+      "description": "把初步需求整理成可编辑、可确认的需求确认卡。",
       "triggers": [
         "生成需求确认卡",
-        "让客户确认需求",
+        "让对方确认需求",
         "整理需求范围",
-        "列出待客户确认的问题"
+        "列出待确认的问题"
       ],
       "required_params": ["context"],
       "launch": {
-        "page": "/pages/card-edit/card-edit",
+        "page": "/pages/card-import/card-import",
         "query": "source=wechat_ai&type=requirement&context={encoded_context}"
       },
       "output": "需求确认卡草稿"
@@ -49,16 +49,16 @@
     {
       "name": "create_progress_card",
       "title": "生成服务进度卡",
-      "description": "把已确认需求或服务节点整理为客户可查看的进度卡。",
+      "description": "把已确认需求或服务节点整理成可查看的进度卡。",
       "triggers": [
         "生成服务进度",
-        "更新客户进度",
+        "更新进度",
         "这个项目到哪一步了",
-        "提醒客户补资料"
+        "提醒对方补资料"
       ],
       "required_params": ["context"],
       "launch": {
-        "page": "/pages/card-edit/card-edit",
+        "page": "/pages/card-import/card-import",
         "query": "source=wechat_ai&type=progress&context={encoded_context}"
       },
       "output": "服务进度卡草稿"
@@ -66,7 +66,7 @@
     {
       "name": "create_group_todo",
       "title": "整理群聊待办",
-      "description": "把群聊里的事项、负责人、截止时间整理成可绑定客户或项目的待办。",
+      "description": "把群聊里的事项、负责人、截止时间整理成可协作的待办。",
       "triggers": [
         "整理群待办",
         "把群里任务列一下",
@@ -75,7 +75,7 @@
       ],
       "required_params": ["context"],
       "launch": {
-        "page": "/pages/card-edit/card-edit",
+        "page": "/pages/card-import/card-import",
         "query": "source=wechat_ai&type=todo&context={encoded_context}"
       },
       "output": "群聊待办草稿"
@@ -88,11 +88,11 @@
         "约个时间",
         "记录会议安排",
         "明天提醒我沟通",
-        "预约客户开会"
+        "预约开会"
       ],
       "required_params": ["context"],
       "launch": {
-        "page": "/pages/card-edit/card-edit",
+        "page": "/pages/card-import/card-import",
         "query": "source=wechat_ai&type=meeting&context={encoded_context}"
       },
       "output": "预约记录草稿"

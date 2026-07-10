@@ -35,48 +35,48 @@ exports.main = async (event, context) => {
   }
 
   try {
-    // 1. 查询当前用户创建的所有卡片
-    const cardRes = await db.collection('cards')
-      .where({ creatorId: openid })
-      .field({ helperIds: true })
+    // 1. 查询我的一度人脉
+    const relRes = await db.collection('relationships')
+      .where({
+        ownerId: openid,
+        degree: 1
+      })
+      .orderBy('lastInteractAt', 'desc')
       .limit(200)
       .get();
 
-    const helperIdSet = new Set();
-    (cardRes.data || []).forEach((card) => {
-      (card.helperIds || []).forEach((id) => {
-        if (id && id !== openid) helperIdSet.add(id);
-      });
-    });
+    const contactIds = (relRes.data || [])
+      .map((rel) => rel.contactId)
+      .filter(Boolean);
 
-    const helperIds = Array.from(helperIdSet);
-
-    if (!helperIds.length) {
+    if (!contactIds.length) {
       return { code: 0, message: 'success', data: [] };
     }
 
-    // 2. 查询 users 集合获取 helper 信息
+    // 2. 查询用户资料
     const userRes = await db.collection('users')
-      .where({ openid: _.in(helperIds) })
+      .where({
+        _openid: _.in(contactIds)
+      })
       .limit(200)
       .get();
 
     const userMap = new Map();
     (userRes.data || []).forEach((user) => {
-      userMap.set(user.openid, user);
+      userMap.set(user._openid, user);
     });
 
-    // 3. 组装结果，users 集合里没有的用 openid 兜底
-    const data = helperIds.map((helperOpenid, index) => {
-      const user = userMap.get(helperOpenid) || {};
+    // 3. 组装结果
+    const data = contactIds.map((contactId, index) => {
+      const user = userMap.get(contactId) || {};
       const name = user.nickName || `用户${index + 1}`;
       return {
-        id: helperOpenid,
-        openid: helperOpenid,
+        id: contactId,
+        openid: contactId,
         type: 'user',
         name,
         avatar: user.avatarUrl || '',
-        color: user.color || pickColor(helperOpenid),
+        color: user.color || pickColor(contactId),
         initial: user.initial || getInitial(name)
       };
     });

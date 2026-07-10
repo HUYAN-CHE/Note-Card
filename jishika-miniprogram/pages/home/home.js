@@ -3,7 +3,6 @@ const { buildSkillLaunchUrl, getSkill } = require('../../services/skill-registry
 const { collections } = require('../../config/env');
 
 const USER_PROFILE_KEY = 'JISHIKA_USER_PROFILE';
-
 const SHOW_DEMO_CARDS = false;
 
 const EMOJIS = {
@@ -16,16 +15,16 @@ const EMOJIS = {
 
 const STATUS_TEXT = {
   draft: '待确认',
-  pending_confirm: '待确认',
-  in_progress: '已确认',
-  completed: '已完成'
+  todo: '待确认',
+  doing: '进行中',
+  done: '已完成'
 };
 
 const STATUS_CLASSES = {
   draft: 'status-pending',
-  pending_confirm: 'status-pending',
-  in_progress: 'status-pending',
-  completed: 'status-done'
+  todo: 'status-pending',
+  doing: 'status-doing',
+  done: 'status-done'
 };
 
 const WEEK_LABELS = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
@@ -118,14 +117,15 @@ Page({
         if (openid) {
           const db = wx.cloud.database();
           const res = await db.collection(collections.users)
-            .where({ openid })
+            .where({ _openid: openid })
             .limit(1)
             .get();
           const data = {
-            openid,
+            _openid: openid,
             nickName: profile.nickname,
             avatarUrl: profile.avatar,
             initial: profile.initial,
+            serviceTags: profile.serviceTags || [],
             updatedAt: Date.now()
           };
           if (res.data && res.data[0] && res.data[0]._id) {
@@ -137,28 +137,20 @@ Page({
           }
         }
       }
-    } catch (error) {
-      // 忽略云端保存失败
-    }
+    } catch (error) {}
   },
 
   closeAuthModal() {
     this.setData({ showAuthModal: false });
   },
 
-  onPreventBubble() {
-    // 阻止事件冒泡
-  },
+  onPreventBubble() {},
 
   updateSystemInfo() {
     try {
       const sys = wx.getSystemInfoSync();
-      this.setData({
-        statusBarHeight: sys.statusBarHeight || 44
-      });
-    } catch (e) {
-      // 使用默认值
-    }
+      this.setData({ statusBarHeight: sys.statusBarHeight || 44 });
+    } catch (e) {}
   },
 
   updateCalendar() {
@@ -174,9 +166,7 @@ Page({
       const date = new Date(start);
       date.setDate(start.getDate() + i);
       const isToday = this.isSameDay(date, today);
-      if (isToday) {
-        todayIndex = i;
-      }
+      if (isToday) todayIndex = i;
       days.push({
         date: this.formatDate(date),
         fullDate: `${date.getMonth() + 1}-${date.getDate()}`,
@@ -241,7 +231,6 @@ Page({
   },
 
   buildTestCards() {
-    // 保留函数占位，默认返回空数组以展示空状态
     return [];
   },
 
@@ -250,39 +239,48 @@ Page({
     const launchContext = app.globalData.launchContext;
     const cards = SHOW_DEMO_CARDS ? await ensureDemoCards() : this.buildTestCards();
 
-    const selectedDay = this.data.calendarDays[this.data.selectedIndex];
-    const endDate = selectedDateStr
-      ? new Date(selectedDateStr)
-      : (selectedDay ? new Date(selectedDay.date) : new Date());
-    const startDate = new Date(endDate);
-    startDate.setDate(endDate.getDate() - 6);
-    startDate.setHours(0, 0, 0, 0);
-    endDate.setHours(23, 59, 59, 999);
+    try {
+      const store = require('../../utils/store');
+      const realCards = await store.getCards();
+      const allCards = realCards.length ? realCards : cards;
 
-    const filteredCards = cards.filter((card) => {
-      if (!card.updatedAt) return false;
-      const updated = new Date(card.updatedAt);
-      return updated >= startDate && updated <= endDate;
-    });
+      const selectedDay = this.data.calendarDays[this.data.selectedIndex];
+      const endDate = selectedDateStr
+        ? new Date(selectedDateStr)
+        : (selectedDay ? new Date(selectedDay.date) : new Date());
+      const startDate = new Date(endDate);
+      startDate.setDate(endDate.getDate() - 6);
+      startDate.setHours(0, 0, 0, 0);
+      endDate.setHours(23, 59, 59, 999);
 
-    const decoratedCards = filteredCards.slice(0, 6).map((card) => ({
-      ...card,
-      emoji: EMOJIS[card.type] || EMOJIS.default,
-      statusText: STATUS_TEXT[card.status] || '待确认',
-      statusClass: STATUS_CLASSES[card.status] || 'status-pending',
-      deadlineText: this.formatDeadline(card)
-    }));
-
-    this.setData({
-      cards: decoratedCards,
-      launchHint: launchContext && !launchContext.consumed ? buildLaunchHint(launchContext) : ''
-    }, () => {
-      wx.nextTick(() => {
-        this.measureBodyCanScroll();
+      const filteredCards = allCards.filter((card) => {
+        if (!card.updatedAt) return false;
+        const updated = new Date(card.updatedAt);
+        return updated >= startDate && updated <= endDate;
       });
-    });
 
-    this.updateDayCounts(cards);
+      const decoratedCards = filteredCards.slice(0, 6).map((card) => ({
+        ...card,
+        emoji: EMOJIS[card.type] || EMOJIS.default,
+        displayTitle: card.title || '未命名事项',
+        statusText: STATUS_TEXT[card.status] || '待确认',
+        statusClass: STATUS_CLASSES[card.status] || 'status-pending',
+        deadlineText: this.formatDeadline(card)
+      }));
+
+      this.setData({
+        cards: decoratedCards,
+        launchHint: launchContext && !launchContext.consumed ? buildLaunchHint(launchContext) : ''
+      }, () => {
+        wx.nextTick(() => {
+          this.measureBodyCanScroll();
+        });
+      });
+
+      this.updateDayCounts(allCards);
+    } catch (e) {
+      console.error('loadCards error', e);
+    }
   },
 
   onBodyScroll(event) {
@@ -329,7 +327,7 @@ Page({
       const count = cards.filter((card) => {
         if (!card.updatedAt) return false;
         const updated = new Date(card.updatedAt);
-        return this.formatDate(updated) === day.date && card.status !== 'completed';
+        return this.formatDate(updated) === day.date && card.status !== 'done';
       }).length;
       return { ...day, count };
     });
@@ -341,30 +339,20 @@ Page({
     this.setData({ reminderEnabled: event.detail.value });
   },
 
-  onPreventTouchMove() {
-    // 阻止 switch 外层 wrap 的 touch 事件冒泡到 sheet-head-wrap
-  },
+  onPreventTouchMove() {},
 
-  onMenuTap() {
-    // 菜单入口，保留占位
-  },
+  onMenuTap() {},
 
   onProfileTap() {
-    wx.navigateTo({
-      url: '/pages/mutual-help/mutual-help'
-    });
+    wx.navigateTo({ url: '/pages/my-home/my-home' });
   },
 
   goIntake() {
-    wx.navigateTo({
-      url: '/pages/card-edit/card-edit?from=intake'
-    });
+    wx.navigateTo({ url: '/pages/card-import/card-import' });
   },
 
   onPullCreate() {
-    wx.navigateTo({
-      url: '/pages/card-edit/card-edit?from=pull_create&type=requirement'
-    });
+    wx.navigateTo({ url: '/pages/card-edit/card-edit?type=requirement' });
   },
 
   onPullCreatePulling(event) {
@@ -391,32 +379,23 @@ Page({
     if (trigger && typeof trigger.drawProgress === 'function') {
       trigger.drawProgress(1);
     }
-    wx.navigateTo({
-      url: '/pages/card-edit/card-edit?from=pull_create&type=requirement'
-    });
+    wx.navigateTo({ url: '/pages/card-edit/card-edit?type=requirement' });
   },
 
   openCard(event) {
     const id = event.currentTarget.dataset.id;
-    wx.navigateTo({
-      url: `/pages/card-edit/card-edit?id=${id}`
-    });
+    wx.navigateTo({ url: `/pages/card-detail/card-detail?id=${id}&view=owner` });
   },
 
   newBlankCard() {
     wx.removeStorageSync('JISHIKA_PENDING_DRAFT');
-    wx.navigateTo({
-      url: '/pages/card-edit/card-edit'
-    });
+    wx.navigateTo({ url: '/pages/card-edit/card-edit' });
   },
 
   continueAIContext() {
     const app = getApp();
     const context = app.globalData.launchContext || {};
-    app.globalData.launchContext = {
-      ...context,
-      consumed: true
-    };
+    app.globalData.launchContext = { ...context, consumed: true };
 
     wx.navigateTo({
       url: buildSkillLaunchUrl(context.skillName || 'create_card_from_chat', {
@@ -429,8 +408,8 @@ Page({
 
   onShareAppMessage() {
     return {
-      title: '记事卡｜把客户事记成卡',
-      path: '/pages/mutual-help/mutual-help',
+      title: '记事卡｜把一件事说清楚、找对人帮忙',
+      path: '/pages/home/home',
       imageUrl: '/assets/logo.png'
     };
   }
