@@ -93,33 +93,27 @@
 }
 
 .my-name {
+  display: inline-flex;
+  align-items: center;
   font-size: 32rpx;
   font-weight: 600;
 }
 
-.my-name-btn {
+.my-name-input {
+  position: relative;
+  z-index: 1;
   display: inline-flex;
   align-items: center;
   width: auto;
   min-width: 0;
   padding: 0;
   margin: 0;
+  border: none;
   background: transparent;
   color: #ffffff;
   font-size: 32rpx;
   font-weight: 600;
   line-height: 1;
-}
-
-.my-name-btn::after {
-  border: none;
-}
-
-.my-name {
-  display: inline-flex;
-  align-items: center;
-  font-size: 32rpx;
-  font-weight: 600;
 }
 
 .hero-text {

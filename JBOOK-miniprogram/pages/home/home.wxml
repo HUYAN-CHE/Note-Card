@@ -92,11 +92,14 @@
           <text wx:if="{{!authProfile.avatar}}">点击授权头像</text>
           <image wx:else class="auth-avatar-img" src="{{authProfile.avatar}}" mode="aspectFill" />
         </button>
-        <button
-          class="auth-nickname-btn {{authProfile.nickname ? 'done' : ''}}"
-          open-type="chooseNickname"
-          bind:choosenickname="onAuthNickname"
-        >{{authProfile.nickname || '点击授权昵称'}}</button>
+        <input
+          class="auth-nickname-input {{authProfile.nickname ? 'done' : ''}}"
+          type="nickname"
+          placeholder="点击输入昵称"
+          value="{{authProfile.nickname}}"
+          bindinput="onAuthNicknameInput"
+          maxlength="20"
+        />
       </view>
       <view class="auth-close" bindtap="closeAuthModal">稍后再说</view>
     </view>

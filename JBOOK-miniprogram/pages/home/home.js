@@ -73,9 +73,15 @@ Page({
     const profile = wx.getStorageSync(USER_PROFILE_KEY) || {};
     const nickname = profile.nickname && String(profile.nickname).trim();
     const authorized = Boolean(nickname && nickname !== '我' && profile.avatar);
-    if (!authorized) {
-      this.setData({ showAuthModal: true });
-    }
+    const safeNickname = nickname === '我' ? '' : nickname;
+    this.setData({
+      showAuthModal: !authorized,
+      authProfile: {
+        nickname: safeNickname || '',
+        avatar: profile.avatar || '',
+        initial: profile.initial || (safeNickname ? safeNickname.charAt(0).toUpperCase() : '')
+      }
+    });
   },
 
   onAuthAvatar(event) {
@@ -94,6 +100,14 @@ Page({
       return;
     }
     wx.showToast({ title: '请选择或输入一个昵称', icon: 'none' });
+  },
+
+  onAuthNicknameInput(event) {
+    const nickname = event.detail.value || '';
+    this.setData({ 'authProfile.nickname': nickname });
+    if (nickname.trim()) {
+      this.setNickname(nickname.trim());
+    }
   },
 
   setNickname(nickname) {

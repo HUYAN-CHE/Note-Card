@@ -10,7 +10,7 @@
         <view class="my-avatar" wx:else>
           <image class="my-avatar-img" src="{{myProfile.avatar}}" mode="aspectFill" />
         </view>
-        <button class="my-name my-name-btn" open-type="chooseNickname" bind:choosenickname="onChooseNickname" wx:if="{{!myProfile.nickname}}">点击授权</button>
+        <input wx:if="{{!myProfile.nickname}}" class="my-name my-name-input" type="nickname" placeholder="点击输入昵称" value="{{myProfile.nickname}}" bindinput="onNicknameInput" maxlength="20" />
         <text class="my-name" wx:else>{{myProfile.nickname}}</text>
       </view>
 

@@ -217,14 +217,6 @@
   margin-top: 40rpx;
 }
 
-.auth-actions {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 24rpx;
-  margin-top: 40rpx;
-}
-
 .auth-avatar-btn {
   display: flex !important;
   align-items: center !important;
@@ -254,26 +246,26 @@
   border-radius: 50%;
 }
 
-.auth-nickname-btn {
+.auth-nickname-input {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 100%;
   height: 80rpx;
   padding: 0;
   margin: 0;
+  border: none;
   border-radius: 999rpx;
   background: #f5f7fa;
   font-size: 28rpx;
   color: #162116;
+  line-height: 1;
+  text-align: center;
 }
 
-.auth-nickname-btn::after {
-  border: none;
-}
-
-.auth-avatar-btn.done {
-  border: 2rpx solid #22c55e !important;
-}
-
-.auth-nickname-btn.done {
+.auth-nickname-input.done {
   background: #e8f5e9;
   color: #22c55e;
 }

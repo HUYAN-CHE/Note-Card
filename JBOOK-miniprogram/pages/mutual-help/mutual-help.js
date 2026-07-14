@@ -161,9 +161,7 @@ Page({
   },
 
   onShow() {
-    if (this.data.authorized) {
-      this.loadHelpers();
-    }
+    this.loadMyProfile();
   },
 
   updateSystemInfo() {
@@ -239,6 +237,13 @@ Page({
       return;
     }
     wx.showToast({ title: '请选择或输入一个昵称', icon: 'none' });
+  },
+
+  onNicknameInput(event) {
+    const nickname = event.detail.value || '';
+    if (nickname.trim()) {
+      this.saveMyProfile({ nickname: nickname.trim() });
+    }
   },
 
   async saveMyProfile(patch) {
