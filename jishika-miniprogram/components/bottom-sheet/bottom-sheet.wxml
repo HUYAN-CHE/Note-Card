@@ -1,0 +1,10 @@
+<view class="sheet-mask {{visible ? 'show' : ''}}" bindtap="onMaskTap">
+  <view class="sheet" catchtap="noop" style="padding-bottom: calc(32rpx + {{safeAreaBottom}}px);">
+    <view class="sheet-grab"></view>
+    <view class="sheet-header" wx:if="{{title}}">
+      <text class="sheet-title">{{title}}</text>
+      <text class="sheet-subtitle" wx:if="{{subtitle}}">{{subtitle}}</text>
+    </view>
+    <slot></slot>
+  </view>
+</view>

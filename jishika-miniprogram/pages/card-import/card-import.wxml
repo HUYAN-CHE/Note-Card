@@ -1,103 +1,111 @@
 <view class="page card-import-page">
-  <!-- 自定义导航栏 -->
-  <view class="custom-nav" style="padding-top: {{statusBarHeight}}px;">
-    <view class="nav-back" bindtap="goBack">‹</view>
-    <text class="nav-title">从聊天整理</text>
-    <view class="nav-action" bindtap="generateCard">下一步</view>
-  </view>
+  <custom-nav title="从聊天整理" showBack="{{true}}" statusBarHeight="{{statusBarHeight}}" navHeight="{{navHeight}}">
+    <view slot="right" class="nav-action" bindtap="generateCard">下一步</view>
+  </custom-nav>
 
-  <!-- 来源标签 -->
-  <view class="src-chip">
-    <text>{{sourceLabel}}</text>
-  </view>
-
-  <!-- 类型选择 -->
-  <view class="type-section">
-    <view class="section-label">整理为</view>
-    <view class="type-list">
-      <view
-        class="type-item {{selectedType === 'requirement' ? 'active' : ''}}"
-        bindtap="selectType"
-        data-type="requirement"
-      >需求确认卡</view>
-      <view
-        class="type-item {{selectedType === 'progress' ? 'active' : ''}}"
-        bindtap="selectType"
-        data-type="progress"
-      >服务进度卡</view>
-      <view
-        class="type-item {{selectedType === 'todo' ? 'active' : ''}}"
-        bindtap="selectType"
-        data-type="todo"
-      >群聊待办</view>
-      <view
-        class="type-item {{selectedType === 'meeting' ? 'active' : ''}}"
-        bindtap="selectType"
-        data-type="meeting"
-      >预约记录</view>
-    </view>
-  </view>
-
-  <!-- 原始输入 -->
-  <view class="field">
-    <view class="field-label">聊天内容</view>
-    <textarea
-      class="field-textarea"
-      value="{{contextText}}"
-      placeholder="把客户私聊、群聊摘要或语音整理结果粘贴到这里"
-      bindinput="onTextInput"
-      maxlength="4000"
-    />
-    <view class="input-actions">
-      <view class="input-action" bindtap="useClipboard">粘贴</view>
-      <view class="input-action" bindtap="chooseScreenshot">截图</view>
-    </view>
-    <view class="file-list" wx:if="{{files.length}}">
-      <view wx:for="{{files}}" wx:key="path" class="file-pill">{{item.name || '聊天截图'}}</view>
-    </view>
-  </view>
-
-  <!-- 整理预览 -->
-  <view class="preview-section">
-    <view class="preview-header">
-      <text class="preview-title">已整理内容</text>
-      <text class="preview-regen" bindtap="regenerate">重新整理</text>
+  <view class="content" style="padding-top: {{statusBarHeight + navHeight + 16}}px;">
+    <!-- 隐私声明 -->
+    <view class="privacy-notice">
+      <text class="privacy-icon">🔒</text>
+      <text class="privacy-text">记事卡不会主动读取微信消息，以下内容都需你主动复制或选择</text>
     </view>
 
-    <view
-      class="imp-card {{item.checked ? '' : 'off'}}"
-      wx:for="{{importItems}}"
-      wx:key="key"
-    >
-      <view class="imp-check {{item.checked ? 'on' : ''}}" bindtap="toggleItem" data-index="{{index}}">
-        <text wx:if="{{item.checked}}">✓</text>
+    <!-- 来源标签 -->
+    <view class="src-chip">
+      <text>{{sourceLabel}}</text>
+    </view>
+
+    <!-- 类型选择 -->
+    <view class="type-section card">
+      <view class="section-label">整理为</view>
+      <view class="type-list">
+        <view
+          class="type-item {{selectedType === 'requirement' ? 'active' : ''}}"
+          bindtap="selectType"
+          data-type="requirement"
+        >需求确认卡</view>
+        <view
+          class="type-item {{selectedType === 'progress' ? 'active' : ''}}"
+          bindtap="selectType"
+          data-type="progress"
+        >服务进度卡</view>
+        <view
+          class="type-item {{selectedType === 'todo' ? 'active' : ''}}"
+          bindtap="selectType"
+          data-type="todo"
+        >群聊待办</view>
+        <view
+          class="type-item {{selectedType === 'meeting' ? 'active' : ''}}"
+          bindtap="selectType"
+          data-type="meeting"
+        >预约记录</view>
       </view>
-      <view class="imp-body">
-        <view class="imp-label">
-          {{item.label}}
-          <text wx:if="{{item.ai}}" class="imp-ai">自动识别</text>
+    </view>
+
+    <!-- 原始输入 -->
+    <view class="field card">
+      <view class="field-label">聊天内容</view>
+      <textarea
+        class="field-textarea"
+        value="{{contextText}}"
+        placeholder="把客户私聊、群聊摘要或语音整理结果粘贴到这里"
+        bindinput="onTextInput"
+        maxlength="4000"
+        adjust-position="{{true}}"
+      />
+      <view class="input-actions">
+        <view class="input-action" bindtap="useClipboard">粘贴</view>
+        <view class="input-action" bindtap="chooseScreenshot">截图</view>
+      </view>
+      <view class="file-list" wx:if="{{files.length}}">
+        <view wx:for="{{files}}" wx:key="path" class="file-pill">{{item.name || '聊天截图'}}</view>
+      </view>
+    </view>
+
+    <!-- 整理预览 -->
+    <view class="preview-section">
+      <view class="preview-header">
+        <text class="preview-title">已整理内容</text>
+        <text class="preview-regen" bindtap="regenerate">重新整理</text>
+      </view>
+
+      <view
+        class="imp-card {{item.checked ? '' : 'off'}}"
+        wx:for="{{importItems}}"
+        wx:key="key"
+      >
+        <view class="imp-check {{item.checked ? 'on' : ''}}" bindtap="toggleItem" data-index="{{index}}">
+          <text wx:if="{{item.checked}}">✓</text>
         </view>
-        <input
-          wx:if="{{item.key !== 'desc'}}"
-          class="imp-input"
-          value="{{item.value}}"
-          bindinput="onItemInput"
-          data-index="{{index}}"
-        />
-        <textarea
-          wx:if="{{item.key === 'desc'}}"
-          class="imp-textarea"
-          value="{{item.value}}"
-          bindinput="onItemInput"
-          data-index="{{index}}"
-        />
+        <view class="imp-body">
+          <view class="imp-label">
+            {{item.label}}
+            <text wx:if="{{item.ai}}" class="imp-ai">自动识别</text>
+          </view>
+          <input
+            wx:if="{{item.key !== 'desc'}}"
+            class="imp-input"
+            value="{{item.value}}"
+            bindinput="onItemInput"
+            data-index="{{index}}"
+            adjust-position="{{true}}"
+          />
+          <textarea
+            wx:if="{{item.key === 'desc'}}"
+            class="imp-textarea"
+            value="{{item.value}}"
+            bindinput="onItemInput"
+            data-index="{{index}}"
+            adjust-position="{{true}}"
+          />
+        </view>
       </view>
     </view>
+
+    <view class="bottom-note">当前为本地规则识别；AI 接入后自动升级为语义理解</view>
   </view>
 
-  <view class="bottom-note">当前为本地规则识别；AI 接入后自动升级为语义理解</view>
-
-  <view class="footer">
+  <view class="footer" style="padding-bottom: calc(24rpx + {{safeAreaBottom}}px);">
     <button class="footer-btn primary" bindtap="generateCard">生成记事卡 →</button>
   </view>
 </view>

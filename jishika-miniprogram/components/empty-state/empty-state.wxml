@@ -1,0 +1,5 @@
+<view class="empty-state">
+  <image wx:if="{{image}}" class="empty-image" src="{{image}}" mode="aspectFit" />
+  <text class="empty-title">{{title}}</text>
+  <text wx:if="{{subtitle}}" class="empty-subtitle">{{subtitle}}</text>
+</view>

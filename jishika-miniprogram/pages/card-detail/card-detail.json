@@ -1,5 +1,7 @@
 {
-  "navigationBarTitleText": "记事卡详情",
-  "navigationBarBackgroundColor": "#ffffff",
-  "navigationBarTextStyle": "black"
+  "navigationStyle": "custom",
+  "usingComponents": {
+    "custom-nav": "/components/custom-nav/custom-nav",
+    "bottom-sheet": "/components/bottom-sheet/bottom-sheet"
+  }
 }

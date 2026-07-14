@@ -1,109 +1,105 @@
 <view class="page card-edit-page">
-  <!-- 自定义导航栏 -->
-  <view class="custom-nav" style="padding-top: {{statusBarHeight}}px;">
-    <view class="nav-back" bindtap="goBack">‹</view>
-    <text class="nav-title">{{card.id ? '编辑记事卡' : '新建记事卡'}}</text>
-    <view class="nav-save" bindtap="saveAndBack">保存</view>
-  </view>
+  <custom-nav title="{{card.id ? '编辑记事卡' : '新建记事卡'}}" showBack="{{true}}" statusBarHeight="{{statusBarHeight}}" navHeight="{{navHeight}}">
+    <view slot="right" class="nav-save" bindtap="saveAndBack">保存</view>
+  </custom-nav>
 
-  <!-- 标题 -->
-  <view class="field">
-    <view class="field-label">标题</view>
-    <input
-      class="field-input"
-      value="{{card.title}}"
-      placeholder="如 品牌官网视觉改版"
-      bindinput="onTitleInput"
-    />
-  </view>
-
-  <!-- 需求描述 -->
-  <view class="field">
-    <view class="field-label">需求描述</view>
-    <textarea
-      class="field-textarea"
-      value="{{card.desc}}"
-      placeholder="描述一下需要帮忙的事"
-      bindinput="onDescInput"
-    />
-  </view>
-
-  <!-- 重点 / 待确认 -->
-  <view class="field">
-    <view class="field-label">
-      重点 / 待确认
-      <text class="field-hint">用 · 分隔</text>
+  <view class="form" style="padding-top: {{statusBarHeight + navHeight + 16}}px;">
+    <!-- 标题 -->
+    <view class="field">
+      <view class="field-label">标题 <text class="required">*</text></view>
+      <input
+        class="field-input"
+        value="{{card.title}}"
+        placeholder="如 品牌官网视觉改版"
+        bindinput="onTitleInput"
+        adjust-position="{{true}}"
+      />
     </view>
-    <input
-      class="field-input"
-      value="{{keyPointsText}}"
-      placeholder="预算 · 风格 · 交期"
-      bindinput="onKeyPointsInput"
-    />
-  </view>
 
-  <!-- 协助者 -->
-  <view class="field">
-    <view class="field-label">协助者</view>
-    <view class="helper-row">
-      <view class="helper-avatar" wx:for="{{helpers}}" wx:key="id">
-        <text wx:if="{{!item.avatar}}">{{item.initial}}</text>
-        <image wx:else src="{{item.avatar}}" mode="aspectFill" />
+    <!-- 需求描述 -->
+    <view class="field">
+      <view class="field-label">需求描述</view>
+      <textarea
+        class="field-textarea"
+        value="{{card.desc}}"
+        placeholder="描述一下需要帮忙的事"
+        bindinput="onDescInput"
+        adjust-position="{{true}}"
+      />
+    </view>
+
+    <!-- 重点 / 待确认 -->
+    <view class="field">
+      <view class="field-label">
+        重点 / 待确认
+        <text class="field-hint">用 · 分隔</text>
       </view>
-      <view class="helper-add" bindtap="openInviteSheet">＋</view>
+      <input
+        class="field-input"
+        value="{{keyPointsText}}"
+        placeholder="预算 · 风格 · 交期"
+        bindinput="onKeyPointsInput"
+        adjust-position="{{true}}"
+      />
     </view>
-  </view>
 
-  <!-- 可见性开关 -->
-  <view class="toggle-row" bindtap="toggleVisibility">
-    <view class="toggle-info">
-      <view class="toggle-title">让朋友的朋友也能看到</view>
-      <view class="toggle-desc">关闭后仅协助者可见，更私密</view>
+    <!-- 协助者 -->
+    <view class="field">
+      <view class="field-label">协助者</view>
+      <view class="helper-row">
+        <view class="helper-avatar" wx:for="{{helpers}}" wx:key="id">
+          <text wx:if="{{!item.avatar}}">{{item.initial}}</text>
+          <image wx:else src="{{item.avatar}}" mode="aspectFill" />
+        </view>
+        <view class="helper-add" bindtap="openInviteSheet">＋</view>
+      </view>
     </view>
-    <view class="switch {{card.isNetworkVisible ? 'on' : ''}}">
-      <view class="switch-knob"></view>
+
+    <!-- 可见性开关 -->
+    <view class="toggle-row" bindtap="toggleVisibility">
+      <view class="toggle-info">
+        <view class="toggle-title">让朋友的朋友也能看到</view>
+        <view class="toggle-desc">关闭后仅协助者可见，更私密</view>
+      </view>
+      <view class="switch {{card.isNetworkVisible ? 'on' : ''}}">
+        <view class="switch-knob"></view>
+      </view>
     </view>
   </view>
 
   <!-- 底部操作 -->
-  <view class="footer">
+  <view class="footer" style="padding-bottom: calc(24rpx + {{safeAreaBottom}}px);">
     <button class="footer-btn ghost" bindtap="saveDraft">存草稿</button>
     <button class="footer-btn primary" bindtap="openInviteSheet">邀请一起用</button>
   </view>
 
   <!-- 邀请好友底部弹窗 -->
-  <view class="sheet-mask" wx:if="{{showInviteSheet}}" bindtap="closeInviteSheet">
-    <view class="sheet" catchtap="noop">
-      <view class="sheet-grab"></view>
-      <view class="sheet-title">邀请一起用</view>
-      <view class="sheet-sub">选择微信好友或群聊，发送后成为协助者</view>
-
-      <view class="friend-list">
-        <view
-          class="friend-item"
-          wx:for="{{friendCandidates}}"
-          wx:key="id"
-          bindtap="toggleFriend"
-          data-index="{{index}}"
-        >
-          <view class="friend-avatar">
-            <text wx:if="{{!item.avatar}}">{{item.initial}}</text>
-            <image wx:else src="{{item.avatar}}" mode="aspectFill" />
-          </view>
-          <view class="friend-info">
-            <text class="friend-name">{{item.nickname}}</text>
-            <text class="friend-status">{{item.status}}</text>
-          </view>
-          <view class="friend-check {{item.selected ? 'on' : ''}}">
-            <text wx:if="{{item.selected}}">✓</text>
-          </view>
+  <bottom-sheet visible="{{showInviteSheet}}" title="邀请一起用" subtitle="选择微信好友或群聊，发送后成为协助者" safeAreaBottom="{{safeAreaBottom}}" bind:close="closeInviteSheet">
+    <view class="friend-list">
+      <view
+        class="friend-item"
+        wx:for="{{friendCandidates}}"
+        wx:key="id"
+        bindtap="toggleFriend"
+        data-index="{{index}}"
+      >
+        <view class="friend-avatar">
+          <text wx:if="{{!item.avatar}}">{{item.initial || item.nickname.charAt(0)}}</text>
+          <image wx:else src="{{item.avatar}}" mode="aspectFill" />
+        </view>
+        <view class="friend-info">
+          <text class="friend-name">{{item.nickname}}</text>
+          <text class="friend-status">{{item.status}}</text>
+        </view>
+        <view class="friend-check {{item.selected ? 'on' : ''}}">
+          <text wx:if="{{item.selected}}">✓</text>
         </view>
       </view>
-
-      <view class="sheet-actions">
-        <button class="sheet-btn ghost" bindtap="closeInviteSheet">取消</button>
-        <button class="sheet-btn primary" bindtap="sendInvite">发送邀请</button>
-      </view>
     </view>
-  </view>
+
+    <view class="sheet-actions">
+      <button class="sheet-btn ghost" bindtap="shareToGroup">分享到群聊</button>
+      <button class="sheet-btn primary" bindtap="sendInvite">发送给好友</button>
+    </view>
+  </bottom-sheet>
 </view>

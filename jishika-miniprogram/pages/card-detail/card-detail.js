@@ -7,11 +7,23 @@ const STATUS_MAP = {
   done: { text: '已完成', class: 'done' }
 };
 
+function cleanNickname(name) {
+  if (!name || String(name).trim() === '我') return '';
+  return String(name).trim();
+}
+
+function getInitial(name) {
+  if (!name) return '';
+  return String(name).trim().charAt(0).toUpperCase();
+}
+
 Page({
   data: {
+    statusBarHeight: 44,
+    navHeight: 88,
     cardId: '',
     card: {},
-    creator: { nickname: '', avatar: '', initial: '?', relationText: '创立者' },
+    creator: { nickname: '', avatar: '', initial: '', relationText: '创立者' },
     helpers: [],
     keyPoints: [],
     statusClass: 'doing',
@@ -23,19 +35,21 @@ Page({
     canAcceptInvite: false,
     showApplySheet: false,
     applyMessage: '',
-    userName: '我',
+    pendingRequests: [],
     loading: false,
-    helperOpenid: ''
+    safeAreaBottom: 0
   },
 
   onLoad(options) {
-    const cardId = options.id || '';
-    const helperOpenid = options.helperOpenid || '';
+    const sys = wx.getSystemInfoSync();
     this.setData({
-      cardId,
-      helperOpenid,
-      userName: this.getUserName()
+      statusBarHeight: sys.statusBarHeight || 20,
+      navHeight: 88,
+      safeAreaBottom: sys.safeAreaInsets ? sys.safeAreaInsets.bottom : 0
     });
+
+    const cardId = options.id || '';
+    this.setData({ cardId });
 
     if (cardId) {
       this.loadCard(cardId);
@@ -61,7 +75,6 @@ Page({
         }
       }
 
-      // 本地兜底
       const card = await store.getCard(id) || {};
       this.renderLocalCard(card);
     } catch (e) {
@@ -92,7 +105,8 @@ Page({
       isCreator,
       isHelper,
       isNetworkView,
-      canAcceptInvite: role === 'stranger' && !isNetworkView
+      canAcceptInvite: role === 'stranger' && !isNetworkView,
+      pendingRequests: data.pendingRequests || []
     });
   },
 
@@ -117,26 +131,27 @@ Page({
       isCreator,
       isHelper,
       isNetworkView: false,
-      canAcceptInvite: !isCreator && !isHelper
+      canAcceptInvite: !isCreator && !isHelper,
+      pendingRequests: []
     });
   },
 
   normalizeUser(raw) {
-    if (!raw) return { nickname: '未知用户', avatar: '', initial: '?', isMe: false };
+    if (!raw) return { nickname: '未知用户', avatar: '', initial: '', isMe: false };
     if (typeof raw === 'string') {
       return {
         id: raw,
         nickname: raw,
         avatar: '',
-        initial: this.getInitial(raw),
+        initial: getInitial(raw),
         isMe: this.isCurrentUser(raw)
       };
     }
     return {
       id: raw.id || raw._openid || '',
-      nickname: raw.nickname || raw.name || '未知用户',
+      nickname: cleanNickname(raw.nickname || raw.name) || '未知用户',
       avatar: raw.avatar || raw.avatarUrl || '',
-      initial: this.getInitial(raw.nickname || raw.name),
+      initial: getInitial(raw.nickname || raw.name),
       isMe: this.isCurrentUser(raw.id || raw._openid || raw.nickname)
     };
   },
@@ -152,7 +167,7 @@ Page({
     if (!value) return false;
     const openid = this.getCurrentOpenid();
     const myProfile = wx.getStorageSync('JISHIKA_USER_PROFILE') || {};
-    return value === myProfile.nickname || value === openid;
+    return value === cleanNickname(myProfile.nickname) || value === openid;
   },
 
   getCurrentOpenid() {
@@ -163,16 +178,7 @@ Page({
     }
   },
 
-  getUserName() {
-    const myProfile = wx.getStorageSync('JISHIKA_USER_PROFILE') || {};
-    return myProfile.nickname || '我';
-  },
-
-  getInitial(name) {
-    if (!name) return '?';
-    return String(name).trim().charAt(0).toUpperCase() || '?';
-  },
-
+  // 申请加入
   openApplySheet() {
     this.setData({ showApplySheet: true, applyMessage: '' });
   },
@@ -186,21 +192,13 @@ Page({
   },
 
   async submitApply() {
-    const { cardId, helperOpenid, applyMessage } = this.data;
-
-    if (!helperOpenid) {
-      wx.showToast({ title: '缺少引荐人信息', icon: 'none' });
-      return;
-    }
+    const { cardId, applyMessage } = this.data;
+    if (!cardId) return;
 
     try {
       const res = await wx.cloud.callFunction({
         name: 'applyToJoinCard',
-        data: {
-          cardId,
-          intermediaryId: helperOpenid,
-          note: applyMessage
-        }
+        data: { cardId, note: applyMessage }
       });
 
       if (res.result && res.result.code === 0) {
@@ -214,6 +212,7 @@ Page({
     }
   },
 
+  // 接受邀请
   async acceptInvite() {
     const { cardId } = this.data;
     if (!cardId) return;
@@ -235,17 +234,74 @@ Page({
     }
   },
 
+  // 审批申请
+  async approveRequest(e) {
+    const requestId = e.currentTarget.dataset.id;
+    const approved = e.currentTarget.dataset.approved;
+
+    try {
+      const res = await wx.cloud.callFunction({
+        name: 'approveJoinRequest',
+        data: { requestId, approved }
+      });
+
+      if (res.result && res.result.code === 0) {
+        wx.showToast({ title: approved ? '已通过' : '已拒绝', icon: 'success' });
+        this.loadCard(this.data.cardId);
+      } else {
+        wx.showToast({ title: res.result.message || '操作失败', icon: 'none' });
+      }
+    } catch (err) {
+      wx.showToast({ title: '操作失败', icon: 'none' });
+    }
+  },
+
+  // 标记完成
+  async completeCard() {
+    const { cardId, card } = this.data;
+    if (!cardId) return;
+
+    try {
+      const res = await wx.cloud.callFunction({
+        name: 'updateCard',
+        data: { id: cardId, status: 'done' }
+      });
+
+      if (res.result && res.result.code === 0) {
+        wx.showToast({ title: '已标记完成', icon: 'success' });
+        this.loadCard(cardId);
+      } else {
+        wx.showToast({ title: res.result.message || '操作失败', icon: 'none' });
+      }
+    } catch (e) {
+      wx.showToast({ title: '操作失败', icon: 'none' });
+    }
+  },
+
+  // 编辑
+  editCard() {
+    const { cardId } = this.data;
+    if (cardId) {
+      wx.navigateTo({ url: `/pages/card-edit/card-edit?id=${cardId}` });
+    }
+  },
+
+  // 邀请 / 介绍给朋友
+  inviteFriend() {
+    wx.showShareMenu({ withShareTicket: true });
+  },
+
   noop() {},
 
   onShareAppMessage() {
-    const { card, applyMessage, userName } = this.data;
-    const title = applyMessage
-      ? `${userName} 想加入《${card.title || '这张记事卡'}》：${applyMessage}`
-      : `${userName} 想加入《${card.title || '这张记事卡'}》，请帮我引荐～`;
+    const { card, role } = this.data;
+    const title = card.title
+      ? `邀请你一起用《${card.title}》`
+      : '邀请你一起用记事卡';
     return {
       title,
-      path: `/pages/card-detail/card-detail?id=${card.id || this.data.cardId}`,
-      imageUrl: ''
+      path: card.id ? `/pages/card-detail/card-detail?id=${card.id}` : '/pages/home/home',
+      imageUrl: '/assets/logo.png'
     };
   }
 });

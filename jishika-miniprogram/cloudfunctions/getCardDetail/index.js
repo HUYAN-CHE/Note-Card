@@ -82,6 +82,39 @@ exports.main = async (event, context) => {
       });
     }
 
+    // 查询待审申请（仅创作者）
+    let pendingRequests = [];
+    if (isCreator) {
+      const requestRes = await db.collection('joinRequests')
+        .where({ cardId: id, status: 'pending' })
+        .orderBy('createdAt', 'desc')
+        .limit(50)
+        .get();
+
+      const requests = requestRes.data || [];
+      if (requests.length) {
+        const applicantIds = requests.map((r) => r.applicantId);
+        const applicantRes = await db.collection('users')
+          .where({ _openid: db.command.in(applicantIds) })
+          .limit(50)
+          .get();
+        const applicantMap = new Map();
+        (applicantRes.data || []).forEach((u) => applicantMap.set(u._openid, u));
+
+        pendingRequests = requests.map((r) => {
+          const user = applicantMap.get(r.applicantId) || {};
+          return {
+            id: r._id,
+            applicantId: r.applicantId,
+            nickname: user.nickName || '未知用户',
+            avatar: user.avatarUrl || '',
+            initial: user.initial || getInitial(user.nickName),
+            note: r.note || ''
+          };
+        });
+      }
+    }
+
     const data = {
       ...card,
       role,
@@ -94,7 +127,8 @@ exports.main = async (event, context) => {
         avatar: creatorUser ? creatorUser.avatarUrl : '',
         initial: creatorUser ? creatorUser.initial || getInitial(creatorName) : '?'
       },
-      helpers
+      helpers,
+      pendingRequests
     };
 
     return { code: 0, message: 'success', data };

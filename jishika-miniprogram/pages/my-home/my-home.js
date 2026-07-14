@@ -21,7 +21,9 @@ function getInitial(name) {
 
 Page({
   data: {
-    heroPaddingTop: 60,
+    statusBarHeight: 44,
+    navHeight: 88,
+    heroPaddingTop: 132,
     user: { nickname: '', avatar: '', initial: '' },
     remark: '',
     serviceTags: [],
@@ -38,11 +40,16 @@ Page({
     stats: { helperCount: 0, helpedCount: 0 }
   },
 
-  async onLoad() {
+  onLoad() {
     const sys = wx.getSystemInfoSync();
-    const heroPaddingTop = (sys.statusBarHeight || 20) + 12;
-    this.setData({ heroPaddingTop });
-    await this.loadData();
+    const statusBarHeight = sys.statusBarHeight || 20;
+    const navHeight = 88;
+    this.setData({
+      statusBarHeight,
+      navHeight,
+      heroPaddingTop: statusBarHeight + navHeight + 24
+    });
+    this.loadData();
   },
 
   onShow() {
@@ -72,7 +79,6 @@ Page({
     const cloudProfile = data.profile || {};
     const authProfile = this.loadAuthProfile();
 
-    // 优先使用云端昵称；若云端是“我”或为空，则用本地真实授权信息兜底
     const nickname = cleanNickname(cloudProfile.nickname) || cleanNickname(authProfile.nickname);
     const avatar = cloudProfile.avatar || authProfile.avatar || '';
     const initial = cleanInitial(cloudProfile.initial, nickname) || cleanInitial(authProfile.initial, nickname);
@@ -248,6 +254,5 @@ Page({
   openCard(e) {
     const id = e.currentTarget.dataset.id;
     wx.navigateTo({ url: `/pages/card-detail/card-detail?id=${id}&view=owner` });
-  },
-
+  }
 });

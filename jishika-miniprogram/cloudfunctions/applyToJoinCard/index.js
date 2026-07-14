@@ -20,9 +20,7 @@ exports.main = async (event, context) => {
     return { code: -2, message: '缺少卡片 ID' };
   }
 
-  if (!intermediaryId) {
-    return { code: -3, message: '缺少引荐人 ID' };
-  }
+  // intermediaryId 可选：从互助页引荐时传入，直接申请时可为空
 
   try {
     const cardRes = await db.collection('cards')
@@ -67,7 +65,7 @@ exports.main = async (event, context) => {
       data: {
         cardId,
         applicantId: openid,
-        intermediaryId,
+        intermediaryId: intermediaryId || '',
         note: note.trim(),
         status: 'pending',
         createdAt: now,

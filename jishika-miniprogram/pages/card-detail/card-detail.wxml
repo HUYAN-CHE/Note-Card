@@ -1,6 +1,8 @@
 <view class="page card-detail-page">
-  <!-- 顶部标题与创立者 -->
-  <view class="detail-hero">
+  <custom-nav title="记事卡详情" showBack="{{true}}" statusBarHeight="{{statusBarHeight}}" navHeight="{{navHeight}}" />
+
+  <!-- 顶部 Hero -->
+  <view class="detail-hero" style="padding-top: {{statusBarHeight + navHeight + 24}}px;">
     <text class="detail-title">{{card.title || '未命名事项'}}</text>
     <view class="creator">
       <view class="creator-avatar">
@@ -9,14 +11,14 @@
       </view>
       <view class="creator-info">
         <text class="creator-name">{{creator.nickname || '未知用户'}}</text>
-        <text class="creator-relation">{{isCreator ? '我 · 创立者' : (isHelper ? '一度人脉 · 协助者' : (isNetworkView ? '二度人脉 · 创立者' : '创立者'))}}</text>
+        <text class="creator-relation">{{role === 'creator' ? '我 · 创立者' : (role === 'helper' ? '一度人脉 · 协助者' : (role === 'network' ? '二度人脉 · 创立者' : '创立者'))}}</text>
       </view>
     </view>
   </view>
 
   <!-- 协助者 -->
-  <view class="detail-section">
-    <view class="section-title">🤝 协助者</view>
+  <view class="detail-section card">
+    <view class="section-title">协助者</view>
     <view class="helpers" wx:if="{{helpers.length}}">
       <view class="helper" wx:for="{{helpers}}" wx:key="id">
         <view class="helper-avatar">
@@ -25,27 +27,34 @@
         </view>
         <text class="helper-name">{{item.nickname}}</text>
       </view>
+      <view class="helper helper-add" bindtap="inviteFriend" wx:if="{{isCreator || isHelper}}">
+        <text class="helper-add-icon">＋</text>
+        <text class="helper-name">添加</text>
+      </view>
     </view>
-    <view class="helpers-empty" wx:else>暂无协助者，成为第一个帮忙的人</view>
+    <view class="helpers-empty" wx:else>
+      <text wx:if="{{isCreator || isHelper}}">暂无协助者，点击 + 邀请好友</text>
+      <text wx:else>暂无协助者，成为第一个帮忙的人</text>
+    </view>
   </view>
 
   <!-- 需求描述 -->
-  <view class="detail-section" wx:if="{{card.desc}}">
-    <view class="section-title">📝 需求描述</view>
+  <view class="detail-section card" wx:if="{{card.desc}}">
+    <view class="section-title">需求描述</view>
     <text class="detail-summary">{{card.desc}}</text>
   </view>
 
   <!-- 重点 / 待确认 -->
-  <view class="detail-section" wx:if="{{keyPoints.length}}">
-    <view class="section-title">⭐ 重点 / 待确认</view>
+  <view class="detail-section card" wx:if="{{keyPoints.length}}">
+    <view class="section-title">重点 / 待确认</view>
     <view class="keypoints">
       <text class="keypoint" wx:for="{{keyPoints}}" wx:key="*this">{{item}}</text>
     </view>
   </view>
 
   <!-- 当前进度 -->
-  <view class="detail-section">
-    <view class="section-title">📊 当前进度</view>
+  <view class="detail-section card">
+    <view class="section-title">当前进度</view>
     <view class="kv-list">
       <view class="kv-item">
         <text class="kv-key">状态</text>
@@ -62,37 +71,61 @@
     </view>
   </view>
 
-  <!-- 底部操作 -->
-  <view class="detail-footer" wx:if="{{!isCreator}}">
-    <button class="apply-btn" wx:if="{{isNetworkView}}" bindtap="openApplySheet">申请加入</button>
-    <button class="apply-btn" wx:if="{{canAcceptInvite}}" bindtap="acceptInvite">接受邀请</button>
-  </view>
-
-  <view class="detail-footer" wx:if="{{isCreator}}">
-    <button class="apply-btn" bindtap="noop">编辑记事卡</button>
-  </view>
-
-  <!-- 申请加入弹窗 -->
-  <view class="sheet-mask" wx:if="{{showApplySheet}}" bindtap="closeApplySheet">
-    <view class="sheet" catchtap="noop">
-      <view class="sheet-grab"></view>
-      <view class="sheet-title">请转发给 {{card.creatorName || '共同好友'}}</view>
-      <view class="sheet-desc">二度人脉不能直接加入，先请共同好友帮你向 <b>{{creator.nickname || '创立者'}}</b> 引荐。</view>
-      <view class="refer-card">
-        <text class="refer-emoji">🤝</text>
-        <text class="refer-text"><b>{{userName}}</b> 想加入《{{card.title || '这张记事卡'}}》，请帮我向 {{creator.nickname || 'TA'}} 说句好话～</text>
+  <!-- 审批区（仅创作者） -->
+  <view class="detail-section card" wx:if="{{isCreator && pendingRequests.length}}">
+    <view class="section-title">加入申请</view>
+    <view class="request-list">
+      <view class="request-item" wx:for="{{pendingRequests}}" wx:key="id">
+        <view class="request-user">
+          <view class="request-avatar">
+            <text wx:if="{{!item.avatar}}">{{item.initial}}</text>
+            <image wx:else src="{{item.avatar}}" mode="aspectFill" />
+          </view>
+          <view class="request-info">
+            <text class="request-name">{{item.nickname || '未知用户'}}</text>
+            <text class="request-note" wx:if="{{item.note}}">{{item.note}}</text>
+          </view>
+        </view>
+        <view class="request-actions">
+          <view class="request-btn reject" bindtap="approveRequest" data-id="{{item.id}}" data-approved="{{false}}">拒绝</view>
+          <view class="request-btn approve" bindtap="approveRequest" data-id="{{item.id}}" data-approved="{{true}}">通过</view>
+        </view>
       </view>
+    </view>
+  </view>
+
+  <!-- 底部操作 -->
+  <view class="detail-footer" style="padding-bottom: calc(24rpx + {{safeAreaBottom}}px);" wx:if="{{role !== 'stranger' || isNetworkView}}">
+    <button class="footer-btn primary" wx:if="{{isNetworkView}}" bindtap="openApplySheet">申请加入</button>
+    <button class="footer-btn primary" wx:if="{{canAcceptInvite}}" bindtap="acceptInvite">接受邀请</button>
+
+    <view class="footer-row" wx:if="{{isCreator}}">
+      <button class="footer-btn ghost" bindtap="editCard">编辑</button>
+      <button class="footer-btn primary" wx:if="{{card.status !== 'done'}}" bindtap="completeCard">标记完成</button>
+      <button class="footer-btn primary" wx:else disabled>已完成</button>
+    </view>
+
+    <view class="footer-row" wx:if="{{isHelper}}">
+      <button class="footer-btn ghost" open-type="share">介绍给朋友</button>
+      <button class="footer-btn primary" open-type="share">邀请一起用</button>
+    </view>
+  </view>
+
+  <!-- 申请加入 Sheet -->
+  <bottom-sheet visible="{{showApplySheet}}" title="申请加入" subtitle="填写说明，让创立者了解你能帮上什么" safeAreaBottom="{{safeAreaBottom}}" bind:close="closeApplySheet">
+    <view class="apply-body">
       <textarea
-        class="refer-input"
+        class="apply-input"
         value="{{applyMessage}}"
         bindinput="onApplyInput"
-        placeholder="补充一句说明（可选）"
-        maxlength="100"
+        placeholder="例如：我有插画经验，做过绘本项目..."
+        maxlength="200"
+        adjust-position="{{true}}"
       />
       <view class="sheet-actions">
         <button class="sheet-btn ghost" bindtap="closeApplySheet">取消</button>
         <button class="sheet-btn primary" bindtap="submitApply">提交申请</button>
       </view>
     </view>
-  </view>
+  </bottom-sheet>
 </view>

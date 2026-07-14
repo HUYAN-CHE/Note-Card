@@ -1,6 +1,4 @@
 .my-home-page {
-  min-height: 100vh;
-  background: #ffffff;
   padding-bottom: 40rpx;
 }
 
@@ -9,7 +7,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 100rpx 48rpx 48rpx;
+  padding: 48rpx 48rpx 40rpx;
   text-align: center;
 }
 
@@ -17,12 +15,12 @@
   width: 148rpx;
   height: 148rpx;
   border-radius: 50%;
-  background: linear-gradient(150deg, #00c853, #00a344);
+  background: linear-gradient(150deg, #4caf50, #81c784);
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  box-shadow: 0 8rpx 24rpx rgba(0, 200, 83, 0.22);
+  box-shadow: 0 8rpx 24rpx rgba(76, 175, 80, 0.22);
 }
 
 .profile-avatar-img {
@@ -40,28 +38,37 @@
   margin-top: 24rpx;
   font-size: 40rpx;
   font-weight: 800;
-  color: #1a1a1a;
+  color: #162116;
+}
+
+.profile-remark {
+  margin-top: 12rpx;
+  font-size: 26rpx;
+  color: #68705f;
+  max-width: 80%;
+  line-height: 1.4;
 }
 
 .profile-edit {
   margin-top: 20rpx;
   padding: 12rpx 28rpx;
   font-size: 26rpx;
-  color: #00c853;
-  border: 2rpx solid #00c853;
+  color: #4caf50;
+  border: 2rpx solid #4caf50;
   border-radius: 32rpx;
   font-weight: 500;
 }
 
-/* 编辑面板 */
+/* 备注编辑 */
 .edit-panel {
-  padding: 0 48rpx 48rpx;
+  margin: 0 28rpx 28rpx;
+  padding: 28rpx;
 }
 
 .edit-title {
   font-size: 30rpx;
   font-weight: 700;
-  color: #1a1a1a;
+  color: #162116;
   margin-bottom: 20rpx;
 }
 
@@ -93,47 +100,12 @@
 
 .edit-btn.save {
   color: #fff;
-  background: #00c853;
+  background: #4caf50;
 }
 
 .edit-btn.cancel {
   color: #666;
   background: #f0f0f0;
-}
-
-/* 分隔线 */
-.divider {
-  height: 1rpx;
-  background: #f0f0f0;
-  margin: 0 32rpx;
-}
-
-/* 区块 */
-.section {
-  padding: 36rpx 32rpx 0;
-}
-
-.section-last {
-  padding-bottom: 40rpx;
-}
-
-.section-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 20rpx;
-}
-
-.section-title {
-  font-size: 32rpx;
-  font-weight: 700;
-  color: #1a1a1a;
-}
-
-.section-action {
-  font-size: 26rpx;
-  color: #00c853;
-  font-weight: 500;
 }
 
 /* 服务标签 */
@@ -147,23 +119,30 @@
   display: inline-flex;
   align-items: center;
   padding: 12rpx 24rpx;
-  background: #f0fdf4;
+  background: #e8f5e9;
   border-radius: 28rpx;
+  transition: all 0.2s ease;
+}
+
+.tag-pill.editing {
+  background: #c8e6c9;
 }
 
 .tag-text {
   font-size: 26rpx;
-  color: #00a344;
+  color: #2e7d32;
 }
 
 .tag-remove {
   margin-left: 12rpx;
   width: 32rpx;
   height: 32rpx;
-  line-height: 32rpx;
+  line-height: 30rpx;
   text-align: center;
   font-size: 24rpx;
-  color: #999;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 50%;
 }
 
 .tag-empty {
@@ -205,8 +184,8 @@
   background: #f5f7fa;
   border-radius: 24rpx;
   font-size: 24rpx;
-  color: #00c853;
-  border: 1rpx solid #e0f2e9;
+  color: #4caf50;
+  border: 1rpx solid #e8f5e9;
 }
 
 /* 子标签 */
@@ -225,7 +204,7 @@
 }
 
 .subtab.on {
-  color: #1a1a1a;
+  color: #162116;
   font-weight: 700;
 }
 
@@ -236,7 +215,7 @@
   right: 0;
   bottom: 0;
   height: 4rpx;
-  background: #00c853;
+  background: #4caf50;
   border-radius: 2rpx;
 }
 
@@ -253,17 +232,17 @@
 
 .ncard {
   padding: 24rpx;
-  background: #ffffff;
+  background: rgba(255, 255, 255, 0.72);
   border-radius: 20rpx;
   box-shadow: 0 2rpx 16rpx rgba(0, 0, 0, 0.04);
-  border: 1rpx solid #f5f5f5;
+  border: 1rpx solid rgba(255, 255, 255, 0.78);
 }
 
 .ncard-title {
   display: block;
   font-size: 30rpx;
   font-weight: 600;
-  color: #1a1a1a;
+  color: #162116;
   line-height: 1.4;
 }
 
@@ -291,12 +270,12 @@
 }
 
 .status-pill.doing {
-  color: #00c853;
-  background: #f0fdf4;
+  color: #4caf50;
+  background: #e8f5e9;
 }
 
 .status-pill.doing .dot {
-  background: #00c853;
+  background: #4caf50;
 }
 
 .status-pill.todo {
@@ -339,6 +318,10 @@
 }
 
 /* 互助数据 */
+.section-last {
+  margin-bottom: 40rpx;
+}
+
 .stat-row {
   display: flex;
   gap: 24rpx;
@@ -357,7 +340,7 @@
 .stat-num {
   font-size: 48rpx;
   font-weight: 700;
-  color: #1a1a1a;
+  color: #162116;
   line-height: 1.2;
 }
 

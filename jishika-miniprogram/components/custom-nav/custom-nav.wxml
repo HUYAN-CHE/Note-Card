@@ -1,0 +1,13 @@
+<view class="custom-nav" style="padding-top: {{statusBarHeight}}px; height: {{navHeight}}px;">
+  <view class="nav-inner">
+    <view class="nav-back" bindtap="goBack" wx:if="{{showBack}}">
+      <text class="nav-back-icon">‹</text>
+    </view>
+    <view class="nav-title-wrap">
+      <text class="nav-title">{{title}}</text>
+    </view>
+    <view class="nav-right">
+      <slot name="right"></slot>
+    </view>
+  </view>
+</view>

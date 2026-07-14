@@ -1,23 +1,27 @@
 <view class="page my-home-page">
+  <custom-nav title="我的主页" showBack="{{true}}" statusBarHeight="{{statusBarHeight}}" navHeight="{{navHeight}}" />
+
   <!-- 顶部资料卡 -->
-  <view class="profile-card" style="padding-top: {{heroPaddingTop}}rpx;">
+  <view class="profile-card" style="padding-top: {{heroPaddingTop}}px;">
     <view class="profile-avatar">
       <text class="profile-initial" wx:if="{{!user.avatar}}">{{user.initial}}</text>
       <image wx:else class="profile-avatar-img" src="{{user.avatar}}" mode="aspectFill" />
     </view>
     <text class="profile-name">{{user.nickname || '点击授权'}}</text>
-    <view class="profile-edit" bindtap="startEditRemark">备注</view>
+    <text class="profile-remark" wx:if="{{remark}}">{{remark}}</text>
+    <view class="profile-edit" bindtap="startEditRemark">{{remark ? '编辑备注' : '添加备注'}}</view>
   </view>
 
   <!-- 备注编辑表单 -->
-  <view class="edit-panel" wx:if="{{isEditingRemark}}">
+  <view class="edit-panel card" wx:if="{{isEditingRemark}}">
     <view class="edit-title">编辑备注</view>
     <textarea
       class="edit-remark"
       value="{{editRemark}}"
       bindinput="onRemarkInput"
-      placeholder="写点什么备注..."
+      placeholder="写点什么备注，展示给协作伙伴..."
       maxlength="200"
+      adjust-position="{{true}}"
     />
     <view class="edit-actions">
       <view class="edit-btn save" bindtap="saveRemark">保存</view>
@@ -25,21 +29,19 @@
     </view>
   </view>
 
-  <view class="divider"></view>
-
   <!-- 我能提供的服务 -->
-  <view class="section">
+  <view class="section card">
     <view class="section-header">
       <text class="section-title">我能提供的服务</text>
       <text class="section-action" bindtap="toggleTagEdit">{{tagEditing ? '完成' : '＋ 添加'}}</text>
     </view>
     <view class="tag-list" wx:if="{{serviceTags.length}}">
-      <view class="tag-pill" wx:for="{{serviceTags}}" wx:key="*this">
+      <view class="tag-pill {{tagEditing ? 'editing' : ''}}" wx:for="{{serviceTags}}" wx:key="*this">
         <text class="tag-text">{{item}}</text>
         <text class="tag-remove" wx:if="{{tagEditing}}" bindtap="removeTag" data-index="{{index}}">×</text>
       </view>
     </view>
-    <view class="tag-empty" wx:if="{{!serviceTags.length && !tagEditing}}">还没有标签，点击添加</view>
+    <view class="tag-empty" wx:if="{{!serviceTags.length && !tagEditing}}">还没有标签，点击添加，让朋友知道你能帮什么</view>
 
     <view class="tag-edit-area" wx:if="{{tagEditing}}">
       <input
@@ -48,6 +50,7 @@
         bindinput="onTagInput"
         bindconfirm="addTag"
         placeholder="输入标签，按回车添加"
+        confirm-type="done"
       />
       <view class="candidate-tags" wx:if="{{candidateTags.length}}">
         <text class="candidate-label">推荐：</text>
@@ -63,7 +66,7 @@
   </view>
 
   <!-- 我的记事卡 -->
-  <view class="section">
+  <view class="section card">
     <view class="section-header">
       <text class="section-title">我的记事卡</text>
     </view>
@@ -114,7 +117,7 @@
   </view>
 
   <!-- 我的互助数据 -->
-  <view class="section section-last">
+  <view class="section card section-last">
     <view class="section-header">
       <text class="section-title">我的互助数据</text>
     </view>

@@ -1,7 +1,7 @@
 const { TYPE_LABELS, buildDraftFromContext } = require('../../services/ai-adapter');
 const { getCard, createCardFromDraft, saveCard } = require('../../utils/store');
 
-const MOCK_FRIENDS = [
+const DEFAULT_FRIENDS = [
   { id: 'f1', nickname: '阿哲', status: '微信好友', selected: false },
   { id: 'f2', nickname: '小林', status: '已协作 3 次', selected: false },
   { id: 'f3', nickname: '王姐', status: '共同好友', selected: false },
@@ -11,6 +11,7 @@ const MOCK_FRIENDS = [
 Page({
   data: {
     statusBarHeight: 44,
+    navHeight: 88,
     card: {
       title: '',
       desc: '',
@@ -22,13 +23,20 @@ Page({
     keyPointsText: '',
     helpers: [],
     showInviteSheet: false,
-    friendCandidates: []
+    friendCandidates: [],
+    loadingFriends: false,
+    safeAreaBottom: 0
   },
 
   onLoad(options = {}) {
     const sys = wx.getSystemInfoSync();
-    this.setData({ statusBarHeight: sys.statusBarHeight || 20 });
+    this.setData({
+      statusBarHeight: sys.statusBarHeight || 20,
+      navHeight: 88,
+      safeAreaBottom: sys.safeAreaInsets ? sys.safeAreaInsets.bottom : 0
+    });
     this.loadCard(options);
+    this.loadFriends();
   },
 
   async loadCard(options = {}) {
@@ -58,9 +66,49 @@ Page({
         source: card.source || 'manual'
       },
       keyPointsText: keyPoints.join(' · '),
-      helpers: helperIds.map((h) => this.normalizeHelper(h)),
-      friendCandidates: MOCK_FRIENDS.map((f) => ({ ...f }))
+      helpers: helperIds.map((h) => this.normalizeHelper(h))
     });
+  },
+
+  async loadFriends() {
+    this.setData({ loadingFriends: true });
+    try {
+      const app = getApp();
+      const openid = app.globalData && app.globalData.openid;
+      if (app.globalData && app.globalData.cloudReady && wx.cloud && openid) {
+        const db = wx.cloud.database();
+        const relRes = await db.collection('relationships')
+          .where({ ownerId: openid, degree: 1 })
+          .limit(50)
+          .get();
+
+        const relationships = relRes.data || [];
+        if (relationships.length) {
+          const friendOpenids = relationships.map((r) => r.to);
+          const userRes = await db.collection('users')
+            .where({ _openid: db.command.in(friendOpenids) })
+            .limit(50)
+            .get();
+
+          const users = userRes.data || [];
+          const friends = users.map((u) => ({
+            id: u._openid,
+            nickname: u.nickName || '未知用户',
+            avatar: u.avatarUrl || '',
+            status: '一度人脉',
+            selected: false
+          }));
+
+          this.setData({ friendCandidates: friends });
+          return;
+        }
+      }
+      this.setData({ friendCandidates: DEFAULT_FRIENDS.map((f) => ({ ...f })) });
+    } catch (e) {
+      this.setData({ friendCandidates: DEFAULT_FRIENDS.map((f) => ({ ...f })) });
+    } finally {
+      this.setData({ loadingFriends: false });
+    }
   },
 
   normalizeHelper(raw) {
@@ -77,8 +125,8 @@ Page({
   },
 
   getInitial(name) {
-    if (!name) return '?';
-    return String(name).trim().charAt(0).toUpperCase() || '?';
+    if (!name) return '';
+    return String(name).trim().charAt(0).toUpperCase();
   },
 
   onTitleInput(event) {
@@ -115,11 +163,20 @@ Page({
   noop() {},
 
   async sendInvite() {
-    const saved = await this.persistCard({ status: 'todo' });
-    this.closeInviteSheet();
+    try {
+      const saved = await this.persistCard({ status: 'todo' });
+      this.closeInviteSheet();
+      wx.showShareMenu({ withShareTicket: true });
+      wx.showToast({ title: '请点击右上角转发', icon: 'none' });
+      return saved;
+    } catch (e) {
+      // persistCard 已提示
+    }
+  },
+
+  shareToGroup() {
     wx.showShareMenu({ withShareTicket: true });
-    wx.showToast({ title: '请点击右上角转发', icon: 'none' });
-    return saved;
+    wx.showToast({ title: '请选择群聊转发', icon: 'none' });
   },
 
   goBack() {
@@ -127,20 +184,33 @@ Page({
   },
 
   async saveDraft() {
-    const saved = await this.persistCard({ status: 'draft' });
-    wx.showToast({ title: '已存草稿', icon: 'success' });
-    wx.navigateBack();
-    return saved;
+    try {
+      const saved = await this.persistCard({ status: 'draft' });
+      wx.showToast({ title: '已存草稿', icon: 'success' });
+      wx.navigateBack();
+      return saved;
+    } catch (e) {
+      // persistCard 已提示
+    }
   },
 
   async saveAndBack() {
-    const saved = await this.persistCard({ status: 'todo' });
-    wx.showToast({ title: '保存成功', icon: 'success' });
-    wx.navigateBack();
-    return saved;
+    try {
+      const saved = await this.persistCard({ status: 'todo' });
+      wx.showToast({ title: '保存成功', icon: 'success' });
+      wx.navigateBack();
+      return saved;
+    } catch (e) {
+      // persistCard 已提示
+    }
   },
 
   async persistCard(extra = {}) {
+    if (!this.data.card.title.trim()) {
+      wx.showToast({ title: '请输入标题', icon: 'none' });
+      throw new Error('标题为空');
+    }
+
     const keyPoints = this.data.keyPointsText
       .split('·')
       .map((item) => item.trim())
@@ -148,7 +218,7 @@ Page({
 
     const selectedFriends = this.data.friendCandidates
       .filter((f) => f.selected)
-      .map((f) => f.nickname);
+      .map((f) => f.id || f.nickname);
 
     const helperIds = Array.from(new Set([
       ...this.data.card.helperIds,
@@ -158,7 +228,7 @@ Page({
     const card = {
       ...this.data.card,
       ...extra,
-      title: this.data.card.title.trim() || '未命名事项',
+      title: this.data.card.title.trim(),
       desc: this.data.card.desc || '',
       keyPoints,
       helperIds,
