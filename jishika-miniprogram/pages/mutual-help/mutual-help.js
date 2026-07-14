@@ -232,10 +232,23 @@ Page({
   },
 
   onChooseNickname(event) {
-    const nickname = event.detail.value;
+    console.log('chooseNickname event', event.detail);
+    const nickname = event.detail.value || event.detail.nickName || '';
     if (nickname) {
       this.saveMyProfile({ nickname });
+      return;
     }
+    // chooseNickname 未返回昵称时，允许手动输入
+    wx.showModal({
+      title: '输入昵称',
+      editable: true,
+      placeholderText: '请输入你的昵称',
+      success: (res) => {
+        if (res.confirm && res.content && res.content.trim()) {
+          this.saveMyProfile({ nickname: res.content.trim() });
+        }
+      }
+    });
   },
 
   async saveMyProfile(patch) {

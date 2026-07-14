@@ -87,8 +87,26 @@ Page({
   },
 
   onAuthNickname(event) {
-    const nickname = event.detail.value;
-    if (!nickname) return;
+    console.log('chooseNickname event', event.detail);
+    const nickname = event.detail.value || event.detail.nickName || '';
+    if (nickname) {
+      this.setNickname(nickname);
+      return;
+    }
+    // chooseNickname 未返回昵称时，允许手动输入
+    wx.showModal({
+      title: '输入昵称',
+      editable: true,
+      placeholderText: '请输入你的昵称',
+      success: (res) => {
+        if (res.confirm && res.content && res.content.trim()) {
+          this.setNickname(res.content.trim());
+        }
+      }
+    });
+  },
+
+  setNickname(nickname) {
     const initial = nickname.trim().charAt(0).toUpperCase();
     this.setData({
       'authProfile.nickname': nickname,
