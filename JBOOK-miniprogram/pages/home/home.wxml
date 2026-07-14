@@ -69,11 +69,7 @@
       </view>
     </pull-refresh-view>
 
-    <view wx:else class="empty-state">
-      <image class="empty-image" src="/assets/images/empty-state-ref.png" mode="aspectFit" aria-hidden="true" />
-      <text class="empty-title">还没有记事卡</text>
-      <text class="empty-sub">下拉或点击上方按钮，从聊天记录生成一张记事卡</text>
-    </view>
+    <empty-state wx:else image="/assets/images/empty-state-ref.png" image-size="320" title="还没有记事卡" subtitle="下拉或点击上方按钮，从聊天记录生成一张记事卡" />
   </pull-create-trigger>
 
   <tab-bar activeTab="home" />

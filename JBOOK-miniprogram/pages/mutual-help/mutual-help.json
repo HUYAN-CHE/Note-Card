@@ -3,6 +3,7 @@
   "navigationStyle": "custom",
   "disableScroll": true,
   "usingComponents": {
-    "tab-bar": "/components/tab-bar/tab-bar"
+    "tab-bar": "/components/tab-bar/tab-bar",
+    "empty-state": "/components/empty-state/empty-state"
   }
 }

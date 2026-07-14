@@ -1,5 +1,5 @@
-<view class="empty-state">
-  <image wx:if="{{image}}" class="empty-image" src="{{image}}" mode="aspectFit" />
+<view class="empty-state {{mode === 'simple' ? 'empty-state-simple' : ''}}">
+  <image wx:if="{{image}}" class="empty-image" src="{{image}}" mode="aspectFit" style="width: {{imageSize}}rpx; height: {{imageSize}}rpx;" aria-hidden="true" />
   <text class="empty-title">{{title}}</text>
   <text wx:if="{{subtitle}}" class="empty-subtitle">{{subtitle}}</text>
 </view>

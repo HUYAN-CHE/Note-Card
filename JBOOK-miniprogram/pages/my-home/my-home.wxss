@@ -301,18 +301,6 @@
   color: #bbb;
 }
 
-.card-empty {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding-top: 80rpx;
-}
-
-.card-empty-text {
-  font-size: 28rpx;
-  color: #bbb;
-}
-
 .content-bottom-space {
   height: 24rpx;
 }

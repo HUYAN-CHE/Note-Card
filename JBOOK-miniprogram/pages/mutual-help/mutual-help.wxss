@@ -309,16 +309,14 @@
   color: #9baaa3;
 }
 
-.card-loading,
-.card-empty {
+.card-loading {
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 120rpx 48rpx;
 }
 
-.card-loading-text,
-.card-empty-text {
+.card-loading-text {
   font-size: 26rpx;
   color: #9baaa3;
   text-align: center;

@@ -7,9 +7,11 @@
   text-align: center;
 }
 
+.empty-state-simple {
+  padding: 120rpx 48rpx;
+}
+
 .empty-image {
-  width: 240rpx;
-  height: 240rpx;
   margin-bottom: 24rpx;
 }
 
@@ -18,6 +20,14 @@
   font-weight: 700;
   color: #162116;
   margin-bottom: 12rpx;
+  line-height: 1.4;
+}
+
+.empty-state-simple .empty-title {
+  font-size: 26rpx;
+  font-weight: 400;
+  color: #9baaa3;
+  margin-bottom: 0;
 }
 
 .empty-subtitle {

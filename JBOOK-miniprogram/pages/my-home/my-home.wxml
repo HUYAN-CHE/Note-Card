@@ -108,9 +108,7 @@
         </view>
       </view>
 
-      <view class="card-empty" wx:if="{{!loading && cards.length === 0}}">
-        <text class="card-empty-text">{{emptyText}}</text>
-      </view>
+      <empty-state wx:if="{{!loading && cards.length === 0}}" title="{{emptyText}}" mode="simple" />
 
       <view class="content-bottom-space"></view>
     </scroll-view>
