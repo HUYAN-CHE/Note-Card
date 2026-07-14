@@ -273,7 +273,7 @@ footer b{color:var(--ink-soft)}
   <div class="wrap">
     <div class="sec-head"><span class="num">00</span><h2>产品概述</h2><div class="sub">先对齐"做什么、为谁做、价值在哪"。</div></div>
     <div class="card-box span-12">
-      <p class="lead-p" style="margin-bottom:18px"><b>《记事卡》是一个"把一件事说清楚、找对人来帮忙"的互助协作工具。</b>用户把待办/需求写成一张"记事卡"，通过一度人脉（好友）或直接邀请，把卡推给能帮上忙的人；好友还能把卡分享给自己的二度人脉，形成"互助网络"。核心不是聊天，而是<b>让一件事和能解决它的人高效连接</b>。</p>
+      <p class="lead-p" style="margin-bottom:18px"><b>《记事卡》是一个"把一件事说清楚、找对人来帮忙"的互助协作工具。</b>用户把待办/需求写成一张"记事卡"，通过一度人脉（好友）或直接邀请，把卡推给能帮上忙的人；好友看到卡后既能被动浏览二度人脉，也能主动"介绍给朋友"——把卡连同自己的关系链转给更匹配的人，形成可溯源的"互助网络"。核心不是聊天，而是<b>让一件事和能解决它的人高效连接</b>。</p>
       <div class="kv-grid">
         <div class="k"><div class="kt">🎯 目标用户</div><div class="kv">有零散协作需求的人——帮朋友找资源、约人、询问信息、协调事务；不想拉群、不想在聊天里反复翻。重视"关系信任"与"轻量记录"。</div></div>
         <div class="k"><div class="kt">💡 一句话价值</div><div class="kv">"把聊天里说的事，变成一张可协作、可追溯、能找对人帮的<b>记事卡</b>。"</div></div>
@@ -449,8 +449,8 @@ footer b{color:var(--ink-soft)}
 
     <!-- 核心流程 -->
     <div class="card-box span-12">
-      <div class="box-t">核心流程 <span class="tag">3 条</span></div>
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:18px">
+      <div class="box-t">核心流程 <span class="tag">4 条</span></div>
+      <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:18px">
         <div>
           <div style="font-family:var(--font-display);font-weight:700;font-size:13px;color:var(--brand-deep);margin-bottom:8px">流程 5.1 · 邀请协助者</div>
           <div class="flow">
@@ -470,6 +470,15 @@ footer b{color:var(--ink-soft)}
           </div>
         </div>
         <div>
+          <div style="font-family:var(--font-display);font-weight:700;font-size:13px;color:var(--brand-deep);margin-bottom:8px">流程 5.3 · 介绍朋友帮忙 <span style="font-size:11px;color:var(--muted);font-weight:500">新增 · 关系链转发</span></div>
+          <div class="flow">
+            <div class="step"><div class="sn">1</div><div class="sc"><div class="st">我（1/2度）看到卡</div><div class="sd">判断「我不匹配」，但好友 B 更合适</div></div></div>
+            <div class="step"><div class="sn">2</div><div class="sc"><div class="st">点「介绍给朋友」</div><div class="sd">选我的好友 B，生成带「A 介绍」的分享卡</div></div></div>
+            <div class="step"><div class="sn">3</div><div class="sc"><div class="st">B 申请协助</div><div class="sd">JoinRequest 自动带 <b>introducedBy + 完整链路</b></div></div></div>
+            <div class="step"><div class="sn">4</div><div class="sc"><div class="st">创作者见「经 A 介绍」</div><div class="sd">通过 → B 写入 Relationship(degree=A.degree+1)</div></div></div>
+          </div>
+        </div>
+        <div>
           <div style="font-family:var(--font-display);font-weight:700;font-size:13px;color:var(--brand-deep);margin-bottom:8px">流程 9 · 从聊天创建</div>
           <div class="flow">
             <div class="step"><div class="sn">A</div><div class="sc"><div class="st">微信选消息转发元宝</div><div class="sd">AI 结构化 → 唤起记事卡（推荐）</div></div></div>
@@ -486,30 +495,32 @@ footer b{color:var(--ink-soft)}
 <!-- 03 数据模型与权限 -->
 <section id="data">
   <div class="wrap">
-    <div class="sec-head"><span class="num">03</span><h2>数据模型与权限</h2><div class="sub">4 个数据模型 + 一度/二度权限矩阵。</div></div>
+    <div class="sec-head"><span class="num">03</span><h2>数据模型与权限</h2><div class="sub">4 个数据模型 + 一度/二度/三度权限矩阵（含介绍链）。</div></div>
     <div class="card-box span-12" style="margin-bottom:28px">
       <div class="box-t">数据模型 <span class="tag">4 个</span></div>
       <div class="kv-grid" style="grid-template-columns:repeat(2,1fr)">
         <div class="k"><div class="kt">👤 User</div><div class="kv"><b>_openid</b> / name / avatar / trustScore。每个用户唯一标识，关系与卡都以其为锚。</div></div>
-        <div class="k"><div class="kt">🔗 Relationship</div><div class="kv"><b>from · to · degree(1|2) · source</b>。一度=直接好友；二度=好友的好友。决定卡能否扩散。</div></div>
-        <div class="k"><div class="kt">📇 Card</div><div class="kv"><b>_id · creatorId · title · desc · todos[] · helpers[] · isNetworkVisible · status · createdAt</b>。记事卡本体。</div></div>
-        <div class="k"><div class="kt">🤝 JoinRequest</div><div class="kv"><b>cardId · applicantId · degree · status(待审/通过/拒绝) · appliedAt</b>。二度申请加入的凭证。</div></div>
+        <div class="k"><div class="kt">🔗 Relationship</div><div class="kv"><b>from · to · degree(1|2|3) · source('direct'|'introduced') · introducedBy? · introducedPath[]</b>。一度=直接好友；二度=好友的好友（含经一度介绍）；三度=经二度介绍。introducedBy / introducedPath 记录介绍链，便于溯源与审核。</div></div>
+        <div class="k"><div class="kt">📇 Card</div><div class="kv"><b>_id · creatorId · title · desc · todos[] · helpers[] · isNetworkVisible · maxIntroduceDepth(默认3) · status · createdAt</b>。记事卡本体；maxIntroduceDepth 限制介绍链深度，防关系链无限膨胀。</div></div>
+        <div class="k"><div class="kt">🤝 JoinRequest</div><div class="kv"><b>cardId · applicantId · degree · introducedBy? · introducedPath[]? · status(待审/通过/拒绝) · appliedAt</b>。申请加入凭证；经介绍时携带 introducedBy / introducedPath，创作者审核可见完整链。</div></div>
       </div>
     </div>
 
     <div class="card-box span-12">
-      <div class="box-t">权限矩阵 <span class="tag">一度 / 二度</span></div>
+      <div class="box-t">权限矩阵 <span class="tag">一度 / 二度 / 三度</span></div>
       <table class="ptable">
-        <thead><tr><th>操作</th><th>创作者</th><th>一度协助者</th><th>二度访客</th></tr></thead>
+        <thead><tr><th>操作</th><th>创作者</th><th>一度协助者</th><th>二度访客</th><th>三度（经介绍）</th></tr></thead>
         <tbody>
-          <tr><td>查看记事卡</td><td><span class="yes">✓ 完全</span></td><td><span class="yes">✓ 完全</span></td><td><span class="part">仅 isNetworkVisible=开</span></td></tr>
-          <tr><td>编辑内容</td><td><span class="yes">✓</span></td><td><span class="part">部分（待确认）</span></td><td><span class="no">✗</span></td></tr>
-          <tr><td>邀请协助者</td><td><span class="yes">✓</span></td><td><span class="no">✗</span></td><td><span class="no">✗</span></td></tr>
-          <tr><td>审批二度申请</td><td><span class="yes">✓</span></td><td><span class="no">✗</span></td><td><span class="no">✗</span></td></tr>
-          <tr><td>申请加入</td><td><span class="no">—</span></td><td><span class="no">—</span></td><td><span class="yes">✓（触发审批）</span></td></tr>
+          <tr><td>查看记事卡</td><td><span class="yes">✓ 完全</span></td><td><span class="yes">✓ 完全</span></td><td><span class="part">仅 isNetworkVisible=开（含经一度介绍）</span></td><td><span class="part">经介绍链可见</span></td></tr>
+          <tr><td>编辑内容</td><td><span class="yes">✓</span></td><td><span class="part">部分（待确认）</span></td><td><span class="no">✗</span></td><td><span class="no">✗</span></td></tr>
+          <tr><td>邀请协助者</td><td><span class="yes">✓</span></td><td><span class="no">✗</span></td><td><span class="no">✗</span></td><td><span class="no">✗</span></td></tr>
+          <tr><td>介绍给朋友</td><td><span class="yes">✓</span></td><td><span class="yes">✓（生成介绍链）</span></td><td><span class="yes">✓（生成介绍链）</span></td><td><span class="no">✗ 链路终点</span></td></tr>
+          <tr><td>审批申请</td><td><span class="yes">✓（看介绍链）</span></td><td><span class="no">✗</span></td><td><span class="no">✗</span></td><td><span class="no">✗</span></td></tr>
+          <tr><td>申请加入</td><td><span class="no">—</span></td><td><span class="no">—</span></td><td><span class="yes">✓（触发审批）</span></td><td><span class="yes">✓（触发审批·链更长）</span></td></tr>
         </tbody>
       </table>
       <p style="font-size:12.5px;color:var(--muted);line-height:1.6;margin-top:14px"><b style="color:var(--ink-soft)">isNetworkVisible（网络可见性开关）</b>：控制该卡能否进入二度人脉扩散。关 → 仅一度可见；开 → 二度可浏览并可申请加入。新建页用"开关 + 一句人话说明"呈现，把字段翻译成用户能懂的取舍。</p>
+      <p style="font-size:12.5px;color:var(--muted);line-height:1.6;margin-top:10px"><b style="color:var(--ink-soft)">介绍链（主动转发）</b>：与 isNetworkVisible 的<b>被动发现</b>互补，"介绍给朋友"是<b>主动转发</b>——一度 / 二度 viewer 把卡连同自己的身份发给好友，好友申请时自动带上 <b>introducedBy + 完整链路</b>，创作者审核可见"由谁介绍"。默认度数上限 = 3（creator→1→2→3），<b>三度为链路终点不再可转发</b>，防止关系链无限膨胀与信任稀释；该上限为可配置项。</p>
     </div>
   </div>
 </section>
@@ -523,6 +534,7 @@ footer b{color:var(--ink-soft)}
         <li>沿用微信小程序顶栏 + 底部双 Tab（事项/互助），零学习成本。</li>
         <li>互助页"头像横滑→点击刷新下方列表"遵循熟人社交心智。</li>
         <li>二度只读 + 申请加入，权限与方案第 6 节一一对应。</li>
+        <li>卡详情 / 互助页新增「介绍给朋友」次按钮（与「申请协助」并列）；被介绍人视图顶部显示"由 A 介绍你来帮忙 · A 是创作者的 1度 好友"banner，把关系链显式呈现，更像真实介绍场景。</li>
       </ul></div>
       <div class="note"><div class="nh">✨ 状态编码与动效</div><ul>
         <li>进行中/待确认/已完成均有<b>文字 + 圆点</b>双编码（不靠颜色单一维度）。</li>

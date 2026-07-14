@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>《记事卡》产品优化升级方案 · 云开发 + 混元</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,500&display=swap" rel="stylesheet" />
+<style>
+:root{
+  --paper:oklch(98% 0.012 95);--surface:oklch(100% 0 0);--surface-2:oklch(96.5% 0.012 95);
+  --ink:oklch(27% 0.02 70);--ink-soft:oklch(43% 0.018 68);--muted:oklch(58% 0.014 68);
+  --line:oklch(90% 0.012 82);--line-strong:oklch(84% 0.013 82);
+  --brand:oklch(66% 0.13 152);--brand-strong:oklch(53% 0.15 152);--brand-deep:oklch(44% 0.13 152);
+  --brand-soft:oklch(95.5% 0.045 152);--brand-line:oklch(88% 0.07 152);--on-brand:oklch(99% 0 0);
+  --amber:oklch(70% 0.13 68);--amber-soft:oklch(96% 0.045 75);--amber-ink:oklch(45% 0.11 60);
+  --red:oklch(58% 0.17 25);--red-soft:oklch(96% 0.04 25);--blue:oklch(58% 0.13 250);--blue-soft:oklch(96% 0.04 250);
+  --shadow-xs:0 1px 2px oklch(40% 0.02 70 / .06);--shadow-sm:0 2px 8px oklch(40% 0.02 70 / .07);--shadow-md:0 8px 24px oklch(40% 0.02 70 / .10);--shadow-lg:0 18px 48px oklch(40% 0.02 70 / .14);--shadow-brand:0 10px 26px oklch(53% 0.15 152 / .30);
+  --r-xs:8px;--r-sm:12px;--r-md:16px;--r-lg:22px;--r-xl:28px;--r-pill:999px;
+  --font-body:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei","Segoe UI",system-ui,sans-serif;
+  --font-display:"Plus Jakarta Sans",-apple-system,"PingFang SC",system-ui,sans-serif;
+  --s-1:4px;--s-2:8px;--s-3:12px;--s-4:16px;--s-5:20px;--s-6:24px;--s-8:32px;--s-10:40px;--s-12:48px;--s-16:64px;
+  --ease:cubic-bezier(0.16,1,0.3,1);--ease-soft:cubic-bezier(0.4,0,0.2,1);--t-fast:.18s;--t-norm:.32s;--maxw:1240px;
+}
+[data-theme="dark"]{
+  --paper:oklch(20% 0.01 85);--surface:oklch(25.5% 0.012 85);--surface-2:oklch(22.5% 0.01 85);
+  --ink:oklch(93% 0.008 85);--ink-soft:oklch(76% 0.01 85);--muted:oklch(62% 0.01 85);
+  --line:oklch(34% 0.01 85);--line-strong:oklch(40% 0.012 85);
+  --brand:oklch(72% 0.13 152);--brand-strong:oklch(62% 0.14 152);--brand-deep:oklch(80% 0.10 152);
+  --brand-soft:oklch(28% 0.05 152);--brand-line:oklch(36% 0.06 152);--on-brand:oklch(18% 0.02 85);
+  --amber-soft:oklch(28% 0.05 70);--amber-ink:oklch(82% 0.11 70);--red-soft:oklch(28% 0.05 25);--blue-soft:oklch(28% 0.05 250);
+  --shadow-xs:0 1px 2px oklch(0% 0 0 / .4);--shadow-sm:0 2px 8px oklch(0% 0 0 / .45);--shadow-md:0 8px 24px oklch(0% 0 0 / .5);--shadow-lg:0 18px 48px oklch(0% 0 0 / .6);--shadow-brand:0 10px 26px oklch(53% 0.15 152 / .4);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--font-body);background:var(--paper);color:var(--ink);line-height:1.55;-webkit-font-smoothing:antialiased;transition:background var(--t-norm) var(--ease-soft),color var(--t-norm) var(--ease-soft)}
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 var(--s-6)}
+h1,h2,h3,h4{font-family:var(--font-display);font-weight:700;letter-spacing:-.01em;line-height:1.15}
+a{color:inherit}
+.topbar{position:sticky;top:0;z-index:50;background:color-mix(in oklch,var(--paper) 82%,transparent);backdrop-filter:saturate(1.4) blur(14px);border-bottom:1px solid var(--line)}
+.topbar-in{display:flex;align-items:center;gap:var(--s-5);height:60px}
+.brandmark{display:flex;align-items:center;gap:10px;font-family:var(--font-display);font-weight:800;font-size:17px}
+.brandmark .dot{width:26px;height:26px;border-radius:9px;background:linear-gradient(150deg,var(--brand),var(--brand-strong));display:grid;place-items:center;color:#fff;font-size:14px;box-shadow:var(--shadow-brand)}
+.nav{display:flex;gap:var(--s-2);margin-left:auto;flex-wrap:wrap}
+.nav a{font-size:13.5px;color:var(--ink-soft);text-decoration:none;font-weight:500;padding:7px 13px;border-radius:var(--r-pill);transition:all var(--t-fast) var(--ease)}
+.nav a:hover{background:var(--surface-2);color:var(--ink)}
+.theme-btn{border:1px solid var(--line-strong);background:var(--surface);color:var(--ink-soft);width:38px;height:38px;border-radius:12px;cursor:pointer;font-size:16px;display:grid;place-items:center;transition:all var(--t-fast) var(--ease)}
+.theme-btn:hover{border-color:var(--brand);color:var(--brand)}
+.hero{padding:var(--s-16) 0 var(--s-12);position:relative;overflow:hidden}
+.hero::before{content:"";position:absolute;inset:-20% -10% auto -10%;height:420px;z-index:0;background:radial-gradient(60% 80% at 18% 20%,oklch(66% 0.13 152 / .20),transparent 60%),radial-gradient(50% 70% at 88% 10%,oklch(64% 0.13 250 / .16),transparent 60%);filter:blur(8px)}
+.hero-in{position:relative;z-index:1;max-width:880px}
+.eyebrow{display:inline-flex;align-items:center;gap:7px;font-family:var(--font-display);font-weight:600;font-size:12.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--brand-deep);background:var(--brand-soft);padding:6px 13px;border-radius:var(--r-pill);border:1px solid var(--brand-line)}
+.hero h1{font-size:clamp(32px,5vw,52px);margin:var(--s-5) 0 var(--s-4);font-weight:800}
+.hero h1 em{font-style:normal;color:var(--brand-strong)}
+.hero p.lead{font-size:17px;color:var(--ink-soft);max-width:700px}
+.meta-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:var(--s-6)}
+.meta-row .m{font-size:12.5px;font-weight:600;color:var(--ink-soft);background:var(--surface);border:1px solid var(--line);border-radius:var(--r-pill);padding:7px 14px;box-shadow:var(--shadow-xs)}
+section{padding:var(--s-12) 0}
+.sec-head{display:flex;align-items:flex-end;gap:var(--s-4);margin-bottom:var(--s-8);flex-wrap:wrap}
+.sec-head .num{font-family:var(--font-display);font-weight:800;font-size:14px;color:var(--brand);background:var(--brand-soft);border:1px solid var(--brand-line);width:34px;height:34px;border-radius:11px;display:grid;place-items:center;flex:none}
+.sec-head h2{font-size:clamp(22px,3vw,30px)}
+.sec-head .sub{color:var(--muted);font-size:14px;margin-left:auto;max-width:400px;text-align:right}
+.card-box{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:var(--s-6);box-shadow:var(--shadow-sm)}
+.span-12{grid-column:span 12}
+.box-t{font-family:var(--font-display);font-weight:700;font-size:14px;margin-bottom:var(--s-5);display:flex;align-items:center;gap:8px}
+.box-t .tag{font-size:11px;font-weight:600;color:var(--muted);background:var(--surface-2);padding:3px 8px;border-radius:var(--r-pill)}
+.lead-p{font-size:15px;color:var(--ink-soft);line-height:1.75;max-width:900px}
+.lead-p b{color:var(--ink)}
+.kv-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:var(--s-5)}
+.kv-grid .k{background:var(--surface-2);border:1px solid var(--line);border-radius:var(--r-md);padding:16px}
+.kv-grid .k .kt{font-family:var(--font-display);font-weight:700;font-size:13px;color:var(--brand-deep);margin-bottom:6px}
+.kv-grid .k .kv{font-size:12.5px;color:var(--ink-soft);line-height:1.6}
+.kv-grid .k .kv b{color:var(--ink)}
+
+/* 路线图 */
+.road{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.road .r{border:1px solid var(--line);border-radius:var(--r-lg);padding:18px;box-shadow:var(--shadow-xs);border-top:4px solid var(--brand)}
+.road .r.p1{border-top-color:var(--amber)}
+.road .r.p2{border-top-color:var(--blue)}
+.road .r .rl{font-family:var(--font-display);font-weight:800;font-size:14px;margin-bottom:3px}
+.road .r .rs{font-size:11px;color:var(--muted);margin-bottom:12px}
+.road .r ul{list-style:none;display:flex;flex-direction:column;gap:9px}
+.road .r li{font-size:12.5px;color:var(--ink-soft);padding-left:18px;position:relative;line-height:1.5}
+.road .r li::before{content:"";position:absolute;left:0;top:8px;width:7px;height:7px;border-radius:50%;background:var(--brand)}
+.road .r.p1 li::before{background:var(--amber)}
+.road .r.p2 li::before{background:var(--blue)}
+
+/* 手机原型 */
+.gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:var(--s-8);justify-items:center}
+.phone{width:340px;flex:none;background:var(--surface);border:1px solid var(--line-strong);border-radius:42px;padding:12px;box-shadow:var(--shadow-lg);position:relative}
+.phone::before{content:"";position:absolute;top:18px;left:50%;transform:translateX(-50%);width:110px;height:7px;border-radius:99px;background:var(--line-strong);z-index:30}
+.screen{width:100%;height:720px;background:var(--paper);border-radius:32px;overflow:hidden;position:relative;display:flex;flex-direction:column}
+.s-status{height:30px;display:flex;align-items:center;justify-content:space-between;padding:0 20px;font-family:var(--font-display);font-weight:700;font-size:13px;color:var(--ink);flex:none}
+.s-head{padding:6px 18px 10px;flex:none;display:flex;align-items:center;gap:8px}
+.s-title{font-family:var(--font-display);font-weight:800;font-size:24px;letter-spacing:-.02em}
+.s-body{flex:1;overflow-y:auto;padding:4px 16px 14px;scrollbar-width:none}
+.s-body::-webkit-scrollbar{display:none}
+.s-foot{flex:none;padding:10px 16px calc(14px + env(safe-area-inset-bottom));background:color-mix(in oklch,var(--surface) 90%,transparent);border-top:1px solid var(--line)}
+.src-chip{display:inline-flex;align-items:center;gap:7px;background:var(--brand-soft);border:1px solid var(--brand-line);color:var(--brand-deep);font-size:11.5px;font-weight:600;padding:6px 11px;border-radius:var(--r-pill);margin-bottom:11px}
+.badge-ai{display:inline-flex;align-items:center;gap:5px;font-size:10.5px;font-weight:700;color:#fff;background:linear-gradient(150deg,var(--blue),oklch(50% .15 250));padding:3px 9px;border-radius:var(--r-pill);margin-bottom:11px}
+.imp-intro{font-size:12px;color:var(--muted);line-height:1.55;margin-bottom:13px}
+.imp-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md);padding:12px 13px;margin-bottom:10px;display:flex;gap:10px;align-items:flex-start}
+.imp-check{width:19px;height:19px;border-radius:7px;border:2px solid var(--line-strong);flex:none;margin-top:1px;display:grid;place-items:center;color:transparent;font-size:11px}
+.imp-check.on{background:var(--brand-strong);border-color:var(--brand-strong);color:#fff}
+.imp-card .ib{flex:1;min-width:0}
+.imp-card .il{font-family:var(--font-display);font-weight:700;font-size:11.5px;color:var(--brand-deep);margin-bottom:4px;display:flex;align-items:center;gap:6px}
+.imp-card .il .ai{font-size:9.5px;background:var(--blue-soft);color:oklch(45% .13 250);padding:2px 6px;border-radius:var(--r-pill);font-weight:700}
+.imp-card .iv{font-size:13px;color:var(--ink);line-height:1.5}
+.helper-row{display:flex;align-items:center;gap:9px;margin-top:8px}
+.helper-row .ha{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;color:#fff;font-weight:700;font-size:12px;flex:none}
+.helper-row .hn{font-size:12.5px;font-weight:600}
+.helper-row .hr{font-size:10.5px;color:var(--muted)}
+.helper-row .hm{margin-left:auto;font-size:10.5px;font-weight:700;color:var(--brand-deep);background:var(--brand-soft);border-radius:var(--r-pill);padding:3px 8px}
+.phone-cap{text-align:center;margin-top:14px;font-size:12.5px;color:var(--muted)}
+.phone-cap b{font-family:var(--font-display);color:var(--ink-soft);font-weight:700}
+
+/* 云函数 */
+.fn{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:var(--s-6);margin-bottom:18px;box-shadow:var(--shadow-xs)}
+.fn .fh{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+.fn .fname{font-family:var(--font-display);font-weight:800;font-size:15px;color:var(--brand-strong)}
+.fn .frole{font-size:12px;color:var(--muted)}
+.fn .fdesc{font-size:13px;color:var(--ink-soft);line-height:1.6;margin-bottom:14px}
+.io{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.io .col h4{font-family:var(--font-display);font-size:12.5px;margin-bottom:8px;color:var(--brand-deep);display:flex;align-items:center;gap:6px}
+.code{background:var(--surface-2);border:1px solid var(--line);border-radius:var(--r-sm);padding:12px 14px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11.5px;color:var(--ink-soft);line-height:1.6;white-space:pre-wrap;word-break:break-word}
+.code .k{color:var(--brand-strong);font-weight:700}
+.code .s{color:var(--amber-ink)}
+.flow{display:flex;flex-direction:column;gap:0}
+.flow .step{display:flex;gap:14px;position:relative;padding-bottom:var(--s-4)}
+.flow .step:not(:last-child)::after{content:"";position:absolute;left:13px;top:28px;bottom:0;width:2px;background:var(--brand-line)}
+.flow .sn{width:26px;height:26px;border-radius:50%;background:var(--brand-strong);color:#fff;font-family:var(--font-display);font-weight:800;font-size:12px;display:grid;place-items:center;flex:none;z-index:1}
+.flow .sc .st{font-family:var(--font-display);font-weight:700;font-size:13px}
+.flow .sc .sd{font-size:12px;color:var(--ink-soft);line-height:1.5}
+.note{background:var(--surface-2);border:1px solid var(--line);border-radius:var(--r-md);padding:var(--s-5);box-shadow:var(--shadow-xs)}
+.note .nh{font-family:var(--font-display);font-weight:700;font-size:13px;margin-bottom:8px}
+.note ul{list-style:none;display:flex;flex-direction:column;gap:7px}
+.note li{font-size:12.5px;color:var(--ink-soft);padding-left:18px;position:relative;line-height:1.5}
+.note li::before{content:"";position:absolute;left:0;top:7px;width:7px;height:7px;border-radius:50%;background:var(--brand)}
+.metric{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:var(--s-5)}
+.metric .m{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md);padding:16px;box-shadow:var(--shadow-xs)}
+.metric .mn{font-family:var(--font-display);font-weight:800;font-size:22px;color:var(--brand-strong)}
+.metric .ml{font-size:12px;color:var(--muted);margin-top:3px}
+.metric .md{font-size:11.5px;color:var(--ink-soft);margin-top:6px;line-height:1.5}
+footer{padding:var(--s-10) 0 var(--s-16);border-top:1px solid var(--line);margin-top:var(--s-8);text-align:center;color:var(--muted);font-size:13px}
+footer b{color:var(--ink-soft)}
+@media (max-width:900px){.kv-grid,.road,.io,.metric{grid-template-columns:1fr}.sec-head .sub{margin-left:0;text-align:left}.nav{display:none}}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="wrap topbar-in">
+    <div class="brandmark"><span class="dot">卡</span>记事卡 · 优化升级方案</div>
+    <nav class="nav">
+      <a href="#overview">总览</a>
+      <a href="#roadmap">路线图</a>
+      <a href="#prototype">AI 预览原型</a>
+      <a href="#functions">云函数</a>
+      <a href="#metrics">指标与成本</a>
+    </nav>
+    <button class="theme-btn" id="themeBtn" title="切换浅/深主题">🌙</button>
+  </div>
+</div>
+
+<header class="hero">
+  <div class="wrap hero-in">
+    <span class="eyebrow">产品优化升级方案 · 微信云开发 + 混元</span>
+    <h1>把"规则"升级为<em>"语义"</em></h1>
+    <p class="lead">用云开发做 Serverless 底座（数据/函数/存储/云调用），用混元免费 Token 做轻量智能（理解聊天、抽取结构、推荐人选）。两者同属腾讯生态，可做成完全在应用内闭环的 AI——不必依赖用户跳出转发给元宝。</p>
+    <div class="meta-row">
+      <span class="m">☁️ 云开发：数据库/云函数/存储/云调用</span>
+      <span class="m">🤖 混元：语义抽取·推荐·摘要</span>
+      <span class="m">💡 免费 Token · 成本护栏</span>
+      <span class="m">🔒 密钥仅存云端</span>
+    </div>
+  </div>
+</header>
+
+<!-- 总览 -->
+<section id="overview">
+  <div class="wrap">
+    <div class="sec-head"><span class="num">00</span><h2>升级总览</h2><div class="sub">云开发解决底座，混元解决智能。</div></div>
+    <div class="kv-grid">
+      <div class="k"><div class="kt">☁️ 云开发提供</div><div class="kv"><b>底座</b>：云数据库存 4 类模型；云函数跑 AI 与 8 个业务函数；云存储接 ②截图；云调用发订阅消息（无密钥暴露）；环境变量藏混元 Key。</div></div>
+      <div class="k"><div class="kt">🤖 混元提供</div><div class="kv"><b>智能</b>：把"本地规则识别"升级为"语义理解"——抽取标题/待确认/人选，推荐最该邀请的朋友，摘要协作进度。</div></div>
+      <div class="k"><div class="kt">🔗 关键变化</div><div class="kv"><b>路径 A 不再依赖元宝外部</b>：剪贴板(C)+云函数内混元 = 一条在应用内的 AI 主路；元宝转发降为可选增强。</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- 路线图 -->
+<section id="roadmap">
+  <div class="wrap">
+    <div class="sec-head"><span class="num">01</span><h2>优先级路线图</h2><div class="sub">按免费 Token 的 ROI 排 P0/P1/P2。</div></div>
+    <div class="road">
+      <div class="r">
+        <div class="rl">P0 · 最该先做</div><div class="rs">单卡一次性调用 · ROI 最高</div>
+        <ul>
+          <li><b>① 从聊天整理·AI 结构化</b>：混元抽取标题/描述/待确认/人选</li>
+          <li><b>② 智能协助者推荐</b>：建卡时排出最该邀请的 3 人</li>
+          <li>翻掉预览页"本地规则"占位，改"混元语义理解已开启"</li>
+        </ul>
+      </div>
+      <div class="r p1">
+        <div class="rl">P1 · 体验增厚</div><div class="rs">调用频率中等</div>
+        <ul>
+          <li><b>③ 进度/待确认摘要</b>：定时聚合→单次摘要</li>
+          <li><b>⑤ 个性化提醒文案</b>：每次邀请 1 次调用</li>
+          <li><b>④ 对话式/语音建卡</b>：NLU 直接成药卡草稿</li>
+        </ul>
+      </div>
+      <div class="r p2">
+        <div class="rl">P2 · 网络效应</div><div class="rs">低频·可批处理</div>
+        <ul>
+          <li><b>⑥ 二度语义匹配+理由</b>：降审批成本</li>
+          <li><b>⑦ 内容安全/合规</b>：聊天派生文本脱敏</li>
+          <li>信任分模型、数据看板</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- AI 预览原型 -->
+<section id="prototype">
+  <div class="wrap">
+    <div class="sec-head"><span class="num">02</span><h2>AI 结构化预览页（原型）</h2><div class="sub">混元接入后的「从聊天整理」长什么样。</div></div>
+    <div class="gallery">
+      <div>
+        <div class="phone"><div class="screen">
+          <div class="s-status"><span>9:41</span><span class="icons">📶 🔋</span></div>
+          <div class="s-head"><span style="font-size:20px">‹</span><div class="s-title" style="font-size:17px">从聊天整理</div></div>
+          <div class="s-body">
+            <span class="src-chip">📋 来自剪贴板 · 微信聊天</span>
+            <span class="badge-ai">✨ 混元语义理解已开启</span>
+            <div class="imp-intro">已从你复制的聊天<b style="color:var(--ink)">语义理解</b>出以下内容，可勾选保留、直接修改——不用从头填。</div>
+            <div class="imp-card"><span class="imp-check on">✓</span><div class="ib"><div class="il">标题 <span class="ai">AI 语义</span></div><div class="iv">帮王姐找儿童插画师（绘本）</div></div></div>
+            <div class="imp-card"><span class="imp-check on">✓</span><div class="ib"><div class="il">需求描述 <span class="ai">AI 语义</span></div><div class="iv">温馨风格、长期合作、接受分镜草图沟通，两周内交稿。</div></div></div>
+            <div class="imp-card"><span class="imp-check on">✓</span><div class="ib"><div class="il">重点 / 待确认 <span class="ai">AI 抽取</span></div><div class="iv">① 预算约 2k　② 风格参考已发　③ 交稿两周内</div></div></div>
+            <div class="imp-card"><span class="imp-check on">✓</span><div class="ib"><div class="il">协助者候选 <span class="ai">聊天识别</span></div><div class="helper-row"><span class="ha" style="background:linear-gradient(150deg,oklch(72% .12 25),oklch(58% .17 25))">王</span><span class="hn">王姐</span><span class="hr">聊天提及</span></div></div></div>
+            <div style="font-size:10.5px;color:var(--muted);text-align:center;margin-top:2px">语义理解由混元驱动 · 可随时改回本地规则</div>
+          </div>
+          <div class="s-foot"><button class="btn btn-primary btn-block" style="background:var(--brand-strong);color:#fff;border:none;border-radius:var(--r-pill);padding:14px;width:100%;font-weight:600;font-size:14px">生成记事卡 →</button></div>
+        </div></div>
+        <div class="phone-cap"><b>整理预览（升级后）</b> · 混元语义理解替代本地规则</div>
+      </div>
+      <div>
+        <div class="phone"><div class="screen">
+          <div class="s-status"><span>9:41</span><span class="icons">📶 🔋</span></div>
+          <div class="s-head"><span style="font-size:20px">‹</span><div class="s-title" style="font-size:17px">智能协助者推荐</div></div>
+          <div class="s-body">
+            <span class="badge-ai">🤖 aiRecommend · 混元语义匹配</span>
+            <div class="imp-intro">根据卡需求与好友画像，从你的一度里排出<b style="color:var(--ink)">最该邀请的 3 人</b>（最终决定权在你）。</div>
+            <div class="imp-card"><span class="imp-check on">✓</span><div class="ib"><div class="il">推荐理由 <span class="ai">AI</span></div><div class="iv">插画/绘本资源多，近期帮过类似忙</div><div class="helper-row"><span class="ha" style="background:linear-gradient(150deg,oklch(72% .12 25),oklch(58% .17 25))">王</span><span class="hn">王姐</span><span class="hm">匹配 92%</span></div></div></div>
+            <div class="imp-card"><span class="imp-check on">✓</span><div class="ib"><div class="il">推荐理由 <span class="ai">AI</span></div><div class="iv">儿童出版背景，认识多位插画师</div><div class="helper-row"><span class="ha" style="background:linear-gradient(150deg,oklch(66% .13 250),oklch(52% .15 250))">林</span><span class="hn">小林</span><span class="hm">匹配 81%</span></div></div></div>
+            <div class="imp-card"><span class="imp-check on">✓</span><div class="ib"><div class="il">推荐理由 <span class="ai">AI</span></div><div class="iv">美术专业，空闲可接短期协作</div><div class="helper-row"><span class="ha" style="background:linear-gradient(150deg,oklch(70% .13 68),oklch(58% .17 60))">陈</span><span class="hn">陈美术</span><span class="hm">匹配 76%</span></div></div></div>
+            <div class="imp-intro" style="margin-top:8px">二度（开启 isNetworkVisible 后）将进入互助页，可进一步申请加入。</div>
+          </div>
+          <div class="s-foot"><button class="btn btn-primary btn-block" style="background:var(--brand-strong);color:#fff;border:none;border-radius:var(--r-pill);padding:14px;width:100%;font-weight:600;font-size:14px">一键邀请Top3 →</button></div>
+        </div></div>
+        <div class="phone-cap"><b>智能协助者推荐</b> · P0② · aiRecommend 输出可视化</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 云函数 -->
+<section id="functions">
+  <div class="wrap">
+    <div class="sec-head"><span class="num">03</span><h2>云函数设计</h2><div class="sub">入参 / 出参 / 与数据模型的关系。</div></div>
+
+    <div class="fn">
+      <div class="fh"><div class="fname">aiStructure</div><div class="frole">P0① · 聊天→结构化草稿</div></div>
+      <div class="fdesc">入参为剪贴板/截图 OCR 文本（来自 从聊天整理 C 路径或 ②选文件），调用混元抽取结构；结果写 Card 草稿，建议协助者候选回写 Relationship/User 查询。</div>
+      <div class="io">
+        <div class="col"><h4>▶ 入参（event）</h4><div class="code"><span class="k">rawText</span>: string   <span class="s">// 复制的聊天/截图OCR</span>
+<span class="k">source</span>:  'clipboard' | 'image' | 'forward'
+<span class="k">cardDraftId</span>?: string  <span class="s">// 已有草稿则补写</span>
+<span class="k">openid</span>: string    <span class="s">// 创建者</span></div></div>
+        <div class="col"><h4>◀ 出参（return）</h4><div class="code"><span class="k">title</span>: string
+<span class="k">desc</span>: string
+<span class="k">todos</span>: [{ <span class="k">text</span>, <span class="k">due</span>? }]
+<span class="k">budget</span>?: number
+<span class="k">helperCandidates</span>: [openid]  <span class="s">// 聊天提及</span>
+<span class="k">confidence</span>: 0..1</div></div>
+      </div>
+    </div>
+
+    <div class="fn">
+      <div class="fh"><div class="fname">aiRecommend</div><div class="frole">P0② · 最该邀请谁</div></div>
+      <div class="fdesc">读取 Card + Relationship 一度/二度图 + User 画像，混元语义匹配"需求 × 人"，输出带理由的候选列表。仅在用户主动建卡/邀请时调用。</div>
+      <div class="io">
+        <div class="col"><h4>▶ 入参（event）</h4><div class="code"><span class="k">cardId</span>: string
+<span class="k">degree</span>: 1 | 2      <span class="s">// 默认一度</span>
+<span class="k">limit</span>: number       <span class="s">// 默认 3</span>
+<span class="k">openid</span>: string</div></div>
+        <div class="col"><h4>◀ 出参（return）</h4><div class="code"><span class="k">candidates</span>: [{
+  <span class="k">userId</span>, <span class="k">score</span>: 0..1,
+  <span class="k">reason</span>: string   <span class="s">// 可解释</span>
+}]
+<span class="k">fromCache</span>: boolean</div></div>
+      </div>
+    </div>
+
+    <div class="fn">
+      <div class="fh"><div class="fname">aiSummary</div><div class="frole">P1③ · 进度摘要</div></div>
+      <div class="fdesc">定时（云函数定时器）聚合某卡的协作更新，混元压成 1 条待确认 + 进度摘要，写回 Card.todos / 进度字段，降低"进度不透明"。</div>
+      <div class="io">
+        <div class="col"><h4>▶ 入参（event）</h4><div class="code"><span class="k">cardId</span>: string
+<span class="k">since</span>: timestamp   <span class="s">// 上次摘要时间</span></div></div>
+        <div class="col"><h4>◀ 出参（return）</h4><div class="code"><span class="k">summary</span>: string
+<span class="k">pendingUpdates</span>: [{
+  <span class="k">text</span>, <span class="k">by</span>: openid
+}]
+<span class="k">doneCount</span>: number</div></div>
+      </div>
+    </div>
+
+    <div class="card-box span-12" style="margin-top:6px">
+      <div class="box-t">数据模型关系 <span class="tag">4 模型</span></div>
+      <div class="flow">
+        <div class="step"><div class="sn">1</div><div class="sc"><div class="st">aiStructure 写入</div><div class="sd"><b>Card</b>(title/desc/todos/budget) 草稿；helperCandidates 用于查询 <b>Relationship/User</b></div></div></div>
+        <div class="step"><div class="sn">2</div><div class="sc"><div class="st">aiRecommend 读取</div><div class="sd"><b>Card</b> + <b>Relationship</b>(degree) + <b>User</b>(画像) → 输出候选；用户确认后写 <b>Relationship(一度)</b></div></div></div>
+        <div class="step"><div class="sn">3</div><div class="sc"><div class="st">aiSummary 回写</div><div class="sd">聚合更新 → 写 <b>Card.todos/进度</b>；二度申请经 <b>JoinRequest</b> 审批后升级权限</div></div></div>
+      </div>
+      <p style="font-size:12px;color:var(--muted);line-height:1.6;margin-top:12px">密钥：混元 API Key 仅存云开发<b>环境变量</b>，端上不暴露；调用走云函数，符合隐私合规（内容经用户复制/选择后才进入）。</p>
+    </div>
+  </div>
+</section>
+
+<!-- 指标与成本 -->
+<section id="metrics">
+  <div class="wrap">
+    <div class="sec-head"><span class="num">04</span><h2>北极星指标与成本护栏</h2><div class="sub">衡量价值，也守住免费额度。</div></div>
+    <div class="metric">
+      <div class="m"><div class="mn">⌛ 耗时↓</div><div class="ml">北极星</div><div class="md">"聊到→结构化草稿就绪"从分钟级降到秒级</div></div>
+      <div class="m"><div class="mn">📨 接受率↑</div><div class="ml">护栏指标</div><div class="md">个性化提醒文案带来的邀请接受率</div></div>
+      <div class="m"><div class="mn">💰 成本/卡</div><div class="ml">护栏指标</div><div class="md">单卡 AI 调用成本，目标压到免费额度内</div></div>
+    </div>
+    <div class="note" style="margin-top:18px">
+      <div class="nh">🛡️ 免费 Token 成本护栏（落地原则）</div>
+      <ul>
+        <li>只在<b>用户主动粘贴/建卡/邀请</b>时调用，不做后台常驻扫描聊天（也不合规）。</li>
+        <li><b>先本地规则、兜底再 AI</b>：正则能搞定的不烧 Token，识别不准才走混元。</li>
+        <li><b>结果缓存</b>：同一段剪贴板哈希缓存，重复建卡不重复计费。</li>
+        <li><b>小模型 / 低 max_tokens</b>：抽取类任务用最小可用配置。</li>
+        <li><b>二度匹配批处理</b>：夜间离线跑，不在请求链路实时调。</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p><b>《记事卡》产品优化升级方案 v1.0</b> — 云开发 + 混元 · 规则→语义</p>
+    <p style="margin-top:6px">配套：<b>index.html</b> · <b>产品页面说明.html</b> · <b>用户地图.html</b> · <b>design-tokens.wxss</b></p>
+  </div>
+</footer>
+
+<script>
+  const btn=document.getElementById('themeBtn');const root=document.documentElement;
+  const saved=localStorage.getItem('nc-opt-theme');if(saved)root.setAttribute('data-theme',saved);
+  btn.textContent=root.getAttribute('data-theme')==='dark'?'☀️':'🌙';
+  btn.addEventListener('click',()=>{const next=root.getAttribute('data-theme')==='dark'?'light':'dark';root.setAttribute('data-theme',next);localStorage.setItem('nc-opt-theme',next);btn.textContent=next==='dark'?'☀️':'🌙';});
+</script>
+</body>
+</html>

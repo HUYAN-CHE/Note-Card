@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>《记事卡》用户地图 · 一张图总览</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,500&display=swap" rel="stylesheet" />
+<style>
+:root{
+  --paper:oklch(98% 0.012 95);--surface:oklch(100% 0 0);--surface-2:oklch(96.5% 0.012 95);
+  --ink:oklch(27% 0.02 70);--ink-soft:oklch(43% 0.018 68);--muted:oklch(58% 0.014 68);
+  --line:oklch(90% 0.012 82);--line-strong:oklch(84% 0.013 82);
+  --brand:oklch(66% 0.13 152);--brand-strong:oklch(53% 0.15 152);--brand-deep:oklch(44% 0.13 152);
+  --brand-soft:oklch(95.5% 0.045 152);--brand-line:oklch(88% 0.07 152);
+  --amber:oklch(70% 0.13 68);--amber-soft:oklch(96% 0.045 75);--amber-ink:oklch(45% 0.11 60);
+  --red:oklch(58% 0.17 25);--red-soft:oklch(96% 0.04 25);--blue:oklch(58% 0.13 250);--blue-soft:oklch(96% 0.04 250);
+  --shadow-xs:0 1px 2px oklch(40% 0.02 70 / .06);--shadow-sm:0 2px 8px oklch(40% 0.02 70 / .07);--shadow-brand:0 10px 26px oklch(53% 0.15 152 / .30);
+  --r-xs:8px;--r-sm:12px;--r-md:14px;--r-lg:18px;--r-pill:999px;
+  --font-body:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei","Segoe UI",system-ui,sans-serif;
+  --font-display:"Plus Jakarta Sans",-apple-system,"PingFang SC",system-ui,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-body);background:oklch(94% 0.01 95);color:var(--ink);-webkit-font-smoothing:antialiased;padding:28px}
+.poster{width:1100px;margin:0 auto;background:var(--paper);border:1px solid var(--line);border-radius:28px;padding:34px 38px 30px;box-shadow:0 20px 60px oklch(40% 0.02 70 / .12)}
+.head{display:flex;align-items:center;gap:16px;margin-bottom:6px}
+.head .dot{width:42px;height:42px;border-radius:13px;background:linear-gradient(150deg,var(--brand),var(--brand-strong));display:grid;place-items:center;color:#fff;font-weight:800;font-size:20px;box-shadow:var(--shadow-brand)}
+.head h1{font-family:var(--font-display);font-size:30px;font-weight:800;letter-spacing:-.02em}
+.head h1 em{font-style:normal;color:var(--brand-strong)}
+.head .sub{margin-left:auto;font-size:12.5px;color:var(--muted);text-align:right;line-height:1.5;max-width:300px}
+.sec-t{font-family:var(--font-display);font-weight:800;font-size:14px;color:var(--brand-deep);margin:22px 0 12px;display:flex;align-items:center;gap:8px}
+.sec-t::before{content:"";width:5px;height:16px;border-radius:3px;background:var(--brand-strong)}
+
+/* roles */
+.roles{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.role{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md);padding:13px 14px;border-top:3px solid var(--brand)}
+.role.r2{border-top-color:var(--amber)}.role.r3{border-top-color:var(--blue)}
+.role .rn{font-family:var(--font-display);font-weight:800;font-size:14px}
+.role .rt{font-size:11px;color:var(--muted);margin-bottom:6px}
+.role .rd{font-size:11.5px;color:var(--ink-soft);line-height:1.5}
+
+/* journey */
+.jmap{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md);padding:14px 14px 6px}
+.jcurve svg{width:100%;height:120px;display:block}
+.jstages{display:flex;gap:8px;margin-top:6px}
+.js{flex:1;background:var(--surface-2);border:1px solid var(--line);border-radius:var(--r-sm);padding:9px 10px}
+.js .je{font-size:16px}
+.js .jn{font-family:var(--font-display);font-weight:800;font-size:10.5px;color:var(--brand-strong);margin:2px 0}
+.js .ja{font-size:10.5px;font-weight:700;color:var(--ink);line-height:1.35}
+.js .jp{font-size:10px;color:var(--muted);margin-top:3px;line-height:1.35}
+
+/* page flow */
+.flow-wrap{display:grid;grid-template-columns:1.35fr 1fr;gap:16px}
+.pf{display:flex;flex-direction:column;align-items:stretch}
+.pf-row{display:flex;align-items:stretch;gap:0}
+.pnode{flex:1;text-align:center;background:var(--surface);border:1px solid var(--line-strong);border-radius:var(--r-sm);padding:10px 8px;box-shadow:var(--shadow-xs)}
+.pnode .pn{font-family:var(--font-display);font-weight:800;font-size:12.5px}
+.pnode .pp{font-size:9.5px;color:var(--muted);margin-top:2px}
+.pnode.brand{background:var(--brand-soft);border-color:var(--brand-line)}
+.pnode.brand .pn{color:var(--brand-deep)}
+.pnode.amber{background:var(--amber-soft);border-color:oklch(90% .07 68)}
+.pnode.blue{background:var(--blue-soft);border-color:oklch(90% .07 250)}
+.conn{display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:84px;padding:0 6px}
+.conn .cl{font-size:10px;font-weight:700;color:var(--brand-deep);background:var(--surface);border:1px solid var(--brand-line);border-radius:var(--r-pill);padding:2px 7px;white-space:nowrap}
+.conn .ar{color:var(--brand);font-size:16px;font-weight:800;line-height:1;margin:1px 0}
+.pf-down{display:flex;flex-direction:column;align-items:center;padding:4px 0}
+.pf-down .cl{font-size:10px;font-weight:700;color:var(--brand-deep);background:var(--surface);border:1px solid var(--brand-line);border-radius:var(--r-pill);padding:2px 7px}
+.pf-down .ar{color:var(--brand);font-size:16px;font-weight:800}
+.branch{background:var(--surface-2);border:1px solid var(--line);border-radius:var(--r-md);padding:12px}
+.branch h4{font-family:var(--font-display);font-size:12px;color:var(--brand-deep);margin-bottom:8px}
+.mini{display:flex;align-items:center;gap:5px;margin-bottom:8px;flex-wrap:wrap}
+.mini .mn{font-size:10.5px;font-weight:700;background:var(--surface);border:1px solid var(--line-strong);border-radius:7px;padding:4px 7px}
+.mini .ma{font-size:9.5px;color:var(--brand-strong);font-weight:700}
+
+/* bottom */
+.bottom{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:4px}
+.bc{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md);padding:11px 12px}
+.bc h4{font-family:var(--font-display);font-size:12px;margin-bottom:6px}
+.bc ol{margin:0;padding-left:16px;display:flex;flex-direction:column;gap:3px}
+.bc li{font-size:10.5px;color:var(--ink-soft);line-height:1.4}
+.perm{margin-top:14px;background:var(--brand-soft);border:1px solid var(--brand-line);border-radius:var(--r-md);padding:11px 13px;font-size:11.5px;color:var(--brand-deep);line-height:1.5}
+.perm b{color:var(--ink)}
+.foot{margin-top:16px;text-align:center;font-size:11px;color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="poster">
+  <div class="head">
+    <div class="dot">卡</div>
+    <h1>《记事卡》<em>用户地图</em> · 一张图总览</h1>
+    <div class="sub">角色 · 旅程 · 七页逻辑串联 · 权限流转<br>纸感暖绿 · 浅色主题</div>
+  </div>
+
+  <!-- 角色 -->
+  <div class="sec-t">① 三类角色</div>
+  <div class="roles">
+    <div class="role"><div class="rn">创作者 · 胡晓</div><div class="rt">发起记事卡</div><div class="rd">把聊天里的事变成卡，邀请能帮的人，跟进度到办成。</div></div>
+    <div class="role r2"><div class="rn">一度协助者 · 王姐</div><div class="rt">被直接邀请</div><div class="rd">收到邀请后接受，参与推进待确认，是核心协作圈。</div></div>
+    <div class="role r3"><div class="rn">二度访客 · 小林</div><div class="rt">好友的好友</div><div class="rd">互助页浏览扩散卡，申请加入，审批后成为协助者。</div></div>
+  </div>
+
+  <!-- 旅程 -->
+  <div class="sec-t">② 创作者端到端旅程（情绪曲线 + 六阶段）</div>
+  <div class="jmap">
+    <div class="jcurve">
+      <svg viewBox="0 0 1020 120" preserveAspectRatio="none">
+        <line x1="0" y1="60" x2="1020" y2="60" stroke="var(--line)" stroke-width="1" stroke-dasharray="4 5"/>
+        <polyline points="40,90 230,42 420,56 610,36 800,66 980,30" fill="none" stroke="var(--brand-strong)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="40" cy="90" r="5" fill="var(--brand-strong)"/><circle cx="230" cy="42" r="5" fill="var(--brand-strong)"/><circle cx="420" cy="56" r="5" fill="var(--brand-strong)"/><circle cx="610" cy="36" r="5" fill="var(--brand-strong)"/><circle cx="800" cy="66" r="5" fill="var(--brand-strong)"/><circle cx="980" cy="30" r="5" fill="var(--brand-strong)"/>
+      </svg>
+    </div>
+    <div class="jstages">
+      <div class="js"><div class="je">😟</div><div class="jn">1 触发</div><div class="ja">微信聊到事，怕忘</div><div class="jp">触点：微信</div></div>
+      <div class="js"><div class="je">😀</div><div class="jn">2 创建</div><div class="ja">A转发/C复制→预览</div><div class="jp">自动识别可勾改</div></div>
+      <div class="js"><div class="je">🙂</div><div class="jn">3 发布邀请</div><div class="ja">填协助者/可见性</div><div class="jp">订阅消息提醒</div></div>
+      <div class="js"><div class="je">😌</div><div class="jn">4 协作中</div><div class="ja">协助者推进进度</div><div class="jp">状态双编码</div></div>
+      <div class="js"><div class="je">🤔</div><div class="jn">5 二度扩散</div><div class="ja">申请加入需审批</div><div class="jp">一键通过</div></div>
+      <div class="js"><div class="je">😄</div><div class="jn">6 完成</div><div class="ja">办成·信任分+</div><div class="jp">完成庆祝</div></div>
+    </div>
+  </div>
+
+  <!-- 页面逻辑串联 -->
+  <div class="sec-t">③ 七页逻辑串联</div>
+  <div class="flow-wrap">
+    <div class="pf">
+      <div class="pf-row">
+        <div class="pnode"><div class="pn">微信聊天</div><div class="pp">外部</div></div>
+        <div class="conn"><div class="cl">A/C</div><div class="ar">▶</div></div>
+        <div class="pnode brand"><div class="pn">从聊天整理</div><div class="pp">card-import</div></div>
+      </div>
+      <div class="pf-down"><div class="cl">生成</div><div class="ar">▼</div></div>
+      <div class="pf-row">
+        <div class="pnode brand"><div class="pn">新建记事卡</div><div class="pp">card-edit</div></div>
+        <div class="conn"><div class="cl">发布</div><div class="ar">▶</div></div>
+        <div class="pnode brand"><div class="pn">记事卡详情</div><div class="pp">card-detail</div></div>
+      </div>
+      <div class="pf-down"><div class="cl">邀请</div><div class="ar">▼</div></div>
+      <div class="pf-row">
+        <div class="pnode amber"><div class="pn">邀请好友</div><div class="pp">invite</div></div>
+        <div class="conn"><div class="cl">订阅消息</div><div class="ar">▶</div></div>
+        <div class="pnode"><div class="pn">协助者·微信</div><div class="pp">接受</div></div>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div class="branch">
+        <h4>🔵 互助 → 二度扩散</h4>
+        <div class="mini"><span class="mn">互助 mutual</span><span class="ma">▶</span><span class="mn">详情(二度只读)</span><span class="ma">▶</span><span class="mn">申请加入</span><span class="ma">▶</span><span class="mn">审批通过</span></div>
+        <h4 style="margin-top:4px">🏠 事项 → 我的主页</h4>
+        <div class="mini"><span class="mn">事项 index</span><span class="ma">▶</span><span class="mn">我的主页 profile</span></div>
+      </div>
+      <div class="branch">
+        <h4>📱 七页清单</h4>
+        <div class="mini"><span class="mn">事项</span><span class="mn">互助</span><span class="mn">我的主页</span></div>
+        <div class="mini"><span class="mn">详情</span><span class="mn">新建</span><span class="mn">邀请</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 核心流程 + 权限 -->
+  <div class="sec-t">④ 核心流程串联</div>
+  <div class="bottom">
+    <div class="bc"><h4>🔧 5.1 邀请协助者</h4><ol><li>详情→邀请</li><li>选好友/群聊→订阅消息</li><li>协助者接受→写关系</li><li>详情推进协作</li></ol></div>
+    <div class="bc"><h4>🔗 5.2 二度申请加入</h4><ol><li>互助见二度卡</li><li>申请加入→JoinRequest</li><li>创作者审批</li><li>通过→协助者</li></ol></div>
+    <div class="bc"><h4>↺ 9 从聊天创建</h4><ol><li>A 转发元宝整理</li><li>C 复制→识别兜底</li><li>整理预览勾改</li><li>生成发布</li></ol></div>
+  </div>
+  <div class="perm"><b>权限随旅程自然升级：</b>创建后仅创作者可控 → 邀请接受成为一度（可协作）→ 开启 isNetworkVisible 二度可读 → 申请通过升级为协助者。无需重新授权。</div>
+
+  <div class="foot">《记事卡》用户地图 v1.0 · 配套 index.html / 产品页面说明.html / design-tokens.wxss</div>
+</div>
+</body>
+</html>
