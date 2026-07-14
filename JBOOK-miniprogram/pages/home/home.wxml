@@ -87,7 +87,7 @@
         <button
           class="auth-avatar-btn {{authProfile.avatar ? 'done' : ''}}"
           open-type="chooseAvatar"
-          bind:chooseAvatar="onAuthAvatar"
+          bind:chooseavatar="onAuthAvatar"
         >
           <text wx:if="{{!authProfile.avatar}}">点击授权头像</text>
           <image wx:else class="auth-avatar-img" src="{{authProfile.avatar}}" mode="aspectFill" />
@@ -95,7 +95,7 @@
         <button
           class="auth-nickname-btn {{authProfile.nickname ? 'done' : ''}}"
           open-type="chooseNickname"
-          bind:chooseNickname="onAuthNickname"
+          bind:choosenickname="onAuthNickname"
         >{{authProfile.nickname || '点击授权昵称'}}</button>
       </view>
       <view class="auth-close" bindtap="closeAuthModal">稍后再说</view>
