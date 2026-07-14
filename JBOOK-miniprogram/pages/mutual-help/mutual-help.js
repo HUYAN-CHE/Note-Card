@@ -231,14 +231,7 @@ Page({
     }
   },
 
-  onChooseNickname(event) {
-    console.log('chooseNickname event', event.detail);
-    const nickname = event.detail.value || event.detail.nickName || '';
-    if (nickname) {
-      this.saveMyProfile({ nickname });
-      return;
-    }
-    // chooseNickname 未返回昵称时，允许手动输入
+  onChooseNickname() {
     wx.showModal({
       title: '输入昵称',
       editable: true,

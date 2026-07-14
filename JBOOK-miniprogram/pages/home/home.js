@@ -86,14 +86,7 @@ Page({
     });
   },
 
-  onAuthNickname(event) {
-    console.log('chooseNickname event', event.detail);
-    const nickname = event.detail.value || event.detail.nickName || '';
-    if (nickname) {
-      this.setNickname(nickname);
-      return;
-    }
-    // chooseNickname 未返回昵称时，允许手动输入
+  onAuthNickname() {
     wx.showModal({
       title: '输入昵称',
       editable: true,
