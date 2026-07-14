@@ -4,10 +4,14 @@
     <view class="hero-header">
       <!-- 未授权：点击头像/昵称分别授权 -->
       <view class="my-avatar-wrap" wx:if="{{!authorized}}">
-        <button class="my-avatar my-avatar-btn my-avatar-unauthorized" open-type="chooseAvatar" bind:chooseavatar="onChooseAvatar">
+        <button class="my-avatar my-avatar-btn my-avatar-unauthorized" open-type="chooseAvatar" bind:chooseavatar="onChooseAvatar" wx:if="{{!myProfile.avatar}}">
           <text class="my-avatar-initial"></text>
         </button>
-        <button class="my-name my-name-btn" open-type="chooseNickname" bind:choosenickname="onChooseNickname">点击授权</button>
+        <view class="my-avatar" wx:else>
+          <image class="my-avatar-img" src="{{myProfile.avatar}}" mode="aspectFill" />
+        </view>
+        <button class="my-name my-name-btn" open-type="chooseNickname" bind:choosenickname="onChooseNickname" wx:if="{{!myProfile.nickname}}">点击授权</button>
+        <text class="my-name" wx:else>{{myProfile.nickname}}</text>
       </view>
 
       <!-- 已授权：点击进入我的主页 -->
