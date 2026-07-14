@@ -94,7 +94,8 @@
         </button>
         <button
           class="auth-nickname-btn {{authProfile.nickname ? 'done' : ''}}"
-          bindtap="onAuthNickname"
+          open-type="chooseNickname"
+          bind:chooseNickname="onAuthNickname"
         >{{authProfile.nickname || '点击授权昵称'}}</button>
       </view>
       <view class="auth-close" bindtap="closeAuthModal">稍后再说</view>

@@ -7,7 +7,7 @@
         <button class="my-avatar my-avatar-btn my-avatar-unauthorized" open-type="chooseAvatar" bind:chooseavatar="onChooseAvatar">
           <text class="my-avatar-initial"></text>
         </button>
-        <button class="my-name my-name-btn" bindtap="onChooseNickname">点击授权</button>
+        <button class="my-name my-name-btn" open-type="chooseNickname" bind:chooseNickname="onChooseNickname">点击授权</button>
       </view>
 
       <!-- 已授权：点击进入我的主页 -->

@@ -86,17 +86,14 @@ Page({
     });
   },
 
-  onAuthNickname() {
-    wx.showModal({
-      title: '输入昵称',
-      editable: true,
-      placeholderText: '请输入你的昵称',
-      success: (res) => {
-        if (res.confirm && res.content && res.content.trim()) {
-          this.setNickname(res.content.trim());
-        }
-      }
-    });
+  onAuthNickname(event) {
+    console.log('chooseNickname event', event.detail);
+    const nickname = event.detail.value || event.detail.nickName || '';
+    if (nickname) {
+      this.setNickname(nickname);
+      return;
+    }
+    wx.showToast({ title: '请选择或输入一个昵称', icon: 'none' });
   },
 
   setNickname(nickname) {
