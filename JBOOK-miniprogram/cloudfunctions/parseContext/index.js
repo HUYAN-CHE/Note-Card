@@ -43,7 +43,10 @@ exports.main = async (event, context) => {
     if (event.action === 'parseVoice') {
       return await handleParseVoice(event.fileID, event.type);
     }
-    return { code: -1, message: '未知 action，当前仅支持 parseText / parseVoice' };
+    if (event.action === 'parseVoiceBase64') {
+      return await handleParseVoiceBase64(event.base64Audio, event.format, event.type);
+    }
+    return { code: -1, message: '未知 action，当前仅支持 parseText / parseVoice / parseVoiceBase64' };
   } catch (err) {
     console.error('[parseContext] 错误', err);
     return { code: -1, message: err.message || err };
@@ -57,6 +60,57 @@ async function handleParseText(text, type) {
 
   const result = await callTextModel(text, type);
   return extractJSON(result);
+}
+
+async function handleParseVoiceBase64(base64Audio, format, type) {
+  if (!base64Audio) {
+    return { code: -1, message: '音频数据为空' };
+  }
+
+  const secretId = process.env.TENCENT_SECRET_ID;
+  const secretKey = process.env.TENCENT_SECRET_KEY;
+  if (!secretId || !secretKey) {
+    return { code: -1, message: '腾讯云 ASR 密钥未配置' };
+  }
+
+  try {
+    const dataLen = Buffer.byteLength(base64Audio, 'base64');
+    console.log('[handleParseVoiceBase64] audio data length:', dataLen);
+
+    if (dataLen <= 0) {
+      return { code: -1, message: '音频数据为空' };
+    }
+
+    const client = new AsrClient({
+      credential: { secretId, secretKey },
+      region: 'ap-beijing',
+      profile: { httpProfile: { endpoint: 'asr.ap-beijing.tencentcloudapi.com' } }
+    });
+
+    const params = {
+      ProjectId: 0,
+      SubServiceType: 2,
+      EngSerViceType: '16k_zh',
+      SourceType: 1,
+      VoiceFormat: format === 'mp3' ? 'mp3' : 'wav',
+      UsrAudioKey: `jishika_${Date.now()}`,
+      Data: base64Audio,
+      DataLen: dataLen
+    };
+
+    const asrRes = await client.SentenceRecognition(params);
+    const text = asrRes && asrRes.Result ? asrRes.Result : '';
+    console.log('[handleParseVoiceBase64] ASR 结果:', text);
+
+    if (!text.trim()) {
+      return { code: -1, message: '未能识别到语音内容' };
+    }
+
+    return await handleParseText(text, type);
+  } catch (err) {
+    console.error('[handleParseVoiceBase64] ASR 失败:', err);
+    return { code: -1, message: '语音识别失败: ' + (err.message || err) };
+  }
 }
 
 async function handleParseVoice(fileID, type) {

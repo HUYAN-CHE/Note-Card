@@ -265,13 +265,19 @@ Page({
         return;
       }
 
-      const ext = (filePath.split('.').pop() || 'mp3').toLowerCase();
-      const cloudPath = `voice/${Date.now()}_${Math.random().toString(36).slice(2, 10)}.${ext}`;
-      const uploadRes = await wx.cloud.uploadFile({ cloudPath, filePath });
+      const fs = wx.getFileSystemManager();
+      const base64Audio = await new Promise((resolve, reject) => {
+        fs.readFile({
+          filePath,
+          encoding: 'base64',
+          success: (r) => resolve(r.data),
+          fail: reject
+        });
+      });
 
       const res = await wx.cloud.callFunction({
         name: 'parseContext',
-        data: { action: 'parseVoice', fileID: uploadRes.fileID, type: this.data.card.type }
+        data: { action: 'parseVoiceBase64', base64Audio, format: 'wav', type: this.data.card.type }
       });
 
       if (res.result && res.result.code === 0) {
