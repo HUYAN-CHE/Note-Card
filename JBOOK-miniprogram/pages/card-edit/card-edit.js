@@ -245,7 +245,7 @@ Page({
       sampleRate: 16000,
       numberOfChannels: 1,
       encodeBitRate: 96000,
-      format: 'wav'
+      format: 'pcm'
     });
   },
 

@@ -92,7 +92,7 @@ async function handleParseVoiceBase64(base64Audio, format, type) {
       SubServiceType: 2,
       EngSerViceType: '16k_zh',
       SourceType: 1,
-      VoiceFormat: format === 'mp3' ? 'mp3' : 'wav',
+      VoiceFormat: 'pcm',
       UsrAudioKey: `jishika_${Date.now()}`,
       Data: base64Audio,
       DataLen: dataLen
