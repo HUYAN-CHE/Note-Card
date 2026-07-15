@@ -33,7 +33,9 @@ App({
   },
 
   initCloud() {
+    console.log('[initCloud] start', { enableCloud, hasWxCloud: !!wx.cloud, cloudEnvId });
     if (!enableCloud || !wx.cloud) {
+      console.log('[initCloud] early return', { enableCloud, hasWxCloud: !!wx.cloud });
       this.globalData.cloudReady = false;
       this.globalData.storeMode = 'local';
       return;
@@ -47,6 +49,7 @@ App({
 
       this.globalData.cloudReady = true;
       this.globalData.storeMode = 'cloud';
+      console.log('[initCloud] success');
     } catch (error) {
       console.error('[initCloud] 云开发初始化失败:', error);
       this.globalData.cloudReady = false;
