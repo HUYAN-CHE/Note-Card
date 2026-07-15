@@ -196,7 +196,7 @@ Page({
 
       const res = await wx.cloud.callFunction({
         name: 'parseContext',
-        data: { text, type: this.data.card.type }
+        data: { action: 'parseText', text, type: this.data.card.type }
       });
 
       if (res.result && res.result.code === 0) {
@@ -251,7 +251,7 @@ Page({
 
       const res = await wx.cloud.callFunction({
         name: 'parseContext',
-        data: { imageFileIDs: fileIDs, type: this.data.card.type }
+        data: { action: 'parseImage', fileID: fileIDs[0], type: this.data.card.type }
       });
 
       if (res.result && res.result.code === 0) {

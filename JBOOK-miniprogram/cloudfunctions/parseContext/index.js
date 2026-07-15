@@ -1,8 +1,8 @@
 const cloud = require('wx-server-sdk');
+const tcb = require('@cloudbase/node-sdk');
 
-cloud.init({
-  env: cloud.DYNAMIC_CURRENT_ENV
-});
+cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
+const app = tcb.init({ env: cloud.DYNAMIC_CURRENT_ENV });
 
 const TYPE_LABELS = {
   requirement: '需求确认卡',
@@ -11,132 +11,197 @@ const TYPE_LABELS = {
   meeting: '预约记录'
 };
 
-function inferCardType(text = '', explicitType = '') {
-  if (TYPE_LABELS[explicitType]) return explicitType;
+const SYSTEM_PROMPT = `你是一个智能「记事卡」解析助手。请从用户输入的文本中提取三个字段，只返回 JSON，不要任何额外文字或 markdown 代码块标记。
 
-  const value = `${explicitType} ${text}`;
-  if (/会议|沟通|约|时间|腾讯会议|开会/.test(value)) return 'meeting';
-  if (/待办|负责|截止|群里|群聊|安排|谁来/.test(value)) return 'todo';
-  if (/进度|节点|完成|资料|阶段|交付/.test(value)) return 'progress';
-
-  return 'requirement';
+JSON 格式：
+{
+  "title": "简短标题（5-15 字概括核心内容）",
+  "desc": "需求描述（把原文整理成通顺的自然语言描述，保留关键细节，100-300字）",
+  "keyPoints": [
+    "重点/待确认事项 1",
+    "重点/待确认事项 2",
+    "重点/待确认事项 3"
+  ]
 }
 
-function extractTitle(text, type) {
-  if (!text) return TYPE_LABELS[type] || '未命名事项';
-
-  const titleMatch = text.match(/(?:标题|事项|项目|需求)[:：]\s*([^\n，。；;]{2,30})/);
-  if (titleMatch) return titleMatch[1].trim();
-
-  const firstLine = text.split(/\n/).map((line) => line.trim()).find(Boolean) || text;
-  if (firstLine.length <= 20) return firstLine;
-
-  return `${firstLine.slice(0, 18)}…`;
-}
-
-function extractDesc(text, title) {
-  if (!text) return '';
-
-  const firstLine = text.split(/\n/).map((line) => line.trim()).find(Boolean) || text;
-  if (firstLine.length <= 20) {
-    const rest = text.replace(firstLine, '').trim();
-    return rest || firstLine;
-  }
-
-  return text;
-}
-
-function extractKeyPoints(text, type) {
-  const fallback = {
-    requirement: ['明确需求范围', '确认期望时间', '补充必要资料'],
-    progress: ['确认当前节点', '明确下一步动作', '设置跟进提醒'],
-    todo: ['整理群聊待办', '明确负责人', '确认截止时间'],
-    meeting: ['确认沟通主题', '选择可约时间', '记录会议结论']
-  };
-
-  if (!text) return fallback[type] || fallback.requirement;
-
-  const lines = text
-    .split(/[\n。；;，,]/)
-    .map((line) => line.trim())
-    .filter((line) => line.length >= 4 && line.length <= 36 && line !== extractTitle(text, type));
-
-  const unique = Array.from(new Set(lines)).slice(0, 5);
-  return unique.length ? unique : fallback[type] || fallback.requirement;
-}
-
-function buildDraftFromContext(params = {}) {
-  const text = (params.text || '').trim();
-  const type = params.type || inferCardType(text);
-  const title = extractTitle(text, type);
-  const desc = extractDesc(text, title);
-  const keyPoints = extractKeyPoints(text, type);
-
-  return {
-    type,
-    typeLabel: TYPE_LABELS[type] || TYPE_LABELS.requirement,
-    source: params.source || 'manual',
-    rawContext: text,
-    files: params.files || [],
-    title,
-    desc,
-    keyPoints,
-    status: 'draft',
-    isNetworkVisible: true,
-    createdAt: Date.now()
-  };
-}
-
-// 预留：调用真实 LLM 解析
-async function callLLM(text, imageTexts, type) {
-  // TODO: 接入腾讯云/豆包/通义等 LLM API
-  // 返回结构：{ title, desc, keyPoints, type, helperIds? }
-  return null;
-}
-
-// 预留：OCR 识别图片
-async function ocrImages(fileIDs) {
-  if (!fileIDs || !fileIDs.length) return '';
-  // TODO: 接入腾讯云 OCR 或微信智能接口
-  // 返回合并后的文字
-  return '';
-}
+要求：
+- title 必须简洁有力，像记事卡的标题
+- desc 保留原文所有关键信息，整理成通顺段落
+- keyPoints 提取需要重点关注或待确认的事项，每项一句话，至少 1 条最多 5 条
+- 如果是闲聊或无实质内容，请合理提取或写明"未识别到有效信息"`;
 
 exports.main = async (event, context) => {
-  const { text = '', imageFileIDs = [], type = '', explicitType = '' } = event;
+  console.log('[parseContext] 收到请求', JSON.stringify({ action: event.action }));
 
   try {
-    // 1. 如果有图片，先 OCR 提取文字（预留）
-    const imageText = await ocrImages(imageFileIDs);
-
-    // 2. 合并所有文本
-    const combinedText = [text, imageText].filter(Boolean).join('\n').trim();
-
-    if (!combinedText) {
-      return { code: -1, message: '没有可识别的内容' };
+    if (event.action === 'parseText') {
+      return await handleParseText(event.text, event.type);
     }
-
-    // 3. 优先调用真实 AI（预留）
-    const aiResult = await callLLM(combinedText, imageText, explicitType || type);
-    if (aiResult && aiResult.title) {
-      return {
-        code: 0,
-        data: {
-          ...buildDraftFromContext({ text: combinedText, type: aiResult.type || explicitType || type, source: imageFileIDs.length ? 'image_ai' : 'clipboard_ai' }),
-          ...aiResult
-        }
-      };
+    if (event.action === 'parseImage') {
+      return await handleParseImage(event.fileID, event.type);
     }
-
-    // 4. 兜底：本地规则
-    const draft = buildDraftFromContext({
-      text: combinedText,
-      type: explicitType || type || undefined,
-      source: imageFileIDs.length ? 'image_ai' : 'clipboard_ai'
-    });
-
-    return { code: 0, data: draft };
-  } catch (error) {
-    return { code: -2, message: error.message || '识别失败' };
+    return { code: -1, message: '未知 action，请传 parseText 或 parseImage' };
+  } catch (err) {
+    console.error('[parseContext] 错误', err);
+    return { code: -1, message: err.message || err };
   }
 };
+
+async function handleParseText(text, type) {
+  if (!text || text.trim().length === 0) {
+    return { code: -1, message: '文本内容为空' };
+  }
+
+  const result = await callTextModel(text, type);
+  return extractJSON(result);
+}
+
+async function callTextModel(text, type) {
+  const ai = app.ai();
+  const model = ai.createModel('hunyuan-exp');
+
+  const typeLabel = TYPE_LABELS[type] || '记事卡';
+  const userContent = `请解析以下文本，整理成一张"${typeLabel}"。\n\n${text}`;
+
+  const res = await model.generateText({
+    model: 'hunyuan-2.0-instruct-20251111',
+    messages: [
+      { role: 'system', content: SYSTEM_PROMPT },
+      { role: 'user', content: userContent }
+    ]
+  });
+
+  console.log('[callTextModel] AI 原始返回:', res.text);
+  return res.text;
+}
+
+async function handleParseImage(fileID, type) {
+  if (!fileID) {
+    return { code: -1, message: '图片 fileID 为空' };
+  }
+
+  const tmpRes = await cloud.getTempFileURL({
+    fileList: [{ fileID, maxAge: 3600 }]
+  });
+
+  const fileObj = tmpRes.fileList[0];
+  if (!fileObj || fileObj.code !== 'SUCCESS' || !fileObj.tempFileURL) {
+    return { code: -1, message: '获取图片临时 URL 失败' };
+  }
+
+  const imageUrl = fileObj.tempFileURL;
+  console.log('[handleParseImage] 图片临时 URL:', imageUrl);
+
+  try {
+    const result = await callVisionModel(imageUrl, type);
+    return extractJSON(result);
+  } catch (visionErr) {
+    console.warn('[handleParseImage] 多模态失败，降级 OCR:', visionErr.message);
+    return await fallbackOCR(imageUrl, type);
+  }
+}
+
+async function callVisionModel(imageUrl, type) {
+  const ai = app.ai();
+  const visionModel = ai.createModel('hunyuan-custom');
+
+  const typeLabel = TYPE_LABELS[type] || '记事卡';
+  const visionPrompt = `你是一个智能「记事卡」解析助手。请识别图片中的文字内容，整理成一张"${typeLabel}"，只返回 JSON 格式，不要任何额外文字。
+
+JSON 格式：
+{
+  "title": "简短标题（5-15 字概括核心内容）",
+  "desc": "需求描述（整理成通顺段落，保留关键细节）",
+  "keyPoints": ["重点/待确认事项 1", "重点/待确认事项 2"]
+}
+
+注意：图片通常是微信聊天截图，请识别其中的文字内容，title 简洁概括对话主题，desc 整理对话中的需求或任务，keyPoints 提取需要重点关注或待确认的事项。`;
+
+  const res = await visionModel.generateText({
+    model: 'hunyuan-vision',
+    messages: [
+      { role: 'system', content: visionPrompt },
+      {
+        role: 'user',
+        content: [
+          { type: 'text', text: '请识别这张图片中的文字内容并提取信息' },
+          { type: 'image_url', image_url: { url: imageUrl } }
+        ]
+      }
+    ]
+  });
+
+  console.log('[callVisionModel] AI 原始返回:', res.text);
+  return res.text;
+}
+
+async function fallbackOCR(imageUrl, type) {
+  try {
+    const imgResp = await fetch(imageUrl);
+    const imgBuffer = await imgResp.arrayBuffer();
+    const base64Image = Buffer.from(imgBuffer).toString('base64');
+
+    const ocrText = await callCloudOCR(base64Image);
+    if (!ocrText) {
+      return { code: -1, message: 'OCR 识别失败，请确认图片中有清晰文字' };
+    }
+
+    console.log('[fallbackOCR] OCR 文字:', ocrText);
+    return await handleParseText(ocrText, type);
+  } catch (err) {
+    console.error('[fallbackOCR] 失败:', err.message);
+    return { code: -1, message: '图片识别失败: ' + err.message };
+  }
+}
+
+async function callCloudOCR(base64Image) {
+  try {
+    const ocrResult = await app.callCloudApi({
+      service: 'ocr',
+      action: 'GeneralBasicOCR',
+      params: { ImageBase64: base64Image }
+    });
+
+    return (ocrResult.TextDetections || [])
+      .map((item) => item.DetectedText)
+      .join('\n');
+  } catch (err) {
+    console.error('[callCloudOCR] 失败:', err.message);
+    return '';
+  }
+}
+
+function extractJSON(rawText) {
+  try {
+    const parsed = JSON.parse(rawText);
+    return validateResult(parsed);
+  } catch (e) {
+    const cleaned = rawText
+      .replace(/```json\s*/gi, '')
+      .replace(/```\s*$/gm, '')
+      .trim();
+
+    try {
+      const parsed = JSON.parse(cleaned);
+      return validateResult(parsed);
+    } catch (e2) {
+      const jsonMatch = cleaned.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        const parsed = JSON.parse(jsonMatch[0]);
+        return validateResult(parsed);
+      }
+      throw new Error('AI 返回无法解析为 JSON: ' + rawText.substring(0, 200));
+    }
+  }
+}
+
+function validateResult(data) {
+  return {
+    code: 0,
+    data: {
+      title: data.title || '未命名记事卡',
+      desc: data.desc || data.description || '',
+      keyPoints: Array.isArray(data.keyPoints) ? data.keyPoints : []
+    }
+  };
+}
