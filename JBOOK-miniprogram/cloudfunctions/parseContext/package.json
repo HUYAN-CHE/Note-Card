@@ -5,6 +5,7 @@
   "main": "index.js",
   "dependencies": {
     "@cloudbase/node-sdk": "latest",
-    "wx-server-sdk": "latest"
+    "wx-server-sdk": "latest",
+    "tencentcloud-sdk-nodejs-asr": "latest"
   }
 }

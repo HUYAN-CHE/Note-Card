@@ -1,8 +1,11 @@
 const cloud = require('wx-server-sdk');
 const tcb = require('@cloudbase/node-sdk');
+const tencentcloud = require('tencentcloud-sdk-nodejs-asr');
 
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
 const app = tcb.init({ env: cloud.DYNAMIC_CURRENT_ENV });
+
+const AsrClient = tencentcloud.asr.v20190614.Client;
 
 const TYPE_LABELS = {
   requirement: '需求确认卡',
@@ -37,7 +40,10 @@ exports.main = async (event, context) => {
     if (event.action === 'parseText') {
       return await handleParseText(event.text, event.type);
     }
-    return { code: -1, message: '未知 action，当前仅支持 parseText' };
+    if (event.action === 'parseVoice') {
+      return await handleParseVoice(event.fileID, event.type);
+    }
+    return { code: -1, message: '未知 action，当前仅支持 parseText / parseVoice' };
   } catch (err) {
     console.error('[parseContext] 错误', err);
     return { code: -1, message: err.message || err };
@@ -51,6 +57,59 @@ async function handleParseText(text, type) {
 
   const result = await callTextModel(text, type);
   return extractJSON(result);
+}
+
+async function handleParseVoice(fileID, type) {
+  if (!fileID) {
+    return { code: -1, message: '音频 fileID 为空' };
+  }
+
+  const secretId = process.env.TENCENT_SECRET_ID;
+  const secretKey = process.env.TENCENT_SECRET_KEY;
+  if (!secretId || !secretKey) {
+    return { code: -1, message: '腾讯云 ASR 密钥未配置' };
+  }
+
+  try {
+    const downloadRes = await cloud.downloadFile({ fileID });
+    const buffer = downloadRes.fileContent;
+    if (!buffer || !buffer.length) {
+      return { code: -1, message: '音频文件下载失败' };
+    }
+
+    const base64Audio = buffer.toString('base64');
+    const dataLen = buffer.length;
+
+    const client = new AsrClient({
+      credential: { secretId, secretKey },
+      region: 'ap-beijing',
+      profile: { httpProfile: { endpoint: 'asr.ap-beijing.tencentcloudapi.com' } }
+    });
+
+    const params = {
+      ProjectId: 0,
+      SubServiceType: 2,
+      EngSerViceType: '16k_zh',
+      SourceType: 1,
+      VoiceFormat: 'mp3',
+      UsrAudioKey: `jishika_${Date.now()}`,
+      Data: base64Audio,
+      DataLen: dataLen
+    };
+
+    const asrRes = await client.SentenceRecognition(params);
+    const text = asrRes && asrRes.Result ? asrRes.Result : '';
+    console.log('[handleParseVoice] ASR 结果:', text);
+
+    if (!text.trim()) {
+      return { code: -1, message: '未能识别到语音内容' };
+    }
+
+    return await handleParseText(text, type);
+  } catch (err) {
+    console.error('[handleParseVoice] ASR 失败:', err);
+    return { code: -1, message: '语音识别失败: ' + (err.message || err) };
+  }
 }
 
 async function callTextModel(text, type) {

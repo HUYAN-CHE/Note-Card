@@ -2,8 +2,6 @@ const { TYPE_LABELS, buildDraftFromContext } = require('../../services/ai-adapte
 const { getCard, createCardFromDraft, saveCard } = require('../../utils/store');
 const { getNavInfo } = require('../../utils/ui');
 
-const WechatSI = requirePlugin('WechatSI');
-
 const DEFAULT_FRIENDS = [
   { id: 'f1', nickname: '阿哲', status: '微信好友', selected: false },
   { id: 'f2', nickname: '小林', status: '已协作 3 次', selected: false },
@@ -48,7 +46,7 @@ Page({
       contentHeight: sys.windowHeight - navInfo.totalHeight - footerHeightPx,
       safeAreaBottom: sys.safeAreaInsets ? sys.safeAreaInsets.bottom : 0
     });
-    this.initVoiceRecognizer();
+    this.initRecorder();
     this.loadCard(options);
     this.loadFriends();
   },
@@ -170,35 +168,23 @@ Page({
     this.setData({ keyPointsText: event.detail.value });
   },
 
-  initVoiceRecognizer() {
-    if (!WechatSI || !WechatSI.getRecordRecognitionManager) return;
-
-    const manager = WechatSI.getRecordRecognitionManager();
-    manager.onStart(() => {
+  initRecorder() {
+    const recorderManager = wx.getRecorderManager();
+    recorderManager.onStart(() => {
       this.setData({ isRecording: true });
       wx.showToast({ title: '开始录音，请说话', icon: 'none' });
     });
-    manager.onRecognize((res) => {
-      if (res && res.result) {
-        this.setData({ parseInputText: res.result });
+    recorderManager.onStop((res) => {
+      this.setData({ isRecording: false });
+      if (res.tempFilePath) {
+        this.uploadVoiceAndParse(res.tempFilePath);
       }
     });
-    manager.onStop((res) => {
+    recorderManager.onError((err) => {
       this.setData({ isRecording: false });
-      const text = (res && res.result) || '';
-      if (text.trim()) {
-        this.setData({ parseInputText: text.trim() }, () => {
-          this.parseFromInput();
-        });
-      } else {
-        wx.showToast({ title: '未能识别到语音，请重试', icon: 'none' });
-      }
+      wx.showToast({ title: '录音失败: ' + (err.message || ''), icon: 'none' });
     });
-    manager.onError((err) => {
-      this.setData({ isRecording: false });
-      wx.showToast({ title: '语音识别失败: ' + (err.message || ''), icon: 'none' });
-    });
-    this.voiceManager = manager;
+    this.recorderManager = recorderManager;
   },
 
   onParseInput(event) {
@@ -244,20 +230,57 @@ Page({
   },
 
   startVoiceInput() {
-    if (!this.voiceManager) {
-      wx.showToast({ title: '语音识别未初始化', icon: 'none' });
+    if (!this.recorderManager) {
+      wx.showToast({ title: '录音未初始化', icon: 'none' });
       return;
     }
     if (this.data.isRecording) {
-      this.voiceManager.stop();
+      this.recorderManager.stop();
       return;
     }
     if (this.data.isParsing) return;
 
-    this.voiceManager.start({
+    this.recorderManager.start({
       duration: 60000,
-      lang: 'zh_CN'
+      sampleRate: 16000,
+      numberOfChannels: 1,
+      encodeBitRate: 96000,
+      format: 'mp3'
     });
+  },
+
+  async uploadVoiceAndParse(filePath) {
+    this.setData({ isParsing: true });
+    wx.showLoading({ title: '语音识别中...' });
+
+    try {
+      const app = getApp();
+      if (!app.globalData || !app.globalData.cloudReady || !wx.cloud) {
+        wx.showToast({ title: '云开发未就绪', icon: 'none' });
+        return;
+      }
+
+      const ext = (filePath.split('.').pop() || 'mp3').toLowerCase();
+      const cloudPath = `voice/${Date.now()}_${Math.random().toString(36).slice(2, 10)}.${ext}`;
+      const uploadRes = await wx.cloud.uploadFile({ cloudPath, filePath });
+
+      const res = await wx.cloud.callFunction({
+        name: 'parseContext',
+        data: { action: 'parseVoice', fileID: uploadRes.fileID, type: this.data.card.type }
+      });
+
+      if (res.result && res.result.code === 0) {
+        this.applyParsedDraft(res.result.data);
+        wx.showToast({ title: '识别成功', icon: 'success' });
+      } else {
+        wx.showToast({ title: res.result.message || '语音识别失败', icon: 'none' });
+      }
+    } catch (e) {
+      wx.showToast({ title: e.message || '语音识别失败', icon: 'none' });
+    } finally {
+      wx.hideLoading();
+      this.setData({ isParsing: false });
+    }
   },
 
 
