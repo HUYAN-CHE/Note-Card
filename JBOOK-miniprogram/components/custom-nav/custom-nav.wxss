@@ -4,8 +4,7 @@
   left: 0;
   right: 0;
   z-index: 100;
-  background: rgba(255, 255, 255, 0.92);
-  backdrop-filter: blur(12rpx);
+  background: #ffffff;
   border-bottom: 1rpx solid rgba(22, 33, 22, 0.06);
 }
 
@@ -14,6 +13,7 @@
 }
 
 .nav-inner {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -33,12 +33,14 @@
   color: #162116;
   line-height: 1;
   font-weight: 300;
+  transform: translateY(-2rpx);
 }
 
 .nav-title-wrap {
   position: absolute;
+  top: 50%;
   left: 50%;
-  transform: translateX(-50%);
+  transform: translate(-50%, -50%);
   display: flex;
   align-items: center;
   justify-content: center;
