@@ -48,6 +48,7 @@ App({
       this.globalData.cloudReady = true;
       this.globalData.storeMode = 'cloud';
     } catch (error) {
+      console.error('[initCloud] 云开发初始化失败:', error);
       this.globalData.cloudReady = false;
       this.globalData.storeMode = 'local';
     }
