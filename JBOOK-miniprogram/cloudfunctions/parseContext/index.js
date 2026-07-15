@@ -118,7 +118,7 @@ JSON 格式：
 注意：图片通常是微信聊天截图，请识别其中的文字内容，title 简洁概括对话主题，desc 整理对话中的需求或任务，keyPoints 提取需要重点关注或待确认的事项。`;
 
   const res = await visionModel.generateText({
-    model: 'hy3-preview',
+    model: 'hy3',
     messages: [
       { role: 'system', content: visionPrompt },
       {
