@@ -52,7 +52,6 @@ function setStoreMode(mode) {
   try {
     const app = getApp();
     app.globalData.storeMode = mode;
-    if (mode === 'local') app.globalData.cloudReady = false;
   } catch (error) {}
 }
 
