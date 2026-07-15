@@ -28,7 +28,8 @@ Page({
     showInviteSheet: false,
     friendCandidates: [],
     loadingFriends: false,
-    safeAreaBottom: 0
+    safeAreaBottom: 0,
+    isParsing: false
   },
 
   onLoad(options = {}) {
@@ -150,6 +151,121 @@ Page({
 
   toggleVisibility() {
     this.setData({ 'card.isNetworkVisible': !this.data.card.isNetworkVisible });
+  },
+
+  applyParsedDraft(draft) {
+    const type = draft.type || this.data.card.type || 'requirement';
+    const card = {
+      ...this.data.card,
+      title: draft.title || this.data.card.title,
+      desc: draft.desc || this.data.card.desc,
+      keyPoints: Array.isArray(draft.keyPoints) ? draft.keyPoints : this.data.card.keyPoints,
+      type,
+      typeLabel: TYPE_LABELS[type] || this.data.card.typeLabel,
+      source: draft.source || this.data.card.source
+    };
+    this.setCard(card);
+  },
+
+  localParse(text) {
+    const draft = buildDraftFromContext({ text, type: this.data.card.type, source: 'clipboard_ai' });
+    this.applyParsedDraft(draft);
+    wx.showToast({ title: '已本地识别', icon: 'success' });
+  },
+
+  async pasteAndParse() {
+    this.setData({ isParsing: true });
+    wx.showLoading({ title: '识别中...' });
+
+    try {
+      const clipboardRes = await new Promise((resolve, reject) => {
+        wx.getClipboardData({ success: resolve, fail: reject });
+      });
+      const text = (clipboardRes.data || '').trim();
+
+      if (!text) {
+        wx.showToast({ title: '剪贴板为空', icon: 'none' });
+        return;
+      }
+
+      const app = getApp();
+      if (!app.globalData || !app.globalData.cloudReady || !wx.cloud) {
+        this.localParse(text);
+        return;
+      }
+
+      const res = await wx.cloud.callFunction({
+        name: 'parseContext',
+        data: { text, type: this.data.card.type }
+      });
+
+      if (res.result && res.result.code === 0) {
+        this.applyParsedDraft(res.result.data);
+        wx.showToast({ title: '识别成功', icon: 'success' });
+      } else {
+        wx.showToast({ title: res.result.message || '识别失败', icon: 'none' });
+      }
+    } catch (e) {
+      wx.showToast({ title: e.message || '识别失败', icon: 'none' });
+    } finally {
+      wx.hideLoading();
+      this.setData({ isParsing: false });
+    }
+  },
+
+  async chooseImageAndParse() {
+    const chooseRes = await new Promise((resolve) => {
+      if (wx.chooseMessageFile) {
+        wx.chooseMessageFile({ count: 3, type: 'image', success: resolve, fail: () => resolve({ tempFiles: [] }) });
+      } else {
+        wx.chooseMedia({ count: 3, mediaType: ['image'], sourceType: ['album'], success: resolve, fail: () => resolve({ tempFiles: [] }) });
+      }
+    });
+
+    const tempFiles = (chooseRes.tempFiles || []).map((file, index) => ({
+      name: file.name || `图片 ${index + 1}`,
+      path: file.path || file.tempFilePath,
+      size: file.size
+    }));
+
+    if (!tempFiles.length) return;
+
+    this.setData({ isParsing: true });
+    wx.showLoading({ title: '识别中...' });
+
+    try {
+      const app = getApp();
+      if (!app.globalData || !app.globalData.cloudReady || !wx.cloud) {
+        wx.showToast({ title: '云开发未就绪', icon: 'none' });
+        return;
+      }
+
+      const uploadTasks = tempFiles.map((file) => {
+        const ext = (file.path.split('.').pop() || 'jpg').toLowerCase();
+        const cloudPath = `ocr/${Date.now()}_${Math.random().toString(36).slice(2, 10)}.${ext}`;
+        return wx.cloud.uploadFile({ cloudPath, filePath: file.path });
+      });
+
+      const uploadResults = await Promise.all(uploadTasks);
+      const fileIDs = uploadResults.map((r) => r.fileID);
+
+      const res = await wx.cloud.callFunction({
+        name: 'parseContext',
+        data: { imageFileIDs: fileIDs, type: this.data.card.type }
+      });
+
+      if (res.result && res.result.code === 0) {
+        this.applyParsedDraft(res.result.data);
+        wx.showToast({ title: '识别成功', icon: 'success' });
+      } else {
+        wx.showToast({ title: res.result.message || '识别失败', icon: 'none' });
+      }
+    } catch (e) {
+      wx.showToast({ title: e.message || '识别失败', icon: 'none' });
+    } finally {
+      wx.hideLoading();
+      this.setData({ isParsing: false });
+    }
   },
 
   openInviteSheet() {
