@@ -58,13 +58,13 @@ async function handleParseText(text, type) {
 
 async function callTextModel(text, type) {
   const ai = app.ai();
-  const model = ai.createModel('hunyuan-exp');
+  const model = ai.createModel('hy3');
 
   const typeLabel = TYPE_LABELS[type] || '记事卡';
   const userContent = `请解析以下文本，整理成一张"${typeLabel}"。\n\n${text}`;
 
   const res = await model.generateText({
-    model: 'hunyuan-2.0-instruct-20251111',
+    model: 'hy3',
     messages: [
       { role: 'system', content: SYSTEM_PROMPT },
       { role: 'user', content: userContent }
@@ -103,7 +103,7 @@ async function handleParseImage(fileID, type) {
 
 async function callVisionModel(imageUrl, type) {
   const ai = app.ai();
-  const visionModel = ai.createModel('hunyuan-custom');
+  const visionModel = ai.createModel('hy3');
 
   const typeLabel = TYPE_LABELS[type] || '记事卡';
   const visionPrompt = `你是一个智能「记事卡」解析助手。请识别图片中的文字内容，整理成一张"${typeLabel}"，只返回 JSON 格式，不要任何额外文字。
@@ -118,7 +118,7 @@ JSON 格式：
 注意：图片通常是微信聊天截图，请识别其中的文字内容，title 简洁概括对话主题，desc 整理对话中的需求或任务，keyPoints 提取需要重点关注或待确认的事项。`;
 
   const res = await visionModel.generateText({
-    model: 'hunyuan-vision',
+    model: 'hy3-preview',
     messages: [
       { role: 'system', content: visionPrompt },
       {
