@@ -1,6 +1,6 @@
 module.exports = {
   enableCloud: true,
-  cloudEnvId: 'cloud1-d3gsqteqm9c3866ac',
+  cloudEnvId: '',
   collections: {
     cards: 'cards',
     users: 'users',

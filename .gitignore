@@ -11,3 +11,6 @@
 *.bak.*
 产品文档/
 服务.png
+
+# Cloud function config with secrets
+cloudfunctions/parseContext/config.json
