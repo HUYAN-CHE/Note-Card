@@ -79,6 +79,7 @@ async function handleParseVoice(fileID, type) {
 
     const base64Audio = buffer.toString('base64');
     const dataLen = buffer.length;
+    console.log('[handleParseVoice] audio buffer length:', dataLen, 'base64 prefix:', base64Audio.substring(0, 50));
 
     const client = new AsrClient({
       credential: { secretId, secretKey },
@@ -91,7 +92,7 @@ async function handleParseVoice(fileID, type) {
       SubServiceType: 2,
       EngSerViceType: '16k_zh',
       SourceType: 1,
-      VoiceFormat: 'mp3',
+      VoiceFormat: 'wav',
       UsrAudioKey: `jishika_${Date.now()}`,
       Data: base64Audio,
       DataLen: dataLen
