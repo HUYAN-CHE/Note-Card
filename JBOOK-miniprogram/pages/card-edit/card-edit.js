@@ -244,8 +244,8 @@ Page({
       duration: 60000,
       sampleRate: 16000,
       numberOfChannels: 1,
-      encodeBitRate: 96000,
-      format: 'pcm'
+      encodeBitRate: 48000,
+      format: 'mp3'
     });
   },
 
@@ -277,7 +277,7 @@ Page({
 
       const res = await wx.cloud.callFunction({
         name: 'parseContext',
-        data: { action: 'parseVoiceBase64', base64Audio, format: 'wav', type: this.data.card.type }
+        data: { action: 'parseVoiceBase64', base64Audio, format: 'mp3', type: this.data.card.type }
       });
 
       if (res.result && res.result.code === 0) {

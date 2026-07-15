@@ -14,3 +14,12 @@
 
 # Cloud function config with secrets
 cloudfunctions/parseContext/config.json
+JBOOK-miniprogram/cloudfunctions/parseContext/config.json
+
+# Dependencies
+node_modules/
+cloudfunctions/*/node_modules/
+
+# Cloud function bundled binary (Linux static ffmpeg, too large for git)
+cloudfunctions/parseContext/ffmpeg
+JBOOK-miniprogram/cloudfunctions/parseContext/ffmpeg

@@ -1,7 +1,7 @@
 {
   "name": "parseContext",
   "version": "1.0.0",
-  "description": "智能识别聊天文本/图片并解析为记事卡草稿",
+  "description": "智能识别聊天文本/语音并解析为记事卡草稿",
   "main": "index.js",
   "dependencies": {
     "@cloudbase/node-sdk": "latest",

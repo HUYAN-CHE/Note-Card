@@ -33,6 +33,19 @@ JSON 格式：
 - keyPoints 提取需要重点关注或待确认的事项，每项一句话，至少 1 条最多 5 条
 - 如果是闲聊或无实质内容，请合理提取或写明"未识别到有效信息"`;
 
+function createAsrClient() {
+  const secretId = process.env.TENCENT_SECRET_ID;
+  const secretKey = process.env.TENCENT_SECRET_KEY;
+  if (!secretId || !secretKey) {
+    throw new Error('腾讯云 ASR 密钥未配置');
+  }
+  return new AsrClient({
+    credential: { secretId, secretKey },
+    region: 'ap-beijing',
+    profile: { httpProfile: { endpoint: 'asr.ap-beijing.tencentcloudapi.com' } }
+  });
+}
+
 exports.main = async (event, context) => {
   console.log('[parseContext] 收到请求', JSON.stringify({ action: event.action }));
 
@@ -67,41 +80,19 @@ async function handleParseVoiceBase64(base64Audio, format, type) {
     return { code: -1, message: '音频数据为空' };
   }
 
-  const secretId = process.env.TENCENT_SECRET_ID;
-  const secretKey = process.env.TENCENT_SECRET_KEY;
-  if (!secretId || !secretKey) {
-    return { code: -1, message: '腾讯云 ASR 密钥未配置' };
-  }
-
   try {
-    const dataLen = Buffer.byteLength(base64Audio, 'base64');
-    console.log('[handleParseVoiceBase64] audio data length:', dataLen);
+    const inputBuffer = Buffer.from(base64Audio, 'base64');
+    console.log('[handleParseVoiceBase64] input audio length:', inputBuffer.length, 'format:', format);
 
-    if (dataLen <= 0) {
+    if (inputBuffer.length <= 0) {
       return { code: -1, message: '音频数据为空' };
     }
 
-    const client = new AsrClient({
-      credential: { secretId, secretKey },
-      region: 'ap-beijing',
-      profile: { httpProfile: { endpoint: 'asr.ap-beijing.tencentcloudapi.com' } }
-    });
+    if (inputBuffer.length > 3 * 1024 * 1024) {
+      return { code: -1, message: '音频文件超过 3MB，请缩短录音时长' };
+    }
 
-    const params = {
-      ProjectId: 0,
-      SubServiceType: 2,
-      EngSerViceType: '16k_zh',
-      SourceType: 1,
-      VoiceFormat: 'pcm',
-      UsrAudioKey: `jishika_${Date.now()}`,
-      Data: base64Audio,
-      DataLen: dataLen
-    };
-
-    const asrRes = await client.SentenceRecognition(params);
-    const text = asrRes && asrRes.Result ? asrRes.Result : '';
-    console.log('[handleParseVoiceBase64] ASR 结果:', text);
-
+    const text = await recognizeWithSentenceRecognition(inputBuffer, format || 'mp3');
     if (!text.trim()) {
       return { code: -1, message: '未能识别到语音内容' };
     }
@@ -118,12 +109,6 @@ async function handleParseVoice(fileID, type) {
     return { code: -1, message: '音频 fileID 为空' };
   }
 
-  const secretId = process.env.TENCENT_SECRET_ID;
-  const secretKey = process.env.TENCENT_SECRET_KEY;
-  if (!secretId || !secretKey) {
-    return { code: -1, message: '腾讯云 ASR 密钥未配置' };
-  }
-
   try {
     const downloadRes = await cloud.downloadFile({ fileID });
     const buffer = downloadRes.fileContent;
@@ -131,31 +116,13 @@ async function handleParseVoice(fileID, type) {
       return { code: -1, message: '音频文件下载失败' };
     }
 
-    const base64Audio = buffer.toString('base64');
-    const dataLen = buffer.length;
-    console.log('[handleParseVoice] audio buffer length:', dataLen, 'base64 prefix:', base64Audio.substring(0, 50));
+    console.log('[handleParseVoice] audio buffer length:', buffer.length);
 
-    const client = new AsrClient({
-      credential: { secretId, secretKey },
-      region: 'ap-beijing',
-      profile: { httpProfile: { endpoint: 'asr.ap-beijing.tencentcloudapi.com' } }
-    });
+    if (buffer.length > 3 * 1024 * 1024) {
+      return { code: -1, message: '音频文件超过 3MB，请缩短录音时长' };
+    }
 
-    const params = {
-      ProjectId: 0,
-      SubServiceType: 2,
-      EngSerViceType: '16k_zh',
-      SourceType: 1,
-      VoiceFormat: 'wav',
-      UsrAudioKey: `jishika_${Date.now()}`,
-      Data: base64Audio,
-      DataLen: dataLen
-    };
-
-    const asrRes = await client.SentenceRecognition(params);
-    const text = asrRes && asrRes.Result ? asrRes.Result : '';
-    console.log('[handleParseVoice] ASR 结果:', text);
-
+    const text = await recognizeWithSentenceRecognition(buffer, 'mp3');
     if (!text.trim()) {
       return { code: -1, message: '未能识别到语音内容' };
     }
@@ -165,6 +132,32 @@ async function handleParseVoice(fileID, type) {
     console.error('[handleParseVoice] ASR 失败:', err);
     return { code: -1, message: '语音识别失败: ' + (err.message || err) };
   }
+}
+
+async function recognizeWithSentenceRecognition(audioBuffer, format) {
+  const client = createAsrClient();
+
+  // 腾讯云一句话识别支持 mp3/aac/m4a/wav/pcm 等格式
+  const voiceFormat = format === 'aac' || format === 'm4a' ? 'm4a' : 'mp3';
+  const base64Audio = audioBuffer.toString('base64');
+
+  const params = {
+    ProjectId: 0,
+    SubServiceType: 2,
+    EngSerViceType: '16k_zh',
+    SourceType: 1,
+    VoiceFormat: voiceFormat,
+    UsrAudioKey: `jishika_${Date.now()}`,
+    Data: base64Audio,
+    DataLen: audioBuffer.length
+  };
+
+  console.log('[recognizeWithSentenceRecognition] 提交一句话识别，format:', voiceFormat, 'length:', audioBuffer.length);
+  const asrRes = await client.SentenceRecognition(params);
+  console.log('[recognizeWithSentenceRecognition] ASR 结果:', JSON.stringify(asrRes));
+
+  const text = asrRes && asrRes.Result ? asrRes.Result : '';
+  return text.trim();
 }
 
 async function callTextModel(text, type) {
