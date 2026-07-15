@@ -19,7 +19,7 @@
   "plugins": {
     "WechatSI": {
       "version": "0.3.5",
-      "provider": "wx069ba281a0b28b7f"
+      "provider": "wx069ba97219f66d99"
     }
   }
 }
