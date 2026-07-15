@@ -20,6 +20,8 @@ function getInitial(name) {
 
 Page({
   data: {
+    statusBarHeight: 44,
+    navHeight: 88,
     totalHeight: 132,
     cardId: '',
     card: {},
@@ -44,6 +46,8 @@ Page({
     const sys = wx.getSystemInfoSync();
     const navInfo = getNavInfo();
     this.setData({
+      statusBarHeight: navInfo.statusBarHeight,
+      navHeight: navInfo.navHeight,
       totalHeight: navInfo.totalHeight,
       safeAreaBottom: sys.safeAreaInsets ? sys.safeAreaInsets.bottom : 0
     });

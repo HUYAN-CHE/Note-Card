@@ -9,11 +9,14 @@
   border-bottom: 1rpx solid rgba(22, 33, 22, 0.06);
 }
 
+.status-bar {
+  width: 100%;
+}
+
 .nav-inner {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: 100%;
   padding: 0 20rpx;
 }
 

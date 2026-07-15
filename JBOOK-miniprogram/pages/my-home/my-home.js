@@ -22,6 +22,8 @@ function getInitial(name) {
 
 Page({
   data: {
+    statusBarHeight: 44,
+    navHeight: 88,
     totalHeight: 132,
     heroPaddingTop: 132,
     user: { nickname: '', avatar: '', initial: '' },
@@ -43,6 +45,8 @@ Page({
   onLoad() {
     const navInfo = getNavInfo();
     this.setData({
+      statusBarHeight: navInfo.statusBarHeight,
+      navHeight: navInfo.navHeight,
       totalHeight: navInfo.totalHeight,
       heroPaddingTop: navInfo.totalHeight + 24
     });

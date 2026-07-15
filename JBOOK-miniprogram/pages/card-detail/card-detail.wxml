@@ -1,5 +1,5 @@
 <view class="page card-detail-page">
-  <custom-nav title="记事卡详情" showBack="{{true}}" />
+  <custom-nav title="记事卡详情" showBack="{{true}}" statusBarHeight="{{statusBarHeight}}" navHeight="{{navHeight}}" />
 
   <!-- 顶部 Hero -->
   <view class="detail-hero" style="padding-top: {{totalHeight + 24}}px;">

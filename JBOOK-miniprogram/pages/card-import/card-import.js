@@ -9,6 +9,8 @@ function extractHelperCandidates(text = '') {
 
 Page({
   data: {
+    statusBarHeight: 44,
+    navHeight: 88,
     totalHeight: 132,
     contentHeight: 500,
     source: 'manual',
@@ -34,6 +36,8 @@ Page({
     const footerHeightPx = 136 * sys.windowWidth / 750 + (sys.safeAreaInsets ? sys.safeAreaInsets.bottom : 0);
 
     this.setData({
+      statusBarHeight: navInfo.statusBarHeight,
+      navHeight: navInfo.navHeight,
       totalHeight: navInfo.totalHeight,
       contentHeight: sys.windowHeight - navInfo.totalHeight - footerHeightPx,
       safeAreaBottom: sys.safeAreaInsets ? sys.safeAreaInsets.bottom : 0

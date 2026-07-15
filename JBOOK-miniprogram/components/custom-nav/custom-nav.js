@@ -1,21 +1,9 @@
-const { getNavInfo } = require('../../utils/ui.js');
-
 Component({
   properties: {
     title: { type: String, value: '' },
-    showBack: { type: Boolean, value: true }
-  },
-
-  data: {
-    statusBarHeight: 44,
-    navHeight: 88
-  },
-
-  lifetimes: {
-    attached() {
-      const { statusBarHeight, navHeight } = getNavInfo();
-      this.setData({ statusBarHeight, navHeight });
-    }
+    showBack: { type: Boolean, value: true },
+    statusBarHeight: { type: Number, value: 44 },
+    navHeight: { type: Number, value: 88 }
   },
 
   methods: {

@@ -11,6 +11,8 @@ const DEFAULT_FRIENDS = [
 
 Page({
   data: {
+    statusBarHeight: 44,
+    navHeight: 88,
     totalHeight: 132,
     contentHeight: 500,
     card: {
@@ -34,6 +36,8 @@ Page({
     const navInfo = getNavInfo();
     const footerHeightPx = 144 * sys.windowWidth / 750 + (sys.safeAreaInsets ? sys.safeAreaInsets.bottom : 0);
     this.setData({
+      statusBarHeight: navInfo.statusBarHeight,
+      navHeight: navInfo.navHeight,
       totalHeight: navInfo.totalHeight,
       contentHeight: sys.windowHeight - navInfo.totalHeight - footerHeightPx,
       safeAreaBottom: sys.safeAreaInsets ? sys.safeAreaInsets.bottom : 0

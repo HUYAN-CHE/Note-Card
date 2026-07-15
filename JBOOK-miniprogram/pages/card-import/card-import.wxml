@@ -1,5 +1,5 @@
 <view class="page card-import-page">
-  <custom-nav title="从聊天整理" showBack="{{true}}">
+  <custom-nav title="从聊天整理" showBack="{{true}}" statusBarHeight="{{statusBarHeight}}" navHeight="{{navHeight}}">
     <view slot="right" class="nav-action" bindtap="generateCard">下一步</view>
   </custom-nav>
 
