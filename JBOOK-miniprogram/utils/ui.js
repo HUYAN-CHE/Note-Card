@@ -7,10 +7,10 @@ function getNavInfo() {
     const menuButtonHeight = rect.height || 32;
     const menuButtonTop = rect.top || statusBarHeight + 4;
 
-    // 导航栏内容区高度 = 胶囊按钮上间距 + 按钮高度 + 下间距
+    // 导航栏内容区高度 = 胶囊按钮上间距 + 按钮高度 + 下间距 + 额外留白
     const navHeight = Math.max(
-      (menuButtonTop - statusBarHeight) * 2 + menuButtonHeight,
-      44
+      (menuButtonTop - statusBarHeight) * 2 + menuButtonHeight + 12,
+      56
     );
 
     return {
