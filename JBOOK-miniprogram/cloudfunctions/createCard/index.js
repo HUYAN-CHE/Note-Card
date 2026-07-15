@@ -33,7 +33,9 @@ exports.main = async (event, context) => {
     keyPoints = [],
     status = 'draft',
     isNetworkVisible = true,
-    source = 'manual'
+    source = 'manual',
+    attachmentFileIDs = [],
+    files = []
   } = event;
 
   if (!title.trim()) {
@@ -51,6 +53,8 @@ exports.main = async (event, context) => {
     helperIds: [],
     isNetworkVisible,
     source,
+    attachmentFileIDs: Array.isArray(attachmentFileIDs) ? attachmentFileIDs.filter(Boolean) : [],
+    files: Array.isArray(files) ? files.filter(Boolean) : [],
     createdAt: now,
     updatedAt: now,
     updatedText: nowText()

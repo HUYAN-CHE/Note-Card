@@ -8,15 +8,25 @@
     <!-- 智能识别 -->
     <view class="ai-parse-section card">
       <view class="ai-parse-title">快速创建</view>
-      <view class="ai-parse-desc">粘贴聊天内容或选择截图，自动识别生成记事卡</view>
-      <view class="ai-parse-actions">
-        <view class="ai-parse-btn primary {{isParsing ? 'disabled' : ''}}" bindtap="pasteAndParse">
-          <text class="ai-parse-icon">📋</text>
-          <text>{{isParsing ? '识别中...' : '粘贴并识别'}}</text>
-        </view>
-        <view class="ai-parse-btn {{isParsing ? 'disabled' : ''}}" bindtap="chooseImageAndParse">
-          <text class="ai-parse-icon">🖼</text>
-          <text>图片识别</text>
+      <view class="ai-parse-desc">粘贴聊天内容或语音输入，自动识别生成记事卡</view>
+      <view class="ai-input-wrap">
+        <textarea
+          class="ai-input"
+          value="{{parseInputText}}"
+          placeholder="把客户私聊、群聊摘要或语音整理结果粘贴到这里"
+          bindinput="onParseInput"
+          maxlength="4000"
+          adjust-position="{{true}}"
+        />
+        <view class="ai-input-actions">
+          <view class="ai-parse-btn primary {{isParsing ? 'disabled' : ''}}" bindtap="parseFromInput">
+            <text class="ai-parse-icon">✨</text>
+            <text>{{isParsing ? '识别中...' : '识别'}}</text>
+          </view>
+          <view class="ai-parse-btn {{isRecording ? 'recording' : ''}} {{isParsing ? 'disabled' : ''}}" bindtap="startVoiceInput">
+            <text class="ai-parse-icon">🎤</text>
+            <text>{{isRecording ? '录音中...' : '语音输入'}}</text>
+          </view>
         </view>
       </view>
     </view>
@@ -70,6 +80,18 @@
         </view>
         <view class="helper-add" bindtap="openInviteSheet">＋</view>
       </view>
+    </view>
+
+    <!-- 图片附件 -->
+    <view class="field">
+      <view class="field-label">图片附件（选填）</view>
+      <view class="attachment-list" wx:if="{{attachmentImages.length}}">
+        <view class="attachment-item" wx:for="{{attachmentImages}}" wx:key="index">
+          <image src="{{item.tempPath}}" class="attachment-thumb" mode="aspectFill" bindtap="previewAttachment" data-index="{{index}}" />
+          <view class="attachment-remove" bindtap="removeAttachment" data-index="{{index}}">×</view>
+        </view>
+      </view>
+      <view class="attachment-add" bindtap="chooseAttachmentImages">+ 添加图片</view>
     </view>
 
     <!-- 可见性开关 -->

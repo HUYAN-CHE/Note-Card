@@ -2,6 +2,8 @@ const { TYPE_LABELS, buildDraftFromContext } = require('../../services/ai-adapte
 const { getCard, createCardFromDraft, saveCard } = require('../../utils/store');
 const { getNavInfo } = require('../../utils/ui');
 
+const WechatSI = requirePlugin('WechatSI');
+
 const DEFAULT_FRIENDS = [
   { id: 'f1', nickname: '阿哲', status: '微信好友', selected: false },
   { id: 'f2', nickname: '小林', status: '已协作 3 次', selected: false },
@@ -29,7 +31,10 @@ Page({
     friendCandidates: [],
     loadingFriends: false,
     safeAreaBottom: 0,
-    isParsing: false
+    isParsing: false,
+    isRecording: false,
+    parseInputText: '',
+    attachmentImages: []
   },
 
   onLoad(options = {}) {
@@ -43,6 +48,7 @@ Page({
       contentHeight: sys.windowHeight - navInfo.totalHeight - footerHeightPx,
       safeAreaBottom: sys.safeAreaInsets ? sys.safeAreaInsets.bottom : 0
     });
+    this.initVoiceRecognizer();
     this.loadCard(options);
     this.loadFriends();
   },
@@ -59,6 +65,7 @@ Page({
   setCard(card) {
     const keyPoints = Array.isArray(card.keyPoints) ? card.keyPoints : [];
     const helperIds = Array.isArray(card.helperIds) ? card.helperIds : [];
+    const attachmentFileIDs = Array.isArray(card.attachmentFileIDs) ? card.attachmentFileIDs : [];
 
     this.setData({
       card: {
@@ -76,6 +83,20 @@ Page({
       keyPointsText: keyPoints.join(' · '),
       helpers: helperIds.map((h) => this.normalizeHelper(h))
     });
+
+    if (attachmentFileIDs.length && wx.cloud) {
+      wx.cloud.getTempFileURL({
+        fileList: attachmentFileIDs.map((fileID) => ({ fileID, maxAge: 3600 })),
+        success: (res) => {
+          const images = (res.fileList || []).map((item, index) => ({
+            name: `图片 ${index + 1}`,
+            tempPath: item.tempFileURL,
+            fileID: attachmentFileIDs[index]
+          }));
+          this.setData({ attachmentImages: images });
+        }
+      });
+    }
   },
 
   async loadFriends() {
@@ -149,6 +170,157 @@ Page({
     this.setData({ keyPointsText: event.detail.value });
   },
 
+  initVoiceRecognizer() {
+    if (!WechatSI || !WechatSI.getRecordRecognitionManager) return;
+
+    const manager = WechatSI.getRecordRecognitionManager();
+    manager.onStart(() => {
+      this.setData({ isRecording: true });
+      wx.showToast({ title: '开始录音，请说话', icon: 'none' });
+    });
+    manager.onRecognize((res) => {
+      if (res && res.result) {
+        this.setData({ parseInputText: res.result });
+      }
+    });
+    manager.onStop((res) => {
+      this.setData({ isRecording: false });
+      const text = (res && res.result) || '';
+      if (text.trim()) {
+        this.setData({ parseInputText: text.trim() }, () => {
+          this.parseFromInput();
+        });
+      } else {
+        wx.showToast({ title: '未能识别到语音，请重试', icon: 'none' });
+      }
+    });
+    manager.onError((err) => {
+      this.setData({ isRecording: false });
+      wx.showToast({ title: '语音识别失败: ' + (err.message || ''), icon: 'none' });
+    });
+    this.voiceManager = manager;
+  },
+
+  onParseInput(event) {
+    this.setData({ parseInputText: event.detail.value });
+  },
+
+  async parseFromInput() {
+    const text = this.data.parseInputText.trim();
+    if (!text) {
+      wx.showToast({ title: '请先粘贴或输入内容', icon: 'none' });
+      return;
+    }
+
+    this.setData({ isParsing: true });
+    wx.showLoading({ title: '识别中...' });
+
+    try {
+      const app = getApp();
+      if (!app.globalData || !app.globalData.cloudReady || !wx.cloud) {
+        this.localParse(text);
+        this.setData({ parseInputText: '' });
+        return;
+      }
+
+      const res = await wx.cloud.callFunction({
+        name: 'parseContext',
+        data: { action: 'parseText', text, type: this.data.card.type }
+      });
+
+      if (res.result && res.result.code === 0) {
+        this.applyParsedDraft(res.result.data);
+        this.setData({ parseInputText: '' });
+        wx.showToast({ title: '识别成功', icon: 'success' });
+      } else {
+        wx.showToast({ title: res.result.message || '识别失败', icon: 'none' });
+      }
+    } catch (e) {
+      wx.showToast({ title: e.message || '识别失败', icon: 'none' });
+    } finally {
+      wx.hideLoading();
+      this.setData({ isParsing: false });
+    }
+  },
+
+  startVoiceInput() {
+    if (!this.voiceManager) {
+      wx.showToast({ title: '语音识别未初始化', icon: 'none' });
+      return;
+    }
+    if (this.data.isRecording) {
+      this.voiceManager.stop();
+      return;
+    }
+    if (this.data.isParsing) return;
+
+    this.voiceManager.start({
+      duration: 60000,
+      lang: 'zh_CN'
+    });
+  },
+
+
+  async chooseAttachmentImages() {
+    const chooseRes = await new Promise((resolve) => {
+      if (wx.chooseMessageFile) {
+        wx.chooseMessageFile({ count: 9, type: 'image', success: resolve, fail: () => resolve({ tempFiles: [] }) });
+      } else {
+        wx.chooseMedia({ count: 9, mediaType: ['image'], sourceType: ['album'], success: resolve, fail: () => resolve({ tempFiles: [] }) });
+      }
+    });
+
+    const newFiles = (chooseRes.tempFiles || []).map((file, index) => ({
+      name: file.name || `图片 ${index + 1}`,
+      tempPath: file.path || file.tempFilePath,
+      size: file.size,
+      fileID: ''
+    }));
+
+    if (!newFiles.length) return;
+
+    wx.showLoading({ title: '上传中...' });
+
+    try {
+      const app = getApp();
+      if (!app.globalData || !app.globalData.cloudReady || !wx.cloud) {
+        wx.showToast({ title: '云开发未就绪', icon: 'none' });
+        return;
+      }
+
+      const uploadTasks = newFiles.map((file) => {
+        const ext = (file.tempPath.split('.').pop() || 'jpg').toLowerCase();
+        const cloudPath = `attachments/${Date.now()}_${Math.random().toString(36).slice(2, 10)}.${ext}`;
+        return wx.cloud.uploadFile({ cloudPath, filePath: file.tempPath });
+      });
+
+      const uploadResults = await Promise.all(uploadTasks);
+      uploadResults.forEach((r, i) => {
+        newFiles[i].fileID = r.fileID;
+      });
+
+      const attachmentImages = [...this.data.attachmentImages, ...newFiles];
+      this.setData({ attachmentImages });
+    } catch (e) {
+      wx.showToast({ title: e.message || '上传失败', icon: 'none' });
+    } finally {
+      wx.hideLoading();
+    }
+  },
+
+  previewAttachment(event) {
+    const index = event.currentTarget.dataset.index;
+    const urls = this.data.attachmentImages.map((item) => item.tempPath);
+    wx.previewImage({ current: urls[index], urls });
+  },
+
+  removeAttachment(event) {
+    const index = event.currentTarget.dataset.index;
+    const attachmentImages = [...this.data.attachmentImages];
+    attachmentImages.splice(index, 1);
+    this.setData({ attachmentImages });
+  },
+
   toggleVisibility() {
     this.setData({ 'card.isNetworkVisible': !this.data.card.isNetworkVisible });
   },
@@ -171,101 +343,6 @@ Page({
     const draft = buildDraftFromContext({ text, type: this.data.card.type, source: 'clipboard_ai' });
     this.applyParsedDraft(draft);
     wx.showToast({ title: '已本地识别', icon: 'success' });
-  },
-
-  async pasteAndParse() {
-    this.setData({ isParsing: true });
-    wx.showLoading({ title: '识别中...' });
-
-    try {
-      const clipboardRes = await new Promise((resolve, reject) => {
-        wx.getClipboardData({ success: resolve, fail: reject });
-      });
-      const text = (clipboardRes.data || '').trim();
-
-      if (!text) {
-        wx.showToast({ title: '剪贴板为空', icon: 'none' });
-        return;
-      }
-
-      const app = getApp();
-      if (!app.globalData || !app.globalData.cloudReady || !wx.cloud) {
-        this.localParse(text);
-        return;
-      }
-
-      const res = await wx.cloud.callFunction({
-        name: 'parseContext',
-        data: { action: 'parseText', text, type: this.data.card.type }
-      });
-
-      if (res.result && res.result.code === 0) {
-        this.applyParsedDraft(res.result.data);
-        wx.showToast({ title: '识别成功', icon: 'success' });
-      } else {
-        wx.showToast({ title: res.result.message || '识别失败', icon: 'none' });
-      }
-    } catch (e) {
-      wx.showToast({ title: e.message || '识别失败', icon: 'none' });
-    } finally {
-      wx.hideLoading();
-      this.setData({ isParsing: false });
-    }
-  },
-
-  async chooseImageAndParse() {
-    const chooseRes = await new Promise((resolve) => {
-      if (wx.chooseMessageFile) {
-        wx.chooseMessageFile({ count: 3, type: 'image', success: resolve, fail: () => resolve({ tempFiles: [] }) });
-      } else {
-        wx.chooseMedia({ count: 3, mediaType: ['image'], sourceType: ['album'], success: resolve, fail: () => resolve({ tempFiles: [] }) });
-      }
-    });
-
-    const tempFiles = (chooseRes.tempFiles || []).map((file, index) => ({
-      name: file.name || `图片 ${index + 1}`,
-      path: file.path || file.tempFilePath,
-      size: file.size
-    }));
-
-    if (!tempFiles.length) return;
-
-    this.setData({ isParsing: true });
-    wx.showLoading({ title: '识别中...' });
-
-    try {
-      const app = getApp();
-      if (!app.globalData || !app.globalData.cloudReady || !wx.cloud) {
-        wx.showToast({ title: '云开发未就绪', icon: 'none' });
-        return;
-      }
-
-      const uploadTasks = tempFiles.map((file) => {
-        const ext = (file.path.split('.').pop() || 'jpg').toLowerCase();
-        const cloudPath = `ocr/${Date.now()}_${Math.random().toString(36).slice(2, 10)}.${ext}`;
-        return wx.cloud.uploadFile({ cloudPath, filePath: file.path });
-      });
-
-      const uploadResults = await Promise.all(uploadTasks);
-      const fileIDs = uploadResults.map((r) => r.fileID);
-
-      const res = await wx.cloud.callFunction({
-        name: 'parseContext',
-        data: { action: 'parseImage', fileID: fileIDs[0], type: this.data.card.type }
-      });
-
-      if (res.result && res.result.code === 0) {
-        this.applyParsedDraft(res.result.data);
-        wx.showToast({ title: '识别成功', icon: 'success' });
-      } else {
-        wx.showToast({ title: res.result.message || '识别失败', icon: 'none' });
-      }
-    } catch (e) {
-      wx.showToast({ title: e.message || '识别失败', icon: 'none' });
-    } finally {
-      wx.hideLoading();
-      this.setData({ isParsing: false });
-    }
   },
 
   openInviteSheet() {
@@ -348,6 +425,10 @@ Page({
       ...selectedFriends
     ]));
 
+    const attachmentFileIDs = this.data.attachmentImages
+      .map((item) => item.fileID)
+      .filter(Boolean);
+
     const card = {
       ...this.data.card,
       ...extra,
@@ -355,7 +436,8 @@ Page({
       desc: this.data.card.desc || '',
       keyPoints,
       helperIds,
-      isNetworkVisible: this.data.card.isNetworkVisible
+      isNetworkVisible: this.data.card.isNetworkVisible,
+      attachmentFileIDs
     };
 
     const saved = card.id ? await saveCard(card) : await createCardFromDraft(card);
