@@ -3,7 +3,7 @@
     <view slot="right" class="nav-save" bindtap="saveAndBack">保存</view>
   </custom-nav>
 
-  <scroll-view class="form-scroll" scroll-y style="height: {{contentHeight}}px;">
+  <scroll-view class="form-scroll" scroll-y style="height: {{contentHeight}}px; margin-top: {{totalHeight}}px;">
     <view class="form">
     <!-- 标题 -->
     <view class="field">

@@ -3,7 +3,7 @@
     <view slot="right" class="nav-action" bindtap="generateCard">下一步</view>
   </custom-nav>
 
-  <scroll-view class="content-scroll" scroll-y style="height: {{contentHeight}}px;">
+  <scroll-view class="content-scroll" scroll-y style="height: {{contentHeight}}px; margin-top: {{totalHeight}}px;">
     <view class="content">
       <!-- 隐私声明 -->
       <view class="privacy-notice">
