@@ -1,5 +1,6 @@
 const { TYPE_LABELS, buildDraftFromContext } = require('../../services/ai-adapter');
 const { getCard, createCardFromDraft, saveCard } = require('../../utils/store');
+const { getNavInfo } = require('../../utils/ui');
 
 const DEFAULT_FRIENDS = [
   { id: 'f1', nickname: '阿哲', status: '微信好友', selected: false },
@@ -10,8 +11,8 @@ const DEFAULT_FRIENDS = [
 
 Page({
   data: {
-    statusBarHeight: 44,
-    navHeight: 88,
+    totalHeight: 132,
+    contentHeight: 500,
     card: {
       title: '',
       desc: '',
@@ -30,9 +31,11 @@ Page({
 
   onLoad(options = {}) {
     const sys = wx.getSystemInfoSync();
+    const navInfo = getNavInfo();
+    const footerHeightPx = 144 * sys.windowWidth / 750 + (sys.safeAreaInsets ? sys.safeAreaInsets.bottom : 0);
     this.setData({
-      statusBarHeight: sys.statusBarHeight || 20,
-      navHeight: 88,
+      totalHeight: navInfo.totalHeight,
+      contentHeight: sys.windowHeight - navInfo.totalHeight - footerHeightPx,
       safeAreaBottom: sys.safeAreaInsets ? sys.safeAreaInsets.bottom : 0
     });
     this.loadCard(options);

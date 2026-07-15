@@ -1,4 +1,5 @@
 .my-home-page {
+  padding-top: 0;
   padding-bottom: 40rpx;
 }
 

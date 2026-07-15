@@ -1,4 +1,5 @@
 .card-detail-page {
+  padding-top: 0;
   padding-bottom: 160rpx;
 }
 

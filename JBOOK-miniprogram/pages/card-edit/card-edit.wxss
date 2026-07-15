@@ -1,5 +1,9 @@
 .card-edit-page {
-  padding-bottom: 160rpx;
+  padding: 0;
+}
+
+.form-scroll {
+  box-sizing: border-box;
 }
 
 .nav-save {
@@ -9,11 +13,11 @@
 }
 
 .form {
-  padding: 0 28rpx;
+  padding: 16rpx 28rpx 32rpx;
 }
 
 .field {
-  margin-bottom: 32rpx;
+  margin-bottom: 24rpx;
 }
 
 .field-label {
@@ -47,7 +51,7 @@
 
 .field-textarea {
   width: 100%;
-  min-height: 180rpx;
+  min-height: 140rpx;
   padding: 20rpx 24rpx;
   box-sizing: border-box;
   background: #f8f9fa;

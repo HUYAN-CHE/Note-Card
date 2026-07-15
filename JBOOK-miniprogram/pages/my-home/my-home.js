@@ -1,4 +1,5 @@
 const store = require('../../utils/store.js');
+const { getNavInfo } = require('../../utils/ui');
 
 const DEFAULT_CANDIDATE_TAGS = ['法律咨询', '财务规划', '职业规划', '心理咨询', '编程开发', '设计创意', '文案写作', '摄影摄像', '健身指导', '家庭教育', '房产顾问', '留学移民'];
 const REMARK_KEY = 'JISHIKA_MY_REMARK';
@@ -21,8 +22,7 @@ function getInitial(name) {
 
 Page({
   data: {
-    statusBarHeight: 44,
-    navHeight: 88,
+    totalHeight: 132,
     heroPaddingTop: 132,
     user: { nickname: '', avatar: '', initial: '' },
     remark: '',
@@ -41,13 +41,10 @@ Page({
   },
 
   onLoad() {
-    const sys = wx.getSystemInfoSync();
-    const statusBarHeight = sys.statusBarHeight || 20;
-    const navHeight = 88;
+    const navInfo = getNavInfo();
     this.setData({
-      statusBarHeight,
-      navHeight,
-      heroPaddingTop: statusBarHeight + navHeight + 24
+      totalHeight: navInfo.totalHeight,
+      heroPaddingTop: navInfo.totalHeight + 24
     });
     this.loadData();
   },

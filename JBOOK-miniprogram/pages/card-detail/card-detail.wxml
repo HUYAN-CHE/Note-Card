@@ -1,8 +1,8 @@
 <view class="page card-detail-page">
-  <custom-nav title="记事卡详情" showBack="{{true}}" statusBarHeight="{{statusBarHeight}}" navHeight="{{navHeight}}" />
+  <custom-nav title="记事卡详情" showBack="{{true}}" />
 
   <!-- 顶部 Hero -->
-  <view class="detail-hero" style="padding-top: {{statusBarHeight + navHeight + 24}}px;">
+  <view class="detail-hero" style="padding-top: {{totalHeight + 24}}px;">
     <text class="detail-title">{{card.title || '未命名事项'}}</text>
     <view class="creator">
       <view class="creator-avatar">

@@ -1,4 +1,5 @@
 const store = require('../../utils/store.js');
+const { getNavInfo } = require('../../utils/ui');
 
 const STATUS_MAP = {
   draft: { text: '待确认', class: 'todo' },
@@ -19,8 +20,7 @@ function getInitial(name) {
 
 Page({
   data: {
-    statusBarHeight: 44,
-    navHeight: 88,
+    totalHeight: 132,
     cardId: '',
     card: {},
     creator: { nickname: '', avatar: '', initial: '', relationText: '创立者' },
@@ -42,9 +42,9 @@ Page({
 
   onLoad(options) {
     const sys = wx.getSystemInfoSync();
+    const navInfo = getNavInfo();
     this.setData({
-      statusBarHeight: sys.statusBarHeight || 20,
-      navHeight: 88,
+      totalHeight: navInfo.totalHeight,
       safeAreaBottom: sys.safeAreaInsets ? sys.safeAreaInsets.bottom : 0
     });
 

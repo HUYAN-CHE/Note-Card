@@ -1,5 +1,5 @@
 <view class="page my-home-page">
-  <custom-nav title="我的主页" showBack="{{true}}" statusBarHeight="{{statusBarHeight}}" navHeight="{{navHeight}}" />
+  <custom-nav title="我的主页" showBack="{{true}}" />
 
   <!-- 顶部资料卡 -->
   <view class="profile-card" style="padding-top: {{heroPaddingTop}}px;">

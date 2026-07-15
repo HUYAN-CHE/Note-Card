@@ -1,4 +1,5 @@
 const { TYPE_LABELS, buildDraftFromContext } = require('../../services/ai-adapter');
+const { getNavInfo } = require('../../utils/ui');
 
 function extractHelperCandidates(text = '') {
   if (!text) return [];
@@ -8,8 +9,8 @@ function extractHelperCandidates(text = '') {
 
 Page({
   data: {
-    statusBarHeight: 44,
-    navHeight: 88,
+    totalHeight: 132,
+    contentHeight: 500,
     source: 'manual',
     sourceLabel: '手动输入',
     selectedType: 'requirement',
@@ -21,14 +22,20 @@ Page({
       { key: 'keyPoints', label: '重点 / 待确认', value: '', checked: true, ai: true },
       { key: 'helpers', label: '协助者候选', value: '', checked: true, ai: true }
     ],
-    safeAreaBottom: 0
+    safeAreaBottom: 0,
+    clipboardText: '',
+    showClipboardHint: false,
+    showEmptyGuide: false
   },
 
   onLoad(options = {}) {
     const sys = wx.getSystemInfoSync();
+    const navInfo = getNavInfo();
+    const footerHeightPx = 136 * sys.windowWidth / 750 + (sys.safeAreaInsets ? sys.safeAreaInsets.bottom : 0);
+
     this.setData({
-      statusBarHeight: sys.statusBarHeight || 20,
-      navHeight: 88,
+      totalHeight: navInfo.totalHeight,
+      contentHeight: sys.windowHeight - navInfo.totalHeight - footerHeightPx,
       safeAreaBottom: sys.safeAreaInsets ? sys.safeAreaInsets.bottom : 0
     });
 
@@ -48,6 +55,11 @@ Page({
     }
   },
 
+  onShow() {
+    if (this.data.contextText) return;
+    this.checkClipboard();
+  },
+
   getSourceLabel(source) {
     const map = {
       wechat_ai: '来自微信 AI',
@@ -56,6 +68,40 @@ Page({
       manual: '手动输入'
     };
     return map[source] || '手动输入';
+  },
+
+  checkClipboard() {
+    wx.getClipboardData({
+      success: (res) => {
+        const text = (res.data || '').trim();
+        if (!text || text === this.data.contextText) {
+          this.setData({ showClipboardHint: false, showEmptyGuide: true });
+          return;
+        }
+        this.setData({ clipboardText: text, showClipboardHint: true, showEmptyGuide: false });
+      },
+      fail: () => {
+        this.setData({ showClipboardHint: false, showEmptyGuide: true });
+      }
+    });
+  },
+
+  applyClipboard() {
+    const text = this.data.clipboardText;
+    this.setData({
+      contextText: text,
+      source: 'clipboard',
+      sourceLabel: '来自剪贴板',
+      showClipboardHint: false,
+      showEmptyGuide: false
+    });
+    if (text.trim()) {
+      this.generatePreview(text, this.data.selectedType, 'clipboard');
+    }
+  },
+
+  dismissClipboardHint() {
+    this.setData({ showClipboardHint: false, showEmptyGuide: true });
   },
 
   selectType(event) {
@@ -112,7 +158,7 @@ Page({
       { key: 'helpers', label: '协助者候选', value: helperCandidates.join(' · '), checked: true, ai: true }
     ];
 
-    this.setData({ importItems });
+    this.setData({ importItems, showEmptyGuide: false });
   },
 
   regenerate() {
