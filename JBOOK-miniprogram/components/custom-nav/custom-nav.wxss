@@ -29,7 +29,7 @@
 }
 
 .nav-back-icon {
-  font-size: 52rpx;
+  font-size: 84rpx;
   color: #162116;
   line-height: 1;
   font-weight: 300;
