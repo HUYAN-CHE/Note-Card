@@ -255,6 +255,11 @@ Page({
 
     try {
       const app = getApp();
+      console.log('[uploadVoiceAndParse] cloud status:', {
+        hasGlobalData: !!app.globalData,
+        cloudReady: app.globalData && app.globalData.cloudReady,
+        hasWxCloud: !!wx.cloud
+      });
       if (!app.globalData || !app.globalData.cloudReady || !wx.cloud) {
         wx.showToast({ title: '云开发未就绪', icon: 'none' });
         return;
