@@ -146,7 +146,9 @@ function recognizeAudio(audioBuffer, format) {
     const action = 'SentenceRecognition';
     const region = 'ap-beijing';
 
-    const voiceFormat = format === 'aac' || format === 'm4a' ? 'm4a' : 'mp3';
+    let voiceFormat = 'mp3';
+    if (format === 'aac' || format === 'm4a') voiceFormat = 'm4a';
+    if (format === 'wav') voiceFormat = 'wav';
     const payload = JSON.stringify({
       ProjectId: 0,
       SubServiceType: 2,
