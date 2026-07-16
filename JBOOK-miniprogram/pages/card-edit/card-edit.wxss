@@ -339,7 +339,7 @@
 
 /* 智能识别区 */
 .ai-parse-section {
-  margin-bottom: 32rpx;
+  margin-bottom: 40rpx;
   padding: 24rpx 0;
 }
 
@@ -347,20 +347,20 @@
   font-size: 32rpx;
   font-weight: 700;
   color: #162116;
-  margin-bottom: 8rpx;
+  margin-bottom: 12rpx;
 }
 
 .ai-parse-desc {
   font-size: 26rpx;
   color: #888;
-  margin-bottom: 20rpx;
+  margin-bottom: 28rpx;
   line-height: 1.4;
 }
 
 .ai-input-wrap {
   display: flex;
   flex-direction: column;
-  gap: 20rpx;
+  gap: 24rpx;
 }
 
 .ai-input {
@@ -379,7 +379,7 @@
 .ai-input-actions {
   display: flex;
   flex-direction: column;
-  gap: 16rpx;
+  gap: 20rpx;
 }
 
 .ai-parse-btn {
