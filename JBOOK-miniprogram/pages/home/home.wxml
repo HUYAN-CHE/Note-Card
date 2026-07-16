@@ -10,7 +10,7 @@
     week-days="{{weekDays}}"
     selected-index="{{selectedIndex}}"
     status-bar-height="{{statusBarHeight}}"
-    body-pull-enabled="{{!cards.length || !bodyCanScroll}}"
+    body-pull-enabled="{{!cards.length}}"
   >
     <view slot="sheet-head">
       <view class="sheet-grabber"></view>

@@ -22,7 +22,7 @@ Page({
       { key: 'title', label: '标题', value: '', checked: true, ai: true },
       { key: 'desc', label: '需求描述', value: '', checked: true, ai: true },
       { key: 'keyPoints', label: '重点 / 待确认', value: '', checked: true, ai: true },
-      { key: 'helpers', label: '协助者候选', value: '', checked: true, ai: true }
+      { key: 'helpers', label: '共同行动人候选', value: '', checked: true, ai: true }
     ],
     safeAreaBottom: 0,
     clipboardText: '',
@@ -159,7 +159,7 @@ Page({
       { key: 'title', label: '标题', value: draft.title || '', checked: true, ai: true },
       { key: 'desc', label: '需求描述', value: draft.desc || '', checked: true, ai: true },
       { key: 'keyPoints', label: '重点 / 待确认', value: (draft.keyPoints || []).join(' · '), checked: true, ai: true },
-      { key: 'helpers', label: '协助者候选', value: helperCandidates.join(' · '), checked: true, ai: true }
+      { key: 'helpers', label: '共同行动人候选', value: helperCandidates.join(' · '), checked: true, ai: true }
     ];
 
     this.setData({ importItems, showEmptyGuide: false });

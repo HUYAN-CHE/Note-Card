@@ -14,6 +14,17 @@
   border-bottom: none;
 }
 
+.custom-nav-light {
+  background: transparent;
+  backdrop-filter: none;
+  border-bottom: none;
+}
+
+.custom-nav-light .nav-title,
+.custom-nav-light .nav-back-icon {
+  color: #ffffff;
+}
+
 .status-bar {
   width: 100%;
 }

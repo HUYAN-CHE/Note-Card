@@ -13,11 +13,11 @@
 }
 
 .form {
-  padding: 16rpx 28rpx 32rpx;
+  padding: 24rpx 28rpx 48rpx;
 }
 
 .field {
-  margin-bottom: 36rpx;
+  margin-bottom: 40rpx;
 }
 
 .field-label {
@@ -26,7 +26,7 @@
   font-size: 30rpx;
   font-weight: 600;
   color: #162116;
-  margin-bottom: 18rpx;
+  margin-bottom: 20rpx;
 }
 
 .field-label::before {
@@ -54,11 +54,11 @@
 
 .field-input {
   width: 100%;
-  height: 80rpx;
+  height: 88rpx;
   padding: 0 8rpx;
   box-sizing: border-box;
   background: transparent;
-  border-bottom: 1rpx solid #e8e8e8;
+  border-bottom: 1rpx solid #ececec;
   border-radius: 0;
   font-size: 30rpx;
   color: #333;
@@ -66,52 +66,25 @@
 
 .field-textarea {
   width: 100%;
-  min-height: 120rpx;
+  min-height: 140rpx;
   padding: 12rpx 8rpx;
   box-sizing: border-box;
   background: transparent;
-  border-bottom: 1rpx solid #e8e8e8;
+  border-bottom: 1rpx solid #ececec;
   border-radius: 0;
   font-size: 30rpx;
   color: #333;
-  line-height: 1.5;
+  line-height: 1.6;
 }
 
-/* 共同行动人 */
-.helper-row {
+/* 截止日期 */
+.deadline-input {
   display: flex;
   align-items: center;
-  gap: 16rpx;
+  color: #333;
 }
 
-.helper-avatar {
-  width: 64rpx;
-  height: 64rpx;
-  border-radius: 50%;
-  background: linear-gradient(150deg, #4caf50, #81c784);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-  font-size: 26rpx;
-  font-weight: 700;
-  color: #fff;
-}
-
-.helper-avatar image {
-  width: 64rpx;
-  height: 64rpx;
-}
-
-.helper-add {
-  width: 64rpx;
-  height: 64rpx;
-  border-radius: 50%;
-  background: #f0f0f0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 32rpx;
+.deadline-input.is-placeholder {
   color: #999;
 }
 
@@ -226,6 +199,7 @@
   padding: 24rpx 32rpx;
   background: #ffffff;
   border-top: 1rpx solid #f0f0f0;
+  box-shadow: 0 -8rpx 24rpx rgba(0, 0, 0, 0.03);
   z-index: 50;
 }
 
@@ -244,111 +218,7 @@
   display: none;
 }
 
-.footer-btn.ghost {
-  color: #666;
-  background: #f0f0f0;
-}
-
 .footer-btn.primary {
-  flex: 1.4;
-  color: #fff;
-  background: #4caf50;
-}
-
-/* 邀请 Sheet */
-.friend-list {
-  max-height: 560rpx;
-  overflow-y: auto;
-}
-
-.friend-item {
-  display: flex;
-  align-items: center;
-  padding: 18rpx 0;
-}
-
-.friend-avatar {
-  width: 72rpx;
-  height: 72rpx;
-  border-radius: 50%;
-  background: linear-gradient(150deg, #4caf50, #81c784);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-  font-size: 28rpx;
-  font-weight: 700;
-  color: #fff;
-}
-
-.friend-avatar image {
-  width: 72rpx;
-  height: 72rpx;
-}
-
-.friend-info {
-  flex: 1;
-  margin-left: 20rpx;
-  display: flex;
-  flex-direction: column;
-}
-
-.friend-name {
-  font-size: 30rpx;
-  font-weight: 600;
-  color: #162116;
-}
-
-.friend-status {
-  margin-top: 4rpx;
-  font-size: 24rpx;
-  color: #999;
-}
-
-.friend-check {
-  width: 44rpx;
-  height: 44rpx;
-  border-radius: 50%;
-  border: 2rpx solid #e0e0e0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 24rpx;
-  color: #fff;
-}
-
-.friend-check.on {
-  background: #4caf50;
-  border-color: #4caf50;
-}
-
-.sheet-actions {
-  display: flex;
-  gap: 20rpx;
-  margin-top: 28rpx;
-}
-
-.sheet-btn {
-  flex: 1;
-  height: 88rpx;
-  line-height: 88rpx;
-  font-size: 30rpx;
-  font-weight: 600;
-  border-radius: 44rpx;
-  border: none;
-  text-align: center;
-}
-
-.sheet-btn::after {
-  display: none;
-}
-
-.sheet-btn.ghost {
-  color: #666;
-  background: #f0f0f0;
-}
-
-.sheet-btn.primary {
   color: #fff;
   background: #4caf50;
 }
@@ -359,11 +229,11 @@
   left: 0;
   right: 0;
   z-index: 99;
-  padding: 0 28rpx 16rpx;
+  padding: 0 28rpx 20rpx;
   box-sizing: border-box;
-  background: rgba(255, 255, 255, 0.92);
+  background: rgba(255, 255, 255, 0.94);
   backdrop-filter: blur(12rpx);
-  box-shadow: 0 16rpx 40rpx rgba(0, 0, 0, 0.06);
+  box-shadow: 0 12rpx 32rpx rgba(0, 0, 0, 0.05);
   overflow: hidden;
 }
 
@@ -375,18 +245,18 @@
 }
 
 .create-card.compact {
-  padding: 20rpx 22rpx;
+  padding: 24rpx;
 }
 
 .create-card-header {
-  margin-bottom: 16rpx;
+  margin-bottom: 20rpx;
 }
 
 .create-card-title-wrap {
   display: flex;
-  align-items: baseline;
-  flex-wrap: wrap;
-  gap: 12rpx;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6rpx;
 }
 
 .create-card-title {
@@ -398,52 +268,59 @@
 .create-card-subtitle {
   font-size: 24rpx;
   color: #7a8a7a;
-  line-height: 1.4;
+  line-height: 1.5;
 }
 
-/* VIP 入口横幅 */
+/* VIP 入口横幅：单行紧凑排布，会员金色 + 主题绿点缀 */
 .vip-banner {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  margin-top: 16rpx;
-  padding: 18rpx 22rpx;
-  background: linear-gradient(135deg, #2d2f3a 0%, #1a1c23 100%);
+  margin-top: 20rpx;
+  padding: 18rpx 20rpx 18rpx 24rpx;
+  background: linear-gradient(135deg, #fdf3d8 0%, #fbe7b4 100%);
   border-radius: 20rpx;
 }
 
-.vip-banner-left {
-  display: flex;
-  align-items: center;
-  gap: 14rpx;
-}
-
 .vip-banner-icon {
-  width: 40rpx;
-  height: 40rpx;
-  filter: brightness(0) invert(1);
+  width: 34rpx;
+  height: 34rpx;
+  flex: none;
+  filter: invert(55%) sepia(65%) saturate(550%) hue-rotate(2deg) brightness(92%);
 }
 
 .vip-banner-text {
+  flex: 1;
+  min-width: 0;
   display: flex;
-  flex-direction: column;
-  gap: 4rpx;
+  align-items: baseline;
+  gap: 10rpx;
+  margin-left: 14rpx;
+  white-space: nowrap;
+  overflow: hidden;
 }
 
 .vip-banner-title {
-  font-size: 28rpx;
-  font-weight: 600;
-  color: #ffd700;
+  flex: none;
+  font-size: 26rpx;
+  font-weight: 700;
+  color: #8a6414;
 }
 
 .vip-banner-desc {
+  flex: 1;
+  min-width: 0;
   font-size: 22rpx;
-  color: rgba(255, 255, 255, 0.6);
+  color: #b08d3e;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .vip-banner-btn {
-  padding: 10rpx 22rpx;
-  background: linear-gradient(135deg, #ffd700 0%, #ff8c00 100%);
+  flex: none;
+  margin-left: 16rpx;
+  padding: 10rpx 24rpx;
+  background: linear-gradient(135deg, #a87e1e 0%, #8a6414 100%);
   border-radius: 999rpx;
   font-size: 24rpx;
   font-weight: 600;
@@ -452,17 +329,17 @@
 
 .create-card-input {
   width: 100%;
-  height: 150rpx;
-  min-height: 150rpx;
-  padding: 16rpx;
+  height: 140rpx;
+  min-height: 140rpx;
+  padding: 20rpx;
   box-sizing: border-box;
-  background: rgba(255, 255, 255, 0.9);
-  border: 1rpx solid rgba(255, 255, 255, 0.95);
+  background: rgba(255, 255, 255, 0.95);
+  border: none;
   border-radius: 16rpx;
   font-size: 28rpx;
   color: #333;
   line-height: 1.5;
-  margin-bottom: 16rpx;
+  margin-bottom: 20rpx;
 }
 
 .create-card-actions {
@@ -477,9 +354,10 @@
   align-items: center;
   justify-content: center;
   gap: 10rpx;
-  padding: 16rpx 0;
-  background: rgba(255, 255, 255, 0.9);
-  border: 1rpx solid rgba(255, 255, 255, 0.95);
+  height: 72rpx;
+  padding: 0;
+  background: rgba(255, 255, 255, 0.95);
+  border: none;
   border-radius: 999rpx;
   font-size: 26rpx;
   font-weight: 600;
@@ -489,13 +367,11 @@
 .create-btn.primary {
   background: #101816;
   color: #f7f2e8;
-  border-color: #101816;
 }
 
 .create-btn.recording {
   background: #e53935;
   color: #fff;
-  border-color: #e53935;
   animation: pulse 1.2s infinite;
 }
 
@@ -504,8 +380,9 @@
 }
 
 .create-btn-icon {
-  width: 36rpx;
-  height: 36rpx;
+  width: 32rpx;
+  height: 32rpx;
+  flex: none;
 }
 
 .create-btn-icon.white {
@@ -519,7 +396,7 @@
 
 /* 信息卡片 */
 .info-card {
-  padding: 32rpx;
+  padding: 36rpx 32rpx;
   background: #fff;
   border-radius: 28rpx;
 }
@@ -529,6 +406,7 @@
 }
 
 .info-card .toggle-row {
-  padding: 8rpx 0 0;
-  margin-top: 0;
+  padding: 28rpx 0 0;
+  margin-top: 8rpx;
+  border-top: 1rpx solid #f2f2f2;
 }

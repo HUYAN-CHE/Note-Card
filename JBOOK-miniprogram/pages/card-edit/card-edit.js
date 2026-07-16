@@ -2,13 +2,6 @@ const { TYPE_LABELS, buildDraftFromContext } = require('../../services/ai-adapte
 const { getCard, createCardFromDraft, saveCard } = require('../../utils/store');
 const { getNavInfo } = require('../../utils/ui');
 
-const DEFAULT_FRIENDS = [
-  { id: 'f1', nickname: '阿哲', status: '微信好友', selected: false },
-  { id: 'f2', nickname: '小林', status: '已协作 3 次', selected: false },
-  { id: 'f3', nickname: '王姐', status: '共同好友', selected: false },
-  { id: 'f4', nickname: 'Anna', status: '微信好友', selected: false }
-];
-
 Page({
   data: {
     statusBarHeight: 44,
@@ -20,15 +13,12 @@ Page({
       title: '',
       desc: '',
       keyPoints: [],
+      deadline: '',
       status: 'draft',
       isNetworkVisible: true,
       helperIds: []
     },
     keyPointsText: '',
-    helpers: [],
-    showInviteSheet: false,
-    friendCandidates: [],
-    loadingFriends: false,
     safeAreaBottom: 0,
     isParsing: false,
     isRecording: false,
@@ -39,20 +29,53 @@ Page({
   onLoad(options = {}) {
     const sys = wx.getSystemInfoSync();
     const navInfo = getNavInfo();
-    const rpxRatio = sys.windowWidth / 750;
-    const floatCardHeightPx = Math.round(500 * rpxRatio);
-    const footerHeightPx = 144 * rpxRatio + (sys.safeAreaInsets ? sys.safeAreaInsets.bottom : 0);
+    this.sysInfo = sys;
+    this.safeBottomPx = sys.safeAreaInsets
+      ? sys.safeAreaInsets.bottom
+      : Math.max(0, sys.screenHeight - ((sys.safeArea && sys.safeArea.bottom) || sys.screenHeight));
+    // 先用估算值首屏渲染，onReady 中再按实际渲染高度校正
+    const estimatePx = Math.round(500 * (sys.windowWidth / 750));
     this.setData({
       statusBarHeight: navInfo.statusBarHeight,
       navHeight: navInfo.navHeight,
       totalHeight: navInfo.totalHeight,
-      floatCardHeightPx,
-      contentHeight: sys.windowHeight - navInfo.totalHeight - floatCardHeightPx - footerHeightPx,
-      safeAreaBottom: sys.safeAreaInsets ? sys.safeAreaInsets.bottom : 0
+      safeAreaBottom: this.safeBottomPx
     });
+    this.updateLayout(estimatePx);
     this.initRecorder();
     this.loadCard(options);
-    this.loadFriends();
+  },
+
+  onReady() {
+    this.measureFloatCard();
+  },
+
+  // 底部操作栏实际占位高度（px）：上下内边距 48rpx + 按钮 96rpx + 安全区
+  getFooterHeightPx() {
+    const sys = this.sysInfo || wx.getSystemInfoSync();
+    return 144 * (sys.windowWidth / 750) + this.safeBottomPx;
+  },
+
+  updateLayout(floatCardHeightPx) {
+    const sys = this.sysInfo || wx.getSystemInfoSync();
+    const contentHeight = sys.windowHeight - this.data.totalHeight - floatCardHeightPx - this.getFooterHeightPx();
+    this.setData({ floatCardHeightPx, contentHeight });
+  },
+
+  // 实测顶部浮层高度，避免不同机型/文案换行导致表单区与底部按钮被遮挡
+  measureFloatCard() {
+    wx.createSelectorQuery()
+      .in(this)
+      .select('.float-create-card')
+      .boundingClientRect()
+      .exec((res) => {
+        const rect = res && res[0];
+        if (!rect || !rect.height) return;
+        const height = Math.round(rect.height);
+        if (height !== this.data.floatCardHeightPx) {
+          this.updateLayout(height);
+        }
+      });
   },
 
   async loadCard(options = {}) {
@@ -66,7 +89,6 @@ Page({
 
   setCard(card) {
     const keyPoints = Array.isArray(card.keyPoints) ? card.keyPoints : [];
-    const helperIds = Array.isArray(card.helperIds) ? card.helperIds : [];
     const attachmentFileIDs = Array.isArray(card.attachmentFileIDs) ? card.attachmentFileIDs : [];
 
     this.setData({
@@ -74,16 +96,16 @@ Page({
         title: card.title || '',
         desc: card.desc || '',
         keyPoints,
+        deadline: card.deadline || '',
         status: card.status || 'draft',
         isNetworkVisible: card.isNetworkVisible !== false,
-        helperIds,
+        helperIds: Array.isArray(card.helperIds) ? card.helperIds : [],
         id: card.id || '',
         type: card.type || 'requirement',
         typeLabel: card.typeLabel || TYPE_LABELS[card.type || 'requirement'],
         source: card.source || 'manual'
       },
-      keyPointsText: keyPoints.join(' · '),
-      helpers: helperIds.map((h) => this.normalizeHelper(h))
+      keyPointsText: keyPoints.join(' · ')
     });
 
     if (attachmentFileIDs.length && wx.cloud) {
@@ -101,65 +123,6 @@ Page({
     }
   },
 
-  async loadFriends() {
-    this.setData({ loadingFriends: true });
-    try {
-      const app = getApp();
-      const openid = app.globalData && app.globalData.openid;
-      if (app.globalData && app.globalData.cloudReady && wx.cloud && openid) {
-        const db = wx.cloud.database();
-        const relRes = await db.collection('relationships')
-          .where({ ownerId: openid, degree: 1 })
-          .limit(50)
-          .get();
-
-        const relationships = relRes.data || [];
-        if (relationships.length) {
-          const friendOpenids = relationships.map((r) => r.to);
-          const userRes = await db.collection('users')
-            .where({ _openid: db.command.in(friendOpenids) })
-            .limit(50)
-            .get();
-
-          const users = userRes.data || [];
-          const friends = users.map((u) => ({
-            id: u._openid,
-            nickname: u.nickName || '未知用户',
-            avatar: u.avatarUrl || '',
-            status: '一度人脉',
-            selected: false
-          }));
-
-          this.setData({ friendCandidates: friends });
-          return;
-        }
-      }
-      this.setData({ friendCandidates: DEFAULT_FRIENDS.map((f) => ({ ...f })) });
-    } catch (e) {
-      this.setData({ friendCandidates: DEFAULT_FRIENDS.map((f) => ({ ...f })) });
-    } finally {
-      this.setData({ loadingFriends: false });
-    }
-  },
-
-  normalizeHelper(raw) {
-    if (!raw) return { nickname: '未知', initial: '?', avatar: '' };
-    if (typeof raw === 'string') {
-      return { id: raw, nickname: raw, initial: this.getInitial(raw), avatar: '' };
-    }
-    return {
-      id: raw.id || '',
-      nickname: raw.nickname || raw.name || '未知',
-      initial: this.getInitial(raw.nickname || raw.name),
-      avatar: raw.avatar || ''
-    };
-  },
-
-  getInitial(name) {
-    if (!name) return '';
-    return String(name).trim().charAt(0).toUpperCase();
-  },
-
   onTitleInput(event) {
     this.setData({ 'card.title': event.detail.value });
   },
@@ -170,6 +133,10 @@ Page({
 
   onKeyPointsInput(event) {
     this.setData({ keyPointsText: event.detail.value });
+  },
+
+  onDeadlineChange(event) {
+    this.setData({ 'card.deadline': event.detail.value });
   },
 
   initRecorder() {
@@ -415,49 +382,11 @@ Page({
     wx.showToast({ title: '已本地识别', icon: 'success' });
   },
 
-  openInviteSheet() {
-    this.setData({ showInviteSheet: true });
-  },
-
-  closeInviteSheet() {
-    this.setData({ showInviteSheet: false });
-  },
-
-  toggleFriend(event) {
-    const index = event.currentTarget.dataset.index;
-    const list = [...this.data.friendCandidates];
-    list[index].selected = !list[index].selected;
-    this.setData({ friendCandidates: list });
-  },
-
-  noop() {},
-
-  async sendInvite() {
+  // 生成记事卡：保存后进入详情页，在下一步邀请共同行动人
+  async generateCard() {
     try {
       const saved = await this.persistCard({ status: 'todo' });
-      this.closeInviteSheet();
-      wx.showShareMenu({ withShareTicket: true });
-      wx.showToast({ title: '请点击右上角转发', icon: 'none' });
-      return saved;
-    } catch (e) {
-      // persistCard 已提示
-    }
-  },
-
-  shareToGroup() {
-    wx.showShareMenu({ withShareTicket: true });
-    wx.showToast({ title: '请选择群聊转发', icon: 'none' });
-  },
-
-  goBack() {
-    wx.navigateBack();
-  },
-
-  async saveDraft() {
-    try {
-      const saved = await this.persistCard({ status: 'draft' });
-      wx.showToast({ title: '已存草稿', icon: 'success' });
-      wx.navigateBack();
+      wx.redirectTo({ url: `/pages/card-detail/card-detail?id=${saved.id}&from=create` });
       return saved;
     } catch (e) {
       // persistCard 已提示
@@ -486,15 +415,6 @@ Page({
       .map((item) => item.trim())
       .filter(Boolean);
 
-    const selectedFriends = this.data.friendCandidates
-      .filter((f) => f.selected)
-      .map((f) => f.id || f.nickname);
-
-    const helperIds = Array.from(new Set([
-      ...this.data.card.helperIds,
-      ...selectedFriends
-    ]));
-
     const attachmentFileIDs = this.data.attachmentImages
       .map((item) => item.fileID)
       .filter(Boolean);
@@ -505,7 +425,8 @@ Page({
       title: this.data.card.title.trim(),
       desc: this.data.card.desc || '',
       keyPoints,
-      helperIds,
+      deadline: this.data.card.deadline || '',
+      helperIds: this.data.card.helperIds,
       isNetworkVisible: this.data.card.isNetworkVisible,
       attachmentFileIDs
     };

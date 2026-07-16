@@ -18,6 +18,14 @@ function getInitial(name) {
   return String(name).trim().charAt(0).toUpperCase();
 }
 
+// 截止日期早于今天且未完成时视为已逾期
+function checkOverdue(card) {
+  if (!card || !card.deadline || card.status === 'done') return false;
+  const now = new Date();
+  const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+  return card.deadline < today;
+}
+
 Page({
   data: {
     statusBarHeight: 44,
@@ -30,6 +38,7 @@ Page({
     keyPoints: [],
     statusClass: 'doing',
     statusText: '进行中',
+    isOverdue: false,
     role: 'stranger',
     isCreator: false,
     isHelper: false,
@@ -39,18 +48,31 @@ Page({
     applyMessage: '',
     pendingRequests: [],
     loading: false,
-    safeAreaBottom: 0
+    safeAreaBottom: 0,
+    cardReady: false,
+    canEditStatus: false,
+    swipeX: 0,
+    swipeHintOpacity: 1,
+    swiping: false,
+    inviteDone: false
   },
 
   onLoad(options) {
     const sys = wx.getSystemInfoSync();
     const navInfo = getNavInfo();
+    // iPhone Home 指示条安全区兜底：safeAreaInsets 缺失时用 safeArea 计算
+    const safeBottom = sys.safeAreaInsets
+      ? sys.safeAreaInsets.bottom
+      : Math.max(0, sys.screenHeight - ((sys.safeArea && sys.safeArea.bottom) || sys.screenHeight));
     this.setData({
       statusBarHeight: navInfo.statusBarHeight,
       navHeight: navInfo.navHeight,
       totalHeight: navInfo.totalHeight,
-      safeAreaBottom: sys.safeAreaInsets ? sys.safeAreaInsets.bottom : 0
+      safeAreaBottom: safeBottom
     });
+
+    // 从「生成记事卡」跳转而来时，卡片下落动画伴随「卡叽」音效
+    this.fromCreate = options.from === 'create';
 
     const cardId = options.id || '';
     this.setData({ cardId });
@@ -105,12 +127,18 @@ Page({
       keyPoints,
       statusClass: statusInfo.class,
       statusText: statusInfo.text,
+      isOverdue: checkOverdue(data),
       role,
       isCreator,
       isHelper,
       isNetworkView,
       canAcceptInvite: role === 'stranger' && !isNetworkView,
-      pendingRequests: data.pendingRequests || []
+      pendingRequests: data.pendingRequests || [],
+      cardReady: true,
+      canEditStatus: isCreator || isHelper
+    }, () => {
+      this.onCardRendered();
+      this.ensureSwipeMetrics();
     });
   },
 
@@ -131,12 +159,18 @@ Page({
       keyPoints,
       statusClass: statusInfo.class,
       statusText: statusInfo.text,
+      isOverdue: checkOverdue(card),
       role: isCreator ? 'creator' : (isHelper ? 'helper' : 'stranger'),
       isCreator,
       isHelper,
       isNetworkView: false,
       canAcceptInvite: !isCreator && !isHelper,
-      pendingRequests: []
+      pendingRequests: [],
+      cardReady: true,
+      canEditStatus: isCreator || isHelper
+    }, () => {
+      this.onCardRendered();
+      this.ensureSwipeMetrics();
     });
   },
 
@@ -162,7 +196,7 @@ Page({
 
   getRelationText() {
     if (this.data.isCreator) return '我 · 创立者';
-    if (this.data.isHelper) return '一度人脉 · 协助者';
+    if (this.data.isHelper) return '一度人脉 · 共同行动人';
     if (this.data.isNetworkView) return '二度人脉 · 创立者';
     return '创立者';
   },
@@ -260,39 +294,137 @@ Page({
     }
   },
 
-  // 标记完成
-  async completeCard() {
-    const { cardId, card } = this.data;
+  // 点击状态胶囊，选择新状态（仅创立者 / 共同行动人）
+  onStatusTap() {
+    if (!this.data.canEditStatus) return;
+    const labels = ['待确认', '进行中', '已完成'];
+    const values = ['todo', 'doing', 'done'];
+    wx.showActionSheet({
+      itemList: labels,
+      success: (res) => {
+        const status = values[res.tapIndex];
+        if (status) this.setCardStatus(status);
+      }
+    });
+  },
+
+  async setCardStatus(status) {
+    const { cardId } = this.data;
     if (!cardId) return;
 
     try {
-      const res = await wx.cloud.callFunction({
-        name: 'updateCard',
-        data: { id: cardId, status: 'done' }
-      });
+      const app = getApp();
+      if (app.globalData && app.globalData.cloudReady && wx.cloud) {
+        const res = await wx.cloud.callFunction({
+          name: 'updateCard',
+          data: { id: cardId, status }
+        });
 
-      if (res.result && res.result.code === 0) {
-        wx.showToast({ title: '已标记完成', icon: 'success' });
-        this.loadCard(cardId);
-      } else {
-        wx.showToast({ title: res.result.message || '操作失败', icon: 'none' });
+        if (res.result && res.result.code === 0) {
+          wx.showToast({ title: '状态已更新', icon: 'success' });
+          this.loadCard(cardId);
+        } else {
+          wx.showToast({ title: (res.result && res.result.message) || '操作失败', icon: 'none' });
+        }
+        return;
       }
+
+      await store.updateCard(cardId, { status });
+      wx.showToast({ title: '状态已更新', icon: 'success' });
+      this.loadCard(cardId);
     } catch (e) {
       wx.showToast({ title: '操作失败', icon: 'none' });
-    }
-  },
-
-  // 编辑
-  editCard() {
-    const { cardId } = this.data;
-    if (cardId) {
-      wx.navigateTo({ url: `/pages/card-edit/card-edit?id=${cardId}` });
     }
   },
 
   // 邀请 / 介绍给朋友
   inviteFriend() {
     wx.showShareMenu({ withShareTicket: true });
+  },
+
+  // ==================== 滑动邀请 ====================
+
+  ensureSwipeMetrics() {
+    if (this.swipeMaxX != null) return;
+    const sys = wx.getSystemInfoSync();
+    // 滑块 80rpx + 左右各 8rpx 内边距
+    this.swipeKnobPx = 96 * (sys.windowWidth / 750);
+    wx.createSelectorQuery()
+      .in(this)
+      .select('.swipe-invite')
+      .boundingClientRect()
+      .exec((res) => {
+        const rect = res && res[0];
+        if (rect && rect.width) {
+          this.swipeMaxX = Math.max(0, rect.width - this.swipeKnobPx);
+        }
+      });
+  },
+
+  onSwipeStart(e) {
+    if (this.data.inviteDone) return;
+    this.ensureSwipeMetrics();
+    this.swipeTouchX = e.touches[0].clientX;
+    this.setData({ swiping: true });
+  },
+
+  onSwipeMove(e) {
+    if (this.swipeTouchX == null || this.data.inviteDone) return;
+    const max = this.swipeMaxX || 0;
+    let x = e.touches[0].clientX - this.swipeTouchX;
+    x = Math.max(0, max ? Math.min(x, max) : x);
+    const progress = max ? x / max : 0;
+    this.setData({
+      swipeX: x,
+      swipeHintOpacity: Math.max(0, 1 - progress * 1.4)
+    });
+  },
+
+  onSwipeEnd() {
+    if (this.swipeTouchX == null) return;
+    this.swipeTouchX = null;
+    this.setData({ swiping: false });
+
+    const max = this.swipeMaxX || 0;
+    const passed = max && this.data.swipeX >= max * 0.75;
+    if (passed && !this.data.inviteDone) {
+      // 滑到底：震动反馈并唤起分享
+      this.setData({ swipeX: max, swipeHintOpacity: 1, inviteDone: true });
+      try {
+        wx.vibrateShort({ type: 'light' });
+      } catch (e) {}
+      setTimeout(() => {
+        this.inviteFriend();
+        wx.showToast({ title: '请点击右上角转发邀请', icon: 'none' });
+      }, 300);
+      setTimeout(() => {
+        this.setData({ swipeX: 0, swipeHintOpacity: 1, inviteDone: false });
+      }, 3000);
+    } else {
+      // 未过阈值：回弹
+      this.setData({ swipeX: 0, swipeHintOpacity: 1 });
+    }
+  },
+
+  // 卡片渲染完成：从「生成记事卡」进入时，卡片打出落地瞬间伴随「卡叽」音效
+  onCardRendered() {
+    if (!this.fromCreate) return;
+    this.fromCreate = false;
+    setTimeout(() => this.playDropSound(), 720);
+  },
+
+  playDropSound() {
+    try {
+      if (!this.dropAudio) {
+        this.dropAudio = wx.createInnerAudioContext();
+        this.dropAudio.src = '/assets/audio/invite-click.wav';
+      }
+      this.dropAudio.stop();
+      this.dropAudio.play();
+    } catch (e) {}
+    try {
+      wx.vibrateShort({ type: 'light' });
+    } catch (e) {}
   },
 
   noop() {},

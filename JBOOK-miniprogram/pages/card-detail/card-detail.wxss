@@ -1,14 +1,99 @@
 .card-detail-page {
   padding-top: 0;
-  padding-bottom: 160rpx;
+  padding-bottom: 0;
 }
 
-/* 顶部标题与创立者 */
-.detail-hero {
+/* 记事卡：一整张收据式卡片，顶部直角，深绿色上投影 */
+.receipt-card {
+  margin: 0 28rpx;
+  padding: 36rpx 32rpx 32rpx;
+  background: #ffffff;
+  border-radius: 0;
+  box-shadow:
+    0 -12rpx 28rpx rgba(21, 71, 40, 0.35),
+    0 12rpx 32rpx rgba(0, 0, 0, 0.06);
+}
+
+/* 绿色头部背景：向下渐隐融入页面，无圆角 */
+.detail-topbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(
+    180deg,
+    #5cb860 0%,
+    #4caf50 45%,
+    rgba(76, 175, 80, 0.6) 70%,
+    rgba(76, 175, 80, 0) 100%
+  );
+  z-index: 0;
+}
+
+.detail-body {
+  position: relative;
+  z-index: 1;
+}
+
+/* 出卡辊筒：圆柱体，上暗下亮圆柱阴影，下半被白卡遮挡 */
+.card-slot {
+  position: absolute;
+  z-index: 1;
+  left: 20rpx;
+  right: 20rpx;
+  height: 20rpx;
+  border-radius: 999rpx;
+  background: linear-gradient(
+    180deg,
+    #0e2f19 0%,
+    #1f5c30 42%,
+    #143d22 100%
+  );
+  box-shadow: 0 -6rpx 14rpx rgba(14, 47, 25, 0.4);
+}
+
+/* 打印出口：卡片从头部下方向下打出，顶部留白给卡的上投影 */
+.receipt-clip {
+  position: relative;
+  z-index: 2;
+  overflow: hidden;
+  padding-top: 40rpx;
+  padding-bottom: 8rpx;
+}
+
+.receipt-inner.print-in {
+  animation: receipt-print 0.8s cubic-bezier(0.22, 0.9, 0.3, 1) both;
+}
+
+@keyframes receipt-print {
+  0% {
+    transform: translateY(-104%);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+/* 收据圆波浪锯齿边 */
+.rc-zigzag {
   margin: 0 28rpx 32rpx;
-  padding: 36rpx 32rpx;
-  background: linear-gradient(150deg, #e8f5e9, #c8e6c9);
-  border-radius: 28rpx;
+  height: 20rpx;
+  background-image: radial-gradient(circle at 20rpx 0, #ffffff 16rpx, rgba(0, 0, 0, 0) 17rpx);
+  background-size: 40rpx 20rpx;
+  background-repeat: repeat-x;
+}
+
+/* 卡内分区块与虚线分隔 */
+.rc-section .section-title {
+  font-size: 30rpx;
+  font-weight: 700;
+  color: #162116;
+  margin-bottom: 18rpx;
+}
+
+.rc-divider {
+  border-top: 2rpx dashed #e8e8e8;
+  margin: 28rpx 0;
 }
 
 .detail-title {
@@ -81,7 +166,7 @@
   line-height: 1.7;
 }
 
-/* 协助者 */
+/* 共同行动人 */
 .helpers {
   display: flex;
   flex-wrap: wrap;
@@ -201,6 +286,47 @@
   color: #bbb;
 }
 
+.kv-value.overdue {
+  color: #e53935;
+}
+
+/* 状态选择：胶囊样式，可点击时带下拉箭头与虚线描边 */
+.status-picker {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  padding: 8rpx 20rpx;
+  border-radius: 999rpx;
+  font-size: 26rpx;
+  font-weight: 600;
+  background: #f0f0f0;
+  color: #888;
+}
+
+.status-picker.todo {
+  background: #fff4e0;
+  color: #c78000;
+}
+
+.status-picker.doing {
+  background: #e8f5e9;
+  color: #43a047;
+}
+
+.status-picker.done {
+  background: #f0f0f0;
+  color: #888;
+}
+
+.status-picker.can-pick {
+  box-shadow: inset 0 0 0 2rpx currentColor;
+  opacity: 0.95;
+}
+
+.status-picker-arrow {
+  font-size: 22rpx;
+}
+
 /* 审批列表 */
 .request-list {
   display: flex;
@@ -292,6 +418,7 @@
   padding: 24rpx 32rpx;
   background: #ffffff;
   border-top: 1rpx solid #f0f0f0;
+  box-shadow: 0 -8rpx 24rpx rgba(0, 0, 0, 0.03);
   z-index: 50;
 }
 
@@ -376,4 +503,67 @@
 .sheet-btn.primary {
   color: #fff;
   background: #4caf50;
+}
+
+/* 滑动邀请共同行动人 */
+.swipe-invite {
+  position: relative;
+  height: 96rpx;
+  border-radius: 999rpx;
+  background: linear-gradient(135deg, #e9f7ee 0%, #d8f1e0 100%);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.swipe-invite.done {
+  background: linear-gradient(135deg, #d4f0dc 0%, #c4ead1 100%);
+}
+
+.swipe-hint {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #3d8a52;
+  letter-spacing: 2rpx;
+}
+
+.swipe-knob {
+  position: absolute;
+  left: 8rpx;
+  top: 8rpx;
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 50%;
+  background: #4caf50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4rpx 12rpx rgba(76, 175, 80, 0.35);
+  transition: transform 0.25s ease;
+}
+
+.swipe-invite.swiping .swipe-knob {
+  transition: none;
+}
+
+.swipe-invite.done .swipe-knob {
+  background: #43a047;
+}
+
+.swipe-knob-icon {
+  color: #fff;
+  font-size: 32rpx;
+  font-weight: 700;
+  animation: swipe-arrow-nudge 1.4s ease-in-out infinite;
+}
+
+.swipe-invite.swiping .swipe-knob-icon,
+.swipe-invite.done .swipe-knob-icon {
+  animation: none;
+}
+
+@keyframes swipe-arrow-nudge {
+  0%, 100% { transform: translateX(0); opacity: 1; }
+  50% { transform: translateX(8rpx); opacity: 0.7; }
 }

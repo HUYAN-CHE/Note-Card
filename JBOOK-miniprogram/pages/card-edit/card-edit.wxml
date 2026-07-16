@@ -4,7 +4,7 @@
   </custom-nav>
 
   <!-- 顶部固定快速创建浮层 -->
-  <view class="float-create-card" style="top: {{totalHeight}}px; height: {{floatCardHeightPx}}px;">
+  <view class="float-create-card" style="top: {{totalHeight}}px;">
     <view class="create-card compact">
       <view class="create-card-header">
         <view class="create-card-title-wrap">
@@ -31,12 +31,10 @@
         </view>
       </view>
       <view class="vip-banner" bindtap="onChatCreateTap">
-        <view class="vip-banner-left">
-          <image class="vip-banner-icon" src="/assets/images/icon-crown.svg" mode="aspectFit"/>
-          <view class="vip-banner-text">
-            <text class="vip-banner-title">AI 聊天创建</text>
-            <text class="vip-banner-desc">会员专享 · 通过聊天记录一键生成</text>
-          </view>
+        <image class="vip-banner-icon" src="/assets/images/icon-crown.svg" mode="aspectFit"/>
+        <view class="vip-banner-text">
+          <text class="vip-banner-title">AI 聊天创建</text>
+          <text class="vip-banner-desc">会员专享 · 聊天记录一键生成</text>
         </view>
         <view class="vip-banner-btn">立即开通</view>
       </view>
@@ -71,6 +69,16 @@
           />
         </view>
 
+        <!-- 截止日期 -->
+        <view class="field">
+          <view class="field-label">截止日期</view>
+          <picker mode="date" value="{{card.deadline}}" bindchange="onDeadlineChange">
+            <view class="field-input deadline-input {{card.deadline ? '' : 'is-placeholder'}}">
+              {{card.deadline || '请选择日期'}}
+            </view>
+          </picker>
+        </view>
+
         <!-- 重点 / 待确认 -->
         <view class="field">
           <view class="field-label">
@@ -84,18 +92,6 @@
             bindinput="onKeyPointsInput"
             adjust-position="{{true}}"
           />
-        </view>
-
-        <!-- 共同行动人 -->
-        <view class="field">
-          <view class="field-label">共同行动人</view>
-          <view class="helper-row">
-            <view class="helper-avatar" wx:for="{{helpers}}" wx:key="id">
-              <text wx:if="{{!item.avatar}}">{{item.initial}}</text>
-              <image wx:else src="{{item.avatar}}" mode="aspectFill" />
-            </view>
-            <view class="helper-add" bindtap="openInviteSheet">＋</view>
-          </view>
         </view>
 
         <!-- 图片附件 -->
@@ -126,37 +122,6 @@
 
   <!-- 底部操作 -->
   <view class="footer" style="padding-bottom: calc(24rpx + {{safeAreaBottom}}px);">
-    <button class="footer-btn ghost" bindtap="saveDraft">存草稿</button>
-    <button class="footer-btn primary" bindtap="openInviteSheet">邀请一起用</button>
+    <button class="footer-btn primary" bindtap="generateCard">{{card.id ? '保存，去邀请共同行动人' : '生成记事卡'}}</button>
   </view>
-
-  <!-- 邀请好友底部弹窗 -->
-  <bottom-sheet visible="{{showInviteSheet}}" title="邀请一起用" subtitle="选择微信好友或群聊，发送后成为共同行动人" safeAreaBottom="{{safeAreaBottom}}" bind:close="closeInviteSheet">
-    <view class="friend-list">
-      <view
-        class="friend-item"
-        wx:for="{{friendCandidates}}"
-        wx:key="id"
-        bindtap="toggleFriend"
-        data-index="{{index}}"
-      >
-        <view class="friend-avatar">
-          <text wx:if="{{!item.avatar}}">{{item.initial || item.nickname.charAt(0)}}</text>
-          <image wx:else src="{{item.avatar}}" mode="aspectFill" />
-        </view>
-        <view class="friend-info">
-          <text class="friend-name">{{item.nickname}}</text>
-          <text class="friend-status">{{item.status}}</text>
-        </view>
-        <view class="friend-check {{item.selected ? 'on' : ''}}">
-          <text wx:if="{{item.selected}}">✓</text>
-        </view>
-      </view>
-    </view>
-
-    <view class="sheet-actions">
-      <button class="sheet-btn ghost" bindtap="shareToGroup">分享到群聊</button>
-      <button class="sheet-btn primary" bindtap="sendInvite">发送给好友</button>
-    </view>
-  </bottom-sheet>
 </view>

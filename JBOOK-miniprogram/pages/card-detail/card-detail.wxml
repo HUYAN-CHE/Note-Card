@@ -1,94 +1,129 @@
 <view class="page card-detail-page">
-  <custom-nav title="记事卡详情" showBack="{{true}}" statusBarHeight="{{statusBarHeight}}" navHeight="{{navHeight}}" />
+  <custom-nav title="记事卡详情" showBack="{{true}}" theme="light" statusBarHeight="{{statusBarHeight}}" navHeight="{{navHeight}}" />
 
-  <!-- 顶部 Hero -->
-  <view class="detail-hero" style="padding-top: {{totalHeight + 24}}px;">
-    <text class="detail-title">{{card.title || '未命名事项'}}</text>
-    <view class="creator">
-      <view class="creator-avatar">
-        <text wx:if="{{!creator.avatar}}">{{creator.initial}}</text>
-        <image wx:else src="{{creator.avatar}}" mode="aspectFill" />
-      </view>
-      <view class="creator-info">
-        <text class="creator-name">{{creator.nickname || '未知用户'}}</text>
-        <text class="creator-relation">{{role === 'creator' ? '我 · 创立者' : (role === 'helper' ? '一度人脉 · 协助者' : (role === 'network' ? '二度人脉 · 创立者' : '创立者'))}}</text>
-      </view>
-    </view>
-  </view>
+  <!-- 绿色头部背景块（参考收据页头部） -->
+  <view class="detail-topbar" style="height: {{totalHeight + 110}}px;"></view>
 
-  <!-- 协助者 -->
-  <view class="detail-section card">
-    <view class="section-title">协助者</view>
-    <view class="helpers" wx:if="{{helpers.length}}">
-      <view class="helper" wx:for="{{helpers}}" wx:key="id">
-        <view class="helper-avatar">
-          <text wx:if="{{!item.avatar}}">{{item.initial}}</text>
-          <image wx:else src="{{item.avatar}}" mode="aspectFill" />
-        </view>
-        <text class="helper-name">{{item.nickname}}</text>
-      </view>
-      <view class="helper helper-add" bindtap="inviteFriend" wx:if="{{isCreator || isHelper}}">
-        <text class="helper-add-icon">＋</text>
-        <text class="helper-name">添加</text>
-      </view>
-    </view>
-    <view class="helpers-empty" wx:else>
-      <text wx:if="{{isCreator || isHelper}}">暂无协助者，点击 + 邀请好友</text>
-      <text wx:else>暂无协助者，成为第一个帮忙的人</text>
-    </view>
-  </view>
+  <view class="detail-body" style="padding-top: {{totalHeight + 28}}px; padding-bottom: calc(220rpx + {{safeAreaBottom}}px);">
 
-  <!-- 需求描述 -->
-  <view class="detail-section card" wx:if="{{card.desc}}">
-    <view class="section-title">需求描述</view>
-    <text class="detail-summary">{{card.desc}}</text>
-  </view>
+    <!-- 出卡辊筒：圆柱，下半被白卡遮挡 -->
+    <view class="card-slot" style="top: calc({{totalHeight + 28}}px + 30rpx);"></view>
 
-  <!-- 重点 / 待确认 -->
-  <view class="detail-section card" wx:if="{{keyPoints.length}}">
-    <view class="section-title">重点 / 待确认</view>
-    <view class="keypoints">
-      <text class="keypoint" wx:for="{{keyPoints}}" wx:key="*this">{{item}}</text>
-    </view>
-  </view>
-
-  <!-- 当前进度 -->
-  <view class="detail-section card">
-    <view class="section-title">当前进度</view>
-    <view class="kv-list">
-      <view class="kv-item">
-        <text class="kv-key">状态</text>
-        <text class="kv-value {{statusClass}}">{{statusText}}</text>
-      </view>
-      <view class="kv-item">
-        <text class="kv-key">更新于</text>
-        <text class="kv-value">{{card.updatedText || '今天'}}</text>
-      </view>
-      <view class="kv-item" wx:if="{{isNetworkView}}">
-        <text class="kv-key">联系方式</text>
-        <text class="kv-value muted">对二度人脉隐藏</text>
-      </view>
-    </view>
-  </view>
-
-  <!-- 审批区（仅创作者） -->
-  <view class="detail-section card" wx:if="{{isCreator && pendingRequests.length}}">
-    <view class="section-title">加入申请</view>
-    <view class="request-list">
-      <view class="request-item" wx:for="{{pendingRequests}}" wx:key="id">
-        <view class="request-user">
-          <view class="request-avatar">
-            <text wx:if="{{!item.avatar}}">{{item.initial}}</text>
-            <image wx:else src="{{item.avatar}}" mode="aspectFill" />
+    <!-- 记事卡：一整张收据式卡片，生成后从头部下方向下打出 -->
+    <view class="receipt-clip">
+      <view class="receipt-inner {{cardReady ? 'print-in' : ''}}">
+        <view class="receipt-card">
+          <!-- 卡头：标题 + 创立者 -->
+          <view class="rc-head">
+        <text class="detail-title">{{card.title || '未命名事项'}}</text>
+        <view class="creator">
+          <view class="creator-avatar">
+            <text wx:if="{{!creator.avatar}}">{{creator.initial}}</text>
+            <image wx:else src="{{creator.avatar}}" mode="aspectFill" />
           </view>
-          <view class="request-info">
-            <text class="request-name">{{item.nickname || '未知用户'}}</text>
-            <text class="request-note" wx:if="{{item.note}}">{{item.note}}</text>
+          <view class="creator-info">
+            <text class="creator-name">{{creator.nickname || '未知用户'}}</text>
+            <text class="creator-relation">{{role === 'creator' ? '我 · 创立者' : (role === 'helper' ? '一度人脉 · 共同行动人' : (role === 'network' ? '二度人脉 · 创立者' : '创立者'))}}</text>
           </view>
         </view>
-        <view class="request-actions">
-          <view class="request-btn reject" bindtap="approveRequest" data-id="{{item.id}}" data-approved="{{false}}">拒绝</view>
-          <view class="request-btn approve" bindtap="approveRequest" data-id="{{item.id}}" data-approved="{{true}}">通过</view>
+      </view>
+
+      <view class="rc-divider"></view>
+
+      <!-- 共同行动人 -->
+      <view class="rc-section">
+        <view class="section-title">共同行动人</view>
+        <view class="helpers" wx:if="{{helpers.length}}">
+          <view class="helper" wx:for="{{helpers}}" wx:key="id">
+            <view class="helper-avatar">
+              <text wx:if="{{!item.avatar}}">{{item.initial}}</text>
+              <image wx:else src="{{item.avatar}}" mode="aspectFill" />
+            </view>
+            <text class="helper-name">{{item.nickname}}</text>
+          </view>
+          <view class="helper helper-add" bindtap="inviteFriend" wx:if="{{isCreator || isHelper}}">
+            <text class="helper-add-icon">＋</text>
+            <text class="helper-name">添加</text>
+          </view>
+        </view>
+        <view class="helpers-empty" wx:else>
+          <text wx:if="{{isCreator || isHelper}}">暂无共同行动人，点击下方按钮邀请</text>
+          <text wx:else>暂无共同行动人，成为第一个帮忙的人</text>
+        </view>
+      </view>
+
+      <!-- 需求描述 -->
+      <block wx:if="{{card.desc}}">
+        <view class="rc-divider"></view>
+        <view class="rc-section">
+          <view class="section-title">需求描述</view>
+          <text class="detail-summary">{{card.desc}}</text>
+        </view>
+      </block>
+
+      <!-- 重点 / 待确认 -->
+      <block wx:if="{{keyPoints.length}}">
+        <view class="rc-divider"></view>
+        <view class="rc-section">
+          <view class="section-title">重点 / 待确认</view>
+          <view class="keypoints">
+            <text class="keypoint" wx:for="{{keyPoints}}" wx:key="*this">{{item}}</text>
+          </view>
+        </view>
+      </block>
+
+      <view class="rc-divider"></view>
+
+      <!-- 当前进度 -->
+      <view class="rc-section">
+        <view class="section-title">当前进度</view>
+        <view class="kv-list">
+          <view class="kv-item" bindtap="onStatusTap">
+            <text class="kv-key">状态</text>
+            <view class="status-picker {{statusClass}} {{canEditStatus ? 'can-pick' : ''}}">
+              <text>{{statusText}}</text>
+              <text class="status-picker-arrow" wx:if="{{canEditStatus}}">▾</text>
+            </view>
+          </view>
+          <view class="kv-item">
+            <text class="kv-key">截止日期</text>
+            <text class="kv-value {{card.deadline ? (isOverdue ? 'overdue' : '') : 'muted'}}">{{card.deadline || '未设置'}}</text>
+          </view>
+          <view class="kv-item">
+            <text class="kv-key">更新于</text>
+            <text class="kv-value">{{card.updatedText || '今天'}}</text>
+          </view>
+          <view class="kv-item" wx:if="{{isNetworkView}}">
+            <text class="kv-key">联系方式</text>
+            <text class="kv-value muted">对二度人脉隐藏</text>
+          </view>
+        </view>
+      </view>
+        </view>
+        <!-- 收据锯齿边 -->
+        <view class="rc-zigzag"></view>
+      </view>
+    </view>
+
+    <!-- 审批区（仅创作者） -->
+    <view class="detail-section card" wx:if="{{isCreator && pendingRequests.length}}">
+      <view class="section-title">加入申请</view>
+      <view class="request-list">
+        <view class="request-item" wx:for="{{pendingRequests}}" wx:key="id">
+          <view class="request-user">
+            <view class="request-avatar">
+              <text wx:if="{{!item.avatar}}">{{item.initial}}</text>
+              <image wx:else src="{{item.avatar}}" mode="aspectFill" />
+            </view>
+            <view class="request-info">
+              <text class="request-name">{{item.nickname || '未知用户'}}</text>
+              <text class="request-note" wx:if="{{item.note}}">{{item.note}}</text>
+            </view>
+          </view>
+          <view class="request-actions">
+            <view class="request-btn reject" bindtap="approveRequest" data-id="{{item.id}}" data-approved="{{false}}">拒绝</view>
+            <view class="request-btn approve" bindtap="approveRequest" data-id="{{item.id}}" data-approved="{{true}}">通过</view>
+          </view>
         </view>
       </view>
     </view>
@@ -99,15 +134,19 @@
     <button class="footer-btn primary" wx:if="{{isNetworkView}}" bindtap="openApplySheet">申请加入</button>
     <button class="footer-btn primary" wx:if="{{canAcceptInvite}}" bindtap="acceptInvite">接受邀请</button>
 
-    <view class="footer-row" wx:if="{{isCreator}}">
-      <button class="footer-btn ghost" bindtap="editCard">编辑</button>
-      <button class="footer-btn primary" wx:if="{{card.status !== 'done'}}" bindtap="completeCard">标记完成</button>
-      <button class="footer-btn primary" wx:else disabled>已完成</button>
-    </view>
-
-    <view class="footer-row" wx:if="{{isHelper}}">
-      <button class="footer-btn ghost" open-type="share">介绍给朋友</button>
-      <button class="footer-btn primary" open-type="share">邀请一起用</button>
+    <!-- 滑动邀请共同行动人 -->
+    <view
+      class="swipe-invite {{swiping ? 'swiping' : ''}} {{inviteDone ? 'done' : ''}}"
+      wx:if="{{isCreator || isHelper}}"
+      bindtouchstart="onSwipeStart"
+      bindtouchmove="onSwipeMove"
+      bindtouchend="onSwipeEnd"
+      bindtouchcancel="onSwipeEnd"
+    >
+      <text class="swipe-hint" style="opacity: {{swipeHintOpacity}};">{{inviteDone ? '已唤起分享，去邀请吧' : '滑动邀请共同行动人'}}</text>
+      <view class="swipe-knob" style="transform: translateX({{swipeX}}px);">
+        <text class="swipe-knob-icon">{{inviteDone ? '✓' : '→'}}</text>
+      </view>
     </view>
   </view>
 

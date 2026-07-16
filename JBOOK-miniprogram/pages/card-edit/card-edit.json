@@ -1,7 +1,6 @@
 {
   "navigationStyle": "custom",
   "usingComponents": {
-    "custom-nav": "/components/custom-nav/custom-nav",
-    "bottom-sheet": "/components/bottom-sheet/bottom-sheet"
+    "custom-nav": "/components/custom-nav/custom-nav"
   }
 }
