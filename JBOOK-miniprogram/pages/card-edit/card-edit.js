@@ -171,16 +171,19 @@ Page({
   initRecorder() {
     const recorderManager = wx.getRecorderManager();
     recorderManager.onStart(() => {
+      console.log('[recorder] onStart');
       this.setData({ isRecording: true });
       wx.showToast({ title: '开始录音，请说话', icon: 'none' });
     });
     recorderManager.onStop((res) => {
+      console.log('[recorder] onStop:', JSON.stringify(res));
       this.setData({ isRecording: false });
       if (res.tempFilePath) {
         this.uploadVoiceAndParse(res.tempFilePath);
       }
     });
     recorderManager.onError((err) => {
+      console.log('[recorder] onError:', JSON.stringify(err));
       this.setData({ isRecording: false });
       wx.showToast({ title: '录音失败: ' + (err.message || ''), icon: 'none' });
     });
@@ -235,11 +238,13 @@ Page({
       return;
     }
     if (this.data.isRecording) {
+      console.log('[startVoiceInput] stopping recorder');
       this.recorderManager.stop();
       return;
     }
     if (this.data.isParsing) return;
 
+    console.log('[startVoiceInput] starting recorder');
     this.recorderManager.start({
       duration: 60000,
       sampleRate: 16000,
@@ -255,30 +260,49 @@ Page({
 
     try {
       const app = getApp();
-      console.log('[uploadVoiceAndParse] cloud status:', {
-        hasGlobalData: !!app.globalData,
-        cloudReady: app.globalData && app.globalData.cloudReady,
-        hasWxCloud: !!wx.cloud
-      });
       if (!app.globalData || !app.globalData.cloudReady || !wx.cloud) {
         wx.showToast({ title: '云开发未就绪', icon: 'none' });
         return;
       }
 
+      // 诊断：读取本地录音文件信息
       const fs = wx.getFileSystemManager();
-      const base64Audio = await new Promise((resolve, reject) => {
-        fs.readFile({
+      const fileInfo = await new Promise((resolve, reject) => {
+        fs.getFileInfo({
           filePath,
-          encoding: 'base64',
-          success: (r) => resolve(r.data),
-          fail: reject
+          success: (r) => resolve(r),
+          fail: (err) => resolve({ size: 0, digest: '', error: err })
         });
       });
+      const headerBytes = await new Promise((resolve) => {
+        fs.readFile({
+          filePath,
+          position: 0,
+          length: 16,
+          encoding: 'hex',
+          success: (r) => resolve(r.data),
+          fail: () => resolve('')
+        });
+      });
+      console.log('[uploadVoiceAndParse] local voice info:', {
+        filePath,
+        size: fileInfo.size,
+        header: headerBytes
+      });
+
+      // 先上传音频到云存储，再用 fileID 让云函数下载识别
+      const ext = (filePath.split('.').pop() || 'mp3').toLowerCase();
+      const cloudPath = `voice_tmp/${Date.now()}_${Math.random().toString(36).slice(2, 10)}.${ext}`;
+      const uploadRes = await wx.cloud.uploadFile({ cloudPath, filePath });
+      const fileID = uploadRes.fileID;
+      console.log('[uploadVoiceAndParse] uploaded fileID:', fileID);
 
       const res = await wx.cloud.callFunction({
         name: 'parseContext',
-        data: { action: 'parseVoiceBase64', base64Audio, format: 'mp3', type: this.data.card.type }
+        data: { action: 'parseVoice', fileID, format: ext, type: this.data.card.type }
       });
+
+      console.log('[uploadVoiceAndParse] parseContext result:', res.result);
 
       if (res.result && res.result.code === 0) {
         this.applyParsedDraft(res.result.data);
@@ -287,6 +311,7 @@ Page({
         wx.showToast({ title: res.result.message || '语音识别失败', icon: 'none' });
       }
     } catch (e) {
+      console.error('[uploadVoiceAndParse] catch error:', e);
       wx.showToast({ title: e.message || '语音识别失败', icon: 'none' });
     } finally {
       wx.hideLoading();

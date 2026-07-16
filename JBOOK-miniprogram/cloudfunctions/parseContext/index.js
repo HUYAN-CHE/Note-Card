@@ -20,8 +20,8 @@ exports.main = async (event, context) => {
     if (event.action === 'parseText') {
       return await handleParseText(event.text, event.type);
     }
-    if (event.action === 'parseVoiceBase64') {
-      return await handleParseVoiceBase64(event.base64Audio, event.format, event.type);
+    if (event.action === 'parseVoice') {
+      return await handleParseVoice(event.fileID, event.format, event.type);
     }
     return { code: -1, message: '未知 action' };
   } catch (err) {
@@ -39,25 +39,45 @@ async function handleParseText(text, type) {
   return extractJSON(result);
 }
 
-async function handleParseVoiceBase64(base64Audio, format, type) {
-  if (!base64Audio) {
-    return { code: -1, message: '音频数据为空' };
+async function handleParseVoice(fileID, format, type) {
+  if (!fileID) {
+    return { code: -1, message: '音频 fileID 为空' };
   }
 
-  const buffer = Buffer.from(base64Audio, 'base64');
-  if (buffer.length <= 0) {
-    return { code: -1, message: '音频数据为空' };
-  }
-  if (buffer.length > 3 * 1024 * 1024) {
-    return { code: -1, message: '音频文件超过 3MB' };
-  }
+  try {
+    const downloadRes = await cloud.downloadFile({ fileID });
+    const buffer = downloadRes.fileContent;
+    if (!buffer || !buffer.length) {
+      return { code: -1, message: '音频文件下载失败' };
+    }
 
-  const text = await recognizeAudio(buffer, format || 'mp3');
-  if (!text || !text.trim()) {
-    return { code: -1, message: '未能识别到语音内容' };
-  }
+    console.log('[handleParseVoice] audio buffer length:', buffer.length);
 
-  return await handleParseText(text, type);
+    if (buffer.length > 3 * 1024 * 1024) {
+      return { code: -1, message: '音频文件超过 3MB' };
+    }
+
+    const header = buffer.slice(0, 16).toString('hex');
+    const text = await recognizeAudio(buffer, format || 'mp3');
+    if (!text || !text.trim()) {
+      return { code: -1, message: '未能识别到语音内容' };
+    }
+
+    return await handleParseText(text, type);
+  } catch (err) {
+    console.error('[handleParseVoice] 失败:', err);
+    const safeBuffer = typeof buffer !== 'undefined' ? buffer : null;
+    return {
+      code: -1,
+      message: '语音处理失败: ' + (err.message || err),
+      debug: {
+        fileID,
+        format: format || 'mp3',
+        bufferLength: safeBuffer ? safeBuffer.length : 0,
+        bufferHeader: safeBuffer ? safeBuffer.slice(0, 16).toString('hex') : ''
+      }
+    };
+  }
 }
 
 async function callTextModel(text, type) {
