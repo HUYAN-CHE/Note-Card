@@ -250,7 +250,7 @@ Page({
       sampleRate: 16000,
       numberOfChannels: 1,
       encodeBitRate: 48000,
-      format: 'pcm'
+      format: 'aac'
     });
   },
 
@@ -291,7 +291,7 @@ Page({
       });
 
       // 先上传音频到云存储，再用 fileID 让云函数下载识别
-      const ext = (filePath.split('.').pop() || 'pcm').toLowerCase();
+      const ext = (filePath.split('.').pop() || 'aac').toLowerCase();
       const cloudPath = `voice_tmp/${Date.now()}_${Math.random().toString(36).slice(2, 10)}.${ext}`;
       const uploadRes = await wx.cloud.uploadFile({ cloudPath, filePath });
       const fileID = uploadRes.fileID;

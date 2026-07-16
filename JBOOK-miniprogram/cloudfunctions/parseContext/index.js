@@ -146,10 +146,7 @@ function recognizeAudio(audioBuffer, format) {
     const action = 'SentenceRecognition';
     const region = 'ap-beijing';
 
-    let voiceFormat = 'mp3';
-    if (format === 'aac' || format === 'm4a') voiceFormat = 'm4a';
-    if (format === 'wav') voiceFormat = 'wav';
-    if (format === 'pcm') voiceFormat = 'pcm';
+    let voiceFormat = detectAudioFormat(audioBuffer, format);
     const payload = JSON.stringify({
       ProjectId: 0,
       SubServiceType: 2,
@@ -233,4 +230,49 @@ function recognizeAudio(audioBuffer, format) {
 
 function hmacSha256(key, msg) {
   return crypto.createHmac('sha256', key).update(msg, 'utf8').digest();
+}
+
+// 根据文件头自动推断音频格式，优先于前端传的 format
+function detectAudioFormat(buffer, fallbackFormat) {
+  if (!buffer || buffer.length < 16) return fallbackFormat || 'mp3';
+
+  const h = buffer.slice(0, 16);
+  const hex = h.toString('hex');
+
+  // MP3: ID3 tag or MPEG sync word
+  if (hex.startsWith('494433') || (h[0] === 0xff && (h[1] & 0xe0) === 0xe0)) {
+    return 'mp3';
+  }
+
+  // WAV: RIFF....WAVE
+  if (hex.startsWith('52494646') && hex.includes('57415645')) {
+    return 'wav';
+  }
+
+  // AAC/ADTS: 0xfff
+  if (h[0] === 0xff && (h[1] & 0xf0) === 0xf0) {
+    return 'm4a';
+  }
+
+  // M4A/MP4: ftyp
+  if (hex.includes('66747970')) {
+    return 'm4a';
+  }
+
+  // WebM/Matroska
+  if (hex.startsWith('1a45dfa3')) {
+    return 'webm';
+  }
+
+  // Ogg: OggS
+  if (hex.startsWith('4f676753')) {
+    return 'ogg-opus';
+  }
+
+  // PCM has no header; rely on explicit format hint
+  const fmt = (fallbackFormat || 'mp3').toLowerCase();
+  if (fmt === 'aac' || fmt === 'm4a') return 'm4a';
+  if (fmt === 'wav') return 'wav';
+  if (fmt === 'pcm') return 'pcm';
+  return 'mp3';
 }
