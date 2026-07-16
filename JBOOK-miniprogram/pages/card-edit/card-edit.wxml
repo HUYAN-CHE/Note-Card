@@ -8,14 +8,11 @@
     <view class="create-card compact">
       <view class="create-card-header">
         <view class="create-card-title">快速创建</view>
-        <view class="create-card-vip" bindtap="onChatCreateTap">
-          <view class="create-card-vip-icon-wrap">
-            <image class="create-card-vip-icon" src="/assets/images/icon-robot.svg" mode="aspectFit"/>
-            <view class="create-card-vip-crown-wrap">
-              <image class="create-card-vip-crown" src="/assets/images/icon-crown.svg" mode="aspectFit"/>
-            </view>
+        <view class="create-card-ai" bindtap="onChatCreateTap">
+          <view class="create-card-ai-icon-wrap">
+            <image class="create-card-ai-icon" src="/assets/images/icon-robot.svg" mode="aspectFit"/>
           </view>
-          <text class="create-card-vip-text">通过聊天创建</text>
+          <text class="create-card-ai-text">AI 聊天创建</text>
         </view>
       </view>
       <textarea

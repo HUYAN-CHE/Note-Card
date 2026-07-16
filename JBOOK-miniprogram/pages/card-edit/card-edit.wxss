@@ -391,18 +391,17 @@
   color: #162116;
 }
 
-.create-card-vip {
+.create-card-ai {
   display: flex;
   align-items: center;
   gap: 10rpx;
   padding: 10rpx 18rpx 10rpx 14rpx;
-  background: linear-gradient(135deg, #ff8c42 0%, #ffb347 50%, #ffcc33 100%);
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
   border-radius: 999rpx;
-  box-shadow: 0 6rpx 16rpx rgba(255, 140, 66, 0.35);
+  box-shadow: 0 6rpx 16rpx rgba(99, 102, 241, 0.3);
 }
 
-.create-card-vip-icon-wrap {
-  position: relative;
+.create-card-ai-icon-wrap {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -412,34 +411,13 @@
   background: rgba(255, 255, 255, 0.2);
 }
 
-.create-card-vip-icon {
+.create-card-ai-icon {
   width: 28rpx;
   height: 28rpx;
   filter: brightness(0) invert(1);
 }
 
-.create-card-vip-crown-wrap {
-  position: absolute;
-  right: -6rpx;
-  bottom: -4rpx;
-  width: 26rpx;
-  height: 26rpx;
-  padding: 2rpx;
-  background: linear-gradient(135deg, #ffd700 0%, #ff8c00 100%);
-  border: 2rpx solid #fff;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.create-card-vip-crown {
-  width: 18rpx;
-  height: 18rpx;
-  filter: brightness(0) invert(1);
-}
-
-.create-card-vip-text {
+.create-card-ai-text {
   font-size: 28rpx;
   font-weight: 600;
   color: #fff;
