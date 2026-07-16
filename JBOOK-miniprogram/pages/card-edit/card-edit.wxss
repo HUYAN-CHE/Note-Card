@@ -13,7 +13,7 @@
 }
 
 .form {
-  padding: 16rpx 28rpx 32rpx;
+  padding: 16rpx 44rpx 32rpx;
 }
 
 .field {
@@ -378,6 +378,7 @@
 
 .ai-input-actions {
   display: flex;
+  flex-direction: column;
   gap: 16rpx;
 }
 
