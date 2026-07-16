@@ -435,8 +435,8 @@
 
 .create-card-input {
   width: 100%;
-  height: 96rpx;
-  min-height: 96rpx;
+  height: 150rpx;
+  min-height: 150rpx;
   padding: 16rpx;
   box-sizing: border-box;
   background: rgba(255, 255, 255, 0.9);

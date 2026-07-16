@@ -40,7 +40,7 @@ Page({
     const sys = wx.getSystemInfoSync();
     const navInfo = getNavInfo();
     const rpxRatio = sys.windowWidth / 750;
-    const floatCardHeightPx = Math.round(340 * rpxRatio);
+    const floatCardHeightPx = Math.round(400 * rpxRatio);
     const footerHeightPx = 144 * rpxRatio + (sys.safeAreaInsets ? sys.safeAreaInsets.bottom : 0);
     this.setData({
       statusBarHeight: navInfo.statusBarHeight,
