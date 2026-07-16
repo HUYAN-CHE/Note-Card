@@ -149,6 +149,7 @@ function recognizeAudio(audioBuffer, format) {
     let voiceFormat = 'mp3';
     if (format === 'aac' || format === 'm4a') voiceFormat = 'm4a';
     if (format === 'wav') voiceFormat = 'wav';
+    if (format === 'pcm') voiceFormat = 'pcm';
     const payload = JSON.stringify({
       ProjectId: 0,
       SubServiceType: 2,
