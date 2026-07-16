@@ -1,4 +1,4 @@
-<view class="custom-nav">
+<view class="custom-nav {{theme ? 'custom-nav-' + theme : ''}}">
   <view class="status-bar" style="height: {{statusBarHeight}}px;"></view>
   <view class="nav-inner" style="height: {{navHeight}}px;">
     <view class="nav-back" bindtap="goBack" wx:if="{{showBack}}">

@@ -15,6 +15,7 @@ Page({
     navHeight: 88,
     totalHeight: 132,
     contentHeight: 500,
+    floatCardHeightPx: 0,
     card: {
       title: '',
       desc: '',
@@ -38,12 +39,15 @@ Page({
   onLoad(options = {}) {
     const sys = wx.getSystemInfoSync();
     const navInfo = getNavInfo();
-    const footerHeightPx = 144 * sys.windowWidth / 750 + (sys.safeAreaInsets ? sys.safeAreaInsets.bottom : 0);
+    const rpxRatio = sys.windowWidth / 750;
+    const floatCardHeightPx = Math.round(340 * rpxRatio);
+    const footerHeightPx = 144 * rpxRatio + (sys.safeAreaInsets ? sys.safeAreaInsets.bottom : 0);
     this.setData({
       statusBarHeight: navInfo.statusBarHeight,
       navHeight: navInfo.navHeight,
       totalHeight: navInfo.totalHeight,
-      contentHeight: sys.windowHeight - navInfo.totalHeight - footerHeightPx,
+      floatCardHeightPx,
+      contentHeight: sys.windowHeight - navInfo.totalHeight - floatCardHeightPx - footerHeightPx,
       safeAreaBottom: sys.safeAreaInsets ? sys.safeAreaInsets.bottom : 0
     });
     this.initRecorder();

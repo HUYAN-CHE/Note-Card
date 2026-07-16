@@ -1,40 +1,44 @@
 <view class="page card-edit-page">
-  <custom-nav title="{{card.id ? '编辑记事卡' : '新建记事卡'}}" showBack="{{true}}" statusBarHeight="{{statusBarHeight}}" navHeight="{{navHeight}}">
+  <custom-nav title="{{card.id ? '编辑记事卡' : '新建记事卡'}}" showBack="{{true}}" statusBarHeight="{{statusBarHeight}}" navHeight="{{navHeight}}" theme="green">
     <view slot="right" class="nav-save" bindtap="saveAndBack">保存</view>
   </custom-nav>
 
-  <scroll-view class="form-scroll" scroll-y style="height: {{contentHeight}}px; margin-top: {{totalHeight}}px;">
-    <view class="form">
-      <!-- 快速创建卡片 -->
-      <view class="create-card">
-        <view class="create-card-header">
-          <view class="create-card-title">快速创建</view>
-          <view class="create-card-vip" bindtap="onChatCreateTap">
+  <!-- 顶部固定快速创建浮层 -->
+  <view class="float-create-card" style="top: {{totalHeight}}px; height: {{floatCardHeightPx}}px;">
+    <view class="create-card compact">
+      <view class="create-card-header">
+        <view class="create-card-title">快速创建</view>
+        <view class="create-card-vip" bindtap="onChatCreateTap">
+          <view class="create-card-vip-icon-wrap">
             <image class="create-card-vip-icon" src="/assets/images/icon-chat.svg" mode="aspectFit"/>
-            <text class="create-card-vip-text">通过聊天创建</text>
-            <text class="create-card-vip-badge">VIP</text>
+            <text class="create-card-vip-corner">VIP</text>
           </view>
-        </view>
-        <textarea
-          class="create-card-input"
-          value="{{parseInputText}}"
-          placeholder="粘贴聊天内容或语音输入，自动识别生成记事卡"
-          bindinput="onParseInput"
-          maxlength="4000"
-          adjust-position="{{true}}"
-        />
-        <view class="create-card-actions">
-          <view class="create-btn primary {{isParsing ? 'disabled' : ''}}" bindtap="parseFromInput">
-            <image class="create-btn-icon white" src="/assets/images/icon-paste.svg" mode="aspectFit"/>
-            <text>{{isParsing ? '识别中...' : '粘贴识别'}}</text>
-          </view>
-          <view class="create-btn {{isRecording ? 'recording' : ''}} {{isParsing ? 'disabled' : ''}}" bindtap="startVoiceInput">
-            <image class="create-btn-icon" src="/assets/images/icon-mic.svg" mode="aspectFit"/>
-            <text>{{isRecording ? '录音中...' : '语音输入'}}</text>
-          </view>
+          <text class="create-card-vip-text">通过聊天创建</text>
         </view>
       </view>
+      <textarea
+        class="create-card-input"
+        value="{{parseInputText}}"
+        placeholder="粘贴聊天内容或语音输入，自动识别生成记事卡"
+        bindinput="onParseInput"
+        maxlength="4000"
+        adjust-position="{{true}}"
+      />
+      <view class="create-card-actions">
+        <view class="create-btn primary {{isParsing ? 'disabled' : ''}}" bindtap="parseFromInput">
+          <image class="create-btn-icon white" src="/assets/images/icon-paste.svg" mode="aspectFit"/>
+          <text>{{isParsing ? '识别中...' : '粘贴识别'}}</text>
+        </view>
+        <view class="create-btn {{isRecording ? 'recording' : ''}} {{isParsing ? 'disabled' : ''}}" bindtap="startVoiceInput">
+          <image class="create-btn-icon" src="/assets/images/icon-mic.svg" mode="aspectFit"/>
+          <text>{{isRecording ? '录音中...' : '语音输入'}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
 
+  <scroll-view class="form-scroll" scroll-y style="height: {{contentHeight}}px; margin-top: {{totalHeight + floatCardHeightPx}}px;">
+    <view class="form">
       <!-- 信息卡片 -->
       <view class="info-card">
         <!-- 标题 -->

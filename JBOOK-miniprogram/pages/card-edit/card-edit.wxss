@@ -353,23 +353,40 @@
   background: #4caf50;
 }
 
+/* 顶部固定快速创建浮层 */
+.float-create-card {
+  position: fixed;
+  left: 0;
+  right: 0;
+  z-index: 99;
+  padding: 0 28rpx 16rpx;
+  box-sizing: border-box;
+  background: linear-gradient(180deg, #d4f8e0 0%, #c4f3d8 100%);
+  border-radius: 0 0 32rpx 32rpx;
+  box-shadow: 0 16rpx 40rpx rgba(0, 200, 83, 0.12);
+  overflow: hidden;
+}
+
 /* 快速创建卡片 */
 .create-card {
-  margin-bottom: 32rpx;
-  padding: 36rpx 32rpx;
-  background: linear-gradient(150deg, #e0ffec 0%, #d8ffe8 50%, #e0fff7 100%);
-  border-radius: 28rpx;
+  padding: 24rpx;
+  background: linear-gradient(150deg, #b8f0cf 0%, #a8ebc5 50%, #b8f0df 100%);
+  border-radius: 24rpx;
+}
+
+.create-card.compact {
+  padding: 20rpx 22rpx;
 }
 
 .create-card-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 24rpx;
+  margin-bottom: 16rpx;
 }
 
 .create-card-title {
-  font-size: 34rpx;
+  font-size: 30rpx;
   font-weight: 700;
   color: #162116;
 }
@@ -377,52 +394,64 @@
 .create-card-vip {
   display: flex;
   align-items: center;
-  gap: 8rpx;
-  padding: 10rpx 16rpx;
-  background: rgba(255, 255, 255, 0.85);
-  border: 1rpx solid rgba(0, 200, 83, 0.2);
+  gap: 10rpx;
+  padding: 10rpx 18rpx;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1rpx solid rgba(0, 200, 83, 0.25);
   border-radius: 999rpx;
 }
 
+.create-card-vip-icon-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .create-card-vip-icon {
-  width: 28rpx;
-  height: 28rpx;
+  width: 38rpx;
+  height: 38rpx;
   color: #00c853;
 }
 
-.create-card-vip-text {
-  font-size: 24rpx;
-  font-weight: 500;
-  color: #00a344;
-}
-
-.create-card-vip-badge {
-  padding: 2rpx 10rpx;
+.create-card-vip-corner {
+  position: absolute;
+  right: -10rpx;
+  bottom: -4rpx;
+  padding: 2rpx 6rpx;
   background: linear-gradient(135deg, #ffd700, #ffaa00);
-  border-radius: 8rpx;
-  font-size: 18rpx;
+  border-radius: 6rpx;
+  font-size: 16rpx;
   font-weight: 700;
   color: #fff;
+  line-height: 1;
+}
+
+.create-card-vip-text {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #00a344;
 }
 
 .create-card-input {
   width: 100%;
-  min-height: 180rpx;
-  padding: 24rpx;
+  height: 96rpx;
+  min-height: 96rpx;
+  padding: 16rpx;
   box-sizing: border-box;
-  background: rgba(255, 255, 255, 0.85);
-  border: 1rpx solid rgba(255, 255, 255, 0.9);
-  border-radius: 20rpx;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1rpx solid rgba(255, 255, 255, 0.95);
+  border-radius: 16rpx;
   font-size: 28rpx;
   color: #333;
   line-height: 1.5;
-  margin-bottom: 24rpx;
+  margin-bottom: 16rpx;
 }
 
 .create-card-actions {
   display: flex;
-  flex-direction: column;
-  gap: 20rpx;
+  flex-direction: row;
+  gap: 16rpx;
 }
 
 .create-btn {
@@ -430,12 +459,12 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 12rpx;
-  padding: 24rpx 0;
+  gap: 10rpx;
+  padding: 16rpx 0;
   background: rgba(255, 255, 255, 0.9);
   border: 1rpx solid rgba(255, 255, 255, 0.95);
   border-radius: 999rpx;
-  font-size: 28rpx;
+  font-size: 26rpx;
   font-weight: 600;
   color: #162116;
 }

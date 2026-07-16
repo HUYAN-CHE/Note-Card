@@ -9,6 +9,11 @@
   border-bottom: 1rpx solid rgba(22, 33, 22, 0.06);
 }
 
+.custom-nav-green {
+  background: rgba(212, 248, 224, 0.96);
+  border-bottom: none;
+}
+
 .status-bar {
   width: 100%;
 }

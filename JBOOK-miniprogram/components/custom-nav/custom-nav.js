@@ -3,7 +3,8 @@ Component({
     title: { type: String, value: '' },
     showBack: { type: Boolean, value: true },
     statusBarHeight: { type: Number, value: 44 },
-    navHeight: { type: Number, value: 88 }
+    navHeight: { type: Number, value: 88 },
+    theme: { type: String, value: '' }
   },
 
   methods: {
