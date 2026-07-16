@@ -9,12 +9,16 @@
       <view class="create-card">
         <view class="create-card-header">
           <view class="create-card-title">快速创建</view>
-          <view class="create-card-desc">粘贴聊天内容或语音输入，自动识别生成记事卡</view>
+          <view class="create-card-vip" bindtap="onChatCreateTap">
+            <image class="create-card-vip-icon" src="/assets/images/icon-chat.svg" mode="aspectFit"/>
+            <text class="create-card-vip-text">通过聊天创建</text>
+            <text class="create-card-vip-badge">VIP</text>
+          </view>
         </view>
         <textarea
           class="create-card-input"
           value="{{parseInputText}}"
-          placeholder="把客户私聊、群聊摘要或语音整理结果粘贴到这里"
+          placeholder="粘贴聊天内容或语音输入，自动识别生成记事卡"
           bindinput="onParseInput"
           maxlength="4000"
           adjust-position="{{true}}"

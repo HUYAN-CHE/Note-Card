@@ -194,6 +194,10 @@ Page({
     this.setData({ parseInputText: event.detail.value });
   },
 
+  onChatCreateTap() {
+    wx.showToast({ title: '正在开发中，敬请期待', icon: 'none' });
+  },
+
   async parseFromInput() {
     const text = this.data.parseInputText.trim();
     if (!text) {
