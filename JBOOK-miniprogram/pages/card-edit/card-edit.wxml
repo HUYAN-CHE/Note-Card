@@ -10,7 +10,7 @@
         <view class="create-card-title">快速创建</view>
         <view class="create-card-vip" bindtap="onChatCreateTap">
           <view class="create-card-vip-icon-wrap">
-            <image class="create-card-vip-icon" src="/assets/images/icon-chat.svg" mode="aspectFit"/>
+            <image class="create-card-vip-icon" src="/assets/images/icon-robot.svg" mode="aspectFit"/>
             <view class="create-card-vip-crown-wrap">
               <image class="create-card-vip-crown" src="/assets/images/icon-crown.svg" mode="aspectFit"/>
             </view>
