@@ -20,24 +20,11 @@
         />
         <view class="ai-input-actions">
           <view class="ai-parse-btn primary {{isParsing ? 'disabled' : ''}}" bindtap="parseFromInput">
-            <view class="ai-parse-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="8" y="5" width="8" height="12" rx="1"/>
-                <path d="M10 5V4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v1"/>
-                <path d="M6 8h12"/>
-                <path d="M9 12h6"/>
-              </svg>
-            </view>
+            <image class="ai-parse-icon white" src="/assets/images/icon-paste.svg" mode="aspectFit"/>
             <text>{{isParsing ? '识别中...' : '粘贴识别'}}</text>
           </view>
           <view class="ai-parse-btn {{isRecording ? 'recording' : ''}} {{isParsing ? 'disabled' : ''}}" bindtap="startVoiceInput">
-            <view class="ai-parse-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M12 14a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v5a3 3 0 0 0 3 3z"/>
-                <path d="M19 11v1a7 7 0 0 1-14 0v-1"/>
-                <path d="M12 18v3"/>
-              </svg>
-            </view>
+            <image class="ai-parse-icon" src="/assets/images/icon-mic.svg" mode="aspectFit"/>
             <text>{{isRecording ? '录音中...' : '语音输入'}}</text>
           </view>
         </view>
