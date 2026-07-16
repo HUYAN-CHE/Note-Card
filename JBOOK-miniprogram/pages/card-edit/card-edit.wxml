@@ -21,11 +21,11 @@
         <view class="ai-input-actions">
           <view class="ai-parse-btn primary {{isParsing ? 'disabled' : ''}}" bindtap="parseFromInput">
             <text class="ai-parse-icon">✨</text>
-            <text>{{isParsing ? '识别中...' : '识别'}}</text>
+            <text>{{isParsing ? '识别中...' : '粘贴识别'}}</text>
           </view>
           <view class="ai-parse-btn {{isRecording ? 'recording' : ''}} {{isParsing ? 'disabled' : ''}}" bindtap="startVoiceInput">
             <text class="ai-parse-icon">🎤</text>
-            <text>{{isRecording ? '录音中...' : '语音输入(v2)'}}</text>
+            <text>{{isRecording ? '录音中...' : '语音输入'}}</text>
           </view>
         </view>
       </view>

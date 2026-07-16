@@ -58,12 +58,17 @@ async function handleParseVoice(fileID, format, type) {
     }
 
     const header = buffer.slice(0, 16).toString('hex');
+    console.log('[handleParseVoice] audio header:', header);
     const text = await recognizeAudio(buffer, format || 'mp3');
     if (!text || !text.trim()) {
       return { code: -1, message: '未能识别到语音内容' };
     }
 
-    return await handleParseText(text, type);
+    const parsed = await handleParseText(text, type);
+    if (parsed.code === 0) {
+      parsed.data.rawText = text;
+    }
+    return parsed;
   } catch (err) {
     console.error('[handleParseVoice] 失败:', err);
     const safeBuffer = typeof buffer !== 'undefined' ? buffer : null;

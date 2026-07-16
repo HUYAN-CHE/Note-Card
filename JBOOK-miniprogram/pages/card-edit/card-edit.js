@@ -219,7 +219,6 @@ Page({
 
       if (res.result && res.result.code === 0) {
         this.applyParsedDraft(res.result.data);
-        this.setData({ parseInputText: '' });
         wx.showToast({ title: '识别成功', icon: 'success' });
       } else {
         wx.showToast({ title: res.result.message || '识别失败', icon: 'none' });
@@ -306,6 +305,10 @@ Page({
 
       if (res.result && res.result.code === 0) {
         this.applyParsedDraft(res.result.data);
+        const rawText = res.result.data && res.result.data.rawText;
+        if (rawText) {
+          this.setData({ parseInputText: rawText });
+        }
         wx.showToast({ title: '识别成功', icon: 'success' });
       } else {
         wx.showToast({ title: res.result.message || '语音识别失败', icon: 'none' });
