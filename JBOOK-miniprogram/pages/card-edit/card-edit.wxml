@@ -5,105 +5,108 @@
 
   <scroll-view class="form-scroll" scroll-y style="height: {{contentHeight}}px; margin-top: {{totalHeight}}px;">
     <view class="form">
-    <!-- 智能识别 -->
-    <view class="ai-parse-section">
-      <view class="ai-parse-title">快速创建</view>
-      <view class="ai-parse-desc">粘贴聊天内容或语音输入，自动识别生成记事卡</view>
-      <view class="ai-input-wrap">
+      <!-- 快速创建卡片 -->
+      <view class="create-card">
+        <view class="create-card-header">
+          <view class="create-card-title">快速创建</view>
+          <view class="create-card-desc">粘贴聊天内容或语音输入，自动识别生成记事卡</view>
+        </view>
         <textarea
-          class="ai-input"
+          class="create-card-input"
           value="{{parseInputText}}"
           placeholder="把客户私聊、群聊摘要或语音整理结果粘贴到这里"
           bindinput="onParseInput"
           maxlength="4000"
           adjust-position="{{true}}"
         />
-        <view class="ai-input-actions">
-          <view class="ai-parse-btn primary {{isParsing ? 'disabled' : ''}}" bindtap="parseFromInput">
-            <image class="ai-parse-icon white" src="/assets/images/icon-paste.svg" mode="aspectFit"/>
+        <view class="create-card-actions">
+          <view class="create-btn primary {{isParsing ? 'disabled' : ''}}" bindtap="parseFromInput">
+            <image class="create-btn-icon white" src="/assets/images/icon-paste.svg" mode="aspectFit"/>
             <text>{{isParsing ? '识别中...' : '粘贴识别'}}</text>
           </view>
-          <view class="ai-parse-btn {{isRecording ? 'recording' : ''}} {{isParsing ? 'disabled' : ''}}" bindtap="startVoiceInput">
-            <image class="ai-parse-icon" src="/assets/images/icon-mic.svg" mode="aspectFit"/>
+          <view class="create-btn {{isRecording ? 'recording' : ''}} {{isParsing ? 'disabled' : ''}}" bindtap="startVoiceInput">
+            <image class="create-btn-icon" src="/assets/images/icon-mic.svg" mode="aspectFit"/>
             <text>{{isRecording ? '录音中...' : '语音输入'}}</text>
           </view>
         </view>
       </view>
-    </view>
 
-    <!-- 标题 -->
-    <view class="field">
-      <view class="field-label">标题 <text class="required">*</text></view>
-      <input
-        class="field-input"
-        value="{{card.title}}"
-        placeholder="如 品牌官网视觉改版"
-        bindinput="onTitleInput"
-        adjust-position="{{true}}"
-      />
-    </view>
-
-    <!-- 需求描述 -->
-    <view class="field">
-      <view class="field-label">需求描述</view>
-      <textarea
-        class="field-textarea"
-        value="{{card.desc}}"
-        placeholder="描述一下需要帮忙的事"
-        bindinput="onDescInput"
-        adjust-position="{{true}}"
-      />
-    </view>
-
-    <!-- 重点 / 待确认 -->
-    <view class="field">
-      <view class="field-label">
-        重点 / 待确认
-        <text class="field-hint">用 · 分隔</text>
-      </view>
-      <input
-        class="field-input"
-        value="{{keyPointsText}}"
-        placeholder="预算 · 风格 · 交期"
-        bindinput="onKeyPointsInput"
-        adjust-position="{{true}}"
-      />
-    </view>
-
-    <!-- 协助者 -->
-    <view class="field">
-      <view class="field-label">协助者</view>
-      <view class="helper-row">
-        <view class="helper-avatar" wx:for="{{helpers}}" wx:key="id">
-          <text wx:if="{{!item.avatar}}">{{item.initial}}</text>
-          <image wx:else src="{{item.avatar}}" mode="aspectFill" />
+      <!-- 信息卡片 -->
+      <view class="info-card">
+        <!-- 标题 -->
+        <view class="field">
+          <view class="field-label">标题 <text class="required">*</text></view>
+          <input
+            class="field-input"
+            value="{{card.title}}"
+            placeholder="如 品牌官网视觉改版"
+            bindinput="onTitleInput"
+            adjust-position="{{true}}"
+          />
         </view>
-        <view class="helper-add" bindtap="openInviteSheet">＋</view>
-      </view>
-    </view>
 
-    <!-- 图片附件 -->
-    <view class="field">
-      <view class="field-label">图片附件（选填）</view>
-      <view class="attachment-list" wx:if="{{attachmentImages.length}}">
-        <view class="attachment-item" wx:for="{{attachmentImages}}" wx:key="index">
-          <image src="{{item.tempPath}}" class="attachment-thumb" mode="aspectFill" bindtap="previewAttachment" data-index="{{index}}" />
-          <view class="attachment-remove" bindtap="removeAttachment" data-index="{{index}}">×</view>
+        <!-- 需求描述 -->
+        <view class="field">
+          <view class="field-label">需求描述</view>
+          <textarea
+            class="field-textarea"
+            value="{{card.desc}}"
+            placeholder="描述一下需要帮忙的事"
+            bindinput="onDescInput"
+            adjust-position="{{true}}"
+          />
+        </view>
+
+        <!-- 重点 / 待确认 -->
+        <view class="field">
+          <view class="field-label">
+            重点 / 待确认
+            <text class="field-hint">用 · 分隔</text>
+          </view>
+          <input
+            class="field-input"
+            value="{{keyPointsText}}"
+            placeholder="预算 · 风格 · 交期"
+            bindinput="onKeyPointsInput"
+            adjust-position="{{true}}"
+          />
+        </view>
+
+        <!-- 协助者 -->
+        <view class="field">
+          <view class="field-label">协助者</view>
+          <view class="helper-row">
+            <view class="helper-avatar" wx:for="{{helpers}}" wx:key="id">
+              <text wx:if="{{!item.avatar}}">{{item.initial}}</text>
+              <image wx:else src="{{item.avatar}}" mode="aspectFill" />
+            </view>
+            <view class="helper-add" bindtap="openInviteSheet">＋</view>
+          </view>
+        </view>
+
+        <!-- 图片附件 -->
+        <view class="field">
+          <view class="field-label">图片附件（选填）</view>
+          <view class="attachment-list" wx:if="{{attachmentImages.length}}">
+            <view class="attachment-item" wx:for="{{attachmentImages}}" wx:key="index">
+              <image src="{{item.tempPath}}" class="attachment-thumb" mode="aspectFill" bindtap="previewAttachment" data-index="{{index}}" />
+              <view class="attachment-remove" bindtap="removeAttachment" data-index="{{index}}">×</view>
+            </view>
+          </view>
+          <view class="attachment-add" bindtap="chooseAttachmentImages">+ 添加图片</view>
+        </view>
+
+        <!-- 可见性开关 -->
+        <view class="toggle-row" bindtap="toggleVisibility">
+          <view class="toggle-info">
+            <view class="toggle-title">让朋友的朋友也能看到</view>
+            <view class="toggle-desc">关闭后仅协助者可见，更私密</view>
+          </view>
+          <view class="switch {{card.isNetworkVisible ? 'on' : ''}}">
+            <view class="switch-knob"></view>
+          </view>
         </view>
       </view>
-      <view class="attachment-add" bindtap="chooseAttachmentImages">+ 添加图片</view>
-    </view>
-
-    <!-- 可见性开关 -->
-    <view class="toggle-row" bindtap="toggleVisibility">
-      <view class="toggle-info">
-        <view class="toggle-title">让朋友的朋友也能看到</view>
-        <view class="toggle-desc">关闭后仅协助者可见，更私密</view>
-      </view>
-      <view class="switch {{card.isNetworkVisible ? 'on' : ''}}">
-        <view class="switch-knob"></view>
-      </view>
-    </view>
     </view>
   </scroll-view>
 
