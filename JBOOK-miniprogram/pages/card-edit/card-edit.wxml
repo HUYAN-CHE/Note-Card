@@ -11,7 +11,9 @@
         <view class="create-card-vip" bindtap="onChatCreateTap">
           <view class="create-card-vip-icon-wrap">
             <image class="create-card-vip-icon" src="/assets/images/icon-chat.svg" mode="aspectFit"/>
-            <text class="create-card-vip-corner">VIP</text>
+            <view class="create-card-vip-crown-wrap">
+              <image class="create-card-vip-crown" src="/assets/images/icon-crown.svg" mode="aspectFit"/>
+            </view>
           </view>
           <text class="create-card-vip-text">通过聊天创建</text>
         </view>
