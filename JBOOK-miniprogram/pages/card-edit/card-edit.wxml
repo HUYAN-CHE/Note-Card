@@ -72,9 +72,9 @@
           />
         </view>
 
-        <!-- 协助者 -->
+        <!-- 共同行动人 -->
         <view class="field">
-          <view class="field-label">协助者</view>
+          <view class="field-label">共同行动人</view>
           <view class="helper-row">
             <view class="helper-avatar" wx:for="{{helpers}}" wx:key="id">
               <text wx:if="{{!item.avatar}}">{{item.initial}}</text>
@@ -100,7 +100,7 @@
         <view class="toggle-row" bindtap="toggleVisibility">
           <view class="toggle-info">
             <view class="toggle-title">让朋友的朋友也能看到</view>
-            <view class="toggle-desc">关闭后仅协助者可见，更私密</view>
+            <view class="toggle-desc">关闭后仅共同行动人可见，更私密</view>
           </view>
           <view class="switch {{card.isNetworkVisible ? 'on' : ''}}">
             <view class="switch-knob"></view>
@@ -117,7 +117,7 @@
   </view>
 
   <!-- 邀请好友底部弹窗 -->
-  <bottom-sheet visible="{{showInviteSheet}}" title="邀请一起用" subtitle="选择微信好友或群聊，发送后成为协助者" safeAreaBottom="{{safeAreaBottom}}" bind:close="closeInviteSheet">
+  <bottom-sheet visible="{{showInviteSheet}}" title="邀请一起用" subtitle="选择微信好友或群聊，发送后成为共同行动人" safeAreaBottom="{{safeAreaBottom}}" bind:close="closeInviteSheet">
     <view class="friend-list">
       <view
         class="friend-item"

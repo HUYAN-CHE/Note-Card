@@ -61,7 +61,7 @@
   line-height: 1.5;
 }
 
-/* 协助者 */
+/* 共同行动人 */
 .helper-row {
   display: flex;
   align-items: center;
