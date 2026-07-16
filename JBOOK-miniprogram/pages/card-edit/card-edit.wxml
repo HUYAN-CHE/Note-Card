@@ -7,18 +7,15 @@
   <view class="float-create-card" style="top: {{totalHeight}}px; height: {{floatCardHeightPx}}px;">
     <view class="create-card compact">
       <view class="create-card-header">
-        <view class="create-card-title">快速创建</view>
-        <view class="create-card-ai" bindtap="onChatCreateTap">
-          <view class="create-card-ai-icon-wrap">
-            <image class="create-card-ai-icon" src="/assets/images/icon-robot.svg" mode="aspectFit"/>
-          </view>
-          <text class="create-card-ai-text">AI 聊天创建</text>
+        <view class="create-card-title-wrap">
+          <view class="create-card-title">快速识别创建</view>
+          <view class="create-card-subtitle">粘贴聊天内容或语音输入，自动识别生成记事卡</view>
         </view>
       </view>
       <textarea
         class="create-card-input"
         value="{{parseInputText}}"
-        placeholder="粘贴聊天内容或语音输入，自动识别生成记事卡"
+        placeholder="粘贴或输入内容"
         bindinput="onParseInput"
         maxlength="4000"
         adjust-position="{{true}}"
@@ -32,6 +29,16 @@
           <image class="create-btn-icon" src="/assets/images/icon-mic.svg" mode="aspectFit"/>
           <text>{{isRecording ? '录音中...' : '语音输入'}}</text>
         </view>
+      </view>
+      <view class="vip-banner" bindtap="onChatCreateTap">
+        <view class="vip-banner-left">
+          <image class="vip-banner-icon" src="/assets/images/icon-crown.svg" mode="aspectFit"/>
+          <view class="vip-banner-text">
+            <text class="vip-banner-title">AI 聊天创建</text>
+            <text class="vip-banner-desc">会员专享 · 通过聊天记录一键生成</text>
+          </view>
+        </view>
+        <view class="vip-banner-btn">立即开通</view>
       </view>
     </view>
   </view>

@@ -379,10 +379,14 @@
 }
 
 .create-card-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
   margin-bottom: 16rpx;
+}
+
+.create-card-title-wrap {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 12rpx;
 }
 
 .create-card-title {
@@ -391,34 +395,57 @@
   color: #162116;
 }
 
-.create-card-ai {
-  display: flex;
-  align-items: center;
-  gap: 10rpx;
-  padding: 10rpx 18rpx 10rpx 14rpx;
-  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-  border-radius: 999rpx;
-  box-shadow: 0 6rpx 16rpx rgba(99, 102, 241, 0.3);
+.create-card-subtitle {
+  font-size: 24rpx;
+  color: #7a8a7a;
+  line-height: 1.4;
 }
 
-.create-card-ai-icon-wrap {
+/* VIP 入口横幅 */
+.vip-banner {
   display: flex;
   align-items: center;
-  justify-content: center;
-  width: 44rpx;
-  height: 44rpx;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.2);
+  justify-content: space-between;
+  margin-top: 16rpx;
+  padding: 18rpx 22rpx;
+  background: linear-gradient(135deg, #2d2f3a 0%, #1a1c23 100%);
+  border-radius: 20rpx;
 }
 
-.create-card-ai-icon {
-  width: 28rpx;
-  height: 28rpx;
+.vip-banner-left {
+  display: flex;
+  align-items: center;
+  gap: 14rpx;
+}
+
+.vip-banner-icon {
+  width: 40rpx;
+  height: 40rpx;
   filter: brightness(0) invert(1);
 }
 
-.create-card-ai-text {
+.vip-banner-text {
+  display: flex;
+  flex-direction: column;
+  gap: 4rpx;
+}
+
+.vip-banner-title {
   font-size: 28rpx;
+  font-weight: 600;
+  color: #ffd700;
+}
+
+.vip-banner-desc {
+  font-size: 22rpx;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.vip-banner-btn {
+  padding: 10rpx 22rpx;
+  background: linear-gradient(135deg, #ffd700 0%, #ff8c00 100%);
+  border-radius: 999rpx;
+  font-size: 24rpx;
   font-weight: 600;
   color: #fff;
 }
