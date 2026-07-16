@@ -361,9 +361,10 @@
   z-index: 99;
   padding: 0 28rpx 16rpx;
   box-sizing: border-box;
-  background: linear-gradient(180deg, #d4f8e0 0%, #c4f3d8 100%);
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(12rpx);
   border-radius: 0 0 32rpx 32rpx;
-  box-shadow: 0 16rpx 40rpx rgba(0, 200, 83, 0.12);
+  box-shadow: 0 16rpx 40rpx rgba(0, 0, 0, 0.06);
   overflow: hidden;
 }
 

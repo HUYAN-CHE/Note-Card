@@ -1,5 +1,5 @@
 <view class="page card-edit-page">
-  <custom-nav title="{{card.id ? '编辑记事卡' : '新建记事卡'}}" showBack="{{true}}" statusBarHeight="{{statusBarHeight}}" navHeight="{{navHeight}}" theme="green">
+  <custom-nav title="{{card.id ? '编辑记事卡' : '新建记事卡'}}" showBack="{{true}}" statusBarHeight="{{statusBarHeight}}" navHeight="{{navHeight}}">
     <view slot="right" class="nav-save" bindtap="saveAndBack">保存</view>
   </custom-nav>
 
