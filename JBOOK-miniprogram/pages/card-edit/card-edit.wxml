@@ -6,7 +6,7 @@
   <scroll-view class="form-scroll" scroll-y style="height: {{contentHeight}}px; margin-top: {{totalHeight}}px;">
     <view class="form">
     <!-- 智能识别 -->
-    <view class="ai-parse-section card">
+    <view class="ai-parse-section">
       <view class="ai-parse-title">快速创建</view>
       <view class="ai-parse-desc">粘贴聊天内容或语音输入，自动识别生成记事卡</view>
       <view class="ai-input-wrap">
