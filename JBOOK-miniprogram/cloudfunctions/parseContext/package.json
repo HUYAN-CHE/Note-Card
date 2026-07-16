@@ -4,8 +4,6 @@
   "description": "智能识别聊天文本/语音并解析为记事卡草稿",
   "main": "index.js",
   "dependencies": {
-    "@cloudbase/node-sdk": "latest",
-    "wx-server-sdk": "latest",
-    "tencentcloud-sdk-nodejs-asr": "latest"
+    "wx-server-sdk": "latest"
   }
 }

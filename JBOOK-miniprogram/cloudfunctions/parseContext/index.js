@@ -1,11 +1,8 @@
 const cloud = require('wx-server-sdk');
-const tcb = require('@cloudbase/node-sdk');
-const tencentcloud = require('tencentcloud-sdk-nodejs-asr');
+const https = require('https');
+const crypto = require('crypto');
 
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
-const app = tcb.init({ env: cloud.DYNAMIC_CURRENT_ENV });
-
-const AsrClient = tencentcloud.asr.v20190614.Client;
 
 const TYPE_LABELS = {
   requirement: '需求确认卡',
@@ -14,37 +11,7 @@ const TYPE_LABELS = {
   meeting: '预约记录'
 };
 
-const SYSTEM_PROMPT = `你是一个智能「记事卡」解析助手。请从用户输入的文本中提取三个字段，只返回 JSON，不要任何额外文字或 markdown 代码块标记。
-
-JSON 格式：
-{
-  "title": "简短标题（5-15 字概括核心内容）",
-  "desc": "需求描述（把原文整理成通顺的自然语言描述，保留关键细节，100-300字）",
-  "keyPoints": [
-    "重点/待确认事项 1",
-    "重点/待确认事项 2",
-    "重点/待确认事项 3"
-  ]
-}
-
-要求：
-- title 必须简洁有力，像记事卡的标题
-- desc 保留原文所有关键信息，整理成通顺段落
-- keyPoints 提取需要重点关注或待确认的事项，每项一句话，至少 1 条最多 5 条
-- 如果是闲聊或无实质内容，请合理提取或写明"未识别到有效信息"`;
-
-function createAsrClient() {
-  const secretId = process.env.TENCENT_SECRET_ID;
-  const secretKey = process.env.TENCENT_SECRET_KEY;
-  if (!secretId || !secretKey) {
-    throw new Error('腾讯云 ASR 密钥未配置');
-  }
-  return new AsrClient({
-    credential: { secretId, secretKey },
-    region: 'ap-beijing',
-    profile: { httpProfile: { endpoint: 'asr.ap-beijing.tencentcloudapi.com' } }
-  });
-}
+const SYSTEM_PROMPT = '你是一个智能记事卡解析助手。请从用户输入的文本中提取 title、desc、keyPoints 三个字段，只返回 JSON。title 是简短标题（5-15字），desc 是通顺的描述（保留关键细节），keyPoints 是要点字符串数组（每项一句话）。';
 
 exports.main = async (event, context) => {
   console.log('[parseContext] 收到请求', JSON.stringify({ action: event.action }));
@@ -53,16 +20,13 @@ exports.main = async (event, context) => {
     if (event.action === 'parseText') {
       return await handleParseText(event.text, event.type);
     }
-    if (event.action === 'parseVoice') {
-      return await handleParseVoice(event.fileID, event.type);
-    }
     if (event.action === 'parseVoiceBase64') {
       return await handleParseVoiceBase64(event.base64Audio, event.format, event.type);
     }
-    return { code: -1, message: '未知 action，当前仅支持 parseText / parseVoice / parseVoiceBase64' };
+    return { code: -1, message: '未知 action' };
   } catch (err) {
     console.error('[parseContext] 错误', err);
-    return { code: -1, message: err.message || err };
+    return { code: -1, message: '云函数内部错误: ' + (err.message || err.stack || JSON.stringify(err)) };
   }
 };
 
@@ -80,98 +44,31 @@ async function handleParseVoiceBase64(base64Audio, format, type) {
     return { code: -1, message: '音频数据为空' };
   }
 
-  try {
-    const inputBuffer = Buffer.from(base64Audio, 'base64');
-    console.log('[handleParseVoiceBase64] input audio length:', inputBuffer.length, 'format:', format);
-
-    if (inputBuffer.length <= 0) {
-      return { code: -1, message: '音频数据为空' };
-    }
-
-    if (inputBuffer.length > 3 * 1024 * 1024) {
-      return { code: -1, message: '音频文件超过 3MB，请缩短录音时长' };
-    }
-
-    const text = await recognizeWithSentenceRecognition(inputBuffer, format || 'mp3');
-    if (!text.trim()) {
-      return { code: -1, message: '未能识别到语音内容' };
-    }
-
-    return await handleParseText(text, type);
-  } catch (err) {
-    console.error('[handleParseVoiceBase64] ASR 失败:', err);
-    return { code: -1, message: '语音识别失败: ' + (err.message || err) };
+  const buffer = Buffer.from(base64Audio, 'base64');
+  if (buffer.length <= 0) {
+    return { code: -1, message: '音频数据为空' };
   }
-}
-
-async function handleParseVoice(fileID, type) {
-  if (!fileID) {
-    return { code: -1, message: '音频 fileID 为空' };
+  if (buffer.length > 3 * 1024 * 1024) {
+    return { code: -1, message: '音频文件超过 3MB' };
   }
 
-  try {
-    const downloadRes = await cloud.downloadFile({ fileID });
-    const buffer = downloadRes.fileContent;
-    if (!buffer || !buffer.length) {
-      return { code: -1, message: '音频文件下载失败' };
-    }
-
-    console.log('[handleParseVoice] audio buffer length:', buffer.length);
-
-    if (buffer.length > 3 * 1024 * 1024) {
-      return { code: -1, message: '音频文件超过 3MB，请缩短录音时长' };
-    }
-
-    const text = await recognizeWithSentenceRecognition(buffer, 'mp3');
-    if (!text.trim()) {
-      return { code: -1, message: '未能识别到语音内容' };
-    }
-
-    return await handleParseText(text, type);
-  } catch (err) {
-    console.error('[handleParseVoice] ASR 失败:', err);
-    return { code: -1, message: '语音识别失败: ' + (err.message || err) };
+  const text = await recognizeAudio(buffer, format || 'mp3');
+  if (!text || !text.trim()) {
+    return { code: -1, message: '未能识别到语音内容' };
   }
-}
 
-async function recognizeWithSentenceRecognition(audioBuffer, format) {
-  const client = createAsrClient();
-
-  // 腾讯云一句话识别支持 mp3/aac/m4a/wav/pcm 等格式
-  const voiceFormat = format === 'aac' || format === 'm4a' ? 'm4a' : 'mp3';
-  const base64Audio = audioBuffer.toString('base64');
-
-  const params = {
-    ProjectId: 0,
-    SubServiceType: 2,
-    EngSerViceType: '16k_zh',
-    SourceType: 1,
-    VoiceFormat: voiceFormat,
-    UsrAudioKey: `jishika_${Date.now()}`,
-    Data: base64Audio,
-    DataLen: audioBuffer.length
-  };
-
-  console.log('[recognizeWithSentenceRecognition] 提交一句话识别，format:', voiceFormat, 'length:', audioBuffer.length);
-  const asrRes = await client.SentenceRecognition(params);
-  console.log('[recognizeWithSentenceRecognition] ASR 结果:', JSON.stringify(asrRes));
-
-  const text = asrRes && asrRes.Result ? asrRes.Result : '';
-  return text.trim();
+  return await handleParseText(text, type);
 }
 
 async function callTextModel(text, type) {
-  const ai = app.ai();
-  const model = ai.createModel('hy3');
-
+  const model = cloud.ai().createModel('cloudbase');
   const typeLabel = TYPE_LABELS[type] || '记事卡';
-  const userContent = `请解析以下文本，整理成一张"${typeLabel}"。\n\n${text}`;
 
   const res = await model.generateText({
     model: 'hy3',
     messages: [
       { role: 'system', content: SYSTEM_PROMPT },
-      { role: 'user', content: userContent }
+      { role: 'user', content: `请解析以下文本，整理成一张"${typeLabel}"。\n\n${text}` }
     ]
   });
 
@@ -212,4 +109,105 @@ function validateResult(data) {
       keyPoints: Array.isArray(data.keyPoints) ? data.keyPoints : []
     }
   };
+}
+
+// 腾讯云 ASR 一句话识别（HTTPS + TC3-HMAC-SHA256 签名）
+function recognizeAudio(audioBuffer, format) {
+  return new Promise((resolve, reject) => {
+    const secretId = process.env.TENCENT_SECRET_ID;
+    const secretKey = process.env.TENCENT_SECRET_KEY;
+    if (!secretId || !secretKey) {
+      return reject(new Error('腾讯云 ASR 密钥未配置'));
+    }
+
+    const host = 'asr.tencentcloudapi.com';
+    const service = 'asr';
+    const version = '2019-06-14';
+    const action = 'SentenceRecognition';
+    const region = 'ap-beijing';
+
+    const voiceFormat = format === 'aac' || format === 'm4a' ? 'm4a' : 'mp3';
+    const payload = JSON.stringify({
+      ProjectId: 0,
+      SubServiceType: 2,
+      EngSerViceType: '16k_zh',
+      SourceType: 1,
+      VoiceFormat: voiceFormat,
+      UsrAudioKey: `jishika_${Date.now()}`,
+      Data: audioBuffer.toString('base64'),
+      DataLen: audioBuffer.length
+    });
+
+    const timestamp = Math.floor(Date.now() / 1000);
+    const date = new Date(timestamp * 1000).toISOString().slice(0, 10);
+
+    const signedHeaders = 'content-type;host';
+    const canonicalHeaders = `content-type:application/json\nhost:${host}\n`;
+    const hashedPayload = crypto.createHash('sha256').update(payload).digest('hex');
+    const canonicalRequest = [
+      'POST',
+      '/',
+      '',
+      canonicalHeaders,
+      signedHeaders,
+      hashedPayload
+    ].join('\n');
+
+    const credentialScope = `${date}/${service}/tc3_request`;
+    const hashedCanonicalRequest = crypto.createHash('sha256').update(canonicalRequest).digest('hex');
+    const stringToSign = `TC3-HMAC-SHA256\n${timestamp}\n${credentialScope}\n${hashedCanonicalRequest}`;
+
+    const secretDate = hmacSha256(`TC3${secretKey}`, date);
+    const secretService = hmacSha256(secretDate, service);
+    const secretSigning = hmacSha256(secretService, 'tc3_request');
+    const signature = hmacSha256(secretSigning, stringToSign).toString('hex');
+
+    const authorization = `TC3-HMAC-SHA256 Credential=${secretId}/${credentialScope}, SignedHeaders=${signedHeaders}, Signature=${signature}`;
+
+    const options = {
+      hostname: host,
+      port: 443,
+      path: '/',
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Host': host,
+        'X-TC-Action': action,
+        'X-TC-Version': version,
+        'X-TC-Region': region,
+        'X-TC-Timestamp': String(timestamp),
+        'Authorization': authorization,
+        'Content-Length': Buffer.byteLength(payload)
+      }
+    };
+
+    const req = https.request(options, (res) => {
+      const chunks = [];
+      res.on('data', (chunk) => chunks.push(chunk));
+      res.on('end', () => {
+        const body = Buffer.concat(chunks).toString('utf8');
+        console.log('[recognizeAudio] ASR 响应:', body);
+        try {
+          const data = JSON.parse(body);
+          if (data.Response && data.Response.Result) {
+            resolve(data.Response.Result.trim());
+          } else if (data.Response && data.Response.Error) {
+            reject(new Error(`ASR 错误: ${data.Response.Error.Message}`));
+          } else {
+            reject(new Error('ASR 返回异常: ' + body));
+          }
+        } catch (e) {
+          reject(new Error('ASR 响应解析失败: ' + body));
+        }
+      });
+    });
+
+    req.on('error', reject);
+    req.write(payload);
+    req.end();
+  });
+}
+
+function hmacSha256(key, msg) {
+  return crypto.createHmac('sha256', key).update(msg, 'utf8').digest();
 }
