@@ -1,0 +1,9 @@
+{
+  "name": "getCardQrCode",
+  "version": "1.0.0",
+  "description": "生成带 refCode 的小程序码",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "latest"
+  }
+}

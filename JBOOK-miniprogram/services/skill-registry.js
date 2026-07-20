@@ -40,6 +40,13 @@ const SKILLS = {
     page: '/pages/mutual-help/mutual-help',
     defaultType: '',
     action: 'open_mutual_help'
+  },
+  open_card: {
+    name: 'open_card',
+    title: '打开记事卡',
+    page: '/pages/card-detail/card-detail',
+    defaultType: '',
+    action: 'open_card'
   }
 };
 
@@ -65,6 +72,11 @@ function inferSkillName(text = '', intent = '') {
 
 function buildSkillLaunchUrl(name, params = {}) {
   const skill = getSkill(name) || SKILLS.create_card_from_chat;
+
+  if (skill.name === 'open_card') {
+    const ref = params.ref || params.refCode || params.card_ref || '';
+    return `${skill.page}?source=${params.source || 'wechat_ai'}&ref=${ref}`;
+  }
 
   if (skill.name === 'open_mutual_help') {
     return `${skill.page}?source=${params.source || 'wechat_ai'}`;

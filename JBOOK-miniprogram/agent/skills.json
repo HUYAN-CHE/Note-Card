@@ -113,6 +113,27 @@
         "query": "source=wechat_ai"
       },
       "output": "互助页"
+    },
+    {
+      "name": "open_card",
+      "title": "打开记事卡",
+      "description": "通过 6 位短码（refCode）打开指定记事卡。用户粘贴形如「记事卡 #9K4X2Q」的口令时使用；口令中的 # 后 6 位字符即为 ref。",
+      "triggers": [
+        "打开这张卡",
+        "查看记事卡",
+        "打开记事卡 #XXXXXX"
+      ],
+      "required_params": ["ref"],
+      "launch": {
+        "page": "/pages/card-detail/card-detail",
+        "query": "source=wechat_ai&ref={ref}"
+      },
+      "resolve": {
+        "cloud_function": "resolveCardRef",
+        "input": "{ \"code\": \"9K4X2Q\" }",
+        "output": "按权限裁剪的结构化卡片 JSON（schema: jishika/card@1，view: network 或 public），不含 openid、联系方式与原始聊天记录"
+      },
+      "output": "记事卡详情页"
     }
   ]
 }

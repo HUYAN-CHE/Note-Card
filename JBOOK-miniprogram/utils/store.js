@@ -6,6 +6,17 @@ function uid(prefix = 'card') {
   return `${prefix}_${Date.now()}_${Math.floor(Math.random() * 10000)}`;
 }
 
+// Agent 短码：6 位 Crockford 风格字符集（去掉易混淆的 0/O/1/I/L）
+const REF_ALPHABET = '23456789ABCDEFGHJKMNPQRSTUVWXYZ';
+
+function genRefCode() {
+  let code = '';
+  for (let i = 0; i < 6; i++) {
+    code += REF_ALPHABET[Math.floor(Math.random() * REF_ALPHABET.length)];
+  }
+  return code;
+}
+
 function nowText() {
   const date = new Date();
   const month = `${date.getMonth() + 1}`.padStart(2, '0');
@@ -139,6 +150,28 @@ async function getCards() {
   return getLocalCards();
 }
 
+// 生成一个不冲突的 refCode：本地 + 云端各查重，最多重试 3 次
+async function pickUniqueRefCode() {
+  for (let i = 0; i < 3; i++) {
+    const code = genRefCode();
+    if (getLocalCards().some((card) => card.refCode === code)) continue;
+    if (isCloudReady()) {
+      try {
+        const res = await wx.cloud.database()
+          .collection(collections.cards)
+          .where({ refCode: code })
+          .limit(1)
+          .get();
+        if (res.data && res.data.length) continue;
+      } catch (error) {
+        // 查重失败不阻塞，直接采用
+      }
+    }
+    return code;
+  }
+  return genRefCode();
+}
+
 async function getCard(id) {
   if (!id) return null;
 
@@ -154,11 +187,32 @@ async function getCard(id) {
   return getLocalCard(id);
 }
 
+// 通过 Agent 短码查卡（详情页 ?ref= 参数进入时使用）
+async function getCardByRef(code) {
+  if (!code) return null;
+
+  if (isCloudReady()) {
+    try {
+      const res = await wx.cloud.database()
+        .collection(collections.cards)
+        .where({ refCode: code })
+        .limit(1)
+        .get();
+      if (res.data && res.data[0]) return normalizeCard(res.data[0]);
+    } catch (error) {
+      setStoreMode('local');
+    }
+  }
+
+  return getLocalCards().find((card) => card.refCode === code) || null;
+}
+
 async function saveCard(card) {
   const creatorId = card.creatorId || getCurrentOpenid();
   const nextCard = {
     ...card,
     id: card.id || uid(),
+    refCode: card.refCode || (await pickUniqueRefCode()),
     creatorId,
     helperIds: Array.isArray(card.helperIds) ? card.helperIds : [],
     isNetworkVisible: card.isNetworkVisible !== false,
@@ -300,8 +354,10 @@ module.exports = {
   uid,
   nowText,
   getCurrentOpenid,
+  genRefCode,
   getCards,
   getCard,
+  getCardByRef,
   saveCard,
   updateCard,
   deleteCard,

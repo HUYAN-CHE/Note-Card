@@ -1,0 +1,9 @@
+{
+  "name": "resolveCardRef",
+  "version": "1.0.0",
+  "description": "Agent 短码解析：按权限输出结构化卡片内容",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "latest"
+  }
+}

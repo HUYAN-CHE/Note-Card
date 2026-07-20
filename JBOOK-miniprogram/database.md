@@ -10,6 +10,7 @@
 
 - `_id`：云数据库自动生成的文档 ID。
 - `id`：业务 ID，用于页面分享和查询。
+- `refCode`：6 位 Agent 短码（Crockford 字符集，如 `9K4X2Q`），创建时自动生成且全局唯一；用于小程序码 scene 参数、Agent 口令和 `resolveCardRef` 云函数解析。
 - `title`：记事卡标题。
 - `desc`：需求描述 / 摘要。
 - `keyPoints`：重点 / 待确认事项，字符串数组。
