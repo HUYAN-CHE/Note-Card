@@ -79,10 +79,10 @@
           </picker>
         </view>
 
-        <!-- 重点 / 待确认 -->
+        <!-- 重点 -->
         <view class="field">
           <view class="field-label">
-            重点 / 待确认
+            重点
             <text class="field-hint">用 · 分隔</text>
           </view>
           <input

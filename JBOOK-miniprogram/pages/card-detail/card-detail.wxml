@@ -163,7 +163,7 @@
         <textarea class="edit-textarea" value="{{editForm.desc}}" bindinput="onEditDescInput" placeholder="描述一下需要帮忙的事" placeholder-class="edit-ph" maxlength="500" adjust-position="{{true}}" />
       </view>
       <view class="edit-field">
-        <view class="edit-label">重点 / 待确认<text class="edit-label-hint">用 · 分隔</text></view>
+        <view class="edit-label">重点<text class="edit-label-hint">用 · 分隔</text></view>
         <input class="edit-input" value="{{editForm.keyPointsText}}" bindinput="onEditKeyPointsInput" placeholder="时间 · 地点 · 分工" placeholder-class="edit-ph" maxlength="200" />
       </view>
       <view class="sheet-actions">
