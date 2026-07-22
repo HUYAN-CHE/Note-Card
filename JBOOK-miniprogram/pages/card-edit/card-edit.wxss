@@ -55,7 +55,7 @@
 .field-input {
   width: 100%;
   height: 88rpx;
-  padding: 0 8rpx;
+  padding: 0 24rpx;
   box-sizing: border-box;
   background: transparent;
   border-bottom: 1rpx solid #ececec;
@@ -67,7 +67,7 @@
 .field-textarea {
   width: 100%;
   min-height: 140rpx;
-  padding: 12rpx 8rpx;
+  padding: 12rpx 24rpx;
   box-sizing: border-box;
   background: transparent;
   border-bottom: 1rpx solid #ececec;
@@ -75,6 +75,11 @@
   font-size: 30rpx;
   color: #333;
   line-height: 1.6;
+}
+
+/* 占位提示色：与截止日期占位统一 #999 */
+.field-ph {
+  color: #999;
 }
 
 /* 截止日期 */
@@ -336,7 +341,7 @@
   background: rgba(255, 255, 255, 0.95);
   border: none;
   border-radius: 16rpx;
-  font-size: 28rpx;
+  font-size: 30rpx;
   color: #333;
   line-height: 1.5;
   margin-bottom: 20rpx;

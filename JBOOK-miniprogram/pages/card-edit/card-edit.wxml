@@ -16,6 +16,7 @@
         class="create-card-input"
         value="{{parseInputText}}"
         placeholder="粘贴或输入内容"
+        placeholder-class="field-ph"
         bindinput="onParseInput"
         maxlength="4000"
         adjust-position="{{true}}"
@@ -52,6 +53,7 @@
             class="field-input"
             value="{{card.title}}"
             placeholder="如 周六拼车去露营"
+            placeholder-class="field-ph"
             bindinput="onTitleInput"
             adjust-position="{{true}}"
           />
@@ -64,6 +66,7 @@
             class="field-textarea"
             value="{{card.desc}}"
             placeholder="描述一下需要帮忙的事"
+            placeholder-class="field-ph"
             bindinput="onDescInput"
             adjust-position="{{true}}"
           />
@@ -89,6 +92,7 @@
             class="field-input"
             value="{{keyPointsText}}"
             placeholder="时间 · 地点 · 分工"
+            placeholder-class="field-ph"
             bindinput="onKeyPointsInput"
             adjust-position="{{true}}"
           />
