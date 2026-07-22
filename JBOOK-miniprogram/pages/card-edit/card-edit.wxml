@@ -51,7 +51,7 @@
           <input
             class="field-input"
             value="{{card.title}}"
-            placeholder="如 品牌官网视觉改版"
+            placeholder="如 周六拼车去露营"
             bindinput="onTitleInput"
             adjust-position="{{true}}"
           />
@@ -88,7 +88,7 @@
           <input
             class="field-input"
             value="{{keyPointsText}}"
-            placeholder="预算 · 风格 · 交期"
+            placeholder="时间 · 地点 · 分工"
             bindinput="onKeyPointsInput"
             adjust-position="{{true}}"
           />

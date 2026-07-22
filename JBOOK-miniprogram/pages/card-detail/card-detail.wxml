@@ -60,7 +60,7 @@
         <view class="g-tags" wx:if="{{keyPoints.length}}">
           <text class="g-tag" wx:for="{{keyPoints}}" wx:key="*this">{{item}}</text>
         </view>
-        <text class="g-desc muted" wx:if="{{!card.desc && !keyPoints.length}}">点击补充重点内容</text>
+        <text class="g-desc g-desc-empty" wx:if="{{!card.desc && !keyPoints.length}}">点击补充重点内容</text>
       </view>
 
       <!-- 当前进度 -->
@@ -142,7 +142,7 @@
         class="apply-input"
         value="{{applyMessage}}"
         bindinput="onApplyInput"
-        placeholder="例如：我有插画经验，做过绘本项目..."
+        placeholder="例如：我周六有空，可以开车接送..."
         maxlength="200"
         adjust-position="{{true}}"
       />
@@ -158,15 +158,15 @@
     <view class="edit-body">
       <view class="edit-field">
         <text class="edit-label">标题</text>
-        <input class="edit-input" value="{{editForm.title}}" bindinput="onEditTitleInput" placeholder="请输入标题" maxlength="30" />
+        <input class="edit-input" value="{{editForm.title}}" bindinput="onEditTitleInput" placeholder="如 周六拼车去露营" placeholder-class="edit-ph" maxlength="30" />
       </view>
       <view class="edit-field">
         <text class="edit-label">需求描述</text>
-        <textarea class="edit-textarea" value="{{editForm.desc}}" bindinput="onEditDescInput" placeholder="补充这件要一起做的事..." maxlength="500" adjust-position="{{true}}" />
+        <textarea class="edit-textarea" value="{{editForm.desc}}" bindinput="onEditDescInput" placeholder="描述一下需要帮忙的事" placeholder-class="edit-ph" maxlength="500" adjust-position="{{true}}" />
       </view>
       <view class="edit-field">
-        <text class="edit-label">重点 / 待确认</text>
-        <input class="edit-input" value="{{editForm.keyPointsText}}" bindinput="onEditKeyPointsInput" placeholder="用 · 分隔，如：预算 · 场地 · 时间" maxlength="200" />
+        <view class="edit-label">重点 / 待确认<text class="edit-label-hint">用 · 分隔</text></view>
+        <input class="edit-input" value="{{editForm.keyPointsText}}" bindinput="onEditKeyPointsInput" placeholder="时间 · 地点 · 分工" placeholder-class="edit-ph" maxlength="200" />
       </view>
       <view class="sheet-actions">
         <button class="sheet-btn ghost" bindtap="closeEditSheet">取消</button>

@@ -689,8 +689,8 @@ page {
   margin: 0 0 0 10rpx;
 }
 
-.g-desc.muted {
-  color: #9aa79c;
+.g-desc-empty {
+  color: #49854f;
 }
 
 /* 编辑 Sheet */
@@ -708,6 +708,17 @@ page {
   font-weight: 600;
   color: #5a6355;
   margin-bottom: 12rpx;
+}
+
+.edit-label-hint {
+  margin-left: 12rpx;
+  font-size: 22rpx;
+  font-weight: 400;
+  color: #999;
+}
+
+.edit-ph {
+  color: #999;
 }
 
 .edit-input {

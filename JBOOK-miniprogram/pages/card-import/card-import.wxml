@@ -60,7 +60,7 @@
           <textarea
             class="field-textarea"
             value="{{contextText}}"
-            placeholder="把客户私聊、群聊摘要或语音整理结果粘贴到这里"
+            placeholder="把聊天记录、群聊摘要或语音整理结果粘贴到这里"
             bindinput="onTextInput"
             maxlength="4000"
             adjust-position="{{true}}"
