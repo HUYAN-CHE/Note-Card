@@ -68,7 +68,7 @@ function buildDraftFromContext(params = {}) {
 }
 
 function extractTitle(text, type) {
-  if (!text) return TYPE_LABELS[type] || '未命名事项';
+  if (!text) return '';
 
   const titleMatch = text.match(/(?:标题|事项|项目|需求)[:：]\s*([^\n，。；;]{2,30})/);
   if (titleMatch) return titleMatch[1].trim();
@@ -99,7 +99,7 @@ function extractKeyPoints(text, type) {
     meeting: ['确认沟通主题', '选择可约时间', '记录会议结论']
   };
 
-  if (!text) return fallback[type] || fallback.requirement;
+  if (!text) return [];
 
   const lines = text
     .split(/[\n。；;，,]/)
