@@ -71,7 +71,10 @@ Page({
     editForm: { title: '', desc: '', keyPointsText: '' },
     showActivitySheet: false,
     activities: [],
-    activitiesLoading: false
+    activitiesLoading: false,
+    attachments: [],
+    projectThumb: '',
+    projectInitial: ''
   },
 
   onLoad(options) {
@@ -181,11 +184,13 @@ Page({
       canEditStatus: isCreator || isHelper,
       refCode: data.refCode || '',
       displayDeadline: this.formatDeadline(data.deadline),
-      displayTitle: this.truncateTitle(data.title)
+      displayTitle: this.truncateTitle(data.title),
+      projectInitial: getInitial(data.title)
     }, () => {
       this.onCardRendered();
       this.ensureRefCode(data);
       this.loadQrCode();
+      this.loadAttachments(data);
     });
   },
 
@@ -217,12 +222,49 @@ Page({
       canEditStatus: isCreator || isHelper,
       refCode: card.refCode || '',
       displayDeadline: this.formatDeadline(card.deadline),
-      displayTitle: this.truncateTitle(card.title)
+      displayTitle: this.truncateTitle(card.title),
+      projectInitial: getInitial(card.title)
     }, () => {
       this.onCardRendered();
       this.ensureRefCode(card);
       this.loadQrCode();
+      this.loadAttachments(card);
     });
+  },
+
+  // 项目圆缩略图：取附件第一张，云端 fileID 转临时 URL；无附件走标题首字
+  loadAttachments(card) {
+    const fileIDs = Array.isArray(card && card.attachmentFileIDs)
+      ? card.attachmentFileIDs.filter(Boolean)
+      : [];
+
+    if (!fileIDs.length || !wx.cloud) {
+      this.setData({ attachments: [], projectThumb: '' });
+      return;
+    }
+
+    wx.cloud.getTempFileURL({
+      fileList: fileIDs.map((fileID) => ({ fileID, maxAge: 3600 })),
+      success: (res) => {
+        const attachments = (res.fileList || [])
+          .map((item, index) => ({ fileID: fileIDs[index], tempPath: item.tempFileURL || '' }))
+          .filter((item) => item.tempPath);
+        this.setData({
+          attachments,
+          projectThumb: attachments.length ? attachments[0].tempPath : ''
+        });
+      },
+      fail: () => {
+        this.setData({ attachments: [], projectThumb: '' });
+      }
+    });
+  },
+
+  // 点击项目圆：有附件时放大预览，多图可左右滑动（圆上角标提示张数）
+  onProjectAvatarTap() {
+    const urls = this.data.attachments.map((item) => item.tempPath);
+    if (!urls.length) return;
+    wx.previewImage({ current: urls[0], urls });
   },
 
   // 旧卡无短码时静默补齐（不影响渲染，失败忽略）

@@ -31,6 +31,14 @@
       </view>
       <view class="dev dev-3 g-avatars-row">
         <view class="g-avatars">
+          <!-- 项目圆：有附件取第一张缩略图，无附件显示标题首字；多张带数量角标，点击预览可左右滑 -->
+          <view class="g-project" bindtap="onProjectAvatarTap" aria-label="项目图片">
+            <view class="g-avatar g-avatar-project">
+              <text wx:if="{{!projectThumb}}">{{projectInitial}}</text>
+              <image wx:else src="{{projectThumb}}" mode="aspectFill" />
+            </view>
+            <view class="g-avatar-badge" wx:if="{{attachments.length > 1}}">{{attachments.length}}</view>
+          </view>
           <view class="g-avatar">
             <text wx:if="{{!creator.avatar}}">{{creator.initial}}</text>
             <image wx:else src="{{creator.avatar}}" mode="aspectFill" />
@@ -48,17 +56,17 @@
         <button class="g-invite-pill" open-type="share" wx:if="{{isCreator || isHelper}}" data-action="share" aria-label="邀请协作"><image class="g-invite-icon" src="/assets/icons/share-green.svg" mode="aspectFit" />邀请协作</button>
       </view>
 
-      <!-- 详情 · 重点（创立者/共同行动人可点击编辑） -->
+      <!-- 需求描述 · 重点（创立者/共同行动人可点击编辑） -->
       <view class="dev dev-4 g-section {{canEditStatus ? 'can-edit' : ''}}" wx:if="{{card.desc || keyPoints.length || canEditStatus}}" bindtap="openEditSheet">
         <view class="g-label g-label-lg">
           <image class="g-label-icon" src="/assets/icons/flag.svg" mode="aspectFit" />
-          <text>详情 · 重点</text>
+          <text>需求描述 · 重点</text>
         </view>
         <text class="g-desc" wx:if="{{card.desc}}">{{card.desc}}</text>
         <view class="g-tags" wx:if="{{keyPoints.length}}">
           <text class="g-tag" wx:for="{{keyPoints}}" wx:key="*this">{{item}}</text>
         </view>
-        <text class="g-desc g-desc-empty" wx:if="{{!card.desc && !keyPoints.length}}">点击补充重点内容</text>
+        <text class="g-desc g-desc-empty" wx:if="{{!card.desc && !keyPoints.length}}">点击补充需求描述与重点</text>
       </view>
 
       <!-- 当前进度 -->
