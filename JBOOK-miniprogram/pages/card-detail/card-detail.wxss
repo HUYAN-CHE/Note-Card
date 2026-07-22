@@ -674,21 +674,6 @@ page {
   height: 24rpx;
 }
 
-/* 可编辑区铅笔提示 */
-.g-edit-icon {
-  width: 30rpx;
-  height: 30rpx;
-  margin: 14rpx 12rpx 0;
-  flex-shrink: 0;
-  opacity: 0.7;
-}
-
-.g-edit-icon-sm {
-  width: 26rpx;
-  height: 26rpx;
-  margin: 0 0 0 10rpx;
-}
-
 .g-desc-empty {
   color: #49854f;
 }

@@ -12,7 +12,6 @@
       <!-- 标题 + 状态胶囊（创立者/共同行动人可点击编辑标题、重点内容） -->
       <view class="dev dev-1 g-head {{canEditStatus ? 'can-edit' : ''}}" bindtap="openEditSheet">
         <text class="g-title">{{displayTitle}}</text>
-        <image class="g-edit-icon" src="/assets/icons/edit.svg" mode="aspectFit" wx:if="{{canEditStatus}}" aria-label="编辑" />
         <view class="g-status">
           <image class="g-status-icon" src="/assets/icons/clock.svg" mode="aspectFit" />
           <text>{{statusText}}</text>
@@ -49,12 +48,11 @@
         <button class="g-invite-pill" open-type="share" wx:if="{{isCreator || isHelper}}" data-action="share" aria-label="邀请协作"><image class="g-invite-icon" src="/assets/icons/share-green.svg" mode="aspectFit" />邀请协作</button>
       </view>
 
-      <!-- 重点 / 待确认（创立者/共同行动人可点击编辑） -->
+      <!-- 详情 · 重点（创立者/共同行动人可点击编辑） -->
       <view class="dev dev-4 g-section {{canEditStatus ? 'can-edit' : ''}}" wx:if="{{card.desc || keyPoints.length || canEditStatus}}" bindtap="openEditSheet">
         <view class="g-label g-label-lg">
           <image class="g-label-icon" src="/assets/icons/flag.svg" mode="aspectFit" />
-          <text>重点 / 待确认</text>
-          <image class="g-edit-icon g-edit-icon-sm" src="/assets/icons/edit.svg" mode="aspectFit" wx:if="{{canEditStatus}}" aria-label="编辑" />
+          <text>详情 · 重点</text>
         </view>
         <text class="g-desc" wx:if="{{card.desc}}">{{card.desc}}</text>
         <view class="g-tags" wx:if="{{keyPoints.length}}">
