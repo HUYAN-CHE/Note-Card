@@ -20,9 +20,17 @@
   border-bottom: none;
 }
 
-.custom-nav-light .nav-title,
-.custom-nav-light .nav-back-icon {
-  color: #ffffff;
+.custom-nav-light .nav-title {
+  color: #162116;
+}
+
+.custom-nav-light .nav-back {
+  width: 56rpx;
+  height: 56rpx;
+  margin-left: 8rpx;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 4rpx 12rpx rgba(46, 125, 78, 0.18);
 }
 
 .status-bar {
@@ -34,7 +42,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 20rpx;
+  /* 底部补 12px：抵消 getNavInfo 高度公式多算的 12px，使居中内容与小程序胶囊同中线 */
+  padding: 0 20rpx 12px;
 }
 
 .nav-back {
@@ -46,16 +55,13 @@
 }
 
 .nav-back-icon {
-  font-size: 84rpx;
-  color: #162116;
-  line-height: 1;
-  font-weight: 300;
-  transform: translateY(-2rpx);
+  width: 42rpx;
+  height: 42rpx;
 }
 
 .nav-title-wrap {
   position: absolute;
-  top: 50%;
+  top: calc(50% - 6px);
   left: 50%;
   transform: translate(-50%, -50%);
   display: flex;

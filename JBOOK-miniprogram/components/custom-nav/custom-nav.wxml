@@ -2,7 +2,7 @@
   <view class="status-bar" style="height: {{statusBarHeight}}px;"></view>
   <view class="nav-inner" style="height: {{navHeight}}px;">
     <view class="nav-back" bindtap="goBack" wx:if="{{showBack}}">
-      <text class="nav-back-icon">‹</text>
+      <image class="nav-back-icon" src="/assets/icons/caret-left-black.svg" mode="aspectFit" />
     </view>
     <view class="nav-title-wrap">
       <text class="nav-title">{{title}}</text>
