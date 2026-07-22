@@ -69,13 +69,28 @@
 - `createdAt`：创建时间。
 - `updatedAt`：更新时间。
 
+## cardActivities（协作记录）
+
+记录记事卡上创立者与协助者的操作，用于详情页「协作记录」展示。
+
+核心字段：
+
+- `cardId`：目标记事卡 ID。
+- `actorId`：操作者 openid。
+- `actorName` / `actorAvatar`：操作者昵称、头像快照（写入时从 users 集合取，读取免 join）。
+- `action`：操作类型，`update_field`（字段变更）、`join`（加入协作）。
+- `detail`：中文操作描述，如「更新了标题为「xxx」」「将状态改为 进行中」「通过邀请加入协作」。
+- `createdAt`：操作时间戳。
+
+由 `updateCard`、`inviteHelper`、`approveJoinRequest` 云函数写入，通过 `getCardActivities` 云函数读取（仅创作者/协助者可查，按时间倒序返回最近 50 条）。
+
 ## 开发期权限建议
 
 开发期可以先用较宽松权限验证流程。真实上线前建议：
 
 - 所有写入操作通过云函数完成。
 - `cards` 集合前端只读，且只能读取 `creatorId` 或 `helperIds` 包含当前用户，或 `isNetworkVisible = true` 的卡片。
-- `relationships`、`joinRequests` 集合仅云函数读写。
+- `relationships`、`joinRequests`、`cardActivities` 集合仅云函数读写。
 
 ## 环境 ID
 

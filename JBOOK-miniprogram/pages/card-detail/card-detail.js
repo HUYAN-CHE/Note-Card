@@ -63,7 +63,15 @@ Page({
     cardReady: false,
     canEditStatus: false,
     refCode: '',
-    developing: false
+    developing: false,
+    displayDeadline: '',
+    qrCodeSrc: '',
+    displayTitle: '',
+    showEditSheet: false,
+    editForm: { title: '', desc: '', keyPointsText: '' },
+    showActivitySheet: false,
+    activities: [],
+    activitiesLoading: false
   },
 
   onLoad(options) {
@@ -171,10 +179,13 @@ Page({
       pendingRequests: data.pendingRequests || [],
       cardReady: true,
       canEditStatus: isCreator || isHelper,
-      refCode: data.refCode || ''
+      refCode: data.refCode || '',
+      displayDeadline: this.formatDeadline(data.deadline),
+      displayTitle: this.truncateTitle(data.title)
     }, () => {
       this.onCardRendered();
       this.ensureRefCode(data);
+      this.loadQrCode();
     });
   },
 
@@ -204,10 +215,13 @@ Page({
       pendingRequests: [],
       cardReady: true,
       canEditStatus: isCreator || isHelper,
-      refCode: card.refCode || ''
+      refCode: card.refCode || '',
+      displayDeadline: this.formatDeadline(card.deadline),
+      displayTitle: this.truncateTitle(card.title)
     }, () => {
       this.onCardRendered();
       this.ensureRefCode(card);
+      this.loadQrCode();
     });
   },
 
@@ -222,8 +236,27 @@ Page({
           refCode: saved.refCode,
           card: { ...this.data.card, refCode: saved.refCode }
         });
+        this.loadQrCode();
       }
     } catch (e) {}
+  },
+
+  // 截止日期显示完整格式（含年）
+  formatDeadline(deadline) {
+    return deadline ? String(deadline) : '';
+  },
+
+  // 标题最多显示 7 个字，超出截断加省略号
+  truncateTitle(title) {
+    const t = String(title || '未命名事项');
+    return t.length > 7 ? `${t.slice(0, 7)}...` : t;
+  },
+
+  // 卡内小程序码：云端可用且有短码时拉取，失败保持占位框
+  async loadQrCode() {
+    if (this.data.qrCodeSrc || !this.data.refCode) return;
+    const src = await this.fetchQrCodeSrc();
+    if (src) this.setData({ qrCodeSrc: src });
   },
 
   normalizeUser(raw) {
@@ -355,6 +388,42 @@ Page({
     }
   },
 
+  // 选择截止日期（仅创立者 / 共同行动人，picker 已按权限禁用）
+  onDeadlineChange(e) {
+    const deadline = e.detail.value;
+    if (!deadline || deadline === this.data.card.deadline) return;
+    this.setCardDeadline(deadline);
+  },
+
+  async setCardDeadline(deadline) {
+    const { cardId } = this.data;
+    if (!cardId) return;
+
+    try {
+      const app = getApp();
+      if (app.globalData && app.globalData.cloudReady && wx.cloud) {
+        const res = await wx.cloud.callFunction({
+          name: 'updateCard',
+          data: { id: cardId, patch: { deadline } }
+        });
+
+        if (res.result && res.result.code === 0) {
+          wx.showToast({ title: '日期已更新', icon: 'success' });
+          this.loadCard(cardId);
+        } else {
+          wx.showToast({ title: (res.result && res.result.message) || '操作失败', icon: 'none' });
+        }
+        return;
+      }
+
+      await store.updateCard(cardId, { deadline });
+      wx.showToast({ title: '日期已更新', icon: 'success' });
+      this.loadCard(cardId);
+    } catch (err) {
+      wx.showToast({ title: '操作失败', icon: 'none' });
+    }
+  },
+
   // 点击状态胶囊，选择新状态（仅创立者 / 共同行动人）
   onStatusTap() {
     if (!this.data.canEditStatus) return;
@@ -378,7 +447,7 @@ Page({
       if (app.globalData && app.globalData.cloudReady && wx.cloud) {
         const res = await wx.cloud.callFunction({
           name: 'updateCard',
-          data: { id: cardId, status }
+          data: { id: cardId, patch: { status } }
         });
 
         if (res.result && res.result.code === 0) {
@@ -398,9 +467,150 @@ Page({
     }
   },
 
-  // 共同行动人「添加」：唤起分享菜单
-  inviteFriend() {
-    wx.showShareMenu({ withShareTicket: true });
+  // ==================== 编辑卡片（标题 / 描述 / 重点，创立者与共同行动人可用） ====================
+
+  openEditSheet() {
+    if (!this.data.canEditStatus) return;
+    const { card, keyPoints } = this.data;
+    this.setData({
+      showEditSheet: true,
+      editForm: {
+        title: card.title || '',
+        desc: card.desc || '',
+        keyPointsText: (keyPoints || []).join(' · ')
+      }
+    });
+  },
+
+  closeEditSheet() {
+    this.setData({ showEditSheet: false });
+  },
+
+  onEditTitleInput(e) {
+    this.setData({ 'editForm.title': e.detail.value });
+  },
+
+  onEditDescInput(e) {
+    this.setData({ 'editForm.desc': e.detail.value });
+  },
+
+  onEditKeyPointsInput(e) {
+    this.setData({ 'editForm.keyPointsText': e.detail.value });
+  },
+
+  async submitEdit() {
+    const { cardId, card, editForm } = this.data;
+    if (!cardId) return;
+
+    const title = (editForm.title || '').trim();
+    if (!title) {
+      wx.showToast({ title: '请输入标题', icon: 'none' });
+      return;
+    }
+
+    const patch = {};
+    if (title !== (card.title || '')) patch.title = title;
+    const desc = editForm.desc || '';
+    if (desc !== (card.desc || '')) patch.desc = desc;
+    const keyPoints = (editForm.keyPointsText || '')
+      .split('·')
+      .map((item) => item.trim())
+      .filter(Boolean);
+    if (JSON.stringify(keyPoints) !== JSON.stringify(this.data.keyPoints)) {
+      patch.keyPoints = keyPoints;
+    }
+
+    if (!Object.keys(patch).length) {
+      this.closeEditSheet();
+      return;
+    }
+
+    try {
+      const app = getApp();
+      if (app.globalData && app.globalData.cloudReady && wx.cloud) {
+        const res = await wx.cloud.callFunction({
+          name: 'updateCard',
+          data: { id: cardId, patch }
+        });
+
+        if (res.result && res.result.code === 0) {
+          wx.showToast({ title: '已保存', icon: 'success' });
+          this.closeEditSheet();
+          this.loadCard(cardId);
+        } else {
+          wx.showToast({ title: (res.result && res.result.message) || '保存失败', icon: 'none' });
+        }
+        return;
+      }
+
+      await store.updateCard(cardId, patch);
+      wx.showToast({ title: '已保存', icon: 'success' });
+      this.closeEditSheet();
+      this.loadCard(cardId);
+    } catch (err) {
+      wx.showToast({ title: '保存失败', icon: 'none' });
+    }
+  },
+
+  // ==================== 协作记录 ====================
+
+  openActivitySheet() {
+    if (!this.data.isCreator && !this.data.isHelper) return;
+    this.setData({ showActivitySheet: true });
+    this.loadActivities();
+  },
+
+  closeActivitySheet() {
+    this.setData({ showActivitySheet: false });
+  },
+
+  async loadActivities() {
+    const { cardId } = this.data;
+    if (!cardId) return;
+
+    const app = getApp();
+    if (!(app.globalData && app.globalData.cloudReady) || !wx.cloud) {
+      this.setData({ activities: [], activitiesLoading: false });
+      wx.showToast({ title: '协作记录需要云开发环境', icon: 'none' });
+      return;
+    }
+
+    this.setData({ activitiesLoading: true });
+    try {
+      const res = await wx.cloud.callFunction({
+        name: 'getCardActivities',
+        data: { cardId }
+      });
+
+      if (res.result && res.result.code === 0) {
+        const activities = (res.result.data || []).map((item) => ({
+          id: item._id,
+          actorName: item.actorName || '未知用户',
+          actorAvatar: item.actorAvatar || '',
+          actorInitial: getInitial(item.actorName),
+          detail: item.detail || '',
+          timeText: this.formatActivityTime(item.createdAt)
+        }));
+        this.setData({ activities, activitiesLoading: false });
+      } else {
+        this.setData({ activities: [], activitiesLoading: false });
+        wx.showToast({ title: (res.result && res.result.message) || '加载失败', icon: 'none' });
+      }
+    } catch (e) {
+      this.setData({ activities: [], activitiesLoading: false });
+      wx.showToast({ title: '加载失败', icon: 'none' });
+    }
+  },
+
+  // 协作记录时间格式：MM-DD HH:mm
+  formatActivityTime(ts) {
+    if (!ts) return '';
+    const date = new Date(ts);
+    const mm = `${date.getMonth() + 1}`.padStart(2, '0');
+    const dd = `${date.getDate()}`.padStart(2, '0');
+    const hh = `${date.getHours()}`.padStart(2, '0');
+    const mi = `${date.getMinutes()}`.padStart(2, '0');
+    return `${mm}-${dd} ${hh}:${mi}`;
   },
 
   // ==================== 保存卡片（海报） ====================
@@ -677,11 +887,11 @@ Page({
     });
   },
 
-  // 卡片渲染完成：生成路径下，相纸落点瞬间播放「卡叽」音效
+  // 卡片渲染完成：生成路径下，卡片浮现瞬间播放「卡叽」音效
   onCardRendered() {
     if (!this.fromCreate) return;
     this.fromCreate = false;
-    setTimeout(() => this.playDropSound(), 720);
+    setTimeout(() => this.playDropSound(), 200);
   },
 
   playDropSound() {

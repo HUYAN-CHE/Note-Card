@@ -6,6 +6,43 @@ cloud.init({
 
 const db = cloud.database();
 
+// 读取操作者昵称头像快照，写入协作记录时免 join
+async function getActorProfile(openid) {
+  try {
+    const res = await db.collection('users')
+      .where({ _openid: openid })
+      .limit(1)
+      .get();
+    const user = res.data && res.data[0];
+    return {
+      actorName: (user && user.nickName) || '未知用户',
+      actorAvatar: (user && user.avatarUrl) || ''
+    };
+  } catch (e) {
+    return { actorName: '未知用户', actorAvatar: '' };
+  }
+}
+
+// 写入协作记录；失败仅打日志，不影响主流程
+async function logActivity(cardId, openid, action, detail) {
+  try {
+    const actor = await getActorProfile(openid);
+    await db.collection('cardActivities').add({
+      data: {
+        cardId,
+        actorId: openid,
+        actorName: actor.actorName,
+        actorAvatar: actor.actorAvatar,
+        action,
+        detail,
+        createdAt: Date.now()
+      }
+    });
+  } catch (e) {
+    console.error('logActivity error', e);
+  }
+}
+
 async function upsertRelationship(ownerId, contactId, degree, source) {
   const res = await db.collection('relationships')
     .where({ ownerId, contactId })
@@ -87,6 +124,8 @@ exports.main = async (event, context) => {
     // 建立双向一度关系
     await upsertRelationship(openid, card.creatorId, 1, 'invite');
     await upsertRelationship(card.creatorId, openid, 1, 'invite');
+
+    await logActivity(cardId, openid, 'join', '通过邀请加入协作');
 
     return { code: 0, message: 'success' };
   } catch (error) {
