@@ -39,11 +39,11 @@
             </view>
             <view class="g-avatar-badge" wx:if="{{attachments.length > 1}}">{{attachments.length}}</view>
           </view>
+          <image class="g-link-icon" src="/assets/icons/link.svg" mode="aspectFit" />
           <view class="g-avatar">
             <text wx:if="{{!creator.avatar}}">{{creator.initial}}</text>
             <image wx:else src="{{creator.avatar}}" mode="aspectFill" />
           </view>
-          <view class="g-link"></view>
           <block wx:if="{{helpers.length}}">
             <view class="g-avatar" wx:for="{{helpers}}" wx:key="id">
               <text wx:if="{{!item.avatar}}">{{item.initial}}</text>

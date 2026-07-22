@@ -53,14 +53,14 @@ page {
 /* 标题行：标题 + 状态胶囊（标题实测 48rpx） */
 .g-head {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
 }
 
 .g-title {
   flex: 1;
   min-width: 0;
-  font-size: 40rpx;
+  font-size: 34rpx;
   font-weight: 700;
   color: #1a2b1e;
   line-height: 1.35;
@@ -74,10 +74,13 @@ page {
   flex-shrink: 0;
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 8rpx;
   margin-left: 16rpx;
-  margin-top: 10rpx;
-  padding: 10rpx 20rpx;
+  height: 48rpx;
+  min-width: 140rpx;
+  padding: 0 20rpx;
+  box-sizing: border-box;
   border-radius: 999rpx;
   font-size: 26rpx;
   font-weight: 600;
@@ -152,6 +155,7 @@ page {
   width: 72rpx;
   height: 72rpx;
   border-radius: 50%;
+  border: 3rpx solid #fff;
   background: linear-gradient(150deg, #4caf50, #81c784);
   display: flex;
   align-items: center;
@@ -169,8 +173,9 @@ page {
   height: 72rpx;
 }
 
+/* 头像组：叠加排布，白色描边分隔 */
 .g-avatar + .g-avatar {
-  margin-left: 6rpx;
+  margin-left: -18rpx;
 }
 
 .g-avatar-empty {
@@ -182,7 +187,7 @@ page {
   width: 72rpx;
   min-width: 72rpx;
   height: 72rpx;
-  margin-left: 6rpx;
+  margin-left: -18rpx;
   background: transparent;
   border: 2rpx dashed #7fb98f;
   color: #49854f;
@@ -221,33 +226,12 @@ page {
   justify-content: center;
 }
 
-/* 链接符：两个交叠小圆环 */
-.g-link {
-  position: relative;
-  width: 24rpx;
-  height: 16rpx;
-  margin: 0 4rpx;
+/* 链接符：UI 稿链条 icon，位于项目圆与头像组之间 */
+.g-link-icon {
+  width: 34rpx;
+  height: 20rpx;
+  margin: 0 8rpx;
   flex-shrink: 0;
-}
-
-.g-link::before,
-.g-link::after {
-  content: '';
-  position: absolute;
-  top: 2rpx;
-  width: 15rpx;
-  height: 9rpx;
-  border: 2rpx solid #b9c6bc;
-  border-radius: 999rpx;
-  transform: rotate(-30deg);
-}
-
-.g-link::before {
-  left: 0;
-}
-
-.g-link::after {
-  right: 0;
 }
 
 /* 卡内邀请协作小胶囊：实测背景 #e3f0e4，文字 #49854f */
@@ -255,14 +239,17 @@ page {
   flex-shrink: 0;
   display: flex;
   align-items: center;
+  justify-content: center;
   margin-left: 16rpx;
-  padding: 12rpx 22rpx;
+  height: 72rpx;
+  padding: 0 24rpx;
+  box-sizing: border-box;
   border-radius: 999rpx;
   background: #e3f0e4;
   color: #49854f;
   font-size: 26rpx;
   font-weight: 600;
-  line-height: 1.4;
+  line-height: 1;
 }
 
 .g-invite-icon {
@@ -345,8 +332,12 @@ page {
 .g-progress-pill {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 8rpx;
-  padding: 12rpx 24rpx;
+  height: 48rpx;
+  min-width: 140rpx;
+  padding: 0 20rpx;
+  box-sizing: border-box;
   border-radius: 999rpx;
   border: 2rpx solid #d5e5d9;
   background: #ffffff;
@@ -693,13 +684,15 @@ page {
 .g-activity-entry {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 6rpx;
+  min-width: 140rpx;
   color: #49854f;
 }
 
 .g-activity-icon {
-  width: 24rpx;
-  height: 24rpx;
+  width: 22rpx;
+  height: 22rpx;
 }
 
 .g-desc-empty {
