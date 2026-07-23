@@ -182,29 +182,22 @@ page {
   background: #e6ece7;
 }
 
-/* 更多协作人省略圆 */
+/* 更多协作人圆：三个图形圆点居中 */
 .g-avatar-more {
   background: #e6ece7;
-  color: #8a978a;
-  font-size: 28rpx;
 }
 
-.g-avatar-add {
-  flex: 0 0 72rpx;
-  width: 72rpx;
-  min-width: 72rpx;
-  height: 72rpx;
-  margin-left: -20rpx;
-  background: #e3f0e4;
-  border: 2rpx dashed #7fb98f;
-  color: #49854f;
-  font-size: 34rpx;
-  font-weight: 400;
-  line-height: 68rpx;
+.g-more-dots {
+  display: flex;
+  align-items: center;
+  gap: 6rpx;
 }
 
-.g-avatar-add::after {
-  display: none;
+.g-more-dot {
+  width: 8rpx;
+  height: 8rpx;
+  border-radius: 50%;
+  background: #8a978a;
 }
 
 /* 项目圆：头像链最前，附件缩略图或标题首字 */

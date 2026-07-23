@@ -170,10 +170,20 @@ Page({
   },
 
   async parseFromInput() {
-    const text = this.data.parseInputText.trim();
+    let text = this.data.parseInputText.trim();
     if (!text) {
-      wx.showToast({ title: '请先粘贴或输入内容', icon: 'none' });
-      return;
+      // 输入框为空时直接读取剪贴板，点"粘贴识别"一步到位
+      text = await new Promise((resolve) => {
+        wx.getClipboardData({
+          success: (res) => resolve((res.data || '').trim()),
+          fail: () => resolve('')
+        });
+      });
+      if (!text) {
+        wx.showToast({ title: '剪贴板为空，请先复制内容', icon: 'none' });
+        return;
+      }
+      this.setData({ parseInputText: text });
     }
 
     this.setData({ isParsing: true });

@@ -11,7 +11,7 @@ const TYPE_LABELS = {
   meeting: '预约记录'
 };
 
-const SYSTEM_PROMPT = '你是一个智能记事卡解析助手。请从用户输入的文本中提取 title、desc、keyPoints 三个字段，只返回 JSON。title 是简短标题（5-15字），desc 是通顺的描述（保留关键细节），keyPoints 是要点字符串数组（每项一句话）。';
+const SYSTEM_PROMPT = '你是一个智能记事卡解析助手。请从用户输入的文本中提取 title、desc、keyPoints 三个字段，只返回 JSON。title 是简短标题（5-15字），desc 是通顺的描述（保留关键细节），keyPoints 是基于全部内容总结的主题关键词数组：每个关键词 2-8 个字，概括文本涉及的一个主题；文本涉及多个主题时每个主题各出一个关键词，按重要性排序，最多 5 个。';
 
 exports.main = async (event, context) => {
   console.log('[parseContext] 收到请求', JSON.stringify({ action: event.action }));

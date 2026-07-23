@@ -27,7 +27,9 @@ Page({
     safeAreaBottom: 0,
     clipboardText: '',
     showClipboardHint: false,
-    showEmptyGuide: false
+    showEmptyGuide: false,
+    isParsing: false,
+    aiEnabled: false
   },
 
   onLoad(options = {}) {
@@ -151,18 +153,54 @@ Page({
     wx.chooseMedia({ count: 3, mediaType: ['image'], sourceType: ['album'], success: cb });
   },
 
-  generatePreview(text, type, source) {
-    const draft = buildDraftFromContext({ text, type, source, files: this.data.files });
+  async generatePreview(text, type, source) {
+    // 防竞态：只应用最近一次请求的结果
+    this._parseRequestId = (this._parseRequestId || 0) + 1;
+    const requestId = this._parseRequestId;
+
     const helperCandidates = extractHelperCandidates(text);
+    const applyItems = (draft, aiEnabled) => {
+      const importItems = [
+        { key: 'title', label: '标题', value: draft.title || '', checked: true, ai: true },
+        { key: 'desc', label: '需求描述', value: draft.desc || '', checked: true, ai: true },
+        { key: 'keyPoints', label: '重点 / 待确认', value: (draft.keyPoints || []).join(' · '), checked: true, ai: true },
+        { key: 'helpers', label: '共同行动人候选', value: helperCandidates.join(' · '), checked: true, ai: true }
+      ];
+      this.setData({ importItems, showEmptyGuide: false, aiEnabled });
+    };
+    const applyLocal = () => {
+      applyItems(buildDraftFromContext({ text, type, source, files: this.data.files }), false);
+    };
 
-    const importItems = [
-      { key: 'title', label: '标题', value: draft.title || '', checked: true, ai: true },
-      { key: 'desc', label: '需求描述', value: draft.desc || '', checked: true, ai: true },
-      { key: 'keyPoints', label: '重点 / 待确认', value: (draft.keyPoints || []).join(' · '), checked: true, ai: true },
-      { key: 'helpers', label: '共同行动人候选', value: helperCandidates.join(' · '), checked: true, ai: true }
-    ];
+    this.setData({ isParsing: true });
 
-    this.setData({ importItems, showEmptyGuide: false });
+    try {
+      const app = getApp();
+      const cloudReady = app.globalData && app.globalData.cloudReady && wx.cloud;
+      if (cloudReady && (text || '').trim()) {
+        const res = await wx.cloud.callFunction({
+          name: 'parseContext',
+          data: { action: 'parseText', text: text.trim(), type }
+        });
+        if (requestId !== this._parseRequestId) return;
+        if (res.result && res.result.code === 0) {
+          applyItems(res.result.data, true);
+          return;
+        }
+        console.warn('[generatePreview] parseContext 失败，回退本地规则', res.result && res.result.message);
+        applyLocal();
+        return;
+      }
+      applyLocal();
+    } catch (e) {
+      if (requestId !== this._parseRequestId) return;
+      console.warn('[generatePreview] parseContext 异常，回退本地规则', e);
+      applyLocal();
+    } finally {
+      if (requestId === this._parseRequestId) {
+        this.setData({ isParsing: false });
+      }
+    }
   },
 
   regenerate() {

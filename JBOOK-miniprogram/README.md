@@ -43,7 +43,7 @@
 
 ## 当前实现边界
 
-- 本地模拟 AI 整理，真实 AI 接口后续接入 `services/ai-adapter.js` 或云函数 `parseContext`。
+- 文本整理已接入云函数 `parseContext`（混元 hy3）：`title / desc / keyPoints` 由 AI 基于全文做主题总结，`keyPoints` 为主题关键词（多主题时每个主题一个关键词）；云开发未就绪或调用失败时回退 `services/ai-adapter.js` 的本地规则识别。
 - 已支持云开发优先、本地存储兜底，存储适配在 `utils/store.js`。
 - 上传截图只记录文件信息，OCR 后续接入。
 - 订阅消息提醒预留了 `reminderTemplateIds`，需要在真实小程序后台配置模板后接入。

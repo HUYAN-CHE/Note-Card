@@ -81,11 +81,13 @@
       </view>
 
       <!-- 整理预览 -->
-      <view class="preview-section" wx:if="{{contextText}}">
+      <view class="preview-section {{isParsing ? 'parsing' : ''}}" wx:if="{{contextText}}">
         <view class="preview-header">
           <text class="preview-title">已整理内容</text>
           <text class="preview-regen" bindtap="regenerate">重新整理</text>
         </view>
+
+        <view class="parsing-tip" wx:if="{{isParsing}}">AI 正在总结主题…</view>
 
         <view
           class="imp-card {{item.checked ? '' : 'off'}}"
@@ -120,7 +122,7 @@
         </view>
       </view>
 
-      <view class="bottom-note">当前为本地规则识别；AI 接入后自动升级为语义理解</view>
+      <view class="bottom-note">{{aiEnabled ? 'AI 语义总结：重点为主题关键词，可手动修改' : '云端 AI 不可用，当前为本地规则识别'}}</view>
     </view>
   </scroll-view>
 

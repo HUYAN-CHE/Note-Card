@@ -76,7 +76,9 @@ Page({
     projectThumb: '',
     projectInitial: '',
     visibleAvatars: [],
-    showAvatarMore: false
+    showAvatarMore: false,
+    allCollaborators: [],
+    showHelpersSheet: false
   },
 
   onLoad(options) {
@@ -159,14 +161,25 @@ Page({
     }
   },
 
-  // 头像组：创立者 + 协作人，最多显示 4 个，更多以「…」圆表示；无协作人时补一个空位圆
+  // 头像组：创立者1 + 协作人最多2 + 「…」圆；点「…」弹窗看全部成员；只有创立者一人时补一个空位圆
   buildAvatarGroup(creator, helpers) {
     const people = [creator, ...(helpers || [])].filter(Boolean);
-    const visibleAvatars = people.slice(0, 4).map((p) => ({ ...p, empty: false }));
-    if (!helpers || !helpers.length) {
+    const visibleAvatars = people.slice(0, 3).map((p) => ({ ...p, empty: false }));
+    // 只有创立者一人时补一个空位圆
+    if (people.length === 1) {
       visibleAvatars.push({ empty: true });
     }
-    return { visibleAvatars, showAvatarMore: people.length > 4 };
+    return { visibleAvatars, showAvatarMore: people.length > 3 };
+  },
+
+  // 全部成员列表：创立者在前，供「…」弹窗展示头像和昵称
+  buildAllCollaborators(creator, helpers) {
+    const list = [creator, ...(helpers || [])].filter(Boolean);
+    return list.map((p, index) => ({
+      ...p,
+      nickname: p.nickname || '未知用户',
+      roleText: index === 0 ? '创立者' : '协作人'
+    }));
   },
 
   renderCard(data) {
@@ -187,6 +200,7 @@ Page({
       helpers,
       visibleAvatars: avatarGroup.visibleAvatars,
       showAvatarMore: avatarGroup.showAvatarMore,
+      allCollaborators: this.buildAllCollaborators(creator, helpers),
       keyPoints,
       statusClass: statusInfo.class,
       statusText: statusInfo.text,
@@ -228,6 +242,7 @@ Page({
       helpers,
       visibleAvatars: avatarGroup.visibleAvatars,
       showAvatarMore: avatarGroup.showAvatarMore,
+      allCollaborators: this.buildAllCollaborators(creator, helpers),
       keyPoints,
       statusClass: statusInfo.class,
       statusText: statusInfo.text,
@@ -624,6 +639,15 @@ Page({
 
   closeActivitySheet() {
     this.setData({ showActivitySheet: false });
+  },
+
+  // 「…」圆：弹窗展示全部共同行动人
+  openHelpersSheet() {
+    this.setData({ showHelpersSheet: true });
+  },
+
+  closeHelpersSheet() {
+    this.setData({ showHelpersSheet: false });
   },
 
   async loadActivities() {
