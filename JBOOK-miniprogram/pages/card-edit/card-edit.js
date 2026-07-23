@@ -309,15 +309,22 @@ Page({
 
 
   async chooseAttachmentImages() {
+    // 最多 3 张附件
+    const remain = 3 - this.data.attachmentImages.length;
+    if (remain <= 0) {
+      wx.showToast({ title: '最多上传 3 张图片', icon: 'none' });
+      return;
+    }
+
     const chooseRes = await new Promise((resolve) => {
       if (wx.chooseMessageFile) {
-        wx.chooseMessageFile({ count: 9, type: 'image', success: resolve, fail: () => resolve({ tempFiles: [] }) });
+        wx.chooseMessageFile({ count: remain, type: 'image', success: resolve, fail: () => resolve({ tempFiles: [] }) });
       } else {
-        wx.chooseMedia({ count: 9, mediaType: ['image'], sourceType: ['album'], success: resolve, fail: () => resolve({ tempFiles: [] }) });
+        wx.chooseMedia({ count: remain, mediaType: ['image'], sourceType: ['album'], success: resolve, fail: () => resolve({ tempFiles: [] }) });
       }
     });
 
-    const newFiles = (chooseRes.tempFiles || []).map((file, index) => ({
+    const newFiles = (chooseRes.tempFiles || []).slice(0, remain).map((file, index) => ({
       name: file.name || `图片 ${index + 1}`,
       tempPath: file.path || file.tempFilePath,
       size: file.size,

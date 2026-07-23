@@ -166,7 +166,7 @@
     <view class="edit-body">
       <view class="edit-field">
         <text class="edit-label">标题</text>
-        <input class="edit-input" value="{{editForm.title}}" bindinput="onEditTitleInput" placeholder="如 周六拼车去露营" placeholder-class="edit-ph" maxlength="30" />
+        <input class="edit-input" value="{{editForm.title}}" bindinput="onEditTitleInput" placeholder="如周六拼车去露营" placeholder-class="edit-ph" maxlength="30" />
       </view>
       <view class="edit-field">
         <text class="edit-label">需求描述</text>

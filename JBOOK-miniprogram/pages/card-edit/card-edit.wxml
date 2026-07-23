@@ -52,7 +52,7 @@
           <input
             class="field-input"
             value="{{card.title}}"
-            placeholder="如 周六拼车去露营"
+            placeholder="如周六拼车去露营"
             placeholder-class="field-ph"
             bindinput="onTitleInput"
             adjust-position="{{true}}"
@@ -62,14 +62,17 @@
         <!-- 需求描述 -->
         <view class="field">
           <view class="field-label">需求描述</view>
-          <textarea
-            class="field-textarea"
-            value="{{card.desc}}"
-            placeholder="描述一下需要帮忙的事"
-            placeholder-class="field-ph"
-            bindinput="onDescInput"
-            adjust-position="{{true}}"
-          />
+          <view class="textarea-holder">
+            <textarea
+              class="field-textarea"
+              value="{{card.desc}}"
+              placeholder=""
+              bindinput="onDescInput"
+              adjust-position="{{true}}"
+            />
+            <!-- iOS 微信 textarea 原生 placeholder 有系统级左偏移，与 input 对不齐，改用模拟占位 -->
+            <view class="mock-ph" wx:if="{{!card.desc}}">描述一下需要帮忙的事</view>
+          </view>
         </view>
 
         <!-- 截止日期 -->
@@ -101,13 +104,13 @@
         <!-- 图片附件 -->
         <view class="field">
           <view class="field-label">图片附件（选填）</view>
-          <view class="attachment-list" wx:if="{{attachmentImages.length}}">
+          <view class="attachment-list">
             <view class="attachment-item" wx:for="{{attachmentImages}}" wx:key="index">
               <image src="{{item.tempPath}}" class="attachment-thumb" mode="aspectFill" bindtap="previewAttachment" data-index="{{index}}" />
               <view class="attachment-remove" bindtap="removeAttachment" data-index="{{index}}">×</view>
             </view>
+            <view class="attachment-add" wx:if="{{attachmentImages.length < 3}}" bindtap="chooseAttachmentImages"></view>
           </view>
-          <view class="attachment-add" bindtap="chooseAttachmentImages">+ 添加图片</view>
         </view>
 
         <!-- 可见性开关 -->
