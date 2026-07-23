@@ -50,7 +50,7 @@
           <button class="g-avatar g-avatar-add" open-type="share" wx:if="{{isCreator || isHelper}}" aria-label="邀请协作">＋</button>
         </view>
         <!-- 注意：微信 button 内置样式会在 flex 中整行拉伸，类样式 width 不生效，宽度必须写内联 style -->
-        <button class="g-invite-pill" open-type="share" wx:if="{{isCreator || isHelper}}" data-action="share" aria-label="邀请协作" style="width: 150rpx; flex: none;"><image class="g-invite-icon" src="/assets/icons/share-green.svg" mode="aspectFit" />邀请协作</button>
+        <button class="g-invite-pill" open-type="share" wx:if="{{isCreator || isHelper}}" data-action="share" aria-label="邀请协作" style="width: 200rpx; flex: none;"><image class="g-invite-icon" src="/assets/icons/share-green.svg" mode="aspectFit" />邀请协作</button>
       </view>
 
       <!-- 需求描述 · 重点（创立者/共同行动人可点击编辑） -->
