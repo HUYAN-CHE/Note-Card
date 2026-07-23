@@ -248,10 +248,10 @@ page {
   align-items: center;
   justify-content: center;
   margin: 0 0 0 24rpx;
-  width: auto;
+  width: 176rpx;
   min-width: 0;
   height: 72rpx;
-  padding: 0 20rpx;
+  padding: 0;
   box-sizing: border-box;
   border-radius: 999rpx;
   background: #e3f0e4;
@@ -324,7 +324,7 @@ page {
 }
 
 .g-kv-value {
-  margin-right: 36rpx;
+  margin-right: 30rpx;
   font-size: 26rpx;
   color: #26392c;
   font-weight: 500;
@@ -696,7 +696,7 @@ page {
   display: flex;
   align-items: center;
   gap: 6rpx;
-  margin-right: 36rpx;
+  margin-right: 30rpx;
   font-size: 26rpx;
   font-weight: 400;
   color: #b9c6bc;
