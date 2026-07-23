@@ -25,7 +25,7 @@
           <text>共同行动人</text>
         </view>
         <view class="g-hint g-activity-entry" wx:if="{{isCreator || isHelper}}" bindtap="openActivitySheet" aria-label="协作记录">
-          <image class="g-activity-icon" src="/assets/icons/activity.svg" mode="aspectFit" />
+          <image class="g-activity-icon" src="/assets/icons/activity-gray.svg" mode="aspectFit" />
           <text>协作记录</text>
         </view>
       </view>
@@ -40,17 +40,13 @@
             <view class="g-avatar-badge" wx:if="{{attachments.length > 1}}">{{attachments.length}}</view>
           </view>
           <image class="g-link-icon" src="/assets/icons/link.svg" mode="aspectFit" />
-          <view class="g-avatar">
-            <text wx:if="{{!creator.avatar}}">{{creator.initial}}</text>
-            <image wx:else src="{{creator.avatar}}" mode="aspectFill" />
-          </view>
-          <block wx:if="{{helpers.length}}">
-            <view class="g-avatar" wx:for="{{helpers}}" wx:key="id">
+          <view class="g-avatar {{item.empty ? 'g-avatar-empty' : ''}}" wx:for="{{visibleAvatars}}" wx:key="index">
+            <block wx:if="{{!item.empty}}">
               <text wx:if="{{!item.avatar}}">{{item.initial}}</text>
               <image wx:else src="{{item.avatar}}" mode="aspectFill" />
-            </view>
-          </block>
-          <view class="g-avatar g-avatar-empty" wx:else></view>
+            </block>
+          </view>
+          <view class="g-avatar g-avatar-more" wx:if="{{showAvatarMore}}">…</view>
           <button class="g-avatar g-avatar-add" open-type="share" wx:if="{{isCreator || isHelper}}" aria-label="邀请协作">＋</button>
         </view>
         <button class="g-invite-pill" open-type="share" wx:if="{{isCreator || isHelper}}" data-action="share" aria-label="邀请协作"><image class="g-invite-icon" src="/assets/icons/share-green.svg" mode="aspectFit" />邀请协作</button>

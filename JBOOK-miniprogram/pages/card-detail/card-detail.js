@@ -74,7 +74,9 @@ Page({
     activitiesLoading: false,
     attachments: [],
     projectThumb: '',
-    projectInitial: ''
+    projectInitial: '',
+    visibleAvatars: [],
+    showAvatarMore: false
   },
 
   onLoad(options) {
@@ -157,6 +159,16 @@ Page({
     }
   },
 
+  // 头像组：创立者 + 协作人，最多显示 4 个，更多以「…」圆表示；无协作人时补一个空位圆
+  buildAvatarGroup(creator, helpers) {
+    const people = [creator, ...(helpers || [])].filter(Boolean);
+    const visibleAvatars = people.slice(0, 4).map((p) => ({ ...p, empty: false }));
+    if (!helpers || !helpers.length) {
+      visibleAvatars.push({ empty: true });
+    }
+    return { visibleAvatars, showAvatarMore: people.length > 4 };
+  },
+
   renderCard(data) {
     const role = data.role || 'stranger';
     const isCreator = role === 'creator';
@@ -165,11 +177,16 @@ Page({
 
     const statusInfo = STATUS_MAP[data.status] || { text: data.status || '进行中', class: 'doing' };
     const keyPoints = Array.isArray(data.keyPoints) ? data.keyPoints : [];
+    const creator = data.creator || this.data.creator;
+    const helpers = data.helpers || [];
+    const avatarGroup = this.buildAvatarGroup(creator, helpers);
 
     this.setData({
       card: data,
-      creator: data.creator || this.data.creator,
-      helpers: data.helpers || [],
+      creator,
+      helpers,
+      visibleAvatars: avatarGroup.visibleAvatars,
+      showAvatarMore: avatarGroup.showAvatarMore,
       keyPoints,
       statusClass: statusInfo.class,
       statusText: statusInfo.text,
@@ -203,11 +220,14 @@ Page({
     const openid = this.getCurrentOpenid();
     const isCreator = card.creatorId === openid;
     const isHelper = Array.isArray(card.helperIds) && card.helperIds.includes(openid);
+    const avatarGroup = this.buildAvatarGroup(creator, helpers);
 
     this.setData({
       card,
       creator,
       helpers,
+      visibleAvatars: avatarGroup.visibleAvatars,
+      showAvatarMore: avatarGroup.showAvatarMore,
       keyPoints,
       statusClass: statusInfo.class,
       statusText: statusInfo.text,
