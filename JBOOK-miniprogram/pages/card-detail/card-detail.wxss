@@ -248,7 +248,7 @@ page {
   align-items: center;
   justify-content: center;
   margin: 0 0 0 24rpx;
-  width: 176rpx;
+  width: 100rpx;
   min-width: 0;
   height: 72rpx;
   padding: 0;
