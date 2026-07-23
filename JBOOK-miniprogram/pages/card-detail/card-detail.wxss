@@ -259,6 +259,8 @@ page {
   font-size: 26rpx;
   font-weight: 600;
   line-height: 1;
+  white-space: nowrap;
+  overflow: hidden;
 }
 
 .g-invite-icon {

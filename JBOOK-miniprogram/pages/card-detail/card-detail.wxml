@@ -49,7 +49,7 @@
           <view class="g-avatar g-avatar-more" wx:if="{{showAvatarMore}}">…</view>
           <button class="g-avatar g-avatar-add" open-type="share" wx:if="{{isCreator || isHelper}}" aria-label="邀请协作">＋</button>
         </view>
-        <button class="g-invite-pill" open-type="share" wx:if="{{isCreator || isHelper}}" data-action="share" aria-label="邀请协作"><image class="g-invite-icon" src="/assets/icons/share-green.svg" mode="aspectFit" />邀请协作</button>
+        <button class="g-invite-pill" open-type="share" wx:if="{{isCreator || isHelper}}" data-action="share" aria-label="邀请协作" style="width: 100rpx; flex: none;"><image class="g-invite-icon" src="/assets/icons/share-green.svg" mode="aspectFit" />邀请协作</button>
       </view>
 
       <!-- 需求描述 · 重点（创立者/共同行动人可点击编辑） -->
