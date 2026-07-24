@@ -95,7 +95,7 @@
           open-type="chooseAvatar"
           bind:chooseavatar="onAuthAvatar"
         >
-          <text wx:if="{{!authProfile.avatar}}">点击授权头像</text>
+          <text wx:if="{{!authProfile.avatar}}">授权头像</text>
           <image wx:else class="auth-avatar-img" src="{{authProfile.avatar}}" mode="aspectFill" />
         </button>
         <input
