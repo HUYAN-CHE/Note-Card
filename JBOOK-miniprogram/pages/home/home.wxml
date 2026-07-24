@@ -10,6 +10,11 @@
     week-days="{{weekDays}}"
     selected-index="{{selectedIndex}}"
     status-bar-height="{{statusBarHeight}}"
+    nav-top="{{heroNavTop}}"
+    nav-height="{{heroNavHeight}}"
+    nav-right="{{heroNavRight}}"
+    subscribed="{{subscribed}}"
+    bind:subscribe="onSubscribeTap"
     body-pull-enabled="{{!cards.length}}"
   >
     <view slot="sheet-head">
@@ -47,10 +52,10 @@
     >
       <view class="card-list">
         <view wx:for="{{cards}}" wx:key="id" class="swipe-wrap">
-          <view class="swipe-delete" bindtap="onDeleteCard" data-id="{{item.id}}">删除</view>
+          <view class="swipe-delete" style="visibility: {{item.swipeX ? 'visible' : 'hidden'}};" bindtap="onDeleteCard" data-id="{{item.id}}">删除</view>
           <view
             class="swipe-content card-item"
-            style="transform: translateX({{item.swipeX || 0}}px);"
+            style="{{item.swipeX ? 'transform: translateX(' + item.swipeX + 'px);' : ''}}"
             bindtap="openCard"
             data-id="{{item.id}}"
             data-index="{{index}}"

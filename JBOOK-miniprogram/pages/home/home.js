@@ -29,6 +29,11 @@ Page({
     weekDays: [],
     selectedIndex: 0,
     statusBarHeight: 44,
+    heroNavTop: 4,
+    heroNavHeight: 32,
+    heroNavRight: 96,
+    subscribed: false,
+    subscribeCount: 0,
     reminderEnabled: true,
     refreshing: false,
     bodyScrollTop: 0,
@@ -55,6 +60,7 @@ Page({
     }
     this._lastPullProgress = 0;
     this.loadCards();
+    this.loadSubscribeState();
     this.checkAuth();
 
     const today = this.formatDate(new Date());
@@ -185,7 +191,20 @@ Page({
   updateSystemInfo() {
     try {
       const sys = wx.getSystemInfoSync();
-      this.setData({ statusBarHeight: sys.statusBarHeight || 44 });
+      const statusBarHeight = sys.statusBarHeight || 44;
+      let heroNavTop = 4;
+      let heroNavHeight = 32;
+      let heroNavRight = 96;
+      try {
+        const rect = wx.getMenuButtonBoundingClientRect();
+        heroNavTop = Math.max((rect.top || statusBarHeight + 4) - statusBarHeight, 0);
+        heroNavHeight = rect.height || 32;
+        if (rect.left && sys.screenWidth) {
+          // 按钮右缘贴齐胶囊左缘，留出 8px 间隔
+          heroNavRight = sys.screenWidth - rect.left + 8;
+        }
+      } catch (e) {}
+      this.setData({ statusBarHeight, heroNavTop, heroNavHeight, heroNavRight });
     } catch (e) {}
   },
 
@@ -311,7 +330,7 @@ Page({
       const decoratedCards = filteredCards.slice(0, 6).map((card) => ({
         ...card,
         icon: resolveThemeIcon(card),
-        displayTitle: card.title || '未命名事项',
+        displayTitle: this.truncateTitle(card.title),
         statusText: STATUS_TEXT[card.status] || '待确认',
         statusClass: STATUS_CLASSES[card.status] || 'status-pending',
         deadlineText: this.formatDeadline(card)
@@ -335,6 +354,12 @@ Page({
   onBodyScroll(event) {
     const scrollTop = event.detail && typeof event.detail.scrollTop === 'number' ? event.detail.scrollTop : 0;
     this.setData({ bodyScrollTop: scrollTop });
+  },
+
+  // 卡片标题超过 10 字截断加省略号
+  truncateTitle(title) {
+    const text = (title || '').trim() || '未命名事项';
+    return text.length > 10 ? text.slice(0, 10) + '…' : text;
   },
 
   measureBodyCanScroll() {
@@ -386,6 +411,73 @@ Page({
 
   toggleReminder(event) {
     this.setData({ reminderEnabled: event.detail.value });
+  },
+
+  async loadSubscribeState() {
+    const app = getApp();
+    if (!app.globalData || !app.globalData.cloudReady || !wx.cloud) return;
+    try {
+      const res = await wx.cloud.callFunction({
+        name: 'subscribeReminder',
+        data: { action: 'get' }
+      });
+      if (res.result && res.result.code === 0 && res.result.data) {
+        this.setData({
+          subscribed: res.result.data.subscribed,
+          subscribeCount: res.result.data.count
+        });
+      }
+    } catch (e) {}
+  },
+
+  async onSubscribeTap() {
+    const app = getApp();
+    if (!app.globalData || !app.globalData.cloudReady || !wx.cloud) {
+      wx.showToast({ title: '云开发未就绪', icon: 'none' });
+      return;
+    }
+
+    const accumulate = async () => {
+      try {
+        const res = await wx.cloud.callFunction({
+          name: 'subscribeReminder',
+          data: { action: 'subscribe' }
+        });
+        if (res.result && res.result.code === 0 && res.result.data) {
+          this.setData({
+            subscribed: true,
+            subscribeCount: res.result.data.count
+          });
+          wx.showToast({ title: '订阅成功', icon: 'success' });
+        } else {
+          wx.showToast({ title: (res.result && res.result.message) || '订阅失败', icon: 'none' });
+        }
+      } catch (e) {
+        wx.showToast({ title: '订阅失败', icon: 'none' });
+      }
+    };
+
+    const tmplIds = ((app.globalData.reminderTemplateIds) || []).filter(Boolean);
+    if (!tmplIds.length) {
+      // 订阅消息模板未配置：先直接累计额度，打通链路，模板申请后接入授权弹窗
+      await accumulate();
+      return;
+    }
+
+    wx.requestSubscribeMessage({
+      tmplIds,
+      success: async (res) => {
+        const accepted = tmplIds.some((id) => res[id] === 'accept');
+        if (accepted) {
+          await accumulate();
+        } else {
+          wx.showToast({ title: '未授权订阅', icon: 'none' });
+        }
+      },
+      fail: () => {
+        wx.showToast({ title: '订阅失败', icon: 'none' });
+      }
+    });
   },
 
   onPreventTouchMove() {},

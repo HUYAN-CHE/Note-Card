@@ -93,6 +93,22 @@ Component({
       type: Number,
       value: 44
     },
+    navTop: {
+      type: Number,
+      value: 4
+    },
+    navHeight: {
+      type: Number,
+      value: 32
+    },
+    navRight: {
+      type: Number,
+      value: 96
+    },
+    subscribed: {
+      type: Boolean,
+      value: false
+    },
     bodyPullEnabled: {
       type: Boolean,
       value: false
@@ -141,6 +157,10 @@ Component({
   },
 
   methods: {
+    onSubscribeTap() {
+      this.triggerEvent('subscribe');
+    },
+
     measureHeroHeight() {
       this.createSelectorQuery()
         .select('.pull-hero')
