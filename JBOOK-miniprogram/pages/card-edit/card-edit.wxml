@@ -6,16 +6,10 @@
   <!-- 顶部固定快速创建浮层 -->
   <view class="float-create-card" style="top: {{totalHeight}}px;">
     <view class="create-card compact">
-      <view class="create-card-header">
-        <view class="create-card-title-wrap">
-          <view class="create-card-title">快速识别创建</view>
-          <view class="create-card-subtitle">粘贴或语音</view>
-        </view>
-      </view>
       <textarea
         class="create-card-input"
         value="{{parseInputText}}"
-        placeholder="粘贴或输入内容"
+        placeholder="粘贴或语音快速识别并创建"
         placeholder-class="field-ph"
         bindinput="onParseInput"
         maxlength="4000"
@@ -69,7 +63,7 @@
 
         <!-- 截止日期 -->
         <view class="field">
-          <view class="field-label">截止日期</view>
+          <view class="field-label">截止日期 <text class="required">*</text></view>
           <picker mode="date" value="{{card.deadline}}" bindchange="onDeadlineChange">
             <view class="field-input deadline-input {{card.deadline ? '' : 'is-placeholder'}}">
               {{card.deadline || '请选择日期'}}

@@ -383,17 +383,7 @@ Page({
   },
 
   formatDeadline(card) {
-    if (card.reminderText) {
-      const match = card.reminderText.match(/(\d{1,2}):(\d{2})/);
-      if (match) {
-        const hour = parseInt(match[1], 10);
-        const minute = match[2];
-        const period = hour >= 12 ? 'PM' : 'AM';
-        const displayHour = hour > 12 ? hour - 12 : (hour === 0 ? 12 : hour);
-        return `${displayHour}:${minute} ${period}`;
-      }
-    }
-    return '08:30 PM';
+    return card.deadline || '未设置';
   },
 
   updateDayCounts(cards) {

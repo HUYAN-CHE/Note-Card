@@ -388,6 +388,7 @@ Page({
       title: draft.title || this.data.card.title,
       desc: draft.desc || this.data.card.desc,
       keyPoints: Array.isArray(draft.keyPoints) ? draft.keyPoints : this.data.card.keyPoints,
+      theme: draft.theme || this.data.card.theme || '',
       type,
       typeLabel: TYPE_LABELS[type] || this.data.card.typeLabel,
       source: draft.source || this.data.card.source
@@ -427,6 +428,11 @@ Page({
     if (!this.data.card.title.trim()) {
       wx.showToast({ title: '请输入标题', icon: 'none' });
       throw new Error('标题为空');
+    }
+
+    if (!this.data.card.deadline) {
+      wx.showToast({ title: '请选择截止日期', icon: 'none' });
+      throw new Error('截止日期为空');
     }
 
     const keyPoints = this.data.keyPointsText
