@@ -34,7 +34,7 @@ Page({
     heroNavRight: 96,
     subscribed: false,
     subscribeCount: 0,
-    reminderEnabled: true,
+    reminderEnabled: false,
     refreshing: false,
     bodyScrollTop: 0,
     bodyCanScroll: false,
@@ -410,7 +410,10 @@ Page({
   },
 
   toggleReminder(event) {
-    this.setData({ reminderEnabled: event.detail.value });
+    const enabled = event.detail.value;
+    this.setData({ reminderEnabled: enabled });
+    // 每次拨动（无论开或关）都累计一次订阅额度，并保存开关状态
+    this.requestSubscribe({ reminderEnabled: enabled }, { silent: true });
   },
 
   async loadSubscribeState() {
@@ -424,16 +427,26 @@ Page({
       if (res.result && res.result.code === 0 && res.result.data) {
         this.setData({
           subscribed: res.result.data.subscribed,
-          subscribeCount: res.result.data.count
+          subscribeCount: res.result.data.count,
+          reminderEnabled: !!res.result.data.reminderEnabled
         });
       }
     } catch (e) {}
   },
 
   async onSubscribeTap() {
+    await this.requestSubscribe();
+  },
+
+  // 订阅消息额度累计：配置了模板则先走微信授权弹窗，用户接受才计数；
+  // 模板未配置时直接计数。extra 用于顺带保存开关状态等字段。
+  async requestSubscribe(extra, options) {
+    const silent = options && options.silent;
     const app = getApp();
     if (!app.globalData || !app.globalData.cloudReady || !wx.cloud) {
-      wx.showToast({ title: '云开发未就绪', icon: 'none' });
+      if (!silent) {
+        wx.showToast({ title: '云开发未就绪', icon: 'none' });
+      }
       return;
     }
 
@@ -441,19 +454,23 @@ Page({
       try {
         const res = await wx.cloud.callFunction({
           name: 'subscribeReminder',
-          data: { action: 'subscribe' }
+          data: { action: 'subscribe', ...(extra || {}) }
         });
         if (res.result && res.result.code === 0 && res.result.data) {
           this.setData({
             subscribed: true,
             subscribeCount: res.result.data.count
           });
-          wx.showToast({ title: '订阅成功', icon: 'success' });
-        } else {
+          if (!silent) {
+            wx.showToast({ title: '订阅成功', icon: 'success' });
+          }
+        } else if (!silent) {
           wx.showToast({ title: (res.result && res.result.message) || '订阅失败', icon: 'none' });
         }
       } catch (e) {
-        wx.showToast({ title: '订阅失败', icon: 'none' });
+        if (!silent) {
+          wx.showToast({ title: '订阅失败', icon: 'none' });
+        }
       }
     };
 
@@ -470,12 +487,14 @@ Page({
         const accepted = tmplIds.some((id) => res[id] === 'accept');
         if (accepted) {
           await accumulate();
-        } else {
+        } else if (!silent) {
           wx.showToast({ title: '未授权订阅', icon: 'none' });
         }
       },
       fail: () => {
-        wx.showToast({ title: '订阅失败', icon: 'none' });
+        if (!silent) {
+          wx.showToast({ title: '订阅失败', icon: 'none' });
+        }
       }
     });
   },

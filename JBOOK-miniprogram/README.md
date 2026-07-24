@@ -46,7 +46,7 @@
 - 文本整理已接入云函数 `parseContext`（混元 hy3）：`title / desc / keyPoints` 由 AI 基于全文做主题总结，`keyPoints` 为主题关键词（多主题时每个主题一个关键词）；云开发未就绪或调用失败时回退 `services/ai-adapter.js` 的本地规则识别。
 - 已支持云开发优先、本地存储兜底，存储适配在 `utils/store.js`。
 - 上传截图只记录文件信息，OCR 后续接入。
-- 订阅消息提醒预留了 `reminderTemplateIds`，需要在真实小程序后台配置模板后接入。
+- 订阅消息采用一次性订阅额度制：首页「订阅」按钮与「打开临近消息提醒」开关的每次点击/拨动都会经云函数 `subscribeReminder` 累计 `users.subscribeCount`；`sendReminder`（每日 9:00 定时）给开启开关且仍有额度的用户提前一天推送临近截止卡片，每发一条额度 -1。模板 ID 申请后填入 `app.globalData.reminderTemplateIds` 与 `sendReminder` 的 `TEMPLATE_ID` 即接入真实授权与发送。
 - 不做报价、合同、收款、发票、完整 CRM 漏斗。
 
 ## 云开发配置
