@@ -46,24 +46,29 @@
       bind:refreshclose="onPullCreateClose"
     >
       <view class="card-list">
-        <view
-          wx:for="{{cards}}"
-          wx:key="id"
-          class="card-item"
-          bindtap="openCard"
-          data-id="{{item.id}}"
-          data-action="open_card"
-          aria-label="打开记事卡 {{item.displayTitle}}"
-        >
-          <view class="card-icon">{{item.emoji}}</view>
+        <view wx:for="{{cards}}" wx:key="id" class="swipe-wrap">
+          <view class="swipe-delete" bindtap="onDeleteCard" data-id="{{item.id}}">删除</view>
+          <view
+            class="swipe-content card-item"
+            style="transform: translateX({{item.swipeX || 0}}px);"
+            bindtap="openCard"
+            data-id="{{item.id}}"
+            data-index="{{index}}"
+            bindtouchstart="onSwipeStart"
+            bindtouchmove="onSwipeMove"
+            bindtouchend="onSwipeEnd"
+            aria-label="打开记事卡 {{item.displayTitle}}"
+          >
+            <view class="card-icon">{{item.icon}}</view>
 
-          <view class="card-info">
-            <text class="card-title">{{item.displayTitle}}</text>
-            <text class="card-meta">截止日期 {{item.deadlineText}}</text>
-          </view>
+            <view class="card-info">
+              <text class="card-title">{{item.displayTitle}}</text>
+              <text class="card-meta">截止日期 {{item.deadlineText}}</text>
+            </view>
 
-          <view class="card-status {{item.statusClass}}" aria-hidden="true">
-            <text class="status-text">{{item.statusText}}</text>
+            <view class="card-status {{item.statusClass}}" aria-hidden="true">
+              <text class="status-text">{{item.statusText}}</text>
+            </view>
           </view>
         </view>
       </view>

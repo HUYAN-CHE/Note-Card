@@ -1,0 +1,9 @@
+{
+  "name": "deleteCard",
+  "version": "1.0.0",
+  "description": "删除记事卡（仅创立者）",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "latest"
+  }
+}

@@ -1,17 +1,10 @@
 const { ensureDemoCards } = require('../../utils/store');
 const { buildSkillLaunchUrl, getSkill } = require('../../services/skill-registry');
 const { collections } = require('../../config/env');
+const { resolveThemeIcon } = require('../../utils/theme-icon');
 
 const USER_PROFILE_KEY = 'JISHIKA_USER_PROFILE';
 const SHOW_DEMO_CARDS = false;
-
-const EMOJIS = {
-  requirement: '💊',
-  progress: '💊',
-  todo: '📝',
-  meeting: '🗓️',
-  default: '📝'
-};
 
 const STATUS_TEXT = {
   draft: '待确认',
@@ -40,6 +33,7 @@ Page({
     refreshing: false,
     bodyScrollTop: 0,
     bodyCanScroll: false,
+    openedCardId: '',
     showAuthModal: false,
     authProfile: {
       nickname: '',
@@ -316,7 +310,7 @@ Page({
 
       const decoratedCards = filteredCards.slice(0, 6).map((card) => ({
         ...card,
-        emoji: EMOJIS[card.type] || EMOJIS.default,
+        icon: resolveThemeIcon(card),
         displayTitle: card.title || '未命名事项',
         statusText: STATUS_TEXT[card.status] || '待确认',
         statusClass: STATUS_CLASSES[card.status] || 'status-pending',
@@ -439,7 +433,112 @@ Page({
 
   openCard(event) {
     const id = event.currentTarget.dataset.id;
+    // 已左滑展开时，点击先收起而不是打开
+    const index = this.data.cards.findIndex((c) => c.id === id);
+    if (index >= 0 && (this.data.cards[index].swipeX || 0) < 0) {
+      this.setData({ [`cards[${index}].swipeX`]: 0, openedCardId: '' });
+      return;
+    }
     wx.navigateTo({ url: `/pages/card-detail/card-detail?id=${id}&view=owner` });
+  },
+
+  // ==================== 左滑删除 ====================
+
+  deleteBtnWidthPx() {
+    const sys = this.sysInfo || wx.getSystemInfoSync();
+    this.sysInfo = sys;
+    return 140 * (sys.windowWidth / 750);
+  },
+
+  onSwipeStart(event) {
+    const { id, index } = event.currentTarget.dataset;
+    const maxX = this.deleteBtnWidthPx();
+    const baseX = this.data.openedCardId === id ? -maxX : 0;
+
+    // 收起其他已展开的卡
+    if (this.data.openedCardId && this.data.openedCardId !== id) {
+      const openedIndex = this.data.cards.findIndex((c) => c.id === this.data.openedCardId);
+      if (openedIndex >= 0) {
+        this.setData({ [`cards[${openedIndex}].swipeX`]: 0, openedCardId: '' });
+      }
+    }
+
+    this._swipe = {
+      id,
+      index,
+      baseX,
+      startX: event.touches[0].clientX,
+      startY: event.touches[0].clientY,
+      moved: false
+    };
+  },
+
+  onSwipeMove(event) {
+    const s = this._swipe;
+    if (!s) return;
+    const dx = event.touches[0].clientX - s.startX;
+    const dy = event.touches[0].clientY - s.startY;
+
+    if (!s.moved) {
+      // 纵向滚动优先，不触发横滑
+      if (Math.abs(dy) > Math.abs(dx)) return;
+      if (Math.abs(dx) > 6) s.moved = true;
+    }
+    if (!s.moved) return;
+
+    const maxX = this.deleteBtnWidthPx();
+    const x = Math.max(-maxX, Math.min(0, s.baseX + dx));
+    this.setData({ [`cards[${s.index}].swipeX`]: x });
+  },
+
+  onSwipeEnd() {
+    const s = this._swipe;
+    this._swipe = null;
+    if (!s || !s.moved) return;
+
+    const maxX = this.deleteBtnWidthPx();
+    const x = this.data.cards[s.index] ? (this.data.cards[s.index].swipeX || 0) : 0;
+    const opened = x < -maxX / 2;
+    this.setData({
+      [`cards[${s.index}].swipeX`]: opened ? -maxX : 0,
+      openedCardId: opened ? s.id : ''
+    });
+  },
+
+  onDeleteCard(event) {
+    const id = event.currentTarget.dataset.id;
+    wx.showModal({
+      title: '删除记事卡',
+      content: '删除后不可恢复，确定删除这张记事卡吗？',
+      confirmText: '删除',
+      confirmColor: '#e53935',
+      success: (res) => {
+        if (res.confirm) this.deleteCard(id);
+      }
+    });
+  },
+
+  async deleteCard(id) {
+    const app = getApp();
+    if (!app.globalData || !app.globalData.cloudReady || !wx.cloud) {
+      wx.showToast({ title: '云开发未就绪', icon: 'none' });
+      return;
+    }
+
+    try {
+      const res = await wx.cloud.callFunction({ name: 'deleteCard', data: { cardId: id } });
+      if (res.result && res.result.code === 0) {
+        this.setData({
+          cards: this.data.cards.filter((c) => c.id !== id),
+          openedCardId: ''
+        });
+        wx.showToast({ title: '已删除', icon: 'success' });
+      } else {
+        wx.showToast({ title: (res.result && res.result.message) || '删除失败', icon: 'none' });
+      }
+    } catch (e) {
+      wx.showToast({ title: '删除失败', icon: 'none' });
+    }
   },
 
   newBlankCard() {

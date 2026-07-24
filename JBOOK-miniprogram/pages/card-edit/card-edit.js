@@ -48,12 +48,14 @@ Page({
 
   onReady() {
     this.measureFloatCard();
+    // 延迟复测一次：icon/textarea 渲染未完成时首次测量可能偏小，导致表单被浮层遮挡
+    setTimeout(() => this.measureFloatCard(), 350);
   },
 
-  // 底部操作栏实际占位高度（px）：上下内边距 48rpx + 按钮 96rpx + 安全区
+  // 底部操作栏实际占位高度（px）：上内边距 40rpx + 下内边距 24rpx + 会员横幅约 70rpx + 间距 32rpx + 按钮 96rpx + 安全区
   getFooterHeightPx() {
     const sys = this.sysInfo || wx.getSystemInfoSync();
-    return 144 * (sys.windowWidth / 750) + this.safeBottomPx;
+    return 262 * (sys.windowWidth / 750) + this.safeBottomPx;
   },
 
   updateLayout(floatCardHeightPx) {
