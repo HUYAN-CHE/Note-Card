@@ -7,10 +7,9 @@ cloud.init({
 const db = cloud.database();
 const _ = db.command;
 
-// 订阅消息模板 ID：在小程序公众平台后台申请「临近截止提醒」模板后填入。
-// 未配置时函数直接跳过，不会产生任何发送行为。
-const TEMPLATE_ID = '';
-// 模板字段名需与申请的模板一致，按需调整
+// 订阅消息模板：待办事项提醒（模板编号 15788，办公类目）
+// 字段：待办名称 thing4、截至时间 time25
+const TEMPLATE_ID = '4P5CvHsMvxnRGmD3rksLdeo6iuBV6m1hOc0DVPFcqoY';
 const TEMPLATE_PAGE = 'pages/home/home';
 
 function pad2(n) {
@@ -26,8 +25,9 @@ function getTomorrowStr() {
 
 function buildTemplateData(card) {
   return {
-    thing1: { value: (card.title || '记事卡').slice(0, 20) },
-    time2: { value: card.deadline }
+    // thing 类型最长 20 字符；time 类型需完整 yyyy-MM-dd HH:mm:ss
+    thing4: { value: (card.title || '记事卡').slice(0, 20) },
+    time25: { value: `${card.deadline} 23:59:59` }
   };
 }
 

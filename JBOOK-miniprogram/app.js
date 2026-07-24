@@ -4,7 +4,7 @@ const { enableCloud, cloudEnvId, collections } = require('./config/env');
 App({
   globalData: {
     launchContext: null,
-    reminderTemplateIds: [],
+    reminderTemplateIds: ['4P5CvHsMvxnRGmD3rksLdeo6iuBV6m1hOc0DVPFcqoY'],
     cloudReady: false,
     storeMode: 'local',
     userInfo: null,
