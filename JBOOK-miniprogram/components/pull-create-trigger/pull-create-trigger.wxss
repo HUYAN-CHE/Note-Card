@@ -50,9 +50,9 @@
 }
 
 .subscribe-bell {
-  width: 26rpx;
-  height: 26rpx;
-  margin-right: 8rpx;
+  width: 30rpx;
+  height: 30rpx;
+  margin-right: 10rpx;
 }
 
 .subscribe-text {

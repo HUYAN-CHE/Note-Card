@@ -51,25 +51,31 @@ exports.main = async (event) => {
     }
 
     // action === 'subscribe'：累计一次推送额度（并保存开关状态）
+    // 只有按钮来源（source=button）才刷新 lastSubscribedAt，驱动首页按钮「今日已订阅」样式；
+    // 开关/建卡引导只累加额度，不影响按钮每日重置
+    const isButton = !event.source || event.source === 'button';
     if (user) {
       const data = {
-        subscribeCount: _.inc(1),
-        lastSubscribedAt: db.serverDate()
+        subscribeCount: _.inc(1)
       };
       if (hasReminderPref) {
         data.reminderEnabled = event.reminderEnabled;
       }
+      if (isButton) {
+        data.lastSubscribedAt = db.serverDate();
+      }
       await users.doc(user._id).update({ data });
     } else {
-      await users.add({
-        data: {
-          _openid: openid,
-          subscribeCount: 1,
-          reminderEnabled: hasReminderPref ? event.reminderEnabled : false,
-          createdAt: db.serverDate(),
-          lastSubscribedAt: db.serverDate()
-        }
-      });
+      const data = {
+        _openid: openid,
+        subscribeCount: 1,
+        reminderEnabled: hasReminderPref ? event.reminderEnabled : false,
+        createdAt: db.serverDate()
+      };
+      if (isButton) {
+        data.lastSubscribedAt = db.serverDate();
+      }
+      await users.add({ data });
     }
     return { code: 0, data: { subscribed: true, count: count + 1 } };
   } catch (e) {

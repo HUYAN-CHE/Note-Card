@@ -410,8 +410,9 @@ Page({
   toggleReminder(event) {
     const enabled = event.detail.value;
     this.setData({ reminderEnabled: enabled });
-    // 每次拨动（无论开或关）都累计一次订阅额度，并保存开关状态
-    this.requestSubscribe({ reminderEnabled: enabled }, { silent: true });
+    // 每次拨动（无论开或关）都累计一次订阅额度，并保存开关状态；
+    // source=switch 只加次数，不点亮头部订阅按钮
+    this.requestSubscribe({ source: 'switch', reminderEnabled: enabled }, { silent: true });
   },
 
   async loadSubscribeState() {
@@ -435,7 +436,7 @@ Page({
   },
 
   async onSubscribeTap() {
-    await this.requestSubscribe();
+    await this.requestSubscribe({ source: 'button' });
   },
 
   // 订阅消息额度累计：配置了模板则先走微信授权弹窗，用户接受才计数；
@@ -452,7 +453,11 @@ Page({
 
     const data = await requestSubscribeCredit(extra);
     if (data) {
-      this.setData({ subscribed: true, subscribeCount: data.count });
+      // 只有点订阅按钮才点亮按钮；开关/建卡引导只累加额度
+      const isButton = extra && extra.source === 'button';
+      this.setData(isButton
+        ? { subscribed: true, subscribeCount: data.count }
+        : { subscribeCount: data.count });
       if (!silent) {
         wx.showToast({ title: '订阅成功', icon: 'success' });
       }

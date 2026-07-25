@@ -428,7 +428,7 @@ Page({
       cancelText: '暂不',
       success: async (res) => {
         if (!res.confirm) return;
-        const data = await requestSubscribeCredit({ reminderEnabled: true });
+        const data = await requestSubscribeCredit({ source: 'create', reminderEnabled: true });
         if (data) {
           wx.showToast({ title: '已开启提醒', icon: 'success' });
         }
