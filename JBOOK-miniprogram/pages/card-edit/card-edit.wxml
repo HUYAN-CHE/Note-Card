@@ -21,8 +21,21 @@
           <text>{{isParsing ? '识别中...' : '粘贴识别'}}</text>
         </view>
         <view class="create-btn {{isRecording ? 'recording' : ''}} {{isParsing ? 'disabled' : ''}}" bindtap="startVoiceInput">
-          <image class="create-btn-icon" src="/assets/images/icon-mic.svg" mode="aspectFit"/>
-          <text>{{isRecording ? '录音中...' : '语音输入'}}</text>
+          <block wx:if="{{isRecording}}">
+            <view class="rec-dot"></view>
+            <view class="rec-wave">
+              <view class="rec-bar b1"></view>
+              <view class="rec-bar b2"></view>
+              <view class="rec-bar b3"></view>
+              <view class="rec-bar b4"></view>
+              <view class="rec-bar b5"></view>
+            </view>
+            <text>点击结束</text>
+          </block>
+          <block wx:else>
+            <image class="create-btn-icon" src="/assets/images/icon-mic.svg" mode="aspectFit"/>
+            <text>语音输入</text>
+          </block>
         </view>
       </view>
     </view>

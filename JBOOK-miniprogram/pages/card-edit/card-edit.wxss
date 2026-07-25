@@ -399,8 +399,37 @@
 .create-btn.recording {
   background: #e53935;
   color: #fff;
-  animation: pulse 1.2s infinite;
 }
+
+/* 录音中：闪烁白点 + 声波条 */
+.rec-dot {
+  width: 12rpx;
+  height: 12rpx;
+  border-radius: 50%;
+  background: #ffffff;
+  animation: rec-blink 1s ease-in-out infinite;
+}
+
+.rec-wave {
+  display: flex;
+  align-items: center;
+  gap: 6rpx;
+  height: 32rpx;
+}
+
+.rec-bar {
+  width: 6rpx;
+  border-radius: 3rpx;
+  background: #ffffff;
+  transform-origin: center;
+  animation: rec-wave 1s ease-in-out infinite;
+}
+
+.rec-bar.b1 { height: 14rpx; animation-delay: 0s; }
+.rec-bar.b2 { height: 26rpx; animation-delay: 0.15s; }
+.rec-bar.b3 { height: 32rpx; animation-delay: 0.3s; }
+.rec-bar.b4 { height: 22rpx; animation-delay: 0.45s; }
+.rec-bar.b5 { height: 12rpx; animation-delay: 0.6s; }
 
 .create-btn.disabled {
   opacity: 0.5;
@@ -416,9 +445,14 @@
   filter: brightness(0) invert(1);
 }
 
-@keyframes pulse {
+@keyframes rec-wave {
+  0%, 100% { transform: scaleY(0.45); }
+  50% { transform: scaleY(1); }
+}
+
+@keyframes rec-blink {
   0%, 100% { opacity: 1; }
-  50% { opacity: 0.7; }
+  50% { opacity: 0.25; }
 }
 
 /* 信息卡片 */

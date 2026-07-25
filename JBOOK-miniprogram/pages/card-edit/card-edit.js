@@ -243,7 +243,6 @@ Page({
 
   async uploadVoiceAndParse(filePath) {
     this.setData({ isParsing: true });
-    wx.showLoading({ title: '语音识别中...' });
 
     try {
       const app = getApp();
@@ -305,7 +304,6 @@ Page({
       console.error('[uploadVoiceAndParse] catch error:', e);
       wx.showToast({ title: e.message || '语音识别失败', icon: 'none' });
     } finally {
-      wx.hideLoading();
       this.setData({ isParsing: false });
     }
   },
