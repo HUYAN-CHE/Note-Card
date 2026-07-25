@@ -1,6 +1,7 @@
 const { TYPE_LABELS, buildDraftFromContext } = require('../../services/ai-adapter');
 const { getCard, createCardFromDraft, saveCard } = require('../../utils/store');
 const { getNavInfo } = require('../../utils/ui');
+const { requestSubscribeCredit } = require('../../utils/subscribe');
 
 Page({
   data: {
@@ -404,13 +405,35 @@ Page({
 
   // 生成记事卡：保存后进入详情页，在下一步邀请共同行动人
   async generateCard() {
+    const isNew = !this.data.card.id;
     try {
       const saved = await this.persistCard({ status: 'todo' });
       wx.redirectTo({ url: `/pages/card-detail/card-detail?id=${saved.id}&from=create` });
+      if (isNew) {
+        this.promptSubscribeAfterCreate();
+      }
       return saved;
     } catch (e) {
       // persistCard 已提示
     }
+  },
+
+  // 新建成功且有截止日期：顺势引导开启截止提醒（授权一次 = 一条提醒额度）
+  promptSubscribeAfterCreate() {
+    if (!this.data.card.deadline) return;
+    wx.showModal({
+      title: '开启截止提醒',
+      content: '截止前一天微信提醒你，避免错过待办',
+      confirmText: '开启提醒',
+      cancelText: '暂不',
+      success: async (res) => {
+        if (!res.confirm) return;
+        const data = await requestSubscribeCredit({ reminderEnabled: true });
+        if (data) {
+          wx.showToast({ title: '已开启提醒', icon: 'success' });
+        }
+      }
+    });
   },
 
   async saveAndBack() {

@@ -2,6 +2,7 @@ const { ensureDemoCards } = require('../../utils/store');
 const { buildSkillLaunchUrl, getSkill } = require('../../services/skill-registry');
 const { collections } = require('../../config/env');
 const { resolveThemeIcon } = require('../../utils/theme-icon');
+const { requestSubscribeCredit } = require('../../utils/subscribe');
 
 const USER_PROFILE_KEY = 'JISHIKA_USER_PROFILE';
 const SHOW_DEMO_CARDS = false;
@@ -21,6 +22,13 @@ const STATUS_CLASSES = {
 };
 
 const WEEK_LABELS = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+
+// 北京时间日期 key：用于订阅按钮样式按天重置
+function beijingDayKey(ts) {
+  if (!ts) return '';
+  const d = new Date(new Date(ts).getTime() + 8 * 3600 * 1000);
+  return `${d.getUTCFullYear()}-${d.getUTCMonth() + 1}-${d.getUTCDate()}`;
+}
 
 Page({
   data: {
@@ -415,10 +423,12 @@ Page({
         data: { action: 'get' }
       });
       if (res.result && res.result.code === 0 && res.result.data) {
+        const data = res.result.data;
         this.setData({
-          subscribed: res.result.data.subscribed,
-          subscribeCount: res.result.data.count,
-          reminderEnabled: !!res.result.data.reminderEnabled
+          // 按钮样式按天重置：只有今天授权过才显示「已订阅」，引导每天补额度
+          subscribed: data.count > 0 && beijingDayKey(data.lastSubscribedAt) === beijingDayKey(Date.now()),
+          subscribeCount: data.count,
+          reminderEnabled: !!data.reminderEnabled
         });
       }
     } catch (e) {}
@@ -440,53 +450,15 @@ Page({
       return;
     }
 
-    const accumulate = async () => {
-      try {
-        const res = await wx.cloud.callFunction({
-          name: 'subscribeReminder',
-          data: { action: 'subscribe', ...(extra || {}) }
-        });
-        if (res.result && res.result.code === 0 && res.result.data) {
-          this.setData({
-            subscribed: true,
-            subscribeCount: res.result.data.count
-          });
-          if (!silent) {
-            wx.showToast({ title: '订阅成功', icon: 'success' });
-          }
-        } else if (!silent) {
-          wx.showToast({ title: (res.result && res.result.message) || '订阅失败', icon: 'none' });
-        }
-      } catch (e) {
-        if (!silent) {
-          wx.showToast({ title: '订阅失败', icon: 'none' });
-        }
+    const data = await requestSubscribeCredit(extra);
+    if (data) {
+      this.setData({ subscribed: true, subscribeCount: data.count });
+      if (!silent) {
+        wx.showToast({ title: '订阅成功', icon: 'success' });
       }
-    };
-
-    const tmplIds = ((app.globalData.reminderTemplateIds) || []).filter(Boolean);
-    if (!tmplIds.length) {
-      // 订阅消息模板未配置：先直接累计额度，打通链路，模板申请后接入授权弹窗
-      await accumulate();
-      return;
+    } else if (!silent) {
+      wx.showToast({ title: '未完成订阅', icon: 'none' });
     }
-
-    wx.requestSubscribeMessage({
-      tmplIds,
-      success: async (res) => {
-        const accepted = tmplIds.some((id) => res[id] === 'accept');
-        if (accepted) {
-          await accumulate();
-        } else if (!silent) {
-          wx.showToast({ title: '未授权订阅', icon: 'none' });
-        }
-      },
-      fail: () => {
-        if (!silent) {
-          wx.showToast({ title: '订阅失败', icon: 'none' });
-        }
-      }
-    });
   },
 
   onPreventTouchMove() {},

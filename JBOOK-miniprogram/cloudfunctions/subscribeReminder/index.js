@@ -34,7 +34,8 @@ exports.main = async (event) => {
         data: {
           subscribed: count > 0,
           count,
-          reminderEnabled: user ? !!user.reminderEnabled : false
+          reminderEnabled: user ? !!user.reminderEnabled : false,
+          lastSubscribedAt: user && user.lastSubscribedAt ? user.lastSubscribedAt : null
         }
       };
     }
