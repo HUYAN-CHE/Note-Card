@@ -426,7 +426,9 @@ Page({
       cancelText: '暂不',
       success: async (res) => {
         if (!res.confirm) return;
-        const data = await requestSubscribeCredit({ source: 'create', reminderEnabled: true });
+        // 只累计一次提醒额度，不改 reminderEnabled：
+        // 头部订阅按钮、最近记事卡开关、新建后引导三者独立，均只累计次数
+        const data = await requestSubscribeCredit({ source: 'create' });
         if (data) {
           wx.showToast({ title: '已开启提醒', icon: 'success' });
         }
