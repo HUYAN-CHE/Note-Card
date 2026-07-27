@@ -591,7 +591,7 @@ page {
   height: 112rpx;
   border-radius: 16rpx;
   border: none;
-  font-size: 26rpx;
+  font-size: 30rpx;
   font-weight: 600;
 }
 
@@ -640,7 +640,7 @@ page {
   box-sizing: border-box;
   background: #f8f9fa;
   border-radius: 16rpx;
-  font-size: 30rpx;
+  font-size: 28rpx;
   color: #333;
   line-height: 1.5;
 }
@@ -655,7 +655,7 @@ page {
   flex: 1;
   height: 88rpx;
   line-height: 88rpx;
-  font-size: 26rpx;
+  font-size: 30rpx;
   font-weight: 600;
   border-radius: 44rpx;
   border: none;
@@ -740,7 +740,7 @@ page {
   box-sizing: border-box;
   background: #f8f9fa;
   border-radius: 16rpx;
-  font-size: 30rpx;
+  font-size: 28rpx;
   color: #333;
 }
 
@@ -751,7 +751,7 @@ page {
   box-sizing: border-box;
   background: #f8f9fa;
   border-radius: 16rpx;
-  font-size: 30rpx;
+  font-size: 28rpx;
   color: #333;
   line-height: 1.5;
 }

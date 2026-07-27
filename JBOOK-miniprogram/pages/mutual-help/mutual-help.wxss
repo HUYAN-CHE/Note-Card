@@ -111,7 +111,7 @@
   border: none;
   background: transparent;
   color: #ffffff;
-  font-size: 32rpx;
+  font-size: 28rpx;
   font-weight: 600;
   line-height: 1;
 }
