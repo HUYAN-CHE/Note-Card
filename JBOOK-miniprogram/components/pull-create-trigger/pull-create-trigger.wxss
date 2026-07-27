@@ -40,7 +40,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0 24rpx;
+  padding: 0 30rpx 0 18rpx;
   border-radius: 999rpx;
   background: rgba(14, 73, 33, 0.32);
 }
@@ -50,13 +50,15 @@
 }
 
 .subscribe-bell {
-  width: 30rpx;
-  height: 30rpx;
-  margin-right: 10rpx;
+  width: 38rpx;
+  height: 38rpx;
+  margin-right: 6rpx;
 }
 
 .subscribe-text {
-  font-size: 26rpx;
+  padding-top: 2rpx;
+  font-size: 24rpx;
+  font-weight: 400;
   color: #ffffff;
   line-height: 1;
   white-space: nowrap;
