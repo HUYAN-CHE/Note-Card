@@ -17,8 +17,9 @@ exports.main = async (event, context) => {
   }
 
   try {
-    const res = await db.collection('cards').doc(cardId).get();
-    const card = res.data;
+    // 按业务字段 id 查询（doc() 查的是数据库 _id）
+    const res = await db.collection('cards').where({ id: cardId }).limit(1).get();
+    const card = res.data && res.data[0];
     if (!card) {
       return { code: -1, message: '卡片不存在' };
     }
@@ -26,7 +27,7 @@ exports.main = async (event, context) => {
       return { code: -1, message: '只有创立者可以删除该卡片' };
     }
 
-    await db.collection('cards').doc(cardId).remove();
+    await db.collection('cards').doc(card._id).remove();
     console.log('[deleteCard] 已删除', cardId);
     return { code: 0, data: { cardId } };
   } catch (err) {
