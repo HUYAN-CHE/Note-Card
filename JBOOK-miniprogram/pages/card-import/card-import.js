@@ -29,7 +29,8 @@ Page({
     showClipboardHint: false,
     showEmptyGuide: false,
     isParsing: false,
-    aiEnabled: false
+    aiEnabled: false,
+    aiTheme: ''
   },
 
   onLoad(options = {}) {
@@ -166,7 +167,7 @@ Page({
         { key: 'keyPoints', label: '重点 / 待确认', value: (draft.keyPoints || []).join(' · '), checked: true, ai: true },
         { key: 'helpers', label: '共同行动人候选', value: helperCandidates.join(' · '), checked: true, ai: true }
       ];
-      this.setData({ importItems, showEmptyGuide: false, aiEnabled });
+      this.setData({ importItems, showEmptyGuide: false, aiEnabled, aiTheme: draft.theme || '' });
     };
     const applyLocal = () => {
       applyItems(buildDraftFromContext({ text, type, source, files: this.data.files }), false);
@@ -241,6 +242,7 @@ Page({
       source: this.data.source,
       title: titleItem && titleItem.checked ? titleItem.value.trim() : '',
       desc: descItem && descItem.checked ? descItem.value.trim() : '',
+      theme: this.data.aiTheme || '',
       keyPoints: keyPointsItem && keyPointsItem.checked
         ? keyPointsItem.value.split('·').map((s) => s.trim()).filter(Boolean)
         : [],

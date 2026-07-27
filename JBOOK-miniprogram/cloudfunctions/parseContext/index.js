@@ -11,7 +11,16 @@ const TYPE_LABELS = {
   meeting: '预约记录'
 };
 
-const SYSTEM_PROMPT = '你是一个智能记事卡解析助手。请从用户输入的文本中提取 title、desc、keyPoints 三个字段，只返回 JSON。title 是简短标题（5-15字），desc 是通顺的描述（保留关键细节），keyPoints 是基于全部内容总结的主题关键词数组：每个关键词 2-8 个字，概括文本涉及的一个主题；文本涉及多个主题时每个主题各出一个关键词，按重要性排序，最多 5 个。';
+// 主题场景分类枚举（与 utils/theme-icon.js 的 THEME_ICONS 保持一致）
+const THEME_ENUM = [
+  'camp', 'wedding', 'baby', 'school', 'pet', 'car', 'travel', 'express', 'move',
+  'house', 'repair', 'plant', 'food', 'cook', 'entertainment', 'movie', 'game',
+  'sport', 'beauty', 'shopping', 'gift', 'photo', 'study', 'job', 'meeting',
+  'design', 'work', 'money', 'finance', 'insurance', 'legal', 'document',
+  'volunteer', 'health', 'default'
+];
+
+const SYSTEM_PROMPT = '你是一个智能记事卡解析助手。请从用户输入的文本中提取 title、desc、keyPoints、theme 四个字段，只返回 JSON。title 是简短标题（5-15字），desc 是通顺的描述（保留关键细节），keyPoints 是基于全部内容总结的主题关键词数组：每个关键词 2-8 个字，概括文本涉及的一个主题；文本涉及多个主题时每个主题各出一个关键词，按重要性排序，最多 5 个。theme 是内容所属的唯一场景分类，必须从以下枚举中选择一个：camp(露营户外) wedding(婚礼) baby(育儿) school(学校) pet(宠物) car(车辆接送) travel(旅行) express(快递) move(搬家) house(租房居家) repair(维修家政) plant(植物) food(聚餐美食) cook(做饭) entertainment(娱乐夜场) movie(电影演出) game(游戏) sport(运动) beauty(美容) shopping(购物) gift(礼物祝福) photo(拍照) study(学习考试) job(求职入职) meeting(会议沟通) design(设计装修) work(项目工作) money(费用报销) finance(理财) insurance(保险) legal(法律合同) document(证件办理) volunteer(公益) health(医疗健康) default(其他)。';
 
 exports.main = async (event, context) => {
   console.log('[parseContext] 收到请求', JSON.stringify({ action: event.action }));
@@ -131,7 +140,8 @@ function validateResult(data) {
     data: {
       title: data.title || '未命名记事卡',
       desc: data.desc || data.description || '',
-      keyPoints: Array.isArray(data.keyPoints) ? data.keyPoints : []
+      keyPoints: Array.isArray(data.keyPoints) ? data.keyPoints : [],
+      theme: THEME_ENUM.indexOf(data.theme) !== -1 ? data.theme : 'default'
     }
   };
 }

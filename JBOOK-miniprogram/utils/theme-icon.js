@@ -81,11 +81,17 @@ const THEME_KEYWORDS = {
 };
 
 /**
- * 按卡片内容匹配主题 emoji 字符。
- * @param {Object} card 卡片（keyPoints 数组 + title 字符串）
+ * 匹配主题 emoji：优先卡片 AI 提炼的 theme 分类，否则关键词匹配兜底
+ *（覆盖存量老卡片与本地识别路径）。
+ * @param {Object} card 卡片（theme / keyPoints / title）
  * @returns {string} emoji 字符，未命中返回默认 📝
  */
 function resolveThemeIcon(card = {}) {
+  // AI 主题分类（白名单校验）
+  if (card.theme && Object.prototype.hasOwnProperty.call(THEME_ICONS, card.theme)) {
+    return THEME_ICONS[card.theme];
+  }
+
   const keyPoints = Array.isArray(card.keyPoints) ? card.keyPoints : [];
   const text = [...keyPoints, card.title || ''].filter(Boolean).join(' ');
 
