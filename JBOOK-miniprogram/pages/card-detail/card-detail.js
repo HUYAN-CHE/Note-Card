@@ -92,7 +92,7 @@ Page({
       ? sys.safeAreaInsets.bottom
       : Math.max(0, sys.screenHeight - ((sys.safeArea && sys.safeArea.bottom) || sys.screenHeight));
 
-    // 从「生成记事卡」跳转而来时，播放拍立得出片 + 显影动画
+    // 从「生成记事卡」跳转而来时，播放出票机打印动画（2s 滑出）+ 打印音效
     const developing = options.from === 'create';
     this.fromCreate = developing;
 
@@ -115,6 +115,13 @@ Page({
       this.loadCardByRef(refCode);
     } else {
       wx.showToast({ title: '缺少卡片ID', icon: 'none' });
+    }
+  },
+
+  onUnload() {
+    if (this.printerAudio) {
+      this.printerAudio.destroy();
+      this.printerAudio = null;
     }
   },
 
@@ -221,6 +228,13 @@ Page({
       displayTitle: this.truncateTitle(data.title),
       projectInitial: getInitial(data.title)
     }, () => {
+      // 打印动画（cardReady 触发）开始时同步播放出票机音效
+      if (this.fromCreate && !this.printerAudio) {
+        const printerAudio = wx.createInnerAudioContext();
+        printerAudio.src = '/assets/audio/printer.m4a';
+        printerAudio.play();
+        this.printerAudio = printerAudio;
+      }
       this.onCardRendered();
       this.ensureRefCode(data);
       this.loadQrCode();

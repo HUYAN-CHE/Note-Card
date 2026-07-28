@@ -544,47 +544,24 @@ page {
   to { opacity: 1; }
 }
 
-/* 生成路径：卡片快速上浮 + 内容分段浮现（全程 ≤0.5s，无滤镜避免 iOS 残留） */
+/* 生成路径：出票机打印——卡片从出口（顶梁）匀速滑出，总时长 2s，与打印音效同步。
+   初始整卡上移 90% 藏到顶梁/导航后，滑出过程中顶梁（z-40）遮住上方，纸从出口逐渐出来 */
 .developing.card-in {
-  animation: card-rise 0.35s cubic-bezier(0.22, 0.9, 0.3, 1) both;
+  animation: print-out 2s cubic-bezier(0.3, 0.6, 0.4, 1) both;
 }
 
-@keyframes card-rise {
+@keyframes print-out {
   0% {
-    opacity: 0;
-    transform: translateY(24rpx);
+    transform: translateY(-90%);
   }
   100% {
-    opacity: 1;
     transform: translateY(0);
   }
 }
 
-/* 分段浮现：纯透明度+微位移，最后一段 0.24+0.25=0.49s 结束 */
+/* 打印滑出时内容随卡一起出来，不做分段浮现 */
 .developing .dev {
-  animation: dev-in 0.25s ease-out both;
-}
-
-.developing .dev-brand { animation-delay: 0s; }
-.developing .dev-top { animation-delay: 0.015s; }
-.developing .dev-1 { animation-delay: 0.03s; }
-.developing .dev-2 { animation-delay: 0.06s; }
-.developing .dev-3 { animation-delay: 0.09s; }
-.developing .dev-4 { animation-delay: 0.12s; }
-.developing .dev-5 { animation-delay: 0.15s; }
-.developing .dev-6 { animation-delay: 0.18s; }
-.developing .dev-7 { animation-delay: 0.21s; }
-.developing .dev-8 { animation-delay: 0.24s; }
-
-@keyframes dev-in {
-  0% {
-    opacity: 0;
-    transform: translateY(8rpx);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  animation: none;
 }
 
 /* ==================== 审批区 ==================== */
