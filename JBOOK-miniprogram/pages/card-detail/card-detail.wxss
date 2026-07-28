@@ -20,6 +20,18 @@ page {
   min-height: 100vh;
 }
 
+/* 导航底衬：fixed 铺满导航区（height 内联注入），颜色与 page-bg 顶部一致（视觉无差），
+   z-99 在导航组件（100）之下、其余内容之上——纸芯顶部伸进导航区时被它遮住 */
+.nav-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: #7ebc8a;
+  z-index: 99;
+  pointer-events: none;
+}
+
 .detail-body {
   position: relative;
   z-index: 1;
@@ -27,34 +39,122 @@ page {
 
 /* ==================== 主卡 ==================== */
 
-/* 实测：卡片左右边距 48rpx，圆角 24rpx，卡内左右 padding 24rpx */
+/* 主卡框架：不遮罩；出票口（顶梁+背板）整体 fixed，卡片从框里滑出 */
 .g-card {
   position: relative;
-  margin: 20rpx 48rpx 0;
-  padding: 64rpx 36rpx 48rpx;
-  background: #ffffff;
-  border-radius: 24rpx;
-  box-shadow: 0 24rpx 60rpx rgba(46, 125, 78, 0.12);
+  margin: 8rpx 48rpx 0;
 }
 
-/* 票根缺口：mask 在卡片两端各镂空一个半圆（距卡底 212rpx，与撕裂线同位），
-   镂空处透出真实页面背景，不贴图、无近似色 */
+/* 出票口：顶梁 fixed 在导航正下方（top 内联注入），白卡上滑时被顶梁遮挡；
+   高 40rpx（减半、出口上移），与卡顶（导航下 12px + 8rpx）保持约 4px 搭接；
+   不带投影——两侧上下与背板一体深绿，无阴影边缘感 */
+.receipt-slot {
+  position: fixed;
+  left: 24rpx;
+  right: 24rpx;
+  height: 40rpx;
+  background: #2e7d4e;
+  z-index: 40;
+  pointer-events: none;
+}
+
+/* 出口阴影：固定在顶梁下缘（在 z-40 容器内，压在滑动的卡片上，不随卡走）；
+   出口处最深、向下自然过渡消失（参考 KAPA 出口处投影）；
+   宽度与卡片一致（容器内再缩进 24rpx）——两侧不投到背板立柱上 */
+.receipt-slot .shadow {
+  position: absolute;
+  top: 100%;
+  left: 24rpx;
+  right: 24rpx;
+  height: 72rpx;
+  background: linear-gradient(180deg, rgba(20, 40, 25, 0.3) 0%, rgba(20, 40, 25, 0.13) 48%, rgba(20, 40, 25, 0) 100%);
+  pointer-events: none;
+}
+
+/* 出票口背板：fixed 在顶梁正下方（top 内联注入），与顶梁同宽、向下 300rpx，
+   层级靠 DOM 顺序垫在卡片下、page-bg 上。卡片白底盖住中间，两侧露出 24rpx 边（立柱）；
+   上缺口正后方就是它——静止时缺口透深绿（KAPA 上图），滑动时缺口下面是什么透什么；
+   下拉橡皮筋时顶梁与卡顶的缝透出它——深绿，像机器变高（方案 A，纸芯已废弃） */
+.receipt-frame {
+  position: fixed;
+  left: 24rpx;
+  right: 24rpx;
+  height: 300rpx;
+  background: #2e7d4e;
+  border-radius: 0 0 28rpx 28rpx;
+  pointer-events: none;
+}
+
+/* 锯齿底边：白色三角齿咬住卡底，齿缝透出页面背景 */
+.g-card::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -17rpx;
+  height: 18rpx;
+  background:
+    linear-gradient(135deg, #ffffff 9rpx, transparent 0) 0 0,
+    linear-gradient(225deg, #ffffff 9rpx, transparent 0) 0 0;
+  background-size: 18rpx 18rpx;
+  background-repeat: repeat-x;
+  z-index: 1;
+}
+
+/* 内层卡体：白色、上端直角（与出票口顶梁平齐贴合）。
+   不带投影——绿色投影的模糊边缘会渗进两侧缺口，让真镂空看着像涂了色的圆片 */
+.g-card-inner {
+  position: relative;
+  z-index: 1;
+  padding: 64rpx 36rpx 56rpx;
+  background: #ffffff;
+  border-radius: 0 0 24rpx 24rpx;
+}
+
+/* 票根缺口：mask 在卡片两端各镂空一个半圆（上缺口在品牌行下虚线位 140rpx，
+   下缺口距卡底 270rpx，与撕裂线同位），镂空处透出真实页面背景 */
 .g-card-ticket {
   -webkit-mask-image:
-    radial-gradient(circle 20rpx at 0 calc(100% - 220rpx), transparent 19rpx, #000 16rpx),
-    radial-gradient(circle 20rpx at 100% calc(100% - 220rpx), transparent 19rpx, #000 16rpx);
+    radial-gradient(circle 20rpx at 0 140rpx, transparent 19rpx, #000 16rpx),
+    radial-gradient(circle 20rpx at 100% 140rpx, transparent 19rpx, #000 16rpx),
+    radial-gradient(circle 20rpx at 0 calc(100% - 270rpx), transparent 19rpx, #000 16rpx),
+    radial-gradient(circle 20rpx at 100% calc(100% - 270rpx), transparent 19rpx, #000 16rpx);
   -webkit-mask-composite: destination-in;
   mask-image:
-    radial-gradient(circle 20rpx at 0 calc(100% - 220rpx), transparent 19rpx, #000 16rpx),
-    radial-gradient(circle 20rpx at 100% calc(100% - 220rpx), transparent 19rpx, #000 16rpx);
+    radial-gradient(circle 20rpx at 0 140rpx, transparent 19rpx, #000 16rpx),
+    radial-gradient(circle 20rpx at 100% 140rpx, transparent 19rpx, #000 16rpx),
+    radial-gradient(circle 20rpx at 0 calc(100% - 270rpx), transparent 19rpx, #000 16rpx),
+    radial-gradient(circle 20rpx at 100% calc(100% - 270rpx), transparent 19rpx, #000 16rpx);
   mask-composite: intersect;
 }
 
-/* 标题行：标题 + 状态胶囊（标题实测 48rpx） */
+/* 品牌行：>>>>>>>>>> [卡叽KAJI logo] <<<<<<<<<<（还原 KAPA 票头） */
+.g-brand {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 48rpx;
+}
+
+/* 卡叽KAJI 矢量 logo（KAPA.svg 原件裁剪后引入） */
+.g-brand-logo {
+  width: 172rpx;
+  height: 36rpx;
+}
+
+.g-brand-chevrons {
+  font-size: 24rpx;
+  font-weight: 500;
+  color: #1a1a1a;
+  letter-spacing: 2rpx;
+}
+
+/* 标题行：位于品牌行下虚线之下（虚线不占文档流，上下各留 28rpx） */
 .g-head {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  margin-top: 56rpx;
 }
 
 .g-title {
@@ -94,14 +194,12 @@ page {
   flex-shrink: 0;
 }
 
-/* 行标签：实测字号 24rpx */
+/* 行标签：实测字号 24rpx；跟随标题行，间距 36rpx */
 .g-row-label {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-top: 28rpx;
-  padding-top: 28rpx;
-  border-top: 1rpx solid #dce8de;
+  margin-top: 36rpx;
 }
 
 .g-label {
@@ -359,21 +457,30 @@ page {
   font-size: 28rpx;
 }
 
-/* 撕裂虚线（票根）：虚线中心与 mask 孔中心严格对齐（距卡底 220rpx） */
+/* 撕裂虚线（票根）：虚线中心与 mask 孔中心严格对齐；两端超出卡内 padding 直到卡边 */
 .g-tearline {
   position: absolute;
   left: -36rpx;
   right: -36rpx;
-  bottom: 218rpx;
   border-top: 4rpx dotted #a9bdae;
 }
 
-/* CARD ID 区（撕裂线不占文档流，间距在此补齐） */
+/* 上缺口虚线：标题行下方（64 padding + 48 标题行 + 28 间距） */
+.g-tearline-top {
+  top: 140rpx;
+}
+
+/* 下缺口虚线：距卡底 268rpx（底部区块加高，接近 KAPA 票尾留白比例），与底部 mask 孔同位 */
+.g-tearline-bottom {
+  bottom: 266rpx;
+}
+
+/* CARD ID 区（撕裂线不占文档流，间距在此补齐；底部区块内容垂直大致居中） */
 .g-cardid-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-top: 80rpx;
+  margin-top: 88rpx;
 }
 
 .g-cardid-left {
@@ -453,19 +560,21 @@ page {
   }
 }
 
-/* 分段浮现：纯透明度+微位移，最后一段 0.21+0.25=0.46s 结束 */
+/* 分段浮现：纯透明度+微位移，最后一段 0.24+0.25=0.49s 结束 */
 .developing .dev {
   animation: dev-in 0.25s ease-out both;
 }
 
-.developing .dev-1 { animation-delay: 0s; }
-.developing .dev-2 { animation-delay: 0.03s; }
-.developing .dev-3 { animation-delay: 0.06s; }
-.developing .dev-4 { animation-delay: 0.09s; }
-.developing .dev-5 { animation-delay: 0.12s; }
-.developing .dev-6 { animation-delay: 0.15s; }
-.developing .dev-7 { animation-delay: 0.18s; }
-.developing .dev-8 { animation-delay: 0.21s; }
+.developing .dev-brand { animation-delay: 0s; }
+.developing .dev-top { animation-delay: 0.015s; }
+.developing .dev-1 { animation-delay: 0.03s; }
+.developing .dev-2 { animation-delay: 0.06s; }
+.developing .dev-3 { animation-delay: 0.09s; }
+.developing .dev-4 { animation-delay: 0.12s; }
+.developing .dev-5 { animation-delay: 0.15s; }
+.developing .dev-6 { animation-delay: 0.18s; }
+.developing .dev-7 { animation-delay: 0.21s; }
+.developing .dev-8 { animation-delay: 0.24s; }
 
 @keyframes dev-in {
   0% {
@@ -480,8 +589,13 @@ page {
 
 /* ==================== 审批区 ==================== */
 
+/* 独立白卡：不再复用 .g-card（框架层无背景，避免审批区带上卡夹/锯齿） */
 .detail-section {
   margin: 28rpx 48rpx;
+  padding: 36rpx;
+  background: #ffffff;
+  border-radius: 24rpx;
+  box-shadow: 0 24rpx 60rpx rgba(46, 125, 78, 0.12);
 }
 
 .detail-section .g-label {

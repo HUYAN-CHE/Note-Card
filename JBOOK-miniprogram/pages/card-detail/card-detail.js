@@ -44,6 +44,9 @@ Page({
     totalHeight: 132,
     cardId: '',
     card: {},
+    // 品牌行箭头（WXML 不解析 HTML 实体，"<" 必须由数据绑定注入）
+    brandChevronLeft: '>>>>>>>>>>',
+    brandChevronRight: '<<<<<<<<<<',
     creator: { nickname: '', avatar: '', initial: '', relationText: '创立者' },
     helpers: [],
     keyPoints: [],

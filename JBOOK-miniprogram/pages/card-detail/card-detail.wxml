@@ -4,10 +4,36 @@
   <!-- 固定背景层：不随内容滚动 -->
   <view class="page-bg"></view>
 
+  <!-- 导航底衬：与 page-bg 顶部同色的固定条（z-99，导航文字之下），
+       遮住伸进导航区的纸芯/内容——顶梁上方永远不露出白色 -->
+  <view class="nav-bg" style="height: {{totalHeight}}px;" aria-hidden="true"></view>
+
+  <!-- 出票口：顶梁 fixed 在导航下方（z-40），白卡上滑时被顶梁遮挡；
+       出口阴影固定在顶梁下缘（随框不随卡），投在滑过的纸面上 -->
+  <view class="receipt-slot" style="top: {{totalHeight}}px;">
+    <view class="shadow" aria-hidden="true"></view>
+  </view>
+
+  <!-- 出票口背板：顶梁底向下 260rpx 的固定深绿板（与顶梁同色 #2e7d4e），垫在卡片下面（DOM 在 detail-body 前）。
+       卡片白底盖住中间，两侧露出 24rpx 边（立柱）；上缺口正后方就是它——静止时缺口透深绿，
+       滑动时缺口滑出背板范围则透页面背景，下面是什么颜色透什么颜色 -->
+  <view class="receipt-frame" style="top: calc({{totalHeight}}px + 40rpx);" aria-hidden="true"></view>
+
   <view class="detail-body" style="padding-top: {{totalHeight + 12}}px; padding-bottom: calc(220rpx + {{safeAreaBottom}}px);">
 
-    <!-- 主卡：白色大圆角，浮在薄荷绿背景上；g-card-ticket 带票根缺口 -->
-    <view class="g-card g-card-ticket {{developing ? 'developing' : ''}} {{cardReady ? 'card-in' : ''}}">
+    <!-- 主卡框架：不遮罩；卡片从固定出票口里滑出 -->
+    <view class="g-card {{developing ? 'developing' : ''}} {{cardReady ? 'card-in' : ''}}">
+      <view class="g-card-inner g-card-ticket">
+
+      <!-- 品牌行：>>>>>>>>>> [卡叽KAJI 矢量 logo] <<<<<<<<<<（logo 用 KAPA.svg 原件） -->
+      <view class="dev dev-brand g-brand" aria-hidden="true">
+        <text class="g-brand-chevrons">{{brandChevronLeft}}</text>
+        <image class="g-brand-logo" src="/assets/icons/kapa-brand.svg" mode="aspectFit" />
+        <text class="g-brand-chevrons">{{brandChevronRight}}</text>
+      </view>
+
+      <!-- 品牌行下撕裂虚线（票根上缺口） -->
+      <view class="dev dev-top g-tearline g-tearline-top"></view>
 
       <!-- 标题 + 状态胶囊（创立者/共同行动人可点击编辑标题、重点内容） -->
       <view class="dev dev-1 g-head {{canEditStatus ? 'can-edit' : ''}}" bindtap="openEditSheet">
@@ -94,8 +120,8 @@
         </picker>
       </view>
 
-      <!-- 撕裂虚线（票根） -->
-      <view class="dev dev-7 g-tearline"></view>
+      <!-- 撕裂虚线（票根下缺口） -->
+      <view class="dev dev-7 g-tearline g-tearline-bottom"></view>
 
       <!-- CARD ID + 小程序码 -->
       <view class="dev dev-8 g-cardid-row">
@@ -107,10 +133,11 @@
         <image class="g-qrcode" src="{{qrCodeSrc}}" mode="aspectFit" wx:if="{{qrCodeSrc}}" />
         <view class="g-qrcode-placeholder" wx:else>{{refCode || '···'}}</view>
       </view>
+      </view>
     </view>
 
     <!-- 审批区（仅创作者） -->
-    <view class="g-card detail-section" wx:if="{{isCreator && pendingRequests.length}}">
+    <view class="detail-section" wx:if="{{isCreator && pendingRequests.length}}">
       <view class="g-label">加入申请</view>
       <view class="request-list">
         <view class="request-item" wx:for="{{pendingRequests}}" wx:key="id">
