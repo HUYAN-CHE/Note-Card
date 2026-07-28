@@ -40,9 +40,14 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0 30rpx 0 18rpx;
+  padding: 0 24rpx;
   border-radius: 999rpx;
   background: rgba(14, 73, 33, 0.32);
+}
+
+/* 有铃铛 icon 时（未订阅）：icon+字整体左移一点；已订阅纯文字保持对称居中 */
+.subscribe-btn.has-bell {
+  padding: 0 30rpx 0 18rpx;
 }
 
 .subscribe-btn.subscribed {

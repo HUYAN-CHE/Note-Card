@@ -5,7 +5,7 @@
     </view>
 
     <view
-      class="subscribe-btn {{subscribed ? 'subscribed' : ''}}"
+      class="subscribe-btn {{subscribed ? 'subscribed' : ''}} {{!subscribed ? 'has-bell' : ''}}"
       style="top: {{statusBarHeight + navTop}}px; right: {{navRight}}px; height: {{navHeight}}px;"
       bindtap="onSubscribeTap"
     >
