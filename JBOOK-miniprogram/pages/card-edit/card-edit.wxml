@@ -126,6 +126,9 @@
     </view>
   </scroll-view>
 
+  <!-- 底部渐变浮层：滚动内容渐渐隐入按钮区后，层级在内容上、按钮下 -->
+  <view class="bottom-fade"></view>
+
   <!-- 底部操作 -->
   <view class="footer" style="padding-bottom: calc(24rpx + {{safeAreaBottom}}px);">
     <view class="footer-panel">

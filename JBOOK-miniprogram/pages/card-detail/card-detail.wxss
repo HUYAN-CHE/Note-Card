@@ -663,6 +663,18 @@ page {
 
 /* ==================== 底部操作（悬浮无底栏，实测高 112rpx） ==================== */
 
+/* 底部渐变浮层：与 card-edit/互助页一致；z-40 在滚动内容上、按钮(.detail-footer z-50)下 */
+.bottom-fade {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 40;
+  height: calc(360rpx + env(safe-area-inset-bottom));
+  pointer-events: none;
+  background: linear-gradient(0deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.95) 40%, rgba(255, 255, 255, 0.98) 60%, rgba(255, 255, 255, 0.75) 80%, rgba(255, 255, 255, 0) 100%);
+}
+
 .detail-footer {
   position: fixed;
   left: 0;

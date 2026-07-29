@@ -160,6 +160,9 @@
     </view>
   </view>
 
+  <!-- 底部渐变浮层：滚动内容渐渐隐入按钮区后，层级在内容上、按钮下 -->
+  <view class="bottom-fade"></view>
+
   <!-- 底部操作：位置颜色不变——左浅绿「保存卡片」，右绿「邀请协作」 -->
   <view class="detail-footer" style="padding-bottom: calc(28rpx + {{safeAreaBottom}}px);" wx:if="{{role !== 'stranger' || isNetworkView}}">
     <block wx:if="{{isCreator || isHelper}}">
