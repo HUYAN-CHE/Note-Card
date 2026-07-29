@@ -5,11 +5,22 @@
 
 /* 顶部资料卡 */
 .profile-card {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
   padding: 48rpx 48rpx 40rpx;
   text-align: center;
+}
+
+/* 右上角设置入口 */
+.profile-settings {
+  position: absolute;
+  top: 24rpx;
+  right: 32rpx;
+  padding: 8rpx 20rpx;
+  font-size: 24rpx;
+  color: #8a978a;
 }
 
 .profile-avatar {

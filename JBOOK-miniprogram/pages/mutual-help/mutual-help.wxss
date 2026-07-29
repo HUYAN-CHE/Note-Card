@@ -116,6 +116,11 @@
   line-height: 1;
 }
 
+/* 「点击授权」占位与置灰头像同色 #e0e4e8 */
+.my-name-ph {
+  color: #e0e4e8;
+}
+
 .hero-text {
   margin-bottom: 80rpx;
   padding-left: 32rpx;

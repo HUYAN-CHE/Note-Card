@@ -3,6 +3,7 @@
 
   <!-- 顶部资料卡 -->
   <view class="profile-card" style="padding-top: {{heroPaddingTop}}px;">
+    <view class="profile-settings" style="top: {{heroPaddingTop + 12}}px;" bindtap="onSettingsTap" aria-label="设置">设置</view>
     <view class="profile-avatar">
       <text class="profile-initial" wx:if="{{!user.avatar}}">{{user.initial}}</text>
       <image wx:else class="profile-avatar-img" src="{{user.avatar}}" mode="aspectFill" />

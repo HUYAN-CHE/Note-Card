@@ -1,5 +1,6 @@
 const store = require('../../utils/store.js');
 const { getNavInfo } = require('../../utils/ui');
+const { collections } = require('../../config/env');
 
 const DEFAULT_CANDIDATE_TAGS = ['法律咨询', '财务规划', '职业规划', '心理咨询', '编程开发', '设计创意', '文案写作', '摄影摄像', '健身指导', '家庭教育', '房产顾问', '留学移民'];
 const REMARK_KEY = 'JISHIKA_MY_REMARK';
@@ -59,6 +60,17 @@ Page({
 
   async loadData() {
     this.setData({ loading: true });
+    // 先用本地授权信息立即渲染，避免云端返回前闪出「未授权」占位
+    const localProfile = this.loadAuthProfile();
+    if (localProfile.nickname || localProfile.avatar) {
+      this.setData({
+        user: {
+          nickname: localProfile.nickname,
+          avatar: localProfile.avatar || '',
+          initial: localProfile.initial
+        }
+      });
+    }
     try {
       const app = getApp();
       if (app.globalData && app.globalData.cloudReady && wx.cloud) {
@@ -187,6 +199,40 @@ Page({
   switchTab(e) {
     const tab = e.currentTarget.dataset.tab;
     this.setData({ activeTab: tab }, () => this.filterCards());
+  },
+
+  // 设置入口：退出登录（测试用）
+  onSettingsTap() {
+    wx.showActionSheet({
+      itemList: ['退出登录'],
+      success: (res) => {
+        if (res.tapIndex === 0) this.logout();
+      }
+    });
+  },
+
+  async logout() {
+    wx.removeStorageSync(AUTH_PROFILE_KEY);
+    try {
+      getApp().globalData.userProfile = null;
+    } catch (e) {}
+    // 清云端授权信息（否则 checkAuth 云端回源又会拉回，等于没退出）
+    try {
+      const app = getApp();
+      if (app.globalData && app.globalData.cloudReady && wx.cloud) {
+        const openid = app.globalData.openid || wx.getStorageSync('JISHIKA_OPENID');
+        if (openid) {
+          const db = wx.cloud.database();
+          const res = await db.collection(collections.users).where({ _openid: openid }).limit(1).get();
+          if (res.data && res.data[0]) {
+            await db.collection(collections.users).doc(res.data[0]._id).update({
+              data: { nickName: '', avatarUrl: '', initial: '', updatedAt: Date.now() }
+            });
+          }
+        }
+      }
+    } catch (e) {}
+    wx.reLaunch({ url: '/pages/home/home' });
   },
 
   startEditRemark() {

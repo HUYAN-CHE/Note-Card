@@ -1,4 +1,5 @@
 const { collections } = require('../../config/env');
+const { uploadAvatar } = require('../../utils/upload-avatar');
 
 const STORAGE_KEY = 'JISHIKA_USER_PROFILE';
 
@@ -222,11 +223,12 @@ Page({
     });
   },
 
-  onChooseAvatar(event) {
-    const avatarUrl = event.detail.avatarUrl;
-    if (avatarUrl) {
-      this.saveMyProfile({ avatar: avatarUrl });
-    }
+  async onChooseAvatar(event) {
+    const tempUrl = event.detail.avatarUrl;
+    if (!tempUrl) return;
+    // chooseAvatar 返回临时路径（重启即失效），先上传云存储换 fileID 再保存
+    const fileID = await uploadAvatar(tempUrl);
+    this.saveMyProfile({ avatar: fileID || tempUrl });
   },
 
   onChooseNickname(event) {
@@ -282,8 +284,8 @@ Page({
             .where({ _openid: openid })
             .limit(1)
             .get();
+          // 注意：_openid 是系统保留字段不允许写入，add 时云库自动填充
           const data = {
-            _openid: openid,
             nickName: nextProfile.nickname,
             avatarUrl: nextProfile.avatar,
             initial: nextProfile.initial,

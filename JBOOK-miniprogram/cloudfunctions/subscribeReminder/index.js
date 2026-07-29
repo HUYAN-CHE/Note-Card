@@ -66,8 +66,8 @@ exports.main = async (event) => {
       }
       await users.doc(user._id).update({ data });
     } else {
+      // 注意：_openid 是系统保留字段不允许写入，add 时云库自动填充
       const data = {
-        _openid: openid,
         subscribeCount: 1,
         reminderEnabled: hasReminderPref ? event.reminderEnabled : false,
         createdAt: db.serverDate()

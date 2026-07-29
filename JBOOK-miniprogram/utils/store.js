@@ -292,8 +292,8 @@ async function saveUserProfile(profile) {
       .limit(1)
       .get();
 
+    // 注意：_openid 是系统保留字段不允许写入，add 时云库自动填充
     const data = {
-      _openid: openid,
       nickName: nickname,
       avatarUrl: profile.avatarUrl || profile.avatar || '',
       intro: profile.intro || '',

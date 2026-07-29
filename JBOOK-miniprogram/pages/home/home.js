@@ -3,6 +3,7 @@ const { buildSkillLaunchUrl, getSkill } = require('../../services/skill-registry
 const { collections } = require('../../config/env');
 const { resolveThemeIcon } = require('../../utils/theme-icon');
 const { requestSubscribeCredit } = require('../../utils/subscribe');
+const { uploadAvatar } = require('../../utils/upload-avatar');
 
 const USER_PROFILE_KEY = 'JISHIKA_USER_PROFILE';
 const SHOW_DEMO_CARDS = false;
@@ -77,10 +78,25 @@ Page({
     }
   },
 
-  checkAuth() {
-    const profile = wx.getStorageSync(USER_PROFILE_KEY) || {};
-    const nickname = profile.nickname && String(profile.nickname).trim();
-    const authorized = Boolean(nickname && nickname !== '我' && profile.avatar);
+  async checkAuth() {
+    let profile = wx.getStorageSync(USER_PROFILE_KEY) || {};
+    let nickname = profile.nickname && String(profile.nickname).trim();
+    let authorized = Boolean(nickname && nickname !== '我' && profile.avatar);
+
+    // 本地无有效授权：尝试从云端 users 表回源（换设备/清缓存后不再「被未授权」）
+    if (!authorized) {
+      const cloudProfile = await this.fetchCloudProfile();
+      if (cloudProfile) {
+        profile = cloudProfile;
+        nickname = cloudProfile.nickname;
+        authorized = true;
+        wx.setStorageSync(USER_PROFILE_KEY, cloudProfile);
+        try {
+          getApp().globalData.userProfile = cloudProfile;
+        } catch (e) {}
+      }
+    }
+
     const safeNickname = nickname === '我' ? '' : nickname;
     this.setData({
       showAuthModal: !authorized,
@@ -92,12 +108,50 @@ Page({
     });
   },
 
-  onAuthAvatar(event) {
-    const avatarUrl = event.detail.avatarUrl;
-    if (!avatarUrl) return;
-    this.setData({ 'authProfile.avatar': avatarUrl }, () => {
-      this.tryFinishAuth();
-    });
+  // 从云端 users 表读授权信息；无有效记录返回 null
+  async fetchCloudProfile() {
+    try {
+      const app = getApp();
+      if (!app.globalData || !app.globalData.cloudReady || !wx.cloud) return null;
+      // 冷启动竞态：app 的 login 云函数是异步的，openid 可能还没就绪，短暂等待
+      let openid = app.globalData.openid || wx.getStorageSync('JISHIKA_OPENID');
+      if (!openid) {
+        for (let i = 0; i < 10 && !openid; i++) {
+          await new Promise((r) => setTimeout(r, 300));
+          openid = app.globalData.openid || wx.getStorageSync('JISHIKA_OPENID');
+        }
+      }
+      if (!openid) return null;
+      const db = wx.cloud.database();
+      const res = await db.collection(collections.users)
+        .where({ _openid: openid })
+        .limit(1)
+        .get();
+      const user = res.data && res.data[0];
+      if (!user) return null;
+      const nickname = user.nickName && String(user.nickName).trim();
+      if (!nickname || nickname === '我' || !user.avatarUrl) return null;
+      return {
+        nickname,
+        avatar: user.avatarUrl,
+        initial: user.initial || nickname.charAt(0).toUpperCase(),
+        serviceTags: Array.isArray(user.serviceTags) ? user.serviceTags : []
+      };
+    } catch (e) {
+      return null;
+    }
+  },
+
+  async onAuthAvatar(event) {
+    const tempUrl = event.detail.avatarUrl;
+    if (!tempUrl) return;
+    // 先用临时路径即时显示；上传云存储成功后换 cloud:// fileID（临时路径重启即失效）
+    this.setData({ 'authProfile.avatar': tempUrl });
+    const fileID = await uploadAvatar(tempUrl);
+    if (fileID) {
+      this.setData({ 'authProfile.avatar': fileID });
+    }
+    this.tryFinishAuth();
   },
 
   onAuthNickname(event) {
@@ -170,8 +224,8 @@ Page({
             .where({ _openid: openid })
             .limit(1)
             .get();
+          // 注意：_openid 是系统保留字段不允许写入，add 时云库自动填充
           const data = {
-            _openid: openid,
             nickName: safeProfile.nickname,
             avatarUrl: safeProfile.avatar,
             initial: safeProfile.initial,
@@ -187,7 +241,11 @@ Page({
           }
         }
       }
-    } catch (error) {}
+    } catch (error) {
+      // 写云端失败：本地仍可用，但换设备/清缓存后会「被未授权」，提示用户稍后重试
+      console.error('[finishAuth] 授权信息同步云端失败', error);
+      wx.showToast({ title: '授权信息同步失败，请稍后重试', icon: 'none' });
+    }
   },
 
   closeAuthModal() {
