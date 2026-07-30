@@ -4,14 +4,14 @@
     bindtap="switchTab"
     data-tab="home"
     data-action="switch_tab_home"
-    aria-label="事项"
+    aria-label="喵记"
   >
     <view class="tab-icon tab-icon-home menu-icon">
       <view class="menu-line"></view>
       <view class="menu-line"></view>
       <view class="menu-line"></view>
     </view>
-    <text class="tab-label">事项</text>
+    <text class="tab-label">喵记</text>
   </view>
   <view
     class="tab-item {{activeTab === 'mutual-help' ? 'active' : ''}}"

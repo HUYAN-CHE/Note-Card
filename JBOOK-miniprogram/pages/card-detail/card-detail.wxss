@@ -59,15 +59,19 @@ page {
 }
 
 /* 出口阴影：固定在顶梁下缘（在 z-40 容器内，压在滑动的卡片上，不随卡走）；
-   出口处最深、向下自然过渡消失（参考 KAPA 出口处投影）；
-   宽度与卡片一致（容器内再缩进 24rpx）——两侧不投到背板立柱上 */
+   紧贴出口最深、多段非线性衰减到消失（参考 KAPA 出口投影），宽度与卡片一致 */
 .receipt-slot .shadow {
   position: absolute;
   top: 100%;
   left: 24rpx;
   right: 24rpx;
-  height: 72rpx;
-  background: linear-gradient(180deg, rgba(20, 40, 25, 0.3) 0%, rgba(20, 40, 25, 0.13) 48%, rgba(20, 40, 25, 0) 100%);
+  height: 88rpx;
+  background: linear-gradient(180deg,
+    rgba(20, 40, 25, 0.42) 0%,
+    rgba(20, 40, 25, 0.28) 22%,
+    rgba(20, 40, 25, 0.15) 48%,
+    rgba(20, 40, 25, 0.06) 74%,
+    rgba(20, 40, 25, 0) 100%);
   pointer-events: none;
 }
 
