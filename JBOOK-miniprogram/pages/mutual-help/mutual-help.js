@@ -1,5 +1,13 @@
 const { collections } = require('../../config/env');
 const { uploadAvatar } = require('../../utils/upload-avatar');
+const { requestSubscribeCredit } = require('../../utils/subscribe');
+
+// 北京时间日期 key：用于订阅按钮样式按天重置（与首页一致）
+function beijingDayKey(ts) {
+  if (!ts) return '';
+  const d = new Date(new Date(ts).getTime() + 8 * 3600 * 1000);
+  return `${d.getUTCFullYear()}-${d.getUTCMonth() + 1}-${d.getUTCDate()}`;
+}
 
 const STORAGE_KEY = 'JISHIKA_USER_PROFILE';
 
@@ -22,6 +30,10 @@ Page({
   data: {
     statusBarHeight: 44,
     heroPaddingTop: 64,
+    heroNavTop: 4,
+    heroNavHeight: 32,
+    heroNavRight: 96,
+    subscribed: false,
     contentScrollHeight: 500,
     selectedHelperId: '',
     helpers: [{ id: 'add', type: 'add', name: '添加', avatar: '' }],
@@ -163,11 +175,13 @@ Page({
 
   onShow() {
     this.loadMyProfile();
+    this.loadSubscribeState();
   },
 
   updateSystemInfo() {
     try {
       const sys = wx.getSystemInfoSync();
+      const statusBarHeight = sys.statusBarHeight || 44;
       const menuButtonRect = wx.getMenuButtonBoundingClientRect();
       const screenWidth = sys.screenWidth || 375;
       const menuCenterPx = menuButtonRect.top + menuButtonRect.height / 2;
@@ -175,9 +189,22 @@ Page({
       const avatarCenterOffsetRpx = 32;
       const heroPaddingTop = Math.max(20, menuCenterRpx - avatarCenterOffsetRpx);
 
+      // 订阅胶囊位置（与首页一致：贴齐微信胶囊左缘）
+      let heroNavTop = 4;
+      let heroNavHeight = 32;
+      let heroNavRight = 96;
+      heroNavTop = Math.max((menuButtonRect.top || statusBarHeight + 4) - statusBarHeight, 0);
+      heroNavHeight = menuButtonRect.height || 32;
+      if (menuButtonRect.left && screenWidth) {
+        heroNavRight = screenWidth - menuButtonRect.left + 8;
+      }
+
       this.setData({
-        statusBarHeight: sys.statusBarHeight || 44,
-        heroPaddingTop
+        statusBarHeight,
+        heroPaddingTop,
+        heroNavTop,
+        heroNavHeight,
+        heroNavRight
       });
     } catch (e) {
       this.setData({
@@ -185,6 +212,34 @@ Page({
         heroPaddingTop: 64
       });
     }
+  },
+
+  async onSubscribeTap() {
+    const data = await requestSubscribeCredit({ source: 'button' });
+    if (data) {
+      this.setData({ subscribed: true });
+      wx.showToast({ title: '订阅成功', icon: 'success' });
+    } else {
+      wx.showToast({ title: '未完成订阅', icon: 'none' });
+    }
+  },
+
+  // 订阅按钮状态：按天重置（只有今天授权过才显示「已订阅」，引导每天补额度）
+  async loadSubscribeState() {
+    const app = getApp();
+    if (!app.globalData || !app.globalData.cloudReady || !wx.cloud) return;
+    try {
+      const res = await wx.cloud.callFunction({
+        name: 'subscribeReminder',
+        data: { action: 'get' }
+      });
+      if (res.result && res.result.code === 0 && res.result.data) {
+        const data = res.result.data;
+        this.setData({
+          subscribed: data.count > 0 && beijingDayKey(data.lastSubscribedAt) === beijingDayKey(Date.now())
+        });
+      }
+    } catch (e) {}
   },
 
   onHelperTap(event) {

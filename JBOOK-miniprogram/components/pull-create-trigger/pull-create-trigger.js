@@ -105,10 +105,6 @@ Component({
       type: Number,
       value: 96
     },
-    subscribed: {
-      type: Boolean,
-      value: false
-    },
     bodyPullEnabled: {
       type: Boolean,
       value: false
@@ -157,10 +153,6 @@ Component({
   },
 
   methods: {
-    onSubscribeTap() {
-      this.triggerEvent('subscribe');
-    },
-
     measureHeroHeight() {
       this.createSelectorQuery()
         .select('.pull-hero')

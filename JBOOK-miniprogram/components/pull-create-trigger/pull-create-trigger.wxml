@@ -1,16 +1,7 @@
 <view class="pull-create-trigger">
   <view class="pull-hero" style="padding-top: {{statusBarHeight}}px;" catchtouchmove="onHeroTouchMove">
     <view class="hero-nav" style="margin-top: {{navTop}}px; height: {{navHeight}}px;">
-      <text class="hero-nav-title">This week</text>
-    </view>
-
-    <view
-      class="subscribe-btn {{subscribed ? 'subscribed' : ''}} {{!subscribed ? 'has-bell' : ''}}"
-      style="top: {{statusBarHeight + navTop}}px; right: {{navRight}}px; height: {{navHeight}}px;"
-      bindtap="onSubscribeTap"
-    >
-      <image wx:if="{{!subscribed}}" class="subscribe-bell" src="/assets/icons/bell-white.svg" mode="aspectFit" />
-      <text class="subscribe-text">{{subscribed ? '已订阅' : '订阅'}}</text>
+      <slot name="nav"><text class="hero-nav-title">This week</text></slot>
     </view>
 
     <view class="week-strip">

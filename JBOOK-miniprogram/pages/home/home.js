@@ -41,9 +41,19 @@ Page({
     heroNavTop: 4,
     heroNavHeight: 32,
     heroNavRight: 96,
-    subscribed: false,
-    subscribeCount: 0,
     reminderEnabled: false,
+    homeTab: 'note',
+    // 灵感页占位卡片（数据端后面对齐）
+    inspireCards: [
+      { id: 1, title: 'Web Design', desc: 'Crafts engaging, user-friendly websites.', tags: ['Landing Page', 'Website', 'One Page'], color: '#cfe8fb' },
+      { id: 2, title: 'Graphic Design', desc: 'Creates impactful visuals and branding.', tags: ['Packaging', 'Brand Identity', 'Illustrations', 'Logo', 'Signage'], color: '#f6dfb8' },
+      { id: 3, title: 'Developers', desc: 'Builds functional and scalable solutions.', tags: ['Web Applications', 'Mobile Apps', 'Database', 'Add-ons'], color: '#dcd3f0' },
+      { id: 4, title: 'Copywriting', desc: 'Delivers persuasive and creative content.', tags: ['Blog Posts', 'Video Scripts', 'Sales Pages', 'Slogans'], color: '#c9efdd' },
+      { id: 5, title: 'Web Design', desc: 'Crafts engaging, user-friendly websites.', tags: ['Landing Page', 'Website', 'One Page'], color: '#cfe8fb' },
+      { id: 6, title: 'Graphic Design', desc: 'Creates impactful visuals and branding.', tags: ['Packaging', 'Brand Identity', 'Illustrations', 'Logo', 'Signage'], color: '#f6dfb8' },
+      { id: 7, title: 'Developers', desc: 'Builds functional and scalable solutions.', tags: ['Web Applications', 'Mobile Apps', 'Database', 'Add-ons'], color: '#dcd3f0' },
+      { id: 8, title: 'Copywriting', desc: 'Delivers persuasive and creative content.', tags: ['Blog Posts', 'Video Scripts', 'Sales Pages', 'Slogans'], color: '#c9efdd' }
+    ],
     refreshing: false,
     bodyScrollTop: 0,
     bodyCanScroll: false,
@@ -482,19 +492,9 @@ Page({
         data: { action: 'get' }
       });
       if (res.result && res.result.code === 0 && res.result.data) {
-        const data = res.result.data;
-        this.setData({
-          // 按钮样式按天重置：只有今天授权过才显示「已订阅」，引导每天补额度
-          subscribed: data.count > 0 && beijingDayKey(data.lastSubscribedAt) === beijingDayKey(Date.now()),
-          subscribeCount: data.count,
-          reminderEnabled: !!data.reminderEnabled
-        });
+        this.setData({ reminderEnabled: !!res.result.data.reminderEnabled });
       }
     } catch (e) {}
-  },
-
-  async onSubscribeTap() {
-    await this.requestSubscribe({ source: 'button' });
   },
 
   // 订阅消息额度累计：配置了模板则先走微信授权弹窗，用户接受才计数；
@@ -511,11 +511,6 @@ Page({
 
     const data = await requestSubscribeCredit(extra);
     if (data) {
-      // 只有点订阅按钮才点亮按钮；开关/建卡引导只累加额度
-      const isButton = extra && extra.source === 'button';
-      this.setData(isButton
-        ? { subscribed: true, subscribeCount: data.count }
-        : { subscribeCount: data.count });
       if (!silent) {
         wx.showToast({ title: '订阅成功', icon: 'success' });
       }
@@ -525,6 +520,13 @@ Page({
   },
 
   onPreventTouchMove() {},
+
+  onHomeTabTap(event) {
+    const tab = event.currentTarget.dataset.tab;
+    if (tab && tab !== this.data.homeTab) {
+      this.setData({ homeTab: tab });
+    }
+  },
 
   onMenuTap() {},
 

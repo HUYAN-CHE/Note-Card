@@ -35,40 +35,6 @@
   line-height: 40rpx;
 }
 
-.subscribe-btn {
-  position: absolute;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0 24rpx;
-  border-radius: 999rpx;
-  background: rgba(14, 73, 33, 0.32);
-}
-
-/* 有铃铛 icon 时（未订阅）：icon+字整体左移一点；已订阅纯文字保持对称居中 */
-.subscribe-btn.has-bell {
-  padding: 0 30rpx 0 18rpx;
-}
-
-.subscribe-btn.subscribed {
-  opacity: 0.55;
-}
-
-.subscribe-bell {
-  width: 38rpx;
-  height: 38rpx;
-  margin-right: 6rpx;
-}
-
-.subscribe-text {
-  padding-top: 2rpx;
-  font-size: 24rpx;
-  font-weight: 400;
-  color: #ffffff;
-  line-height: 1;
-  white-space: nowrap;
-}
-
 .week-strip {
   position: relative;
   width: calc(100% + 88rpx);

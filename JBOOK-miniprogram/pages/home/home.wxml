@@ -1,5 +1,6 @@
 <view class="page home-page">
   <pull-create-trigger
+    wx:if="{{homeTab === 'note'}}"
     class="home-pull-trigger"
     bind:trigger="onPullCreate"
     bind:selectDay="selectDay"
@@ -13,10 +14,14 @@
     nav-top="{{heroNavTop}}"
     nav-height="{{heroNavHeight}}"
     nav-right="{{heroNavRight}}"
-    subscribed="{{subscribed}}"
-    bind:subscribe="onSubscribeTap"
     body-pull-enabled="{{!cards.length}}"
   >
+    <!-- 记事/灵感切换胶囊（替代 This week，与微信胶囊同高对齐） -->
+    <view slot="nav" class="home-tab-switch">
+      <view class="home-tab {{homeTab === 'note' ? 'active' : ''}}" bindtap="onHomeTabTap" data-tab="note">记事</view>
+      <view class="home-tab {{homeTab === 'inspire' ? 'active' : ''}}" bindtap="onHomeTabTap" data-tab="inspire">灵感</view>
+    </view>
+
     <view slot="sheet-head">
       <view class="sheet-grabber"></view>
 
@@ -81,6 +86,43 @@
 
     <empty-state wx:else image="/assets/images/empty-state-ref.png" image-size="320" title="还没有记事卡" subtitle="下拉或点击上方按钮，从聊天记录生成一张记事卡" />
   </pull-create-trigger>
+
+  <!-- 灵感页：绿到白渐变 + 双列彩色卡片网格（占位数据，数据端后面对齐） -->
+  <view class="inspire-page" wx:else>
+    <view class="inspire-bg"></view>
+    <view
+      class="home-tab-switch inspire-tab-switch"
+      style="top: {{statusBarHeight + heroNavTop}}px; height: {{heroNavHeight}}px;"
+    >
+      <view class="home-tab {{homeTab === 'note' ? 'active' : ''}}" bindtap="onHomeTabTap" data-tab="note">记事</view>
+      <view class="home-tab {{homeTab === 'inspire' ? 'active' : ''}}" bindtap="onHomeTabTap" data-tab="inspire">灵感</view>
+    </view>
+    <scroll-view
+      scroll-y="{{true}}"
+      class="inspire-scroll"
+      style="padding-top: {{statusBarHeight + heroNavTop + heroNavHeight + 28}}px;"
+    >
+      <view class="inspire-grid">
+        <view class="inspire-card" wx:for="{{inspireCards}}" wx:key="id">
+          <view class="inspire-card-top" style="background: {{item.color}};">
+            <view class="inspire-card-title">{{item.title}}</view>
+            <view class="inspire-card-desc">{{item.desc}}</view>
+            <view class="inspire-tags">
+              <text class="inspire-tag" wx:for="{{item.tags}}" wx:for-item="tag" wx:key="*this">{{tag}}</text>
+            </view>
+          </view>
+          <view class="inspire-card-foot">
+            <text class="inspire-explore">Explore</text>
+            <view class="inspire-arrow">→</view>
+          </view>
+        </view>
+      </view>
+      <view class="inspire-bottom-space"></view>
+    </scroll-view>
+
+    <!-- 底部渐变浮层：卡片滚到底部 tab 前渐隐（与互助页一致），层级在卡片上、tab 下 -->
+    <view class="bottom-fade"></view>
+  </view>
 
   <tab-bar activeTab="home" />
 
