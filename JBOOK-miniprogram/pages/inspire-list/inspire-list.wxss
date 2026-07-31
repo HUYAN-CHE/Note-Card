@@ -1,0 +1,91 @@
+/* 壳不滚、内容滚：同新建记事卡，.page 自带渐变背景自然固定 */
+.inspire-list-page {
+  padding: 0;
+  height: 100vh;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.list-scroll {
+  height: 100vh;
+  box-sizing: border-box;
+  padding: 0 28rpx calc(40rpx + env(safe-area-inset-bottom));
+}
+
+/* 双列网格（取自首页 inspire-grid） */
+.inspire-grid {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24rpx;
+}
+
+.inspire-card {
+  width: calc(50% - 12rpx);
+  border-radius: 24rpx;
+  background: #ffffff;
+  overflow: hidden;
+}
+
+.inspire-card-top {
+  padding: 28rpx 28rpx 32rpx;
+  min-height: 300rpx;
+  box-sizing: border-box;
+}
+
+.inspire-card-title {
+  font-size: 34rpx;
+  font-weight: 800;
+  color: #1c1c1e;
+  line-height: 1.25;
+}
+
+.inspire-card-desc {
+  margin-top: 10rpx;
+  font-size: 24rpx;
+  color: rgba(28, 28, 30, 0.62);
+  line-height: 1.45;
+}
+
+.inspire-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12rpx;
+  margin-top: 20rpx;
+}
+
+.inspire-tag {
+  padding: 8rpx 18rpx;
+  border-radius: 999rpx;
+  background: rgba(255, 255, 255, 0.5);
+  font-size: 20rpx;
+  font-weight: 500;
+  color: rgba(28, 28, 30, 0.66);
+  line-height: 1;
+}
+
+.inspire-card-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20rpx 28rpx;
+}
+
+.inspire-explore {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #1c1c1e;
+}
+
+.inspire-arrow {
+  width: 44rpx;
+  height: 44rpx;
+  border-radius: 999rpx;
+  background: #f2f3f5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26rpx;
+  color: #1c1c1e;
+}

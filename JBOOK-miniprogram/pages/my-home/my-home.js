@@ -1,10 +1,25 @@
 const store = require('../../utils/store.js');
 const { getNavInfo } = require('../../utils/ui');
+const { resolveThemeIcon } = require('../../utils/theme-icon');
 const { collections } = require('../../config/env');
+const { INSPIRE_CARDS } = require('../../services/inspire-cards');
 
 const DEFAULT_CANDIDATE_TAGS = ['法律咨询', '财务规划', '职业规划', '心理咨询', '编程开发', '设计创意', '文案写作', '摄影摄像', '健身指导', '家庭教育', '房产顾问', '留学移民'];
-const REMARK_KEY = 'JISHIKA_MY_REMARK';
 const AUTH_PROFILE_KEY = 'JISHIKA_USER_PROFILE';
+
+const STATUS_TEXT = {
+  draft: '待确认',
+  todo: '待确认',
+  doing: '进行中',
+  done: '已完成'
+};
+
+const STATUS_CLASSES = {
+  draft: 'status-pending',
+  todo: 'status-pending',
+  doing: 'status-doing',
+  done: 'status-done'
+};
 
 function cleanNickname(name) {
   if (!name || String(name).trim() === '我') return '';
@@ -28,19 +43,21 @@ Page({
     totalHeight: 132,
     heroPaddingTop: 132,
     user: { nickname: '', avatar: '', initial: '' },
-    remark: '',
     serviceTags: [],
     candidateTags: [],
     tagInput: '',
     tagEditing: false,
-    activeTab: 'mine',
+    activeTab: 'pending',
+    allCards: [],
     cards: [],
-    counts: { mine: 0, done: 0, helped: 0 },
-    isEditingRemark: false,
-    editRemark: '',
+    counts: { pending: 0, doing: 0, done: 0, helped: 0 },
+    inspireTab: 'collecting',
+    previewCards: [],
+    exportedCards: [],
+    // 灵感卡（占位数据，与首页/灵感卡列表页同源）
+    inspireCards: INSPIRE_CARDS,
     loading: false,
-    emptyText: '还没有记事卡',
-    stats: { helperCount: 0, helpedCount: 0 }
+    emptyText: '还没有记事卡'
   },
 
   onLoad() {
@@ -49,7 +66,9 @@ Page({
       statusBarHeight: navInfo.statusBarHeight,
       navHeight: navInfo.navHeight,
       totalHeight: navInfo.totalHeight,
-      heroPaddingTop: navInfo.totalHeight + 24
+      heroPaddingTop: navInfo.totalHeight + 24,
+      // 横滑最多展示 5 个，更多进三级页铺开
+      previewCards: this.data.inspireCards.slice(0, 5)
     });
     this.loadData();
   },
@@ -96,8 +115,6 @@ Page({
     const avatar = cloudProfile.avatar || authProfile.avatar || '';
     const initial = cleanInitial(cloudProfile.initial, nickname) || cleanInitial(authProfile.initial, nickname);
 
-    const profile = { nickname, avatar, initial };
-
     const serviceTags = Array.isArray(cloudProfile.serviceTags)
       ? cloudProfile.serviceTags
       : (Array.isArray(authProfile.serviceTags) ? authProfile.serviceTags : []);
@@ -105,31 +122,21 @@ Page({
     const candidateTags = (data.candidateTags || DEFAULT_CANDIDATE_TAGS)
       .filter((t) => !serviceTags.includes(t));
 
-    const remark = this.loadRemark();
-
     this.setData({
-      user: profile,
-      remark,
+      user: { nickname, avatar, initial },
       serviceTags,
       candidateTags,
-      allCards: data.allCards || [],
-      counts: data.counts || { mine: 0, done: 0, helped: 0 },
-      stats: data.stats || { helperCount: 0, helpedCount: 0 }
+      allCards: data.allCards || []
     }, () => {
-      this.filterCards();
+      this.refreshCards();
     });
   },
 
   async loadLocalData() {
     const profile = this.loadAuthProfile();
-    const remark = this.loadRemark();
     const serviceTags = Array.isArray(profile.serviceTags) ? profile.serviceTags : [];
     const candidateTags = DEFAULT_CANDIDATE_TAGS.filter((t) => !serviceTags.includes(t));
-
     const allCards = await store.getCards() || [];
-    const myId = profile.nickname || store.getCurrentOpenid() || '';
-    const mineCards = allCards.filter((c) => c.creatorId === myId || !c.creatorId);
-    const helpedCards = allCards.filter((c) => Array.isArray(c.helperIds) && c.helperIds.includes(myId));
 
     this.setData({
       user: {
@@ -137,21 +144,11 @@ Page({
         avatar: profile.avatar || '',
         initial: cleanInitial(profile.initial, profile.nickname)
       },
-      remark,
       serviceTags,
       candidateTags,
-      allCards,
-      counts: {
-        mine: mineCards.filter((c) => c.status !== 'done').length,
-        done: mineCards.filter((c) => c.status === 'done').length,
-        helped: helpedCards.length
-      },
-      stats: {
-        helperCount: 0,
-        helpedCount: mineCards.filter((c) => Array.isArray(c.helperIds) && c.helperIds.length > 0).length
-      }
+      allCards
     }, () => {
-      this.filterCards();
+      this.refreshCards();
     });
   },
 
@@ -170,39 +167,96 @@ Page({
     };
   },
 
-  loadRemark() {
-    return wx.getStorageSync(REMARK_KEY) || '';
+  // 卡片 creatorId/helperIds 可能存 openid 或昵称，两个都认
+  getMyIds() {
+    const ids = [];
+    if (this.data.user.nickname) ids.push(this.data.user.nickname);
+    const openid = store.getCurrentOpenid();
+    if (openid) ids.push(openid);
+    return ids;
   },
 
-  filterCards() {
-    const { activeTab, allCards = [], user } = this.data;
-    const myId = user.nickname || store.getCurrentOpenid() || '';
+  isMine(card, myIds) {
+    return !card.creatorId || myIds.includes(card.creatorId);
+  },
+
+  isHelped(card, myIds) {
+    return Array.isArray(card.helperIds) && card.helperIds.some((id) => myIds.includes(id));
+  },
+
+  // 统计 4 个 tab 的数量
+  computeCounts(allCards, myIds) {
+    const mine = allCards.filter((c) => this.isMine(c, myIds));
+    return {
+      pending: mine.filter((c) => c.status === 'draft' || c.status === 'todo').length,
+      doing: mine.filter((c) => c.status === 'doing').length,
+      done: mine.filter((c) => c.status === 'done').length,
+      helped: allCards.filter((c) => this.isHelped(c, myIds)).length
+    };
+  },
+
+  // 与首页一致的卡片展示字段
+  decorateCard(card) {
+    const title = (card.title || '').trim() || '未命名事项';
+    return {
+      ...card,
+      icon: resolveThemeIcon(card),
+      displayTitle: title.length > 10 ? title.slice(0, 10) + '…' : title,
+      statusText: STATUS_TEXT[card.status] || '待确认',
+      statusClass: STATUS_CLASSES[card.status] || 'status-pending',
+      deadlineText: card.deadline || '未设置'
+    };
+  },
+
+  refreshCards() {
+    const { activeTab, allCards = [] } = this.data;
+    const myIds = this.getMyIds();
     let filtered = [];
     let emptyText = '还没有记事卡';
 
-    if (activeTab === 'mine') {
-      filtered = allCards.filter((c) => c.creatorId === myId || !c.creatorId);
-      filtered = filtered.filter((c) => c.status !== 'done');
-      emptyText = '还没有未完成的记事卡';
+    if (activeTab === 'pending') {
+      filtered = allCards.filter((c) => this.isMine(c, myIds) && (c.status === 'draft' || c.status === 'todo'));
+      emptyText = '还没有待确定的记事卡';
+    } else if (activeTab === 'doing') {
+      filtered = allCards.filter((c) => this.isMine(c, myIds) && c.status === 'doing');
+      emptyText = '还没有进行中的记事卡';
     } else if (activeTab === 'done') {
-      filtered = allCards.filter((c) => c.creatorId === myId || !c.creatorId);
-      filtered = filtered.filter((c) => c.status === 'done');
+      filtered = allCards.filter((c) => this.isMine(c, myIds) && c.status === 'done');
       emptyText = '还没有已完成的记事卡';
     } else if (activeTab === 'helped') {
-      filtered = allCards.filter((c) => Array.isArray(c.helperIds) && c.helperIds.includes(myId));
+      filtered = allCards.filter((c) => this.isHelped(c, myIds));
       emptyText = '还没有协助过别人的记事卡';
     }
 
-    this.setData({ cards: filtered, emptyText });
+    this.setData({
+      cards: filtered.map((c) => this.decorateCard(c)),
+      counts: this.computeCounts(allCards, myIds),
+      emptyText
+    });
   },
 
   switchTab(e) {
     const tab = e.currentTarget.dataset.tab;
-    this.setData({ activeTab: tab }, () => this.filterCards());
+    this.setData({ activeTab: tab }, () => this.refreshCards());
   },
 
-  // 设置入口：退出登录（测试用）
-  onSettingsTap() {
+  // 灵感卡 tab：集灵中 / 已输出
+  switchInspireTab(e) {
+    this.setData({ inspireTab: e.currentTarget.dataset.tab });
+  },
+
+  // 横滑超过 5 个，进三级页铺开全部灵感卡
+  openInspireList() {
+    wx.navigateTo({ url: '/pages/inspire-list/inspire-list' });
+  },
+
+  // 会员卡：与 card-edit 的 vip-banner 行为一致
+  onMemberTap() {
+    wx.showToast({ title: '正在开发中，敬请期待', icon: 'none' });
+  },
+
+  // 右上角箭头：退出登录（测试用）
+  onLogoutTap() {
     wx.showActionSheet({
       itemList: ['退出登录'],
       success: (res) => {
@@ -233,28 +287,6 @@ Page({
       }
     } catch (e) {}
     wx.reLaunch({ url: '/pages/home/home' });
-  },
-
-  startEditRemark() {
-    this.setData({
-      isEditingRemark: true,
-      editRemark: this.data.remark
-    });
-  },
-
-  cancelEditRemark() {
-    this.setData({ isEditingRemark: false, editRemark: '' });
-  },
-
-  onRemarkInput(e) {
-    this.setData({ editRemark: e.detail.value });
-  },
-
-  saveRemark() {
-    const remark = this.data.editRemark.trim();
-    wx.setStorageSync(REMARK_KEY, remark);
-    this.setData({ remark, isEditingRemark: false, editRemark: '' });
-    wx.showToast({ title: '备注已保存', icon: 'success' });
   },
 
   toggleTagEdit() {

@@ -4,6 +4,7 @@ const { collections } = require('../../config/env');
 const { resolveThemeIcon } = require('../../utils/theme-icon');
 const { requestSubscribeCredit } = require('../../utils/subscribe');
 const { uploadAvatar } = require('../../utils/upload-avatar');
+const { INSPIRE_CARDS } = require('../../services/inspire-cards');
 
 const USER_PROFILE_KEY = 'JISHIKA_USER_PROFILE';
 const SHOW_DEMO_CARDS = false;
@@ -43,17 +44,8 @@ Page({
     heroNavRight: 96,
     reminderEnabled: false,
     homeTab: 'note',
-    // 灵感页占位卡片（数据端后面对齐）
-    inspireCards: [
-      { id: 1, title: 'Web Design', desc: 'Crafts engaging, user-friendly websites.', tags: ['Landing Page', 'Website', 'One Page'], color: '#cfe8fb' },
-      { id: 2, title: 'Graphic Design', desc: 'Creates impactful visuals and branding.', tags: ['Packaging', 'Brand Identity', 'Illustrations', 'Logo', 'Signage'], color: '#f6dfb8' },
-      { id: 3, title: 'Developers', desc: 'Builds functional and scalable solutions.', tags: ['Web Applications', 'Mobile Apps', 'Database', 'Add-ons'], color: '#dcd3f0' },
-      { id: 4, title: 'Copywriting', desc: 'Delivers persuasive and creative content.', tags: ['Blog Posts', 'Video Scripts', 'Sales Pages', 'Slogans'], color: '#c9efdd' },
-      { id: 5, title: 'Web Design', desc: 'Crafts engaging, user-friendly websites.', tags: ['Landing Page', 'Website', 'One Page'], color: '#cfe8fb' },
-      { id: 6, title: 'Graphic Design', desc: 'Creates impactful visuals and branding.', tags: ['Packaging', 'Brand Identity', 'Illustrations', 'Logo', 'Signage'], color: '#f6dfb8' },
-      { id: 7, title: 'Developers', desc: 'Builds functional and scalable solutions.', tags: ['Web Applications', 'Mobile Apps', 'Database', 'Add-ons'], color: '#dcd3f0' },
-      { id: 8, title: 'Copywriting', desc: 'Delivers persuasive and creative content.', tags: ['Blog Posts', 'Video Scripts', 'Sales Pages', 'Slogans'], color: '#c9efdd' }
-    ],
+    // 灵感页卡片（占位数据，与我的主页/灵感卡列表页同源）
+    inspireCards: INSPIRE_CARDS,
     refreshing: false,
     bodyScrollTop: 0,
     bodyCanScroll: false,

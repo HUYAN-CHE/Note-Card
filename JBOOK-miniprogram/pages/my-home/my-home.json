@@ -1,5 +1,6 @@
 {
   "navigationStyle": "custom",
+  "backgroundColor": "#f7f1e4",
   "usingComponents": {
     "custom-nav": "/components/custom-nav/custom-nav",
     "empty-state": "/components/empty-state/empty-state"

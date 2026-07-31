@@ -1,0 +1,23 @@
+<view class="page inspire-list-page">
+  <custom-nav title="我的灵感卡" showBack="{{true}}" statusBarHeight="{{statusBarHeight}}" navHeight="{{navHeight}}" />
+
+  <!-- 壳不滚、内容滚：同新建记事卡，背景渐变自然固定 -->
+  <scroll-view class="list-scroll" scroll-y enhanced show-scrollbar="{{false}}">
+    <!-- 双列网格铺开全部灵感卡（占位数据，数据端后面对齐） -->
+    <view class="inspire-grid" style="padding-top: {{totalHeight + 12}}px;">
+      <view class="inspire-card" wx:for="{{cards}}" wx:key="id">
+        <view class="inspire-card-top" style="background: {{item.color}};">
+          <view class="inspire-card-title">{{item.title}}</view>
+          <view class="inspire-card-desc">{{item.desc}}</view>
+          <view class="inspire-tags">
+            <text class="inspire-tag" wx:for="{{item.tags}}" wx:for-item="tag" wx:key="*this">{{tag}}</text>
+          </view>
+        </view>
+        <view class="inspire-card-foot">
+          <text class="inspire-explore">Explore</text>
+          <view class="inspire-arrow">→</view>
+        </view>
+      </view>
+    </view>
+  </scroll-view>
+</view>
