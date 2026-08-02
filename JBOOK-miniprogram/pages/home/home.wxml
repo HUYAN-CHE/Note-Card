@@ -120,7 +120,7 @@
         </view>
       </view>
       <view class="inspire-empty-wrap" wx:if="{{!inspireCards.length}}" style="min-height: calc(100vh - {{statusBarHeight + heroNavTop + heroNavHeight + 28}}px);">
-        <empty-state image="/assets/images/inspire-empty.png" image-size="520" title="还没有灵感卡" subtitle="去企业微信找灵感 Bot，记录第一条零碎灵感" />
+        <empty-state image="/assets/images/inspire-empty.png" image-size="320" title="还没有灵感卡" subtitle="去企业微信找灵感 Bot，记录第一条零碎灵感" />
       </view>
       <view class="inspire-bottom-space"></view>
     </scroll-view>
