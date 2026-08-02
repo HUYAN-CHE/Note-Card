@@ -437,6 +437,8 @@
   align-items: center;
   padding: 80rpx 40rpx;
   text-align: center;
+  /* 视觉重心上移，避免正中间偏坠 */
+  transform: translateY(-80rpx);
 }
 
 .inspire-empty-image {
