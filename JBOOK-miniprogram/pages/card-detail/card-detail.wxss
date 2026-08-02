@@ -237,7 +237,7 @@ page {
   text-align: right;
 }
 
-/* 头像链：creator --link-- helpers -- 空位 -- 加号 */
+/* 头像链：creator --link-- helpers -- 加号 */
 .g-avatars-row {
   display: flex;
   align-items: center;
@@ -278,10 +278,6 @@ page {
 /* 头像组：叠加排布，白色描边分隔 */
 .g-avatar + .g-avatar {
   margin-left: -20rpx;
-}
-
-.g-avatar-empty {
-  background: #e6ece7;
 }
 
 /* 更多协作人圆：三个图形圆点居中 */

@@ -171,14 +171,10 @@ Page({
     }
   },
 
-  // 头像组：创立者1 + 协作人最多2 + 「…」圆；点「…」弹窗看全部成员；只有创立者一人时补一个空位圆
+  // 头像组：创立者1 + 协作人最多2 + 「…」圆；点「…」弹窗看全部成员
   buildAvatarGroup(creator, helpers) {
     const people = [creator, ...(helpers || [])].filter(Boolean);
-    const visibleAvatars = people.slice(0, 3).map((p) => ({ ...p, empty: false }));
-    // 只有创立者一人时补一个空位圆
-    if (people.length === 1) {
-      visibleAvatars.push({ empty: true });
-    }
+    const visibleAvatars = people.slice(0, 3);
     return { visibleAvatars, showAvatarMore: people.length > 3 };
   },
 

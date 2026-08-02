@@ -66,11 +66,9 @@
             <view class="g-avatar-badge" wx:if="{{attachments.length > 1}}">{{attachments.length}}</view>
           </view>
           <image class="g-link-icon" src="/assets/icons/link.svg" mode="aspectFit" />
-          <view class="g-avatar {{item.empty ? 'g-avatar-empty' : ''}}" wx:for="{{visibleAvatars}}" wx:key="index">
-            <block wx:if="{{!item.empty}}">
-              <text wx:if="{{!item.avatar}}">{{item.initial}}</text>
-              <image wx:else src="{{item.avatar}}" mode="aspectFill" />
-            </block>
+          <view class="g-avatar" wx:for="{{visibleAvatars}}" wx:key="index">
+            <text wx:if="{{!item.avatar}}">{{item.initial}}</text>
+            <image wx:else src="{{item.avatar}}" mode="aspectFill" />
           </view>
           <view class="g-avatar g-avatar-more" wx:if="{{showAvatarMore}}" bindtap="openHelpersSheet" aria-label="查看全部共同行动人">
             <view class="g-more-dots">
