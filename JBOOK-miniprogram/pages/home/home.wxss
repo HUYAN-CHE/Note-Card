@@ -423,6 +423,13 @@
   color: rgba(28, 28, 30, 0.5);
 }
 
+/* 灵感页空态：图+文案在可视区垂直居中（min-height 内联注入，扣除导航占位） */
+.inspire-empty-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .inspire-bottom-space {
   height: calc(220rpx + env(safe-area-inset-bottom));
 }
