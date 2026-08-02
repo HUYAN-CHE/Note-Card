@@ -120,7 +120,12 @@
         </view>
       </view>
       <view class="inspire-empty-wrap" wx:if="{{!inspireCards.length}}" style="min-height: calc(100vh - {{statusBarHeight + heroNavTop + heroNavHeight + 28}}px);">
-        <empty-state image="/assets/images/inspire-empty.png" image-size="320" title="还没有灵感卡" subtitle="去企业微信找灵感 Bot，记录第一条零碎灵感" />
+        <!-- 灵感图是横版插画，脱离 empty-state 的正方形约束，按宽度自适应高度，视觉体量对齐记事页空态 -->
+        <view class="inspire-empty">
+          <image class="inspire-empty-image" src="/assets/images/inspire-empty.png" mode="widthFix" aria-hidden="true" />
+          <text class="inspire-empty-title">还没有灵感卡</text>
+          <text class="inspire-empty-subtitle">去企业微信找灵感 Bot，记录第一条零碎灵感</text>
+        </view>
       </view>
       <view class="inspire-bottom-space"></view>
     </scroll-view>

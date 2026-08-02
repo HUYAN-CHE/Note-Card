@@ -430,6 +430,34 @@
   justify-content: center;
 }
 
+/* 横版插画按宽度自适应高度（1024x560，480rpx 宽 ≈ 263rpx 高，体量对齐记事页空态） */
+.inspire-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 80rpx 40rpx;
+  text-align: center;
+}
+
+.inspire-empty-image {
+  width: 480rpx;
+}
+
+.inspire-empty-title {
+  margin-top: 32rpx;
+  font-size: 32rpx;
+  font-weight: 700;
+  color: #162116;
+  line-height: 1.4;
+}
+
+.inspire-empty-subtitle {
+  margin-top: 12rpx;
+  font-size: 26rpx;
+  color: #68705f;
+  line-height: 1.5;
+}
+
 .inspire-bottom-space {
   height: calc(220rpx + env(safe-area-inset-bottom));
 }
