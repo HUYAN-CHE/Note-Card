@@ -2,9 +2,9 @@
 // 首页「灵感」tab、我的主页「我的灵感卡」、灵感卡列表页共用
 // 展示层字段映射：{ id, title, desc: subtitle, tags: keywords, color, status, sparkCount, updatedAt }
 
-// ============ 样式预览开关 ============
-// true：全部走本地假数据（云函数未部署前预览样式/交互）；云函数部署后改 false
-const USE_MOCK = true;
+// ============ 数据开关 ============
+// true：全部走本地假数据（样式预览）；false：走 inspireCard 云函数 + 云数据库（已部署）
+const USE_MOCK = false;
 
 const MOCK_CARDS = [
   {
