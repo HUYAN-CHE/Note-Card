@@ -3,21 +3,33 @@
 
   <!-- 壳不滚、内容滚：同新建记事卡，背景渐变自然固定 -->
   <scroll-view class="list-scroll" scroll-y enhanced show-scrollbar="{{false}}">
-    <!-- 双列网格铺开全部灵感卡（占位数据，数据端后面对齐） -->
-    <view class="inspire-grid" style="padding-top: {{totalHeight + 12}}px;">
-      <view class="inspire-card" wx:for="{{cards}}" wx:key="id">
-        <view class="inspire-card-top" style="background: {{item.color}};">
-          <view class="inspire-card-title">{{item.title}}</view>
-          <view class="inspire-card-desc">{{item.desc}}</view>
-          <view class="inspire-tags">
-            <text class="inspire-tag" wx:for="{{item.tags}}" wx:for-item="tag" wx:key="*this">{{tag}}</text>
+    <!-- 状态筛选：集灵中 / 已输出 -->
+    <view class="status-tabs" style="margin-top: {{totalHeight + 12}}px;">
+      <view class="status-tab {{statusTab === 'collecting' ? 'active' : ''}}" bindtap="onStatusTabTap" data-tab="collecting">集灵中 {{collectingCount}}</view>
+      <view class="status-tab {{statusTab === 'exported' ? 'active' : ''}}" bindtap="onStatusTabTap" data-tab="exported">已输出 {{exportedCount}}</view>
+    </view>
+
+    <!-- 双列瀑布流铺开全部灵感卡，点击进文章编辑页 -->
+    <view class="inspire-grid" wx:if="{{cards.length}}">
+      <view class="inspire-col" wx:for="{{[cols.left, cols.right]}}" wx:for-item="col" wx:key="index">
+        <view class="inspire-card" wx:for="{{col}}" wx:key="id" bindtap="openInspireDetail" data-id="{{item.id}}" data-color="{{item.color}}">
+          <view class="inspire-card-top" style="background: {{item.color}};">
+            <view class="inspire-card-title">{{item.title}}</view>
+            <view class="inspire-card-desc">{{item.desc}}</view>
+            <view class="inspire-tags">
+              <text class="inspire-tag" wx:for="{{item.tags}}" wx:for-item="tag" wx:key="*this">{{tag}}</text>
+            </view>
+          </view>
+          <view class="inspire-card-foot">
+            <text class="inspire-explore">查看</text>
+            <view class="inspire-arrow">→</view>
           </view>
         </view>
-        <view class="inspire-card-foot">
-          <text class="inspire-explore">Explore</text>
-          <view class="inspire-arrow">→</view>
-        </view>
       </view>
+    </view>
+
+    <view class="list-empty" wx:if="{{!cards.length}}">
+      {{statusTab === 'collecting' ? '还没有集灵中的灵感卡' : '还没有已输出的灵感卡'}}
     </view>
   </scroll-view>
 </view>

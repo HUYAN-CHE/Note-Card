@@ -1,0 +1,57 @@
+<view class="page inspire-detail-page">
+  <custom-nav title="灵感卡" showBack="{{true}}" statusBarHeight="{{statusBarHeight}}" navHeight="{{navHeight}}" />
+
+  <!-- 壳不滚、内容滚：同灵感卡列表页 -->
+  <scroll-view class="detail-scroll" scroll-y enhanced show-scrollbar="{{false}}">
+    <view class="detail-body" style="padding-top: {{totalHeight + 12}}px;">
+
+      <view class="state-tip" wx:if="{{loading}}">加载中...</view>
+      <view class="state-tip" wx:elif="{{loadError}}">{{loadError}}</view>
+
+      <block wx:else>
+        <!-- 彩色卡头：状态切换 + 标题/副标题/关键词（均可编辑） -->
+        <view class="hero" style="background: {{color}};">
+          <view class="status-row">
+            <view class="status-pill {{status === 'collecting' ? 'active' : ''}}" bindtap="onStatusTap" data-status="collecting">集灵中</view>
+            <view class="status-pill {{status === 'exported' ? 'active' : ''}}" bindtap="onStatusTap" data-status="exported">已输出</view>
+          </view>
+          <input class="hero-title" value="{{title}}" placeholder="未命名灵感" placeholder-class="hero-ph" bindinput="onTitleInput" />
+          <input class="hero-subtitle" value="{{subtitle}}" placeholder="一句话副标题" placeholder-class="hero-ph" bindinput="onSubtitleInput" />
+          <input class="hero-keywords" value="{{keywordsText}}" placeholder="关键词，用逗号分隔" placeholder-class="hero-ph" bindinput="onKeywordsInput" />
+        </view>
+
+        <!-- 灵感条目：零碎灵感来源（企业微信 Bot 写入），只读 -->
+        <view class="section">
+          <view class="section-title">灵感条目 · {{sparks.length}}</view>
+          <view class="spark-empty" wx:if="{{!sparks.length}}">还没有灵感条目，去企业微信找灵感 Bot 记录第一条灵感</view>
+          <view class="spark-item" wx:for="{{sparks}}" wx:key="index">
+            <text class="spark-index">{{index + 1}}</text>
+            <text class="spark-text">{{item.text}}</text>
+          </view>
+        </view>
+
+        <!-- 文章：AI 汇总生成，可手动编辑 -->
+        <view class="section">
+          <view class="section-title">文章</view>
+          <textarea
+            class="article-input"
+            value="{{article}}"
+            auto-height
+            disable-default-padding
+            placeholder="点击底部「AI 整理」把灵感汇总成文章，也可以直接手动撰写"
+            placeholder-class="article-ph"
+            bindinput="onArticleInput"
+          />
+        </view>
+
+        <view class="bottom-space"></view>
+      </block>
+    </view>
+  </scroll-view>
+
+  <!-- 底部操作栏 -->
+  <view class="action-bar" wx:if="{{!loading && !loadError}}">
+    <button class="btn btn-ai" bindtap="onSummarize" disabled="{{summarizing || saving}}" loading="{{summarizing}}">{{summarizing ? '整理中' : 'AI 整理'}}</button>
+    <button class="btn btn-save {{dirty ? 'glow' : ''}}" bindtap="onSave" disabled="{{saving || summarizing}}" loading="{{saving}}">保存</button>
+  </view>
+</view>

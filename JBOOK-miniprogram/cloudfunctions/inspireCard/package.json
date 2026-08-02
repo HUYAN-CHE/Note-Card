@@ -1,0 +1,9 @@
+{
+  "name": "inspireCard",
+  "version": "1.0.0",
+  "description": "灵感卡：列表/详情/新建/追加灵感/AI 汇总提取/编辑保存",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "latest"
+  }
+}

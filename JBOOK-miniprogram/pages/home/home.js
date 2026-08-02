@@ -4,7 +4,7 @@ const { collections } = require('../../config/env');
 const { resolveThemeIcon } = require('../../utils/theme-icon');
 const { requestSubscribeCredit } = require('../../utils/subscribe');
 const { uploadAvatar } = require('../../utils/upload-avatar');
-const { INSPIRE_CARDS } = require('../../services/inspire-cards');
+const { listInspireCards, splitInspireColumns } = require('../../services/inspire-cards');
 
 const USER_PROFILE_KEY = 'JISHIKA_USER_PROFILE';
 const SHOW_DEMO_CARDS = false;
@@ -44,8 +44,9 @@ Page({
     heroNavRight: 96,
     reminderEnabled: false,
     homeTab: 'note',
-    // 灵感页卡片（占位数据，与我的主页/灵感卡列表页同源）
-    inspireCards: INSPIRE_CARDS,
+    // 灵感页卡片（真实数据，onShow 从云端加载）；inspireCols 为瀑布流左右两列
+    inspireCards: [],
+    inspireCols: { left: [], right: [] },
     refreshing: false,
     bodyScrollTop: 0,
     bodyCanScroll: false,
@@ -71,6 +72,7 @@ Page({
     }
     this._lastPullProgress = 0;
     this.loadCards();
+    this.loadInspireCards();
     this.loadSubscribeState();
     this.checkAuth();
 
@@ -518,6 +520,22 @@ Page({
     if (tab && tab !== this.data.homeTab) {
       this.setData({ homeTab: tab });
     }
+  },
+
+  // 灵感卡：从云端加载（缓存命中则直接用，后台刷新），瀑布流分列（内含相邻不同色着色）
+  loadInspireCards() {
+    listInspireCards(true)
+      .then((cards) => {
+        this.setData({ inspireCards: cards, inspireCols: splitInspireColumns(cards) });
+      })
+      .catch((e) => console.warn('loadInspireCards error', e));
+  },
+
+  // 点击灵感卡，进入可编辑的文章页（带上列表着色，保持视觉连续）
+  openInspireDetail(event) {
+    const { id, color } = event.currentTarget.dataset;
+    if (!id) return;
+    wx.navigateTo({ url: `/pages/inspire-detail/inspire-detail?id=${id}&color=${encodeURIComponent(color || '')}` });
   },
 
   onMenuTap() {},

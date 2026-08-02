@@ -2,7 +2,7 @@ const store = require('../../utils/store.js');
 const { getNavInfo } = require('../../utils/ui');
 const { resolveThemeIcon } = require('../../utils/theme-icon');
 const { collections } = require('../../config/env');
-const { INSPIRE_CARDS } = require('../../services/inspire-cards');
+const { listInspireCards } = require('../../services/inspire-cards');
 
 const DEFAULT_CANDIDATE_TAGS = ['法律咨询', '财务规划', '职业规划', '心理咨询', '编程开发', '设计创意', '文案写作', '摄影摄像', '健身指导', '家庭教育', '房产顾问', '留学移民'];
 const AUTH_PROFILE_KEY = 'JISHIKA_USER_PROFILE';
@@ -54,8 +54,8 @@ Page({
     inspireTab: 'collecting',
     previewCards: [],
     exportedCards: [],
-    // 灵感卡（占位数据，与首页/灵感卡列表页同源）
-    inspireCards: INSPIRE_CARDS,
+    // 灵感卡（真实数据，onShow 从云端加载，按状态拆分 集灵中/已输出）
+    inspireCards: [],
     loading: false,
     emptyText: '还没有记事卡'
   },
@@ -66,15 +66,35 @@ Page({
       statusBarHeight: navInfo.statusBarHeight,
       navHeight: navInfo.navHeight,
       totalHeight: navInfo.totalHeight,
-      heroPaddingTop: navInfo.totalHeight + 24,
-      // 横滑最多展示 5 个，更多进三级页铺开
-      previewCards: this.data.inspireCards.slice(0, 5)
+      heroPaddingTop: navInfo.totalHeight + 24
     });
     this.loadData();
   },
 
   onShow() {
     this.loadData();
+    this.loadInspireCards();
+  },
+
+  // 灵感卡：集灵中/已输出 按状态拆分，横滑最多展示 5 个，更多进三级页铺开
+  loadInspireCards() {
+    listInspireCards(true)
+      .then((cards) => {
+        const collecting = cards.filter((c) => c.status === 'collecting');
+        this.setData({
+          inspireCards: collecting,
+          exportedCards: cards.filter((c) => c.status === 'exported'),
+          previewCards: collecting.slice(0, 5)
+        });
+      })
+      .catch((e) => console.warn('loadInspireCards error', e));
+  },
+
+  // 点击灵感卡，进入可编辑的文章页（带上列表着色，保持视觉连续）
+  openInspireDetail(e) {
+    const { id, color } = e.currentTarget.dataset;
+    if (!id) return;
+    wx.navigateTo({ url: `/pages/inspire-detail/inspire-detail?id=${id}&color=${encodeURIComponent(color || '')}` });
   },
 
   async loadData() {

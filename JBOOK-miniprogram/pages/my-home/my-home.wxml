@@ -79,9 +79,9 @@
 
       <!-- 集灵中：横滑最多 5 个 + 查看全部 -->
       <view class="inspire-scroll-wrap" wx:if="{{inspireTab === 'collecting'}}">
-        <scroll-view class="inspire-scroll" scroll-x enhanced show-scrollbar="{{false}}">
+        <scroll-view class="inspire-scroll" scroll-x enhanced show-scrollbar="{{false}}" wx:if="{{previewCards.length}}">
           <view class="inspire-row">
-            <view class="inspire-card" wx:for="{{previewCards}}" wx:key="id">
+            <view class="inspire-card" wx:for="{{previewCards}}" wx:key="id" bindtap="openInspireDetail" data-id="{{item.id}}" data-color="{{item.color}}">
               <view class="inspire-card-top" style="background: {{item.color}};">
                 <view class="inspire-card-title">{{item.title}}</view>
                 <view class="inspire-card-desc">{{item.desc}}</view>
@@ -90,7 +90,7 @@
                 </view>
               </view>
               <view class="inspire-card-foot">
-                <text class="inspire-explore">Explore</text>
+                <text class="inspire-explore">查看</text>
                 <view class="inspire-arrow">→</view>
               </view>
             </view>
@@ -101,11 +101,32 @@
           </view>
         </scroll-view>
         <!-- 右缘渐变遮罩：卡片滑到边缘渐隐 -->
-        <view class="inspire-edge-fade"></view>
+        <view class="inspire-edge-fade" wx:if="{{previewCards.length}}"></view>
+        <empty-state wx:if="{{!previewCards.length}}" title="还没有集灵中的灵感卡" subtitle="去企业微信找灵感 Bot，记录第一条零碎灵感" mode="simple" />
       </view>
 
-      <!-- 已输出：暂无数据 -->
-      <empty-state wx:else title="还没有已输出的灵感卡" mode="simple" />
+      <!-- 已输出：横滑卡片，与集灵中同样式 -->
+      <view class="inspire-scroll-wrap" wx:else>
+        <scroll-view class="inspire-scroll" scroll-x enhanced show-scrollbar="{{false}}" wx:if="{{exportedCards.length}}">
+          <view class="inspire-row">
+            <view class="inspire-card" wx:for="{{exportedCards}}" wx:key="id" bindtap="openInspireDetail" data-id="{{item.id}}" data-color="{{item.color}}">
+              <view class="inspire-card-top" style="background: {{item.color}};">
+                <view class="inspire-card-title">{{item.title}}</view>
+                <view class="inspire-card-desc">{{item.desc}}</view>
+                <view class="inspire-tags">
+                  <text class="inspire-tag" wx:for="{{item.tags}}" wx:for-item="tag" wx:key="*this">{{tag}}</text>
+                </view>
+              </view>
+              <view class="inspire-card-foot">
+                <text class="inspire-explore">查看</text>
+                <view class="inspire-arrow">→</view>
+              </view>
+            </view>
+          </view>
+        </scroll-view>
+        <view class="inspire-edge-fade" wx:if="{{exportedCards.length}}"></view>
+        <empty-state wx:if="{{!exportedCards.length}}" title="还没有已输出的灵感卡" mode="simple" />
+      </view>
     </view>
 
     <!-- 我的记事卡 -->

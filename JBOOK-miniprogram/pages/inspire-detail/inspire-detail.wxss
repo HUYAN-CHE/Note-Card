@@ -1,0 +1,202 @@
+/* 壳不滚、内容滚：同灵感卡列表页，.page 自带渐变背景自然固定 */
+.inspire-detail-page {
+  padding: 0;
+  height: 100vh;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.detail-scroll {
+  height: 100vh;
+  box-sizing: border-box;
+  padding: 0 28rpx;
+}
+
+.detail-body {
+  position: relative;
+  z-index: 1;
+}
+
+.state-tip {
+  padding: 120rpx 0;
+  text-align: center;
+  font-size: 26rpx;
+  color: rgba(28, 28, 30, 0.5);
+}
+
+/* ==================== 彩色卡头 ==================== */
+
+.hero {
+  border-radius: 24rpx;
+  padding: 28rpx;
+}
+
+.status-row {
+  display: flex;
+  gap: 16rpx;
+}
+
+.status-pill {
+  padding: 10rpx 26rpx;
+  border-radius: 999rpx;
+  background: rgba(255, 255, 255, 0.5);
+  font-size: 22rpx;
+  font-weight: 500;
+  color: rgba(28, 28, 30, 0.55);
+  line-height: 1.4;
+}
+
+.status-pill.active {
+  background: #1c1c1e;
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.hero-title {
+  margin-top: 28rpx;
+  font-size: 40rpx;
+  font-weight: 800;
+  color: #1c1c1e;
+  line-height: 1.25;
+}
+
+.hero-subtitle {
+  margin-top: 12rpx;
+  font-size: 26rpx;
+  color: rgba(28, 28, 30, 0.72);
+  line-height: 1.45;
+}
+
+.hero-keywords {
+  margin-top: 16rpx;
+  font-size: 22rpx;
+  color: rgba(28, 28, 30, 0.6);
+  line-height: 1.4;
+}
+
+.hero-ph {
+  color: rgba(28, 28, 30, 0.35);
+}
+
+/* ==================== 分区卡片 ==================== */
+
+.section {
+  margin-top: 24rpx;
+  padding: 28rpx;
+  border-radius: 24rpx;
+  background: #ffffff;
+}
+
+.section-title {
+  font-size: 28rpx;
+  font-weight: 700;
+  color: #1c1c1e;
+}
+
+/* 灵感条目 */
+
+.spark-empty {
+  margin-top: 20rpx;
+  font-size: 24rpx;
+  color: rgba(28, 28, 30, 0.45);
+  line-height: 1.5;
+}
+
+.spark-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 16rpx;
+  margin-top: 20rpx;
+}
+
+.spark-index {
+  flex: none;
+  width: 36rpx;
+  height: 36rpx;
+  border-radius: 999rpx;
+  background: #f2f3f5;
+  font-size: 20rpx;
+  color: rgba(28, 28, 30, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 4rpx;
+}
+
+.spark-text {
+  flex: 1;
+  font-size: 26rpx;
+  color: rgba(28, 28, 30, 0.85);
+  line-height: 1.55;
+}
+
+/* 文章 */
+
+.article-input {
+  margin-top: 20rpx;
+  width: 100%;
+  min-height: 320rpx;
+  box-sizing: border-box;
+  font-size: 28rpx;
+  color: rgba(28, 28, 30, 0.88);
+  line-height: 1.7;
+}
+
+.article-ph {
+  color: rgba(28, 28, 30, 0.35);
+}
+
+.bottom-space {
+  height: calc(160rpx + env(safe-area-inset-bottom));
+}
+
+/* ==================== 底部操作栏 ==================== */
+
+.action-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 20;
+  display: flex;
+  gap: 20rpx;
+  padding: 16rpx 28rpx calc(16rpx + env(safe-area-inset-bottom));
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 -4rpx 24rpx rgba(28, 28, 30, 0.06);
+}
+
+.btn {
+  flex: 1;
+  height: 88rpx;
+  border-radius: 999rpx;
+  font-size: 30rpx;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn::after {
+  border: none;
+}
+
+.btn-ai {
+  flex: none;
+  width: 220rpx;
+  background: #eef6ee;
+  color: #2e7d4e;
+}
+
+.btn-save {
+  background: #2e7d4e;
+  color: #ffffff;
+}
+
+.btn-save.glow {
+  box-shadow: 0 6rpx 20rpx rgba(46, 125, 78, 0.35);
+}
+
+button[disabled].btn {
+  opacity: 0.6;
+  color: inherit;
+}

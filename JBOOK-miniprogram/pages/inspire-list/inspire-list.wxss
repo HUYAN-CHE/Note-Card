@@ -12,56 +12,64 @@
   padding: 0 28rpx calc(40rpx + env(safe-area-inset-bottom));
 }
 
-/* 双列网格（取自首页 inspire-grid） */
+/* 双列瀑布流：卡片高度随内容自适应（关键词 1-7 不等，不做统一高度） */
 .inspire-grid {
   position: relative;
   z-index: 1;
   display: flex;
-  flex-wrap: wrap;
-  gap: 24rpx;
+  align-items: flex-start;
+  gap: 28rpx;
+}
+
+.inspire-col {
+  width: calc(50% - 14rpx);
+  display: flex;
+  flex-direction: column;
+  gap: 28rpx;
 }
 
 .inspire-card {
-  width: calc(50% - 12rpx);
+  width: 100%;
   border-radius: 24rpx;
   background: #ffffff;
   overflow: hidden;
+  box-shadow: 0 12rpx 40rpx rgba(28, 28, 30, 0.05);
 }
 
 .inspire-card-top {
-  padding: 28rpx 28rpx 32rpx;
-  min-height: 300rpx;
+  padding: 32rpx 32rpx 36rpx;
   box-sizing: border-box;
 }
 
 .inspire-card-title {
-  font-size: 34rpx;
-  font-weight: 800;
+  font-size: 32rpx;
+  font-weight: 700;
+  letter-spacing: 1rpx;
   color: #1c1c1e;
-  line-height: 1.25;
+  line-height: 1.35;
 }
 
 .inspire-card-desc {
-  margin-top: 10rpx;
-  font-size: 24rpx;
-  color: rgba(28, 28, 30, 0.62);
-  line-height: 1.45;
+  margin-top: 14rpx;
+  font-size: 23rpx;
+  color: rgba(28, 28, 30, 0.5);
+  line-height: 1.6;
 }
 
 .inspire-tags {
   display: flex;
   flex-wrap: wrap;
-  gap: 12rpx;
-  margin-top: 20rpx;
+  gap: 10rpx;
+  margin-top: 28rpx;
 }
 
 .inspire-tag {
-  padding: 8rpx 18rpx;
+  padding: 9rpx 20rpx;
   border-radius: 999rpx;
-  background: rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.45);
   font-size: 20rpx;
-  font-weight: 500;
-  color: rgba(28, 28, 30, 0.66);
+  font-weight: 400;
+  color: rgba(28, 28, 30, 0.55);
   line-height: 1;
 }
 
@@ -69,23 +77,57 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 20rpx 28rpx;
+  padding: 24rpx 32rpx;
 }
 
 .inspire-explore {
-  font-size: 28rpx;
+  font-size: 24rpx;
+  font-weight: 500;
+  color: rgba(28, 28, 30, 0.45);
+}
+
+/* 状态筛选 tab（与文章页状态胶囊同一视觉语言） */
+.status-tabs {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  gap: 16rpx;
+  margin-bottom: 24rpx;
+}
+
+.status-tab {
+  padding: 12rpx 28rpx;
+  border-radius: 999rpx;
+  background: rgba(255, 255, 255, 0.6);
+  font-size: 24rpx;
+  font-weight: 500;
+  color: rgba(28, 28, 30, 0.55);
+  line-height: 1.4;
+}
+
+.status-tab.active {
+  background: #1c1c1e;
+  color: #ffffff;
   font-weight: 600;
-  color: #1c1c1e;
+}
+
+.list-empty {
+  position: relative;
+  z-index: 1;
+  padding: 120rpx 0;
+  text-align: center;
+  font-size: 26rpx;
+  color: rgba(28, 28, 30, 0.45);
 }
 
 .inspire-arrow {
-  width: 44rpx;
-  height: 44rpx;
+  width: 40rpx;
+  height: 40rpx;
   border-radius: 999rpx;
-  background: #f2f3f5;
+  background: rgba(28, 28, 30, 0.05);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 26rpx;
-  color: #1c1c1e;
+  font-size: 24rpx;
+  color: rgba(28, 28, 30, 0.5);
 }
