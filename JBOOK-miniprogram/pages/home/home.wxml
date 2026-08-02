@@ -119,7 +119,7 @@
           </view>
         </view>
       </view>
-      <empty-state wx:if="{{!inspireCards.length}}" image="/assets/images/empty-state-ref.png" image-size="320" title="还没有灵感卡" subtitle="去企业微信找灵感 Bot，记录第一条零碎灵感" />
+      <empty-state wx:if="{{!inspireCards.length}}" image="/assets/images/inspire-empty.png" image-size="320" title="还没有灵感卡" subtitle="去企业微信找灵感 Bot，记录第一条零碎灵感" />
       <view class="inspire-bottom-space"></view>
     </scroll-view>
 
