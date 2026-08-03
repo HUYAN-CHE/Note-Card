@@ -10,9 +10,14 @@ const db = cloud.database();
 const USERS = 'users';
 const ORDERS = 'membershipOrders';
 
-// 管理员 openid 白名单：部署后在云函数环境变量 ADMIN_OPENIDS 配置（逗号分隔）
-function adminOpenids() {
-  return (process.env.ADMIN_OPENIDS || '').split(',').map((s) => s.trim()).filter(Boolean);
+// 管理员判定：users 表中 role 为 'admin'（在云数据库 users 表给管理员的记录加 role: 'admin' 即可）
+async function isAdmin(openid) {
+  const res = await db.collection(USERS)
+    .where({ _openid: openid })
+    .field({ role: true })
+    .limit(1)
+    .get();
+  return !!(res.data && res.data[0] && res.data[0].role === 'admin');
 }
 
 exports.main = async (event, context) => {
@@ -30,7 +35,7 @@ exports.main = async (event, context) => {
       case 'grant':
         return await grant(openid, event);
       case 'checkAdmin':
-        return { code: 0, data: { isAdmin: adminOpenids().indexOf(openid) !== -1 } };
+        return { code: 0, data: { isAdmin: await isAdmin(openid) } };
       case 'listUsers':
         return await listUsers(openid, event);
       default:
@@ -71,7 +76,7 @@ async function getStatus(openid) {
 // 管理员手动开通/续期：targetOpenid 为目标用户，days 为有效天数
 // 当前仍在有效期内的，在现有 expireAt 上累加；否则从当前时间起算
 async function grant(operatorOpenid, event) {
-  if (adminOpenids().indexOf(operatorOpenid) === -1) {
+  if (!(await isAdmin(operatorOpenid))) {
     return { code: -1, message: '无权限：仅管理员可开通' };
   }
 
@@ -119,7 +124,7 @@ async function grant(operatorOpenid, event) {
 
 // 管理员列用户（含会员状态），支持昵称模糊搜索；管理页用
 async function listUsers(operatorOpenid, event) {
-  if (adminOpenids().indexOf(operatorOpenid) === -1) {
+  if (!(await isAdmin(operatorOpenid))) {
     return { code: -1, message: '无权限：仅管理员可查看' };
   }
 
