@@ -10,14 +10,17 @@ const db = cloud.database();
 const USERS = 'users';
 const ORDERS = 'membershipOrders';
 
-// 管理员判定：users 表中 role 为 'admin'（在云数据库 users 表给管理员的记录加 role: 'admin' 即可）
+// 管理员判定：查 admins 集合（该集合权限应为「所有用户不可读写」，仅服务端/控制台可写，
+// 防止用户在小程序端篡改自己的 users 记录自封管理员）
 async function isAdmin(openid) {
-  const res = await db.collection(USERS)
-    .where({ _openid: openid })
-    .field({ role: true })
-    .limit(1)
-    .get();
-  return !!(res.data && res.data[0] && res.data[0].role === 'admin');
+  try {
+    const res = await db.collection('admins').where({ openid }).limit(1).get();
+    return !!(res.data && res.data.length);
+  } catch (err) {
+    // 集合不存在等情况按非管理员处理
+    console.warn('[isAdmin] 查询失败', err.message || err);
+    return false;
+  }
 }
 
 exports.main = async (event, context) => {
