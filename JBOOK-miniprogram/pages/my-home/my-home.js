@@ -56,6 +56,12 @@ Page({
     exportedCards: [],
     // 灵感卡（真实数据，onShow 从云端加载，按状态拆分 集灵中/已输出）
     inspireCards: [],
+    // 会员状态：none 未开通 / active 有效期中 / expired 已过期
+    memberStatus: 'none',
+    memberExpireText: '',
+    memberDaysLeft: 0,
+    // 管理员标识：true 时右上角菜单出现「会员管理」入口
+    isAdmin: false,
     loading: false,
     emptyText: '还没有记事卡'
   },
@@ -74,6 +80,39 @@ Page({
   onShow() {
     this.loadData();
     this.loadInspireCards();
+    this.loadMembershipStatus();
+    this.checkAdmin();
+  },
+
+  // 管理员标识：决定右上角菜单是否出现「会员管理」入口
+  checkAdmin() {
+    if (!wx.cloud) return;
+    wx.cloud.callFunction({ name: 'membership', data: { action: 'checkAdmin' } })
+      .then((res) => {
+        const d = (res.result && res.result.data) || {};
+        this.setData({ isAdmin: !!d.isAdmin });
+      })
+      .catch(() => {});
+  },
+
+  // 会员状态：驱动会员卡 banner 文案（未开通/有效期中/已过期）
+  loadMembershipStatus() {
+    if (!wx.cloud) return;
+    wx.cloud.callFunction({ name: 'membership', data: { action: 'getStatus' } })
+      .then((res) => {
+        const d = (res.result && res.result.data) || {};
+        this.setData({
+          memberStatus: d.status || 'none',
+          memberDaysLeft: d.daysLeft || 0,
+          memberExpireText: d.expireAt ? this.formatMemberDate(d.expireAt) : ''
+        });
+      })
+      .catch((e) => console.warn('loadMembershipStatus error', e));
+  },
+
+  formatMemberDate(ts) {
+    const d = new Date(ts);
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
   },
 
   // 灵感卡：集灵中/已输出 按状态拆分，横滑最多展示 5 个，更多进三级页铺开
@@ -270,17 +309,22 @@ Page({
     wx.navigateTo({ url: '/pages/inspire-list/inspire-list' });
   },
 
-  // 会员卡：与 card-edit 的 vip-banner 行为一致
+  // 会员卡：进会员页（状态/权益/开通引导）
   onMemberTap() {
-    wx.showToast({ title: '正在开发中，敬请期待', icon: 'none' });
+    wx.navigateTo({ url: '/pages/member/member' });
   },
 
-  // 右上角箭头：退出登录（测试用）
+  // 右上角箭头：管理员含「会员管理」入口，其余为退出登录
   onLogoutTap() {
+    const items = this.data.isAdmin ? ['会员管理', '退出登录'] : ['退出登录'];
     wx.showActionSheet({
-      itemList: ['退出登录'],
+      itemList: items,
       success: (res) => {
-        if (res.tapIndex === 0) this.logout();
+        if (items[res.tapIndex] === '会员管理') {
+          wx.navigateTo({ url: '/pages/admin/admin' });
+        } else if (items[res.tapIndex] === '退出登录') {
+          this.logout();
+        }
       }
     });
   },

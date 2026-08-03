@@ -1,0 +1,9 @@
+{
+  "name": "membership",
+  "version": "1.0.0",
+  "description": "会员状态查询与管理员手动开通/续期",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "latest"
+  }
+}

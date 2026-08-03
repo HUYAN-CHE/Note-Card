@@ -1,0 +1,139 @@
+/* 壳不滚、内容滚：同会员页 */
+.admin-page {
+  padding: 0;
+  height: 100vh;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.admin-scroll {
+  height: 100vh;
+  box-sizing: border-box;
+  padding: 0 28rpx;
+}
+
+.admin-body {
+  position: relative;
+  z-index: 1;
+}
+
+.state-tip {
+  padding: 120rpx 0;
+  text-align: center;
+  font-size: 26rpx;
+  color: rgba(28, 28, 30, 0.5);
+}
+
+/* 搜索栏 */
+
+.search-bar {
+  display: flex;
+  gap: 16rpx;
+}
+
+.search-input {
+  flex: 1;
+  height: 80rpx;
+  padding: 0 28rpx;
+  border-radius: 999rpx;
+  background: #ffffff;
+  font-size: 26rpx;
+  color: #1c1c1e;
+  box-sizing: border-box;
+}
+
+.search-ph {
+  color: rgba(28, 28, 30, 0.35);
+}
+
+.search-btn {
+  flex: none;
+  width: 140rpx;
+  height: 80rpx;
+  border-radius: 999rpx;
+  background: #2e7d4e;
+  color: #ffffff;
+  font-size: 26rpx;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 用户卡片 */
+
+.user-empty {
+  margin-top: 24rpx;
+  padding: 80rpx 0;
+  text-align: center;
+  font-size: 26rpx;
+  color: rgba(28, 28, 30, 0.45);
+}
+
+.user-card {
+  margin-top: 20rpx;
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+  padding: 24rpx 28rpx;
+  border-radius: 24rpx;
+  background: #ffffff;
+}
+
+.user-avatar {
+  width: 72rpx;
+  height: 72rpx;
+  border-radius: 999rpx;
+  flex: none;
+}
+
+.user-avatar-empty {
+  background: #eef6ee;
+  color: #2e7d4e;
+  font-size: 28rpx;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.user-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6rpx;
+  overflow: hidden;
+}
+
+.user-name {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #1c1c1e;
+}
+
+.user-status {
+  font-size: 22rpx;
+  color: rgba(28, 28, 30, 0.45);
+}
+
+.user-status.active {
+  color: #2e7d4e;
+}
+
+.grant-btn {
+  flex: none;
+  padding: 14rpx 28rpx;
+  border-radius: 999rpx;
+  background: #2e7d4e;
+  color: #ffffff;
+  font-size: 24rpx;
+  font-weight: 600;
+}
+
+.grant-btn.granting {
+  background: rgba(28, 28, 30, 0.15);
+}
+
+.bottom-space {
+  height: calc(60rpx + env(safe-area-inset-bottom));
+}

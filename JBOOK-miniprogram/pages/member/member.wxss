@@ -1,0 +1,200 @@
+/* 壳不滚、内容滚：同灵感卡列表页 */
+.member-page {
+  padding: 0;
+  height: 100vh;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.member-scroll {
+  height: 100vh;
+  box-sizing: border-box;
+  padding: 0 28rpx;
+}
+
+.member-body {
+  position: relative;
+  z-index: 1;
+}
+
+/* ==================== 状态卡 ==================== */
+
+.status-card {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+  padding: 32rpx;
+  border-radius: 24rpx;
+  background: #ffffff;
+  box-shadow: 0 12rpx 40rpx rgba(28, 28, 30, 0.05);
+}
+
+.status-card.active {
+  background: linear-gradient(135deg, #fff7e0 0%, #fdeec8 100%);
+}
+
+.status-crown {
+  width: 56rpx;
+  height: 56rpx;
+  flex: none;
+}
+
+.status-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6rpx;
+}
+
+.status-title {
+  font-size: 32rpx;
+  font-weight: 700;
+  color: #1c1c1e;
+}
+
+.status-desc {
+  font-size: 24rpx;
+  color: rgba(28, 28, 30, 0.55);
+  line-height: 1.4;
+}
+
+.status-badge {
+  flex: none;
+  padding: 8rpx 22rpx;
+  border-radius: 999rpx;
+  font-size: 22rpx;
+  font-weight: 600;
+}
+
+.status-badge.active {
+  background: #2e7d4e;
+  color: #ffffff;
+}
+
+.status-badge.expired {
+  background: rgba(28, 28, 30, 0.08);
+  color: rgba(28, 28, 30, 0.5);
+}
+
+/* ==================== 分区 ==================== */
+
+.section {
+  margin-top: 24rpx;
+  padding: 32rpx;
+  border-radius: 24rpx;
+  background: #ffffff;
+}
+
+.section-title {
+  font-size: 30rpx;
+  font-weight: 700;
+  color: #1c1c1e;
+  margin-bottom: 24rpx;
+}
+
+/* 权益 */
+
+.benefit {
+  display: flex;
+  align-items: flex-start;
+  gap: 18rpx;
+  margin-top: 24rpx;
+}
+
+.benefit:first-of-type {
+  margin-top: 0;
+}
+
+.benefit-icon {
+  width: 36rpx;
+  height: 36rpx;
+  flex: none;
+  margin-top: 6rpx;
+}
+
+.benefit-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6rpx;
+}
+
+.benefit-title {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #1c1c1e;
+}
+
+.benefit-desc {
+  font-size: 24rpx;
+  color: rgba(28, 28, 30, 0.5);
+  line-height: 1.5;
+}
+
+/* 开通流程 */
+
+.step {
+  display: flex;
+  align-items: flex-start;
+  gap: 16rpx;
+  margin-top: 20rpx;
+}
+
+.step-num {
+  flex: none;
+  width: 36rpx;
+  height: 36rpx;
+  border-radius: 999rpx;
+  background: #2e7d4e;
+  color: #ffffff;
+  font-size: 22rpx;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 4rpx;
+}
+
+.step-text {
+  flex: 1;
+  font-size: 26rpx;
+  color: rgba(28, 28, 30, 0.85);
+  line-height: 1.55;
+}
+
+/* 二维码 */
+
+.qrcode-card {
+  margin-top: 28rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16rpx;
+}
+
+.qrcode-image {
+  width: 360rpx;
+  height: 360rpx;
+  border-radius: 16rpx;
+}
+
+.qrcode-placeholder {
+  width: 360rpx;
+  height: 360rpx;
+  border-radius: 16rpx;
+  border: 2rpx dashed rgba(28, 28, 30, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24rpx;
+  color: rgba(28, 28, 30, 0.35);
+}
+
+.qrcode-tip {
+  font-size: 24rpx;
+  color: rgba(28, 28, 30, 0.5);
+}
+
+.bottom-space {
+  height: calc(60rpx + env(safe-area-inset-bottom));
+}

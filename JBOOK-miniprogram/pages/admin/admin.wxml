@@ -1,0 +1,38 @@
+<view class="page admin-page">
+  <custom-nav title="会员管理" showBack="{{true}}" statusBarHeight="{{statusBarHeight}}" navHeight="{{navHeight}}" />
+
+  <scroll-view class="admin-scroll" scroll-y enhanced show-scrollbar="{{false}}">
+    <view class="admin-body" style="padding-top: {{totalHeight + 12}}px;">
+
+      <view class="state-tip" wx:if="{{loading}}">加载中...</view>
+      <view class="state-tip" wx:elif="{{!isAdmin}}">无权限访问</view>
+
+      <block wx:else>
+        <!-- 搜索 -->
+        <view class="search-bar">
+          <input class="search-input" value="{{keyword}}" placeholder="按昵称搜索用户" placeholder-class="search-ph" bindinput="onKeywordInput" confirm-type="search" bindconfirm="onSearch" />
+          <view class="search-btn" bindtap="onSearch">搜索</view>
+        </view>
+
+        <!-- 用户列表 -->
+        <view class="user-empty" wx:if="{{!users.length}}">没有匹配的用户</view>
+        <view class="user-card" wx:for="{{users}}" wx:key="openid">
+          <image class="user-avatar" src="{{item.avatarUrl}}" mode="aspectFill" wx:if="{{item.avatarUrl}}" />
+          <view class="user-avatar user-avatar-empty" wx:else>{{item.nickName[0]}}</view>
+          <view class="user-info">
+            <text class="user-name">{{item.nickName}}</text>
+            <text class="user-status {{item.status}}">
+              {{item.status === 'active' ? '会员有效期中' : (item.status === 'expired' ? '会员已过期' : '未开通会员')}}
+            </text>
+          </view>
+          <view class="grant-btn" bindtap="onGrant" data-openid="{{item.openid}}" data-nickname="{{item.nickName}}" wx:if="{{granting !== item.openid}}">
+            {{item.status === 'active' ? '续期一年' : '开通一年'}}
+          </view>
+          <view class="grant-btn granting" wx:else>开通中...</view>
+        </view>
+      </block>
+
+      <view class="bottom-space"></view>
+    </view>
+  </scroll-view>
+</view>

@@ -7,7 +7,9 @@
     "pages/mutual-help/mutual-help",
     "pages/my-home/my-home",
     "pages/inspire-list/inspire-list",
-    "pages/inspire-detail/inspire-detail"
+    "pages/inspire-detail/inspire-detail",
+    "pages/member/member",
+    "pages/admin/admin"
   ],
   "window": {
     "navigationBarTitleText": "记事卡",
