@@ -110,16 +110,21 @@ async function grant(operatorOpenid, event) {
     });
   }
 
-  await db.collection(ORDERS).add({
-    data: {
-      targetOpenid,
-      days,
-      plan: 'yearly',
-      remark,
-      operatorOpenid,
-      createdAt: now
-    }
-  });
+  // 订单流水：集合需预先在控制台创建；写入失败不阻塞开通结果，仅记日志
+  try {
+    await db.collection(ORDERS).add({
+      data: {
+        targetOpenid,
+        days,
+        plan: 'yearly',
+        remark,
+        operatorOpenid,
+        createdAt: now
+      }
+    });
+  } catch (err) {
+    console.warn('[grant] 订单流水写入失败（不影响开通）', err.message || err);
+  }
 
   const status = await getStatus(targetOpenid);
   return { code: 0, data: status.data };
