@@ -20,10 +20,10 @@
           <input class="hero-keywords" value="{{keywordsText}}" placeholder="关键词，用逗号分隔" placeholder-class="hero-ph" bindinput="onKeywordsInput" />
         </view>
 
-        <!-- 灵感条目：零碎灵感来源（企业微信 Bot 写入），只读 -->
+        <!-- 灵感条目：零碎灵感来源（AI 助手收集写入），只读 -->
         <view class="section">
           <view class="section-title">灵感条目 · {{sparks.length}}</view>
-          <view class="spark-empty" wx:if="{{!sparks.length}}">还没有灵感条目，去企业微信找灵感 Bot 记录第一条灵感</view>
+          <view class="spark-empty" wx:if="{{!sparks.length}}">还没有灵感条目，把第一条灵感发给 AI 助手</view>
           <view class="spark-item" wx:for="{{sparks}}" wx:key="index">
             <text class="spark-index">{{index + 1}}</text>
             <text class="spark-text">{{item.text}}</text>

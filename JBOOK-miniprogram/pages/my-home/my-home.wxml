@@ -112,7 +112,7 @@
         </scroll-view>
         <!-- 右缘渐变遮罩：卡片滑到边缘渐隐 -->
         <view class="inspire-edge-fade" wx:if="{{previewCards.length}}"></view>
-        <empty-state wx:if="{{!previewCards.length}}" title="还没有集灵中的灵感卡" subtitle="打开企业微信，把第一条零碎灵感发给小助手" mode="simple" />
+        <empty-state wx:if="{{!previewCards.length}}" title="还没有集灵中的灵感卡" subtitle="把零碎灵感发给 AI 助手，自动集采成卡" mode="simple" />
       </view>
 
       <!-- 已输出：横滑卡片，与集灵中同样式 -->
