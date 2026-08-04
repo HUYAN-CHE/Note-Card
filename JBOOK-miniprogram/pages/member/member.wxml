@@ -34,7 +34,7 @@
         <view class="section-title">如何{{status === 'expired' ? '续费' : '开通'}}</view>
         <view class="step">
           <text class="step-num">1</text>
-          <text class="step-text">长按下方二维码，添加小助手企业微信</text>
+          <text class="step-text">点击下方按钮，添加小助手企业微信</text>
         </view>
         <view class="step">
           <text class="step-num">2</text>
@@ -45,11 +45,10 @@
           <text class="step-text">开通成功，回到小程序即可使用全部权益</text>
         </view>
 
-        <!-- 小助手二维码（替换 assets/images/bot-qrcode.png 后生效） -->
+        <!-- 添加小助手：企微「联系我」插件按钮，点击弹出小助手名片一键添加（plugid 来自企微后台「联系我」配置） -->
         <view class="qrcode-card">
-          <image class="qrcode-image" src="/assets/images/bot-qrcode.png" mode="aspectFit" show-menu-by-longpress="{{true}}" wx:if="{{false}}" />
-          <view class="qrcode-placeholder">小助手二维码配置中</view>
-          <text class="qrcode-tip">长按二维码识别，添加小助手</text>
+          <contactCell plugid="0a45e709f9fca07a8ac292708f7000a1" />
+          <text class="qrcode-tip">点击按钮，添加小助手企业微信</text>
         </view>
       </view>
 
