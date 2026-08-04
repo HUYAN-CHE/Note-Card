@@ -120,8 +120,14 @@
         </view>
       </view>
       <view class="inspire-empty-wrap" wx:if="{{!inspireCards.length}}" style="min-height: calc(100vh - {{statusBarHeight + heroNavTop + heroNavHeight + 28}}px);">
+        <!-- 审核版：中性空态，不暴露会员/AI助手概念与入口（reviewMode 改 false 后恢复完整版） -->
+        <view class="inspire-empty" wx:if="{{reviewMode}}">
+          <image class="inspire-empty-image" src="/assets/images/inspire-empty.png" mode="widthFix" aria-hidden="true" />
+          <text class="inspire-empty-title">还没有灵感卡</text>
+          <text class="inspire-empty-subtitle">零碎的灵感会在这里集采成卡</text>
+        </view>
         <!-- 非会员：会员引导（介绍灵感集采为会员专属能力，按钮进会员页） -->
-        <view class="inspire-empty" wx:if="{{memberStatus !== 'active'}}">
+        <view class="inspire-empty" wx:elif="{{memberStatus !== 'active'}}">
           <image class="inspire-empty-image" src="/assets/images/inspire-empty.png" mode="widthFix" aria-hidden="true" />
           <text class="inspire-empty-title">灵感集采 · 会员专属</text>
           <text class="inspire-empty-subtitle">开通会员，获得专属 AI 助手：灵感随手发给它，自动提取标题与关键词，集满成一篇可编辑的文章</text>

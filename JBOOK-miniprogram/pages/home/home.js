@@ -1,6 +1,6 @@
 const { ensureDemoCards } = require('../../utils/store');
 const { buildSkillLaunchUrl, getSkill } = require('../../services/skill-registry');
-const { collections } = require('../../config/env');
+const { collections, reviewMode } = require('../../config/env');
 const { resolveThemeIcon } = require('../../utils/theme-icon');
 const { requestSubscribeCredit } = require('../../utils/subscribe');
 const { uploadAvatar } = require('../../utils/upload-avatar');
@@ -47,6 +47,8 @@ Page({
     // 灵感页卡片（真实数据，onShow 从云端加载）；inspireCols 为瀑布流左右两列
     inspireCards: [],
     inspireCols: { left: [], right: [] },
+    // 审核版开关：true 时灵感页空态显示中性文案，不暴露会员引导（config/env.js）
+    reviewMode: reviewMode,
     // 会员状态：none 未开通 / active 有效期中 / expired 已过期（灵感页空态展示用）
     memberStatus: 'none',
     refreshing: false,

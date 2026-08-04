@@ -46,8 +46,8 @@
       </view>
     </view>
 
-    <!-- 会员卡：按会员状态展示，点击进会员页 -->
-    <view class="member-card" bindtap="onMemberTap">
+    <!-- 会员卡：按会员状态展示，点击进会员页（审核版隐藏） -->
+    <view class="member-card" bindtap="onMemberTap" wx:if="{{!reviewMode}}">
       <image class="member-icon" src="/assets/images/icon-crown.svg" mode="aspectFit" />
       <view class="member-text">
         <block wx:if="{{memberStatus === 'active'}}">

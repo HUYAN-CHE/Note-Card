@@ -1,7 +1,7 @@
 const store = require('../../utils/store.js');
 const { getNavInfo } = require('../../utils/ui');
 const { resolveThemeIcon } = require('../../utils/theme-icon');
-const { collections } = require('../../config/env');
+const { collections, reviewMode } = require('../../config/env');
 const { listInspireCards } = require('../../services/inspire-cards');
 
 const DEFAULT_CANDIDATE_TAGS = ['法律咨询', '财务规划', '职业规划', '心理咨询', '编程开发', '设计创意', '文案写作', '摄影摄像', '健身指导', '家庭教育', '房产顾问', '留学移民'];
@@ -56,6 +56,8 @@ Page({
     exportedCards: [],
     // 灵感卡（真实数据，onShow 从云端加载，按状态拆分 集灵中/已输出）
     inspireCards: [],
+    // 审核版开关：true 时隐藏会员 banner（config/env.js）
+    reviewMode: reviewMode,
     // 会员状态：none 未开通 / active 有效期中 / expired 已过期
     memberStatus: 'none',
     memberExpireText: '',
