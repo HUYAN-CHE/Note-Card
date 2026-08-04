@@ -47,6 +47,8 @@ Page({
     // 灵感页卡片（真实数据，onShow 从云端加载）；inspireCols 为瀑布流左右两列
     inspireCards: [],
     inspireCols: { left: [], right: [] },
+    // 会员状态：none 未开通 / active 有效期中 / expired 已过期（灵感页空态展示用）
+    memberStatus: 'none',
     refreshing: false,
     bodyScrollTop: 0,
     bodyCanScroll: false,
@@ -73,6 +75,7 @@ Page({
     this._lastPullProgress = 0;
     this.loadCards();
     this.loadInspireCards();
+    this.loadMembershipStatus();
     this.loadSubscribeState();
     this.checkAuth();
 
@@ -520,6 +523,22 @@ Page({
     if (tab && tab !== this.data.homeTab) {
       this.setData({ homeTab: tab });
     }
+  },
+
+  // 会员状态：灵感页空态区分「会员引导」与「会员待记录」两种展示
+  loadMembershipStatus() {
+    if (!wx.cloud) return;
+    wx.cloud.callFunction({ name: 'membership', data: { action: 'getStatus' } })
+      .then((res) => {
+        const d = (res.result && res.result.data) || {};
+        this.setData({ memberStatus: d.status || 'none' });
+      })
+      .catch(() => {});
+  },
+
+  // 灵感页空态「了解会员权益」→ 会员页
+  openMember() {
+    wx.navigateTo({ url: '/pages/member/member' });
   },
 
   // 灵感卡：从云端加载（缓存命中则直接用，后台刷新），瀑布流分列（内含相邻不同色着色）

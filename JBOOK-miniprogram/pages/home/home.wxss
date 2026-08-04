@@ -460,6 +460,18 @@
   line-height: 1.5;
 }
 
+/* 空态会员引导按钮：绿色胶囊，与全局主按钮一致 */
+.inspire-vip-btn {
+  margin-top: 40rpx;
+  padding: 20rpx 64rpx;
+  border-radius: 999rpx;
+  background: #2e7d4e;
+  color: #ffffff;
+  font-size: 28rpx;
+  font-weight: 600;
+  box-shadow: 0 6rpx 20rpx rgba(46, 125, 78, 0.3);
+}
+
 .inspire-bottom-space {
   height: calc(220rpx + env(safe-area-inset-bottom));
 }

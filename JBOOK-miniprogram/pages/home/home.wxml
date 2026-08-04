@@ -120,11 +120,18 @@
         </view>
       </view>
       <view class="inspire-empty-wrap" wx:if="{{!inspireCards.length}}" style="min-height: calc(100vh - {{statusBarHeight + heroNavTop + heroNavHeight + 28}}px);">
-        <!-- 灵感图是横版插画，脱离 empty-state 的正方形约束，按宽度自适应高度，视觉体量对齐记事页空态 -->
-        <view class="inspire-empty">
+        <!-- 非会员：会员引导（介绍灵感集采为会员专属能力，按钮进会员页） -->
+        <view class="inspire-empty" wx:if="{{memberStatus !== 'active'}}">
+          <image class="inspire-empty-image" src="/assets/images/inspire-empty.png" mode="widthFix" aria-hidden="true" />
+          <text class="inspire-empty-title">灵感集采 · 会员专属</text>
+          <text class="inspire-empty-subtitle">开通会员，添加专属企微小助手：灵感随手发给它，AI 自动提取标题与关键词，集满成一篇可编辑的文章</text>
+          <view class="inspire-vip-btn" bindtap="openMember">了解会员权益</view>
+        </view>
+        <!-- 会员暂无数据：引导去企微记录 -->
+        <view class="inspire-empty" wx:else>
           <image class="inspire-empty-image" src="/assets/images/inspire-empty.png" mode="widthFix" aria-hidden="true" />
           <text class="inspire-empty-title">还没有灵感卡</text>
-          <text class="inspire-empty-subtitle">去企业微信找灵感 Bot，记录第一条零碎灵感</text>
+          <text class="inspire-empty-subtitle">去企业微信找小助手，记录第一条零碎灵感</text>
         </view>
       </view>
       <view class="inspire-bottom-space"></view>
