@@ -16,8 +16,8 @@
     nav-right="{{heroNavRight}}"
     body-pull-enabled="{{!cards.length}}"
   >
-    <!-- 记事/灵感切换胶囊（替代 This week，与微信胶囊同高对齐） -->
-    <view slot="nav" class="home-tab-switch">
+    <!-- 记事/灵感切换胶囊（替代 This week，与微信胶囊同高对齐）；审核版隐藏（灵感功能不上线） -->
+    <view slot="nav" class="home-tab-switch" wx:if="{{!reviewMode}}">
       <view class="home-tab {{homeTab === 'note' ? 'active' : ''}}" bindtap="onHomeTabTap" data-tab="note">记事</view>
       <view class="home-tab {{homeTab === 'inspire' ? 'active' : ''}}" bindtap="onHomeTabTap" data-tab="inspire">灵感</view>
     </view>
@@ -87,8 +87,8 @@
     <empty-state wx:else image="/assets/images/empty-state-ref.png" image-size="320" title="还没有记事卡" subtitle="下拉或点击上方按钮，从聊天记录生成一张记事卡" />
   </pull-create-trigger>
 
-  <!-- 灵感页：绿到白渐变 + 双列彩色卡片网格，点击进文章编辑页 -->
-  <view class="inspire-page" wx:else>
+  <!-- 灵感页：绿到白渐变 + 双列彩色卡片网格，点击进文章编辑页；审核版隐藏 -->
+  <view class="inspire-page" wx:if="{{homeTab === 'inspire' && !reviewMode}}">
     <view class="inspire-bg"></view>
     <view
       class="home-tab-switch inspire-tab-switch"
