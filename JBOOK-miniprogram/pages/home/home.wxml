@@ -127,11 +127,16 @@
           <text class="inspire-empty-subtitle">开通会员，添加专属企微小助手：灵感随手发给它，AI 自动提取标题与关键词，集满成一篇可编辑的文章</text>
           <view class="inspire-vip-btn" bindtap="openMember">了解会员权益</view>
         </view>
-        <!-- 会员暂无数据：引导去企微记录 -->
+        <!-- 会员暂无数据：引导添加小助手并发第一条灵感 -->
         <view class="inspire-empty" wx:else>
           <image class="inspire-empty-image" src="/assets/images/inspire-empty.png" mode="widthFix" aria-hidden="true" />
           <text class="inspire-empty-title">还没有灵感卡</text>
-          <text class="inspire-empty-subtitle">去企业微信找小助手，记录第一条零碎灵感</text>
+          <text class="inspire-empty-subtitle">添加小助手企业微信，把第一条零碎灵感发给它</text>
+          <!-- 自定义视觉按钮 + 透明插件按钮覆盖（插件不支持深度定制样式，点击仍走官方功能） -->
+          <view class="inspire-vip-wrap">
+            <view class="inspire-vip-btn">添加小助手</view>
+            <contactCell class="contact-mask" plugid="0a45e709f9fca07a8ac292708f7000a1" />
+          </view>
         </view>
       </view>
       <view class="inspire-bottom-space"></view>

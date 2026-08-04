@@ -9,6 +9,7 @@
     "tab-bar": "/components/tab-bar/tab-bar",
     "pull-create-trigger": "/components/pull-create-trigger/pull-create-trigger",
     "pull-refresh-view": "/components/pull-refresh-view/index",
-    "empty-state": "/components/empty-state/empty-state"
+    "empty-state": "/components/empty-state/empty-state",
+    "contactCell": "plugin://contactPlugin/cell"
   }
 }

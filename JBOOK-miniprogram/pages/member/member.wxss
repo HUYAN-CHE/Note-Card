@@ -172,22 +172,29 @@
   gap: 16rpx;
 }
 
-.qrcode-image {
-  width: 360rpx;
-  height: 360rpx;
-  border-radius: 16rpx;
+/* 自定义绿色按钮 + 透明插件按钮覆盖（插件 cell 不支持深度定制样式） */
+.vip-btn-wrap {
+  position: relative;
 }
 
-.qrcode-placeholder {
-  width: 360rpx;
-  height: 360rpx;
-  border-radius: 16rpx;
-  border: 2rpx dashed rgba(28, 28, 30, 0.2);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 24rpx;
-  color: rgba(28, 28, 30, 0.35);
+.vip-btn {
+  padding: 22rpx 72rpx;
+  border-radius: 999rpx;
+  background: #2e7d4e;
+  color: #ffffff;
+  font-size: 30rpx;
+  font-weight: 600;
+  box-shadow: 0 6rpx 20rpx rgba(46, 125, 78, 0.3);
+}
+
+.contact-mask {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  opacity: 0;
+  z-index: 2;
 }
 
 .qrcode-tip {

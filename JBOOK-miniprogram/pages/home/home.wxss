@@ -472,6 +472,27 @@
   box-shadow: 0 6rpx 20rpx rgba(46, 125, 78, 0.3);
 }
 
+/* 自定义按钮 + 透明插件按钮覆盖：插件 cell 不支持深度定制样式，
+   透明铺满后点击仍触发插件的添加名片能力 */
+.inspire-vip-wrap {
+  position: relative;
+  margin-top: 40rpx;
+}
+
+.inspire-vip-wrap .inspire-vip-btn {
+  margin-top: 0;
+}
+
+.contact-mask {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  opacity: 0;
+  z-index: 2;
+}
+
 .inspire-bottom-space {
   height: calc(220rpx + env(safe-area-inset-bottom));
 }
