@@ -1,5 +1,5 @@
 <view class="page card-detail-page">
-  <custom-nav title="记事卡详情" showBack="{{true}}" theme="light" statusBarHeight="{{statusBarHeight}}" navHeight="{{navHeight}}" />
+  <custom-nav title="记事卡详情" showBack="{{true}}" theme="deep" statusBarHeight="{{statusBarHeight}}" navHeight="{{navHeight}}" />
 
   <!-- 固定背景层：不随内容滚动 -->
   <view class="page-bg"></view>
@@ -9,38 +9,38 @@
   <view class="nav-bg" style="height: {{totalHeight}}px;" aria-hidden="true"></view>
 
   <!-- 出票口：顶梁 fixed 在导航下方（z-40），白卡上滑时被顶梁遮挡；
-       出口阴影固定在顶梁下缘（随框不随卡），投在滑过的纸面上 -->
-  <view class="receipt-slot" style="top: {{totalHeight}}px;">
-    <view class="shadow" aria-hidden="true"></view>
-  </view>
+       出口深邃感在顶梁自身（下缘渐深 + 12rpx 窄缝影），阴影不投到卡面上 -->
+  <view class="receipt-slot" style="top: {{totalHeight}}px;"></view>
 
-  <!-- 出票口背板：顶梁底向下 260rpx 的固定深绿板（与顶梁同色 #2e7d4e），垫在卡片下面（DOM 在 detail-body 前）。
-       卡片白底盖住中间，两侧露出 24rpx 边（立柱）；上缺口正后方就是它——静止时缺口透深绿，
-       滑动时缺口滑出背板范围则透页面背景，下面是什么颜色透什么颜色 -->
-  <view class="receipt-frame" style="top: calc({{totalHeight}}px + 40rpx);" aria-hidden="true"></view>
+  <!-- 出票口背板：固定深绿板（与顶梁同色 #2e7d4e），从屏幕顶铺到顶梁下 300rpx，左右撑满，
+       垫在卡片下面（DOM 在 detail-body 前）。卡片白底盖住中间，两侧与上方透深绿；
+       上缺口正后方就是它——静止时缺口透深绿，滑动时缺口滑出背板范围则透页面背景 -->
+  <view class="receipt-frame" style="top: 0; height: calc({{totalHeight}}px + 340rpx);" aria-hidden="true"></view>
 
+  <!-- 壳不滚、内容滚：scroll-view 接管纵向滚动，enhanced 下隐藏右侧滚动条 -->
+  <scroll-view class="detail-scroll" scroll-y enhanced show-scrollbar="{{false}}">
   <view class="detail-body" style="padding-top: {{totalHeight + 12}}px; padding-bottom: calc(220rpx + {{safeAreaBottom}}px);">
 
     <!-- 主卡框架：不遮罩；卡片从固定出票口里滑出 -->
     <view class="g-card {{developing ? 'developing' : ''}} {{cardReady ? 'card-in' : ''}}">
       <view class="g-card-inner g-card-ticket">
 
-      <!-- 品牌行：>>>>>>>>>> [卡叽KAJI 矢量 logo] <<<<<<<<<<（logo 用 KAPA.svg 原件） -->
+      <!-- 品牌行：[条形码] [MEW.JOT 矢量 logo] [条形码]（logo 用 9SVG.svg 原件；条码与 logo 同中线） -->
       <view class="dev dev-brand g-brand" aria-hidden="true">
-        <text class="g-brand-chevrons">{{brandChevronLeft}}</text>
-        <image class="g-brand-logo" src="/assets/icons/kapa-brand.svg" mode="aspectFit" />
-        <text class="g-brand-chevrons">{{brandChevronRight}}</text>
+        <view class="g-brand-barcode"></view>
+        <image class="g-brand-logo" src="/assets/icons/9SVG.svg" mode="aspectFit" />
+        <view class="g-brand-barcode"></view>
       </view>
 
       <!-- 品牌行下撕裂虚线（票根上缺口） -->
       <view class="dev dev-top g-tearline g-tearline-top"></view>
 
-      <!-- 标题 + 状态胶囊（创立者/共同行动人可点击编辑标题、重点内容） -->
+      <!-- 标题 + 状态选择（点标题区编辑标题/重点；右侧胶囊点选进度，catchtap 防冒泡触发编辑） -->
       <view class="dev dev-1 g-head {{canEditStatus ? 'can-edit' : ''}}" bindtap="openEditSheet">
         <text class="g-title">{{displayTitle}}</text>
-        <view class="g-status">
-          <image class="g-status-icon" src="/assets/icons/clock.svg" mode="aspectFit" />
+        <view class="g-progress-pill {{canEditStatus ? 'can-pick' : ''}}" catchtap="onStatusTap">
           <text>{{statusText}}</text>
+          <text class="g-progress-arrow" wx:if="{{canEditStatus}}">▾</text>
         </view>
       </view>
 
@@ -95,20 +95,8 @@
         <text class="g-desc g-desc-empty" wx:if="{{!card.desc && !keyPoints.length}}">点击补充需求描述与重点</text>
       </view>
 
-      <!-- 当前进度 -->
-      <view class="dev dev-5 g-kv-row g-kv-row-lg" bindtap="onStatusTap">
-        <view class="g-label g-label-lg">
-          <image class="g-label-icon" src="/assets/icons/pulse.svg" mode="aspectFit" />
-          <text>当前进度</text>
-        </view>
-        <view class="g-progress-pill {{canEditStatus ? 'can-pick' : ''}}">
-          <text>{{statusText}}</text>
-          <text class="g-progress-arrow" wx:if="{{canEditStatus}}">▾</text>
-        </view>
-      </view>
-
-      <!-- 截止日期（创立者/共同行动人可点击选择） -->
-      <view class="dev dev-6 g-kv-row">
+      <!-- 截止日期（创立者/共同行动人可点击选择；承接 KV 区顶部分隔线③） -->
+      <view class="dev dev-6 g-kv-row g-kv-row-lg">
         <view class="g-label g-label-lg">
           <image class="g-label-icon" src="/assets/icons/calendar.svg" mode="aspectFit" />
           <text>截止日期</text>
@@ -157,6 +145,7 @@
       </view>
     </view>
   </view>
+  </scroll-view>
 
   <!-- 底部渐变浮层：滚动内容渐渐隐入按钮区后，层级在内容上、按钮下 -->
   <view class="bottom-fade"></view>

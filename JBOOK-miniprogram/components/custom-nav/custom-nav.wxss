@@ -33,6 +33,26 @@
   box-shadow: 0 4rpx 12rpx rgba(46, 125, 78, 0.18);
 }
 
+/* 深绿底主题：导航透明（底色由页面提供），标题白色，返回键保留白圆底 */
+.custom-nav-deep {
+  background: transparent;
+  backdrop-filter: none;
+  border-bottom: none;
+}
+
+.custom-nav-deep .nav-title {
+  color: #ffffff;
+}
+
+.custom-nav-deep .nav-back {
+  width: 56rpx;
+  height: 56rpx;
+  margin-left: 8rpx;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 4rpx 12rpx rgba(46, 125, 78, 0.18);
+}
+
 .status-bar {
   width: 100%;
 }
