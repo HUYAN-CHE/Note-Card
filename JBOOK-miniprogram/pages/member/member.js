@@ -55,5 +55,22 @@ Page({
   formatDate(ts) {
     const d = new Date(ts);
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  },
+
+  // ==================== 联系我插件（排查用回调，真机 vConsole 可见） ====================
+
+  onContactStart(e) {
+    console.log('[contactCell] start', e && e.detail);
+  },
+
+  // completemessage: { errcode, name, headurl, notifytype }
+  // notifytype 0=服务通知推送名片 1=展示二维码（插件两种正常方式之一，非故障）
+  // errcode 负值才是真异常：-3002 配置获取失败 / -3004 授权失败 / -3005 客服消息发送失败 / -3006 已是好友 / -3008 未配置客服
+  onContactComplete(e) {
+    const d = (e && e.detail) || {};
+    console.log('[contactCell] complete errcode=%s notifytype=%s name=%s', d.errcode, d.notifytype, d.name, d);
+    if (d.errcode && d.errcode !== 0 && d.errcode !== -3006) {
+      wx.showToast({ title: `添加助手失败(${d.errcode})，请截图反馈`, icon: 'none' });
+    }
   }
 });

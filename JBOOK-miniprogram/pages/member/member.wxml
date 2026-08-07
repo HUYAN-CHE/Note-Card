@@ -49,7 +49,7 @@
         <view class="qrcode-card">
           <view class="vip-btn-wrap">
             <view class="vip-btn">添加 AI 助手</view>
-            <contactCell class="contact-mask" plugid="0a45e709f9fca07a8ac292708f7000a1" />
+            <contactCell class="contact-mask" plugid="0a45e709f9fca07a8ac292708f7000a1" bind:startmessage="onContactStart" bind:completemessage="onContactComplete" />
           </view>
           <text class="qrcode-tip">点击按钮，弹出 AI 助手名片一键添加</text>
         </view>
