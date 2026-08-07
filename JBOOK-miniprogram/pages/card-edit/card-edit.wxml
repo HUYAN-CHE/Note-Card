@@ -58,9 +58,9 @@
           />
         </view>
 
-        <!-- 需求描述 -->
+        <!-- 事情描述 -->
         <view class="field">
-          <view class="field-label">需求描述</view>
+          <view class="field-label">事情描述</view>
           <view class="textarea-holder">
             <textarea
               class="field-textarea"
