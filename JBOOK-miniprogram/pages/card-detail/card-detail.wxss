@@ -252,8 +252,8 @@ page {
 }
 
 .g-avatar {
-  width: 76rpx;
-  height: 76rpx;
+  width: 70rpx;
+  height: 70rpx;
   border-radius: 50%;
   border: 3rpx solid #fff;
   background: linear-gradient(150deg, #4caf50, #81c784);
@@ -269,18 +269,68 @@ page {
 }
 
 .g-avatar image {
-  width: 76rpx;
-  height: 76rpx;
+  width: 70rpx;
+  height: 70rpx;
 }
 
-/* 头像组：叠加排布，白色描边分隔 */
+/* 头像组：叠加排布，白色描边分隔；统一叠压 -10rpx */
 .g-avatar + .g-avatar {
-  margin-left: -22rpx;
+  margin-left: -10rpx;
 }
 
 /* 更多协作人圆：三个图形圆点居中 */
 .g-avatar-more {
   background: #e6ece7;
+}
+
+/* 添加圆：头像链尾，浅灰底+白描边+居中十字（点击=邀请协作分享）；
+   叠压 margin 在 wxml 内联（button 内置样式会覆盖类样式） */
+.g-avatar-add {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 70rpx;
+  padding: 0;
+  box-sizing: border-box;
+  border-radius: 50%;
+  border: 3rpx solid #fff;
+  background: #f0f3f0;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.g-avatar-add::after {
+  display: none;
+}
+
+.g-avatar-add-plus {
+  position: relative;
+  width: 28rpx;
+  height: 28rpx;
+}
+
+.g-avatar-add-plus::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: 4rpx;
+  height: 100%;
+  border-radius: 2rpx;
+  background: #9aa79c;
+  transform: translateX(-50%);
+}
+
+.g-avatar-add-plus::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: 4rpx;
+  border-radius: 2rpx;
+  background: #9aa79c;
+  transform: translateY(-50%);
 }
 
 .g-more-dots {
@@ -296,11 +346,33 @@ page {
   background: #8a978a;
 }
 
-/* 项目圆：头像链最前，附件缩略图或标题首字 */
-.g-project {
+/* 项目胶囊：头像链最前，深绿底白字；无附件=胶囊+标题前4字（超4字省略），
+   有附件=左端内嵌同高圆图+文字（多张带数量角标），点击放大可左右滑 */
+.g-project-pill {
   position: relative;
+  display: flex;
+  align-items: center;
   flex-shrink: 0;
-  margin-right: 6rpx;
+  height: 72rpx;
+  padding: 0 24rpx;
+  border-radius: 999rpx;
+  background: #2e7d4e;
+  color: #ffffff;
+  font-size: 24rpx;
+  font-weight: 600;
+}
+
+/* 有附件：圆图占满胶囊左端（直径=胶囊高），padding 让位 */
+.g-project-pill.has-thumb {
+  padding-left: 0;
+}
+
+.g-project-thumb {
+  width: 72rpx;
+  height: 72rpx;
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-right: 12rpx;
 }
 
 .g-avatar-badge {
@@ -322,44 +394,15 @@ page {
   justify-content: center;
 }
 
-/* 链接符：UI 稿链条 icon，位于项目圆与头像组之间 */
+/* 链接符：UI 稿链条 icon，位于项目胶囊与头像组之间 */
 .g-link-icon {
   width: 34rpx;
   height: 20rpx;
-  margin: 0 8rpx;
+  margin: 0 6rpx;
   flex-shrink: 0;
 }
 
-/* 卡内邀请协作小胶囊：实测背景 #e3f0e4，文字 #49854f；宽度由 wxml 内联 style 控制（button 类样式宽度不生效） */
-.g-invite-pill {
-  flex: 0 0 auto;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0 0 0 24rpx;
-  min-width: 0;
-  height: 72rpx;
-  padding: 0;
-  box-sizing: border-box;
-  border-radius: 999rpx;
-  background: #e3f0e4;
-  color: #49854f;
-  font-size: 24rpx;
-  font-weight: 600;
-  line-height: 1;
-  white-space: nowrap;
-  overflow: hidden;
-}
-
-.g-invite-icon {
-  width: 24rpx;
-  height: 24rpx;
-  margin-right: 8rpx;
-}
-
-.g-invite-pill::after {
-  display: none;
-}
+/* 卡内邀请按钮已移除（底部 footer 保留邀请协作）；项目胶囊复用其底色/文字样式 */
 
 /* 重点 / 待确认：顶部分割线②（共同行动人|重点） */
 .g-section {
@@ -731,6 +774,101 @@ page {
 .footer-btn[disabled] {
   background: #e0e0e0;
   color: #999;
+}
+
+/* 弹窗内共同行动人：「添加」格固定左端不滚动（仅有权限），成员横滑从旁边过（同互助页） */
+.member-row {
+  display: flex;
+  align-items: flex-start;
+  margin-top: 20rpx;
+}
+
+.member-scroll {
+  width: auto;
+  min-width: 0;
+  white-space: nowrap;
+}
+
+.member-row .member-scroll {
+  flex: 1;
+}
+
+.member-track {
+  display: inline-flex;
+  gap: 24rpx;
+  padding-right: 24rpx;
+}
+
+.member-add {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0;
+  background: transparent;
+  line-height: 1;
+}
+
+.member-add::after {
+  display: none;
+}
+
+.member-add-circle {
+  width: 88rpx;
+  height: 88rpx;
+  border-radius: 50%;
+  background: #f0f3f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.member-add-text {
+  margin-top: 8rpx;
+  font-size: 20rpx;
+  color: #9aa79c;
+}
+
+.edit-member {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 96rpx;
+}
+
+.edit-member-avatar {
+  width: 88rpx;
+  height: 88rpx;
+  border-radius: 50%;
+  background: linear-gradient(150deg, #4caf50, #81c784);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  font-size: 32rpx;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.edit-member-avatar image {
+  width: 88rpx;
+  height: 88rpx;
+}
+
+.edit-member-name {
+  margin-top: 8rpx;
+  max-width: 96rpx;
+  font-size: 20rpx;
+  color: #1a2b1e;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.edit-member-role {
+  margin-top: 2rpx;
+  font-size: 18rpx;
+  color: #9aa79c;
 }
 
 /* 申请 Sheet */

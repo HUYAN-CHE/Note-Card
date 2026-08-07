@@ -77,7 +77,7 @@ Page({
     activitiesLoading: false,
     attachments: [],
     projectThumb: '',
-    projectInitial: '',
+    projectLabel: '',
     visibleAvatars: [],
     showAvatarMore: false,
     allCollaborators: [],
@@ -171,11 +171,12 @@ Page({
     }
   },
 
-  // 头像组：创立者1 + 协作人最多2 + 「…」圆；点「…」弹窗看全部成员
+  // 头像组（叠压排布，叠压统一 -15rpx；点头像/「…」圆开弹窗）：
+  // ≤5 全显；>5 → 前 4 头像 + 「…」圆（第 5 位）；卡片上不再有添加圆
   buildAvatarGroup(creator, helpers) {
     const people = [creator, ...(helpers || [])].filter(Boolean);
-    const visibleAvatars = people.slice(0, 3);
-    return { visibleAvatars, showAvatarMore: people.length > 3 };
+    if (people.length <= 5) return { visibleAvatars: people, showAvatarMore: false };
+    return { visibleAvatars: people.slice(0, 4), showAvatarMore: true };
   },
 
   // 全部成员列表：创立者在前，供「…」弹窗展示头像和昵称
@@ -222,7 +223,7 @@ Page({
       refCode: data.refCode || '',
       displayDeadline: this.formatDeadline(data.deadline),
       displayTitle: this.truncateTitle(data.title),
-      projectInitial: getInitial(data.title)
+      projectLabel: this.truncateTitle(data.title || '项目', 4)
     }, () => {
       // 打印动画（cardReady 触发）开始时同步播放出票机音效
       if (this.fromCreate && !this.printerAudio) {
@@ -271,7 +272,7 @@ Page({
       refCode: card.refCode || '',
       displayDeadline: this.formatDeadline(card.deadline),
       displayTitle: this.truncateTitle(card.title),
-      projectInitial: getInitial(card.title)
+      projectLabel: this.truncateTitle(card.title || '项目', 4)
     }, () => {
       this.onCardRendered();
       this.ensureRefCode(card);
@@ -315,6 +316,15 @@ Page({
     wx.previewImage({ current: urls[0], urls });
   },
 
+  // 点头像/「…」圆：有权限开编辑弹窗（内含共同行动人列表），无权限开只读成员列表
+  onAvatarTap() {
+    if (this.data.canEditStatus) {
+      this.openEditSheet();
+    } else {
+      this.openHelpersSheet();
+    }
+  },
+
   // 旧卡无短码时静默补齐（不影响渲染，失败忽略）
   async ensureRefCode(card) {
     if (!card || !card.id || card.refCode) return;
@@ -337,9 +347,9 @@ Page({
   },
 
   // 标题最多显示 7 个字，超出截断加省略号
-  truncateTitle(title) {
+  truncateTitle(title, max = 7) {
     const t = String(title || '未命名事项');
-    return t.length > 7 ? `${t.slice(0, 7)}...` : t;
+    return t.length > max ? `${t.slice(0, max)}...` : t;
   },
 
   // 卡内小程序码：云端可用且有短码时拉取，失败保持占位框

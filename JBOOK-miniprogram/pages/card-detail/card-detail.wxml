@@ -57,20 +57,18 @@
       </view>
       <view class="dev dev-3 g-avatars-row">
         <view class="g-avatars">
-          <!-- 项目圆：有附件取第一张缩略图，无附件显示标题首字；多张带数量角标，点击预览可左右滑 -->
-          <view class="g-project" bindtap="onProjectAvatarTap" aria-label="项目图片">
-            <view class="g-avatar g-avatar-project">
-              <text wx:if="{{!projectThumb}}">{{projectInitial}}</text>
-              <image wx:else src="{{projectThumb}}" mode="aspectFill" />
-            </view>
+          <!-- 项目胶囊：邀请胶囊同款底色；无附件显示标题前4字，有附件左端内嵌同高圆图（多张带角标），点击放大可左右滑 -->
+          <view class="g-project-pill {{projectThumb ? 'has-thumb' : ''}}" bindtap="onProjectAvatarTap" aria-label="项目图片">
+            <image wx:if="{{projectThumb}}" class="g-project-thumb" src="{{projectThumb}}" mode="aspectFill" />
+            <text class="g-project-name">{{projectLabel}}</text>
             <view class="g-avatar-badge" wx:if="{{attachments.length > 1}}">{{attachments.length}}</view>
           </view>
           <image class="g-link-icon" src="/assets/icons/link.svg" mode="aspectFit" />
-          <view class="g-avatar" wx:for="{{visibleAvatars}}" wx:key="index">
+          <view class="g-avatar" wx:for="{{visibleAvatars}}" wx:key="index" bindtap="onAvatarTap">
             <text wx:if="{{!item.avatar}}">{{item.initial}}</text>
             <image wx:else src="{{item.avatar}}" mode="aspectFill" />
           </view>
-          <view class="g-avatar g-avatar-more" wx:if="{{showAvatarMore}}" bindtap="openHelpersSheet" aria-label="查看全部共同行动人">
+          <view class="g-avatar g-avatar-more" wx:if="{{showAvatarMore}}" bindtap="onAvatarTap" aria-label="查看全部共同行动人">
             <view class="g-more-dots">
               <view class="g-more-dot"></view>
               <view class="g-more-dot"></view>
@@ -78,8 +76,6 @@
             </view>
           </view>
         </view>
-        <!-- 注意：微信 button 内置样式会在 flex 中整行拉伸，类样式 width 不生效，宽度必须写内联 style -->
-        <button class="g-invite-pill" open-type="share" wx:if="{{isCreator || isHelper}}" data-action="share" aria-label="邀请协作" style="width: 200rpx; flex: none;"><image class="g-invite-icon" src="/assets/icons/share-green.svg" mode="aspectFit" />邀请协作</button>
       </view>
 
       <!-- 需求描述 · 重点（创立者/共同行动人可点击编辑） -->
@@ -179,8 +175,30 @@
   </bottom-sheet>
 
   <!-- 编辑卡片 Sheet（创立者/共同行动人） -->
-  <bottom-sheet visible="{{showEditSheet}}" title="编辑记事卡" subtitle="标题、需求描述与重点内容" safeAreaBottom="{{safeAreaBottom}}" bind:close="closeEditSheet">
+  <bottom-sheet visible="{{showEditSheet}}" title="编辑记事卡" subtitle="共同行动人与卡片内容" safeAreaBottom="{{safeAreaBottom}}" bind:close="closeEditSheet">
     <view class="edit-body">
+      <view class="edit-field">
+        <text class="edit-label">共同行动人</text>
+        <view class="member-row">
+          <!-- 添加格固定左端不滚动（仅有权限），成员横滑从旁边过；与首成员间距 24rpx 同 track gap（button margin 需内联） -->
+          <button class="member-add" open-type="share" wx:if="{{isCreator || isHelper}}" data-action="share" aria-label="邀请协作" style="width: 96rpx; flex: none; margin-right: 24rpx;">
+            <view class="member-add-circle"><view class="g-avatar-add-plus"></view></view>
+            <text class="member-add-text">添加</text>
+          </button>
+          <scroll-view class="member-scroll" scroll-x enhanced show-scrollbar="{{false}}">
+            <view class="member-track">
+              <view class="edit-member" wx:for="{{allCollaborators}}" wx:key="index">
+                <view class="edit-member-avatar">
+                  <text wx:if="{{!item.avatar}}">{{item.initial}}</text>
+                  <image wx:else src="{{item.avatar}}" mode="aspectFill" />
+                </view>
+                <text class="edit-member-name">{{item.nickname}}</text>
+                <text class="edit-member-role">{{item.roleText}}</text>
+              </view>
+            </view>
+          </scroll-view>
+        </view>
+      </view>
       <view class="edit-field">
         <text class="edit-label">标题</text>
         <input class="edit-input" value="{{editForm.title}}" bindinput="onEditTitleInput" placeholder="如周六拼车去露营" placeholder-class="edit-ph" maxlength="30" />
@@ -218,19 +236,20 @@
     </view>
   </bottom-sheet>
 
-  <!-- 全部共同行动人 Sheet（点「…」圆打开） -->
+  <!-- 全部共同行动人 Sheet（点头像/「…」圆打开，无权限视角） -->
   <bottom-sheet visible="{{showHelpersSheet}}" title="共同行动人" subtitle="{{allCollaborators.length}} 位成员" safeAreaBottom="{{safeAreaBottom}}" bind:close="closeHelpersSheet">
-    <view class="activity-body">
-      <view class="activity-item" wx:for="{{allCollaborators}}" wx:key="index">
-        <view class="activity-avatar">
-          <text wx:if="{{!item.avatar}}">{{item.initial}}</text>
-          <image wx:else src="{{item.avatar}}" mode="aspectFill" />
-        </view>
-        <view class="activity-info">
-          <text class="activity-text"><text class="activity-name">{{item.nickname}}</text> {{item.roleText}}</text>
+    <scroll-view class="member-scroll" scroll-x enhanced show-scrollbar="{{false}}">
+      <view class="member-track">
+        <view class="edit-member" wx:for="{{allCollaborators}}" wx:key="index">
+          <view class="edit-member-avatar">
+            <text wx:if="{{!item.avatar}}">{{item.initial}}</text>
+            <image wx:else src="{{item.avatar}}" mode="aspectFill" />
+          </view>
+          <text class="edit-member-name">{{item.nickname}}</text>
+          <text class="edit-member-role">{{item.roleText}}</text>
         </view>
       </view>
-    </view>
+    </scroll-view>
   </bottom-sheet>
 
   <!-- 海报画布（离屏渲染，保存卡片时使用） -->
