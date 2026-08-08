@@ -49,6 +49,7 @@ Page({
     navHeight: 88,
     totalHeight: 132,
     heroPaddingTop: 132,
+    safeAreaBottom: 0,
     user: { nickname: '', avatar: '', initial: '' },
     serviceTags: [],
     candidateTags: [],
@@ -81,11 +82,17 @@ Page({
 
   onLoad() {
     const navInfo = getNavInfo();
+    // 底部安全区：供 bottom-sheet 预留 Home 指示条遮挡（算法同 card-detail）
+    const sys = wx.getSystemInfoSync();
+    const safeBottom = sys.safeAreaInsets
+      ? sys.safeAreaInsets.bottom
+      : Math.max(0, sys.screenHeight - ((sys.safeArea && sys.safeArea.bottom) || sys.screenHeight));
     this.setData({
       statusBarHeight: navInfo.statusBarHeight,
       navHeight: navInfo.navHeight,
       totalHeight: navInfo.totalHeight,
-      heroPaddingTop: navInfo.totalHeight + 24
+      heroPaddingTop: navInfo.totalHeight + 24,
+      safeAreaBottom: safeBottom
     });
     this.loadData();
   },

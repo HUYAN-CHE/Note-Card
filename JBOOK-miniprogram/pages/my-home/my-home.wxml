@@ -205,7 +205,7 @@
     </view>
 
   <!-- 绑定手机号授权弹窗：账号菜单点「绑定手机号」后弹出（getPhoneNumber 必须是授权按钮，系统菜单放不下） -->
-  <bottom-sheet visible="{{showPhoneSheet}}" title="绑定手机号" subtitle="会员需绑定手机号，便于开通后核对" bind:close="closePhoneSheet">
+  <bottom-sheet visible="{{showPhoneSheet}}" title="绑定手机号" subtitle="会员需绑定手机号，便于开通后核对" safeAreaBottom="{{safeAreaBottom}}" bind:close="closePhoneSheet">
     <view class="account-body">
       <button class="sheet-btn primary" open-type="getPhoneNumber" bindgetphonenumber="onGetPhoneNumber">授权绑定手机号</button>
     </view>
