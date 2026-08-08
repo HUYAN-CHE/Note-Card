@@ -14,7 +14,7 @@
 - `title`：记事卡标题。
 - `desc`：需求描述 / 摘要。
 - `keyPoints`：重点 / 待确认事项，字符串数组。
-- `status`：当前状态，`draft`（草稿）、`todo`（待确认/待开始）、`doing`（进行中）、`done`（已完成）。
+- `status`：内部业务字段（确认流程用），`draft`（草稿）、`todo`（待确认/待开始）、`doing`（进行中）、`done`（历史遗留，新建不再产生）。注意：面向用户的展示状态自 2026-08-08 起统一为系统判定三态「未设提醒 / 提醒中 / 已过期」（无完成概念，不再使用本字段做展示）。
 - `creatorId`：创建者 openid，用于判断卡片归属和权限。
 - `helperIds`：协助者 openid 数组。
 - `isNetworkVisible`：是否对二度人脉可见，`true` / `false`。

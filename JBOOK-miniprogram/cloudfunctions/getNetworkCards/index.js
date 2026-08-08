@@ -13,14 +13,14 @@ function getCardDesc(card) {
   return '暂无描述';
 }
 
+// 二度访客视角：提醒中/未设提醒对未加入者无意义，只区分「已过期 / 进行中」（按截止日期判定）
 function getCardStatus(card) {
-  const map = {
-    draft: '待确认',
-    todo: '待确认',
-    doing: '进行中',
-    done: '已完成'
-  };
-  return map[card.status] || card.status || '进行中';
+  if (card.deadline) {
+    const now = new Date();
+    const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+    if (card.deadline < today) return '已过期';
+  }
+  return '进行中';
 }
 
 exports.main = async (event, context) => {
