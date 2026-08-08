@@ -29,7 +29,7 @@
       >
         <view class="message-btn" bindtap="onMessageTap" aria-label="消息中心">
           <image class="message-icon" src="/assets/icons/mail-white.svg" mode="aspectFit" />
-          <text class="message-text" wx:if="{{unreadCount > 0}}">{{unreadCount}}条未读</text>
+          <text class="message-text" wx:if="{{unreadCount > 0}}">{{unreadCount > 9 ? '多条未读' : unreadCount + '条未读'}}</text>
         </view>
         <view
           class="subscribe-btn {{subscribed ? 'subscribed' : ''}} {{!subscribed ? 'has-bell' : ''}}"
