@@ -15,13 +15,6 @@ function nowText() {
   return `${month}-${day} ${hour}:${minute}`;
 }
 
-const STATUS_TEXT = {
-  draft: '待确认',
-  todo: '待确认',
-  doing: '进行中',
-  done: '已完成'
-};
-
 // 读取操作者昵称头像快照，写入协作记录时免 join
 async function getActorProfile(openid) {
   try {
@@ -49,7 +42,8 @@ function buildFieldDetails(patch) {
   if (patch.desc !== undefined) details.push('更新了需求描述');
   if (patch.keyPoints !== undefined) details.push('更新了重点内容');
   if (patch.status !== undefined) {
-    details.push(`将状态改为 ${STATUS_TEXT[patch.status] || patch.status}`);
+    // 状态已不可选（展示层三态系统判定），仅记一条通用日志兼容旧版前端
+    details.push('更新了状态');
   }
   if (patch.deadline !== undefined) {
     details.push(patch.deadline ? `将截止日期改为 ${patch.deadline}` : '清除了截止日期');

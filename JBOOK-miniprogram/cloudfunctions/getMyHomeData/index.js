@@ -11,23 +11,6 @@ function getInitial(name) {
   return name.trim().charAt(0).toUpperCase();
 }
 
-function getStatusClass(status) {
-  if (status === 'done') return 'done';
-  if (status === 'todo') return 'todo';
-  if (status === 'draft') return 'todo';
-  return 'doing';
-}
-
-function getStatusText(status) {
-  const map = {
-    draft: '待确认',
-    todo: '待确认',
-    doing: '进行中',
-    done: '已完成'
-  };
-  return map[status] || status || '进行中';
-}
-
 exports.main = async (event, context) => {
   const wxContext = cloud.getWXContext();
   const openid = wxContext.OPENID;
@@ -64,11 +47,7 @@ exports.main = async (event, context) => {
       .limit(200)
       .get();
 
-    const allCards = (cardRes.data || []).map((card) => ({
-      ...card,
-      statusText: getStatusText(card.status),
-      statusClass: getStatusClass(card.status)
-    }));
+    const allCards = cardRes.data || [];
 
     const mineCards = allCards.filter((c) => c.creatorId === openid);
     const helpedCards = allCards.filter((c) => Array.isArray(c.helperIds) && c.helperIds.includes(openid));
