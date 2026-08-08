@@ -148,7 +148,7 @@
   <!-- 底部操作：主胶囊「邀请好友一起提醒」（样式与新建页统一），下方小字「保存为图片」 -->
   <view class="detail-footer" style="padding-bottom: calc(28rpx + {{safeAreaBottom}}px);" wx:if="{{role !== 'stranger' || isNetworkView || canAcceptInvite}}">
     <view class="footer-main" wx:if="{{isCreator || isHelper}}">
-      <button class="footer-btn primary wide" open-type="share" data-action="share" aria-label="邀请好友一起提醒"><image class="footer-icon" src="/assets/icons/share-white.svg" mode="aspectFit" />邀请好友一起提醒</button>
+      <button class="footer-btn primary wide" open-type="share" data-action="share" aria-label="提醒一下TA"><image class="footer-icon" src="/assets/icons/share-white.svg" mode="aspectFit" />提醒一下 TA</button>
       <view class="footer-text-link" bindtap="onSavePoster">保存为图片</view>
     </view>
     <!-- 网络访客（非创建者/协作人，且非邀请入口）：按自己的申请状态渲染底部按钮 -->

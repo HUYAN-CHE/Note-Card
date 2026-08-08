@@ -761,7 +761,7 @@ page {
   background: #eeeeee;
 }
 
-/* ==================== 底部操作（悬浮无底栏，实测高 112rpx） ==================== */
+/* ==================== 底部操作（悬浮无底栏，胶囊按钮 96rpx + 文字链接） ==================== */
 
 /* 底部渐变浮层：与 card-edit/互助页一致；z-40 在滚动内容上、按钮(.detail-footer z-50)下 */
 .bottom-fade {
@@ -795,7 +795,13 @@ page {
   gap: 20rpx;
 }
 
+/* 纵向容器内的按钮：flex 置 none，防止 flex-basis:0 在纵轴上塌掉高度 */
+.footer-main .footer-btn {
+  flex: none;
+}
+
 .footer-text-link {
+  padding: 8rpx 24rpx;
   font-size: 24rpx;
   color: #49854f;
   line-height: 1.4;
