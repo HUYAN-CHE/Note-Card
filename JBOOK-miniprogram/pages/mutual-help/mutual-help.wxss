@@ -82,16 +82,22 @@
   background: rgba(14, 73, 33, 0.32);
 }
 
+.message-icon-wrap {
+  position: relative;
+  width: 36rpx;
+  height: 36rpx;
+}
+
 .message-icon {
   width: 36rpx;
   height: 36rpx;
 }
 
-/* 未读角标：红色圆点数字，>99 显示 99+ */
+/* 未读角标：红色圆点数字，>99 显示 99+，贴在 icon 右上角 */
 .message-badge {
   position: absolute;
-  top: -8rpx;
-  right: -8rpx;
+  top: -10rpx;
+  right: -14rpx;
   min-width: 30rpx;
   height: 30rpx;
   padding: 0 8rpx;
