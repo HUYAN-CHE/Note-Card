@@ -28,7 +28,7 @@
         style="top: {{statusBarHeight + heroNavTop}}px; right: {{heroNavRight}}px; height: {{heroNavHeight}}px;"
       >
         <view class="message-btn" bindtap="onMessageTap" aria-label="消息中心">
-          <image class="message-icon" src="/assets/images/icon-chat.svg" mode="aspectFit" />
+          <image class="message-icon" src="/assets/icons/mail-white.svg" mode="aspectFit" />
           <view class="message-badge" wx:if="{{unreadCount > 0}}">{{unreadCount > 99 ? '99+' : unreadCount}}</view>
         </view>
         <view
