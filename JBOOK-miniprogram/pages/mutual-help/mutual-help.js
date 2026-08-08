@@ -34,7 +34,7 @@ Page({
     heroNavHeight: 32,
     heroNavRight: 96,
     subscribed: false,
-    unreadCount: 0,
+    unreadCount: 3, // TODO 演示假数据：联调时恢复为 0 并重新启用 onShow 的 loadUnreadCount
     contentScrollHeight: 500,
     selectedHelperId: '',
     helpers: [{ id: 'add', type: 'add', name: '添加', avatar: '' }],
@@ -177,7 +177,8 @@ Page({
   onShow() {
     this.loadMyProfile();
     this.loadSubscribeState();
-    this.loadUnreadCount();
+    // TODO 演示假数据期间暂停真实未读数拉取，联调时恢复
+    // this.loadUnreadCount();
   },
 
   // 消息中心未读角标：轻量调用，静默失败不提示
