@@ -84,11 +84,10 @@ exports.main = async (event) => {
     const isButton = !event.source || event.source === 'button';
     if (user) {
       const data = {
-        subscribeCount: _.inc(1)
+        subscribeCount: _.inc(1),
+        // 订阅动作本身即「我要提醒」：未显式传开关状态时同步开启，避免只订阅未开开关而收不到推送
+        reminderEnabled: hasReminderPref ? event.reminderEnabled : true
       };
-      if (hasReminderPref) {
-        data.reminderEnabled = event.reminderEnabled;
-      }
       if (isButton) {
         data.lastSubscribedAt = db.serverDate();
       }
@@ -99,7 +98,7 @@ exports.main = async (event) => {
       const data = {
         _openid: openid,
         subscribeCount: 1,
-        reminderEnabled: hasReminderPref ? event.reminderEnabled : false,
+        reminderEnabled: hasReminderPref ? event.reminderEnabled : true,
         createdAt: db.serverDate()
       };
       if (isButton) {
