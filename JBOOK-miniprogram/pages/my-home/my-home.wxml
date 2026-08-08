@@ -149,15 +149,15 @@
       </view>
       <view class="subtabs">
         <view
-          class="subtab {{activeTab === 'pending' ? 'on' : ''}}"
+          class="subtab {{activeTab === 'noRemind' ? 'on' : ''}}"
           bindtap="switchTab"
-          data-tab="pending"
-        >待确定 {{counts.pending}}</view>
+          data-tab="noRemind"
+        >未设提醒 {{counts.noRemind}}</view>
         <view
-          class="subtab {{activeTab === 'doing' ? 'on' : ''}}"
+          class="subtab {{activeTab === 'reminding' ? 'on' : ''}}"
           bindtap="switchTab"
-          data-tab="doing"
-        >进行中 {{counts.doing}}</view>
+          data-tab="reminding"
+        >提醒中 {{counts.reminding}}</view>
         <view
           class="subtab {{activeTab === 'expired' ? 'on' : ''}}"
           bindtap="switchTab"

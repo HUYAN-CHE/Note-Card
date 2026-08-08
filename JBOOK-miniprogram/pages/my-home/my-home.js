@@ -47,10 +47,10 @@ Page({
     candidateTags: [],
     tagInput: '',
     tagEditing: false,
-    activeTab: 'pending',
+    activeTab: 'noRemind',
     allCards: [],
     cards: [],
-    counts: { pending: 0, doing: 0, expired: 0, helped: 0 },
+    counts: { noRemind: 0, reminding: 0, expired: 0, helped: 0 },
     inspireTab: 'collecting',
     previewCards: [],
     exportedCards: [],
@@ -264,12 +264,13 @@ Page({
     return Array.isArray(card.helperIds) && card.helperIds.some((id) => myIds.includes(id));
   },
 
-  // 统计 4 个 tab 的数量（「已过期」按 deadline 判定，不再按 status 字段）
+  // 统计 4 个 tab 的数量（按展示三态分桶：未设提醒/提醒中/已过期，不再读 status 字段）
   computeCounts(allCards, myIds) {
     const mine = allCards.filter((c) => this.isMine(c, myIds));
+    const notExpired = mine.filter((c) => !isExpired(c));
     return {
-      pending: mine.filter((c) => c.status === 'draft' || c.status === 'todo').length,
-      doing: mine.filter((c) => c.status === 'doing').length,
+      noRemind: notExpired.filter(() => !this.reminderOn).length,
+      reminding: notExpired.filter(() => this.reminderOn).length,
       expired: mine.filter((c) => isExpired(c)).length,
       helped: allCards.filter((c) => this.isHelped(c, myIds)).length
     };
@@ -295,12 +296,12 @@ Page({
     let filtered = [];
     let emptyText = '还没有记事卡';
 
-    if (activeTab === 'pending') {
-      filtered = allCards.filter((c) => this.isMine(c, myIds) && (c.status === 'draft' || c.status === 'todo'));
-      emptyText = '还没有待确定的记事卡';
-    } else if (activeTab === 'doing') {
-      filtered = allCards.filter((c) => this.isMine(c, myIds) && c.status === 'doing');
-      emptyText = '还没有进行中的记事卡';
+    if (activeTab === 'noRemind') {
+      filtered = allCards.filter((c) => this.isMine(c, myIds) && !isExpired(c) && !this.reminderOn);
+      emptyText = '都订阅提醒了，没有未设提醒的记事卡';
+    } else if (activeTab === 'reminding') {
+      filtered = allCards.filter((c) => this.isMine(c, myIds) && !isExpired(c) && this.reminderOn);
+      emptyText = '还没有提醒中的记事卡';
     } else if (activeTab === 'expired') {
       filtered = allCards.filter((c) => this.isMine(c, myIds) && isExpired(c));
       emptyText = '还没有已过期的记事卡';
