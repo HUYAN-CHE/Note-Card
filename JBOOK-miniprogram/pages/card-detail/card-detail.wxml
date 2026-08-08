@@ -35,12 +35,11 @@
       <!-- 品牌行下撕裂虚线（票根上缺口） -->
       <view class="dev dev-top g-tearline g-tearline-top"></view>
 
-      <!-- 标题 + 状态选择（点标题区编辑标题/重点；右侧胶囊点选进度，catchtap 防冒泡触发编辑） -->
+      <!-- 标题 + 状态胶囊（点标题区编辑标题/重点；右侧胶囊点开状态说明，catchtap 防冒泡触发编辑） -->
       <view class="dev dev-1 g-head {{canEditStatus ? 'can-edit' : ''}}" bindtap="openEditSheet">
         <text class="g-title">{{displayTitle}}</text>
-        <view class="g-progress-pill {{canEditStatus ? 'can-pick' : ''}}" catchtap="onStatusTap">
+        <view class="g-progress-pill {{statusClass}}" catchtap="onStatusTap">
           <text>{{statusText}}</text>
-          <text class="g-progress-arrow" wx:if="{{canEditStatus}}">▾</text>
         </view>
       </view>
 
@@ -176,6 +175,22 @@
       <view class="sheet-actions">
         <button class="sheet-btn ghost" bindtap="closeApplySheet">取消</button>
         <button class="sheet-btn primary" bindtap="submitApply">提交申请</button>
+      </view>
+    </view>
+  </bottom-sheet>
+
+  <!-- 状态说明 Sheet -->
+  <bottom-sheet visible="{{showStatusSheet}}" title="状态说明" safeAreaBottom="{{safeAreaBottom}}" bind:close="closeStatusSheet">
+    <view class="status-sheet-body">
+      <view class="status-sheet-current">
+        <text>当前状态</text>
+        <text class="status-sheet-badge {{statusClass}}">{{statusText}}</text>
+      </view>
+      <text class="status-sheet-text">{{statusExplainText}}</text>
+      <text class="status-sheet-rule">多人协作时，谁订阅就提醒谁：有人没订阅不影响进程，已订阅的人照常收到提醒；过期状态也对所有人照常生效。</text>
+      <view class="sheet-actions">
+        <button wx:if="{{statusClass === 'no-remind'}}" class="sheet-btn primary" bindtap="subscribeFromStatusSheet">订阅提醒</button>
+        <button wx:else class="sheet-btn primary" bindtap="closeStatusSheet">知道了</button>
       </view>
     </view>
   </bottom-sheet>

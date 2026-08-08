@@ -159,10 +159,10 @@
           data-tab="doing"
         >进行中 {{counts.doing}}</view>
         <view
-          class="subtab {{activeTab === 'done' ? 'on' : ''}}"
+          class="subtab {{activeTab === 'expired' ? 'on' : ''}}"
           bindtap="switchTab"
-          data-tab="done"
-        >已完成 {{counts.done}}</view>
+          data-tab="expired"
+        >已过期 {{counts.expired}}</view>
         <view
           class="subtab {{activeTab === 'helped' ? 'on' : ''}}"
           bindtap="switchTab"

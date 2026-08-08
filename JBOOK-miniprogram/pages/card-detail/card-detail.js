@@ -2,15 +2,9 @@ const store = require('../../utils/store.js');
 const { getNavInfo } = require('../../utils/ui');
 const { collections } = require('../../config/env');
 const { uploadAvatar } = require('../../utils/upload-avatar');
+const { requestSubscribeCredit } = require('../../utils/subscribe');
 
 const USER_PROFILE_KEY = 'JISHIKA_USER_PROFILE';
-
-const STATUS_MAP = {
-  draft: { text: '待确认', class: 'todo' },
-  todo: { text: '待确认', class: 'todo' },
-  doing: { text: '进行中', class: 'doing' },
-  done: { text: '已完成', class: 'done' }
-};
 
 function cleanNickname(name) {
   if (!name || String(name).trim() === '我') return '';
@@ -22,12 +16,19 @@ function getInitial(name) {
   return String(name).trim().charAt(0).toUpperCase();
 }
 
-// 截止日期早于今天且未完成时视为已逾期
+// 截止日期早于今天即视为已过期（对所有卡生效，不再按 status 豁免）
 function checkOverdue(card) {
-  if (!card || !card.deadline || card.status === 'done') return false;
+  if (!card || !card.deadline) return false;
   const now = new Date();
   const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
   return card.deadline < today;
+}
+
+// 状态为系统判定三态，用户不可选择：已过期 > 提醒中 > 未设提醒
+function computeStatusView(card, reminderOn) {
+  if (checkOverdue(card)) return { text: '已过期', class: 'expired' };
+  if (reminderOn) return { text: '提醒中', class: 'reminding' };
+  return { text: '未设提醒', class: 'no-remind' };
 }
 
 // 从小程序码 scene 参数中解析短码（格式 r=XXXXXX）
@@ -54,8 +55,11 @@ Page({
     creator: { nickname: '', avatar: '', initial: '', relationText: '创立者' },
     helpers: [],
     keyPoints: [],
-    statusClass: 'doing',
-    statusText: '进行中',
+    statusClass: 'no-remind',
+    statusText: '未设提醒',
+    reminderOn: false,
+    showStatusSheet: false,
+    statusExplainText: '',
     isOverdue: false,
     role: 'stranger',
     isCreator: false,
@@ -147,6 +151,11 @@ Page({
     }
   },
 
+  onShow() {
+    // 回到详情页时刷新订阅状态（可能在其他页面订阅过）
+    this.loadReminderState();
+  },
+
   async loadCard(id) {
     this.setData({ loading: true });
 
@@ -171,7 +180,38 @@ Page({
       wx.showToast({ title: '加载失败', icon: 'none' });
     } finally {
       this.setData({ loading: false });
+      // 订阅状态返回后重算状态三态（先按默认未订阅渲染）
+      this.loadReminderState();
     }
+  },
+
+  // 查询当前用户订阅状态：reminderEnabled && count > 0 才视为「提醒中」（与推送条件一致）
+  async loadReminderState() {
+    const app = getApp();
+    if (!app.globalData || !app.globalData.cloudReady || !wx.cloud) return;
+    try {
+      const res = await wx.cloud.callFunction({
+        name: 'subscribeReminder',
+        data: { action: 'get' }
+      });
+      if (res.result && res.result.code === 0 && res.result.data) {
+        const d = res.result.data;
+        this.setData({ reminderOn: !!(d.reminderEnabled && d.count > 0) });
+        this.applyStatusView();
+      }
+    } catch (e) {}
+  },
+
+  // 用当前卡片与订阅状态重算状态三态（过期判定对所有卡生效，不豁免 done）
+  applyStatusView() {
+    const card = this.data.card;
+    if (!card || !card.id) return;
+    const statusView = computeStatusView(card, this.data.reminderOn);
+    this.setData({
+      statusClass: statusView.class,
+      statusText: statusView.text,
+      isOverdue: checkOverdue(card)
+    });
   },
 
   // 通过 Agent 短码进入：先解析出卡片 ID，再走正常加载（含云端权限判定）
@@ -221,7 +261,7 @@ Page({
     const inviteEntry = this.inviteEntry === true;
     const showApplyArea = isNetworkView && !inviteEntry;
 
-    const statusInfo = STATUS_MAP[data.status] || { text: data.status || '进行中', class: 'doing' };
+    const statusView = computeStatusView(data, this.data.reminderOn);
     const keyPoints = Array.isArray(data.keyPoints) ? data.keyPoints : [];
     const creator = data.creator || this.data.creator;
     const helpers = data.helpers || [];
@@ -237,8 +277,8 @@ Page({
       showAvatarMore: avatarGroup.showAvatarMore,
       allCollaborators: this.buildAllCollaborators(creator, helpers),
       keyPoints,
-      statusClass: statusInfo.class,
-      statusText: statusInfo.text,
+      statusClass: statusView.class,
+      statusText: statusView.text,
       isOverdue: checkOverdue(data),
       role,
       isCreator,
@@ -274,7 +314,7 @@ Page({
     const creator = this.normalizeUser(card.creatorId || card.creator || '未知用户');
     const helpers = (card.helperIds || card.helpers || []).map((h) => this.normalizeUser(h));
     const keyPoints = Array.isArray(card.keyPoints) ? card.keyPoints : [];
-    const statusInfo = STATUS_MAP[card.status] || { text: card.status || '进行中', class: 'doing' };
+    const statusView = computeStatusView(card, this.data.reminderOn);
 
     const openid = this.getCurrentOpenid();
     const isCreator = card.creatorId === openid;
@@ -289,8 +329,8 @@ Page({
       showAvatarMore: avatarGroup.showAvatarMore,
       allCollaborators: this.buildAllCollaborators(creator, helpers),
       keyPoints,
-      statusClass: statusInfo.class,
-      statusText: statusInfo.text,
+      statusClass: statusView.class,
+      statusText: statusView.text,
       isOverdue: checkOverdue(card),
       role: isCreator ? 'creator' : (isHelper ? 'helper' : 'stranger'),
       isCreator,
@@ -781,46 +821,33 @@ Page({
     }
   },
 
-  // 点击状态胶囊，选择新状态（仅创立者 / 共同行动人）
+  // 状态由系统判定（已过期 / 提醒中 / 未设提醒），点击胶囊打开状态说明弹窗
   onStatusTap() {
-    if (!this.data.canEditStatus) return;
-    const labels = ['待确认', '进行中', '已完成'];
-    const values = ['todo', 'doing', 'done'];
-    wx.showActionSheet({
-      itemList: labels,
-      success: (res) => {
-        const status = values[res.tapIndex];
-        if (status) this.setCardStatus(status);
-      }
-    });
+    const { statusClass, reminderOn } = this.data;
+    let statusExplainText;
+    if (statusClass === 'expired') {
+      statusExplainText = '这张卡已经过了截止日期。';
+    } else if (reminderOn) {
+      statusExplainText = '你已订阅提醒，截止日前一天会微信提醒你。';
+    } else {
+      statusExplainText = '你还没有订阅提醒。订阅后，截止日前一天会微信提醒你。';
+    }
+    this.setData({ showStatusSheet: true, statusExplainText });
   },
 
-  async setCardStatus(status) {
-    const { cardId } = this.data;
-    if (!cardId) return;
+  closeStatusSheet() {
+    this.setData({ showStatusSheet: false });
+  },
 
-    try {
-      const app = getApp();
-      if (app.globalData && app.globalData.cloudReady && wx.cloud) {
-        const res = await wx.cloud.callFunction({
-          name: 'updateCard',
-          data: { id: cardId, patch: { status } }
-        });
-
-        if (res.result && res.result.code === 0) {
-          wx.showToast({ title: '状态已更新', icon: 'success' });
-          this.loadCard(cardId);
-        } else {
-          wx.showToast({ title: (res.result && res.result.message) || '操作失败', icon: 'none' });
-        }
-        return;
-      }
-
-      await store.updateCard(cardId, { status });
-      wx.showToast({ title: '状态已更新', icon: 'success' });
-      this.loadCard(cardId);
-    } catch (e) {
-      wx.showToast({ title: '操作失败', icon: 'none' });
+  // 「未设提醒」时弹窗内订阅：成功后刷新状态、关弹窗并提示
+  async subscribeFromStatusSheet() {
+    const data = await requestSubscribeCredit({ source: 'button' });
+    if (data) {
+      this.setData({ showStatusSheet: false });
+      wx.showToast({ title: '已订阅', icon: 'success' });
+      this.loadReminderState();
+    } else {
+      wx.showToast({ title: '未订阅，可随时在状态说明里订阅', icon: 'none' });
     }
   },
 

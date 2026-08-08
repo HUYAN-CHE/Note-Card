@@ -477,7 +477,7 @@ page {
   color: #e53935;
 }
 
-/* 进度选择胶囊：白底浅绿描边，统一绿色 */
+/* 进度选择胶囊：白底浅绿描边，默认绿色（提醒中） */
 .g-progress-pill {
   display: flex;
   align-items: center;
@@ -495,8 +495,15 @@ page {
   color: #49854f;
 }
 
-.g-progress-pill.can-pick {
-  box-shadow: 0 2rpx 8rpx rgba(46, 125, 78, 0.1);
+/* 状态三态配色：提醒中绿（默认）/ 未设提醒琥珀 / 已过期红 */
+.g-progress-pill.no-remind {
+  color: #b26a00;
+  border-color: #f0dfae;
+}
+
+.g-progress-pill.expired {
+  color: #e53935;
+  border-color: #f3c2c0;
 }
 
 /* 标题行内的进度胶囊：贴右、不被标题挤压 */
@@ -505,8 +512,52 @@ page {
   margin-left: 16rpx;
 }
 
-.g-progress-arrow {
+/* 状态说明 Sheet */
+.status-sheet-body {
+  padding-top: 8rpx;
+}
+
+.status-sheet-current {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
   font-size: 28rpx;
+  color: #3d4a40;
+  margin-bottom: 16rpx;
+}
+
+.status-sheet-badge {
+  padding: 6rpx 20rpx;
+  border-radius: 999rpx;
+  font-size: 24rpx;
+  font-weight: 600;
+  color: #49854f;
+  background: #eef6ef;
+}
+
+.status-sheet-badge.no-remind {
+  color: #b26a00;
+  background: #fdf6e3;
+}
+
+.status-sheet-badge.expired {
+  color: #e53935;
+  background: #fdecea;
+}
+
+.status-sheet-text {
+  display: block;
+  font-size: 28rpx;
+  color: #3d4a40;
+  line-height: 44rpx;
+  margin-bottom: 16rpx;
+}
+
+.status-sheet-rule {
+  display: block;
+  font-size: 26rpx;
+  color: #7a857c;
+  line-height: 40rpx;
 }
 
 /* 撕裂虚线（票根）：虚线中心与 mask 孔中心严格对齐；两端超出卡内 padding 直到卡边 */

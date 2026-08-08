@@ -9,19 +9,19 @@ const { listInspireCards, splitInspireColumns } = require('../../services/inspir
 const USER_PROFILE_KEY = 'JISHIKA_USER_PROFILE';
 const SHOW_DEMO_CARDS = false;
 
-const STATUS_TEXT = {
-  draft: '待确认',
-  todo: '待确认',
-  doing: '进行中',
-  done: '已完成'
-};
+// 状态为系统判定三态（已过期/提醒中/未设提醒）：deadline 早于今天即过期，不再按 status 豁免
+function isExpired(card) {
+  if (!card || !card.deadline) return false;
+  const now = new Date();
+  const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+  return card.deadline < today;
+}
 
-const STATUS_CLASSES = {
-  draft: 'status-pending',
-  todo: 'status-pending',
-  doing: 'status-doing',
-  done: 'status-done'
-};
+function cardStatusView(card, reminderOn) {
+  if (isExpired(card)) return { text: '已过期', class: 'status-expired' };
+  if (reminderOn) return { text: '提醒中', class: 'status-reminding' };
+  return { text: '未设提醒', class: 'status-no-remind' };
+}
 
 const WEEK_LABELS = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
 
@@ -64,6 +64,7 @@ Page({
   },
 
   onLoad() {
+    this.reminderOn = false;
     this.updateSystemInfo();
     this.updateCalendar();
   },
@@ -401,14 +402,17 @@ Page({
         return updated >= startDate && updated <= endDate;
       });
 
-      const decoratedCards = filteredCards.slice(0, 6).map((card) => ({
-        ...card,
-        icon: resolveThemeIcon(card),
-        displayTitle: this.truncateTitle(card.title),
-        statusText: STATUS_TEXT[card.status] || '待确认',
-        statusClass: STATUS_CLASSES[card.status] || 'status-pending',
-        deadlineText: this.formatDeadline(card)
-      }));
+      const decoratedCards = filteredCards.slice(0, 6).map((card) => {
+        const statusView = cardStatusView(card, this.reminderOn);
+        return {
+          ...card,
+          icon: resolveThemeIcon(card),
+          displayTitle: this.truncateTitle(card.title),
+          statusText: statusView.text,
+          statusClass: statusView.class,
+          deadlineText: this.formatDeadline(card)
+        };
+      });
 
       this.setData({
         cards: decoratedCards,
@@ -490,7 +494,18 @@ Page({
         data: { action: 'get' }
       });
       if (res.result && res.result.code === 0 && res.result.data) {
-        this.setData({ reminderEnabled: !!res.result.data.reminderEnabled });
+        const d = res.result.data;
+        this.setData({ reminderEnabled: !!d.reminderEnabled });
+        // 列表状态三态依赖订阅状态：返回后重算已渲染卡片（reminderEnabled && count>0 才算「提醒中」）
+        this.reminderOn = !!(d.reminderEnabled && d.count > 0);
+        if (this.data.cards.length) {
+          this.setData({
+            cards: this.data.cards.map((card) => {
+              const statusView = cardStatusView(card, this.reminderOn);
+              return { ...card, statusText: statusView.text, statusClass: statusView.class };
+            })
+          });
+        }
       }
     } catch (e) {}
   },

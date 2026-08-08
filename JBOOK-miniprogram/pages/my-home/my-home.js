@@ -7,19 +7,19 @@ const { listInspireCards } = require('../../services/inspire-cards');
 const DEFAULT_CANDIDATE_TAGS = ['法律咨询', '财务规划', '职业规划', '心理咨询', '编程开发', '设计创意', '文案写作', '摄影摄像', '健身指导', '家庭教育', '房产顾问', '留学移民'];
 const AUTH_PROFILE_KEY = 'JISHIKA_USER_PROFILE';
 
-const STATUS_TEXT = {
-  draft: '待确认',
-  todo: '待确认',
-  doing: '进行中',
-  done: '已完成'
-};
+// 状态为系统判定三态（已过期/提醒中/未设提醒）：deadline 早于今天即过期，不再按 status 豁免
+function isExpired(card) {
+  if (!card || !card.deadline) return false;
+  const now = new Date();
+  const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+  return card.deadline < today;
+}
 
-const STATUS_CLASSES = {
-  draft: 'status-pending',
-  todo: 'status-pending',
-  doing: 'status-doing',
-  done: 'status-done'
-};
+function cardStatusView(card, reminderOn) {
+  if (isExpired(card)) return { text: '已过期', class: 'status-expired' };
+  if (reminderOn) return { text: '提醒中', class: 'status-reminding' };
+  return { text: '未设提醒', class: 'status-no-remind' };
+}
 
 function cleanNickname(name) {
   if (!name || String(name).trim() === '我') return '';
@@ -50,7 +50,7 @@ Page({
     activeTab: 'pending',
     allCards: [],
     cards: [],
-    counts: { pending: 0, doing: 0, done: 0, helped: 0 },
+    counts: { pending: 0, doing: 0, expired: 0, helped: 0 },
     inspireTab: 'collecting',
     previewCards: [],
     exportedCards: [],
@@ -69,6 +69,7 @@ Page({
   },
 
   onLoad() {
+    this.reminderOn = false;
     const navInfo = getNavInfo();
     this.setData({
       statusBarHeight: navInfo.statusBarHeight,
@@ -84,6 +85,24 @@ Page({
     this.loadInspireCards();
     this.loadMembershipStatus();
     this.checkAdmin();
+    this.loadSubscribeState();
+  },
+
+  // 订阅状态是用户级（全列表共用）：reminderEnabled && count>0 才算「提醒中」，返回后重刷列表状态
+  async loadSubscribeState() {
+    const app = getApp();
+    if (!app.globalData || !app.globalData.cloudReady || !wx.cloud) return;
+    try {
+      const res = await wx.cloud.callFunction({
+        name: 'subscribeReminder',
+        data: { action: 'get' }
+      });
+      if (res.result && res.result.code === 0 && res.result.data) {
+        const d = res.result.data;
+        this.reminderOn = !!(d.reminderEnabled && d.count > 0);
+        this.refreshCards();
+      }
+    } catch (e) {}
   },
 
   // 管理员标识：决定右上角菜单是否出现「会员管理」入口
@@ -245,26 +264,27 @@ Page({
     return Array.isArray(card.helperIds) && card.helperIds.some((id) => myIds.includes(id));
   },
 
-  // 统计 4 个 tab 的数量
+  // 统计 4 个 tab 的数量（「已过期」按 deadline 判定，不再按 status 字段）
   computeCounts(allCards, myIds) {
     const mine = allCards.filter((c) => this.isMine(c, myIds));
     return {
       pending: mine.filter((c) => c.status === 'draft' || c.status === 'todo').length,
       doing: mine.filter((c) => c.status === 'doing').length,
-      done: mine.filter((c) => c.status === 'done').length,
+      expired: mine.filter((c) => isExpired(c)).length,
       helped: allCards.filter((c) => this.isHelped(c, myIds)).length
     };
   },
 
-  // 与首页一致的卡片展示字段
+  // 与首页一致的卡片展示字段（状态三态：已过期/提醒中/未设提醒）
   decorateCard(card) {
     const title = (card.title || '').trim() || '未命名事项';
+    const statusView = cardStatusView(card, this.reminderOn);
     return {
       ...card,
       icon: resolveThemeIcon(card),
       displayTitle: title.length > 10 ? title.slice(0, 10) + '…' : title,
-      statusText: STATUS_TEXT[card.status] || '待确认',
-      statusClass: STATUS_CLASSES[card.status] || 'status-pending',
+      statusText: statusView.text,
+      statusClass: statusView.class,
       deadlineText: card.deadline || '未设置'
     };
   },
@@ -281,9 +301,9 @@ Page({
     } else if (activeTab === 'doing') {
       filtered = allCards.filter((c) => this.isMine(c, myIds) && c.status === 'doing');
       emptyText = '还没有进行中的记事卡';
-    } else if (activeTab === 'done') {
-      filtered = allCards.filter((c) => this.isMine(c, myIds) && c.status === 'done');
-      emptyText = '还没有已完成的记事卡';
+    } else if (activeTab === 'expired') {
+      filtered = allCards.filter((c) => this.isMine(c, myIds) && isExpired(c));
+      emptyText = '还没有已过期的记事卡';
     } else if (activeTab === 'helped') {
       filtered = allCards.filter((c) => this.isHelped(c, myIds));
       emptyText = '还没有协助过别人的记事卡';

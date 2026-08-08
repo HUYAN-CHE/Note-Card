@@ -160,13 +160,32 @@
   color: #68706a;
 }
 
-.status-done {
+/* 列表状态三态配色：提醒中绿 / 未设提醒琥珀 / 已过期红 */
+.status-reminding {
   background: #dcfce7;
   border-color: transparent;
 }
 
-.status-done .status-text {
+.status-reminding .status-text {
   color: #16a34a;
+}
+
+.status-no-remind {
+  background: #fdf3d7;
+  border-color: transparent;
+}
+
+.status-no-remind .status-text {
+  color: #b26a00;
+}
+
+.status-expired {
+  background: #fdecea;
+  border-color: transparent;
+}
+
+.status-expired .status-text {
+  color: #e53935;
 }
 
 /* 授权弹窗 */
