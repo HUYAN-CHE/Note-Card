@@ -45,8 +45,14 @@
           <text class="step-text">开通成功，回到小程序即可使用全部权益</text>
         </view>
 
+        <!-- 未绑定手机号：先引导绑定（开通后核对身份用），绑定成功才露出添加助手入口；loading 期间不显示避免闪跳 -->
+        <view class="qrcode-card" wx:if="{{!loading && !hasPhone}}">
+          <button class="vip-btn phone-bind-btn" open-type="getPhoneNumber" bindgetphonenumber="onGetPhoneNumber">绑定手机号</button>
+          <text class="qrcode-tip">会员需绑定手机号，便于开通后核对</text>
+        </view>
+
         <!-- 添加 AI 助手：自定义绿色按钮 + 透明插件按钮覆盖（点击走企微「联系我」插件能力） -->
-        <view class="qrcode-card">
+        <view class="qrcode-card" wx:else>
           <view class="vip-btn-wrap">
             <view class="vip-btn">添加 AI 助手</view>
             <contactCell class="contact-mask" plugid="0a45e709f9fca07a8ac292708f7000a1" bind:startmessage="onContactStart" bind:completemessage="onContactComplete" />

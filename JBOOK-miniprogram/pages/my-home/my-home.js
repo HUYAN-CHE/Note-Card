@@ -69,6 +69,8 @@ Page({
     memberStatus: 'none',
     memberExpireText: '',
     memberDaysLeft: 0,
+    // 已绑定手机号的脱敏展示（如 138****5678），空串 = 未绑定
+    phoneMasked: '',
     // 管理员标识：true 时右上角菜单出现「会员管理」入口
     isAdmin: false,
     loading: false,
@@ -104,7 +106,7 @@ Page({
       .catch(() => {});
   },
 
-  // 会员状态：驱动会员卡 banner 文案（未开通/有效期中/已过期）
+  // 会员状态：驱动会员卡 banner 文案（未开通/有效期中/已过期）；附带手机号绑定状态
   loadMembershipStatus() {
     if (!wx.cloud) return;
     wx.cloud.callFunction({ name: 'membership', data: { action: 'getStatus' } })
@@ -113,10 +115,37 @@ Page({
         this.setData({
           memberStatus: d.status || 'none',
           memberDaysLeft: d.daysLeft || 0,
-          memberExpireText: d.expireAt ? this.formatMemberDate(d.expireAt) : ''
+          memberExpireText: d.expireAt ? this.formatMemberDate(d.expireAt) : '',
+          phoneMasked: d.phoneMasked || ''
         });
       })
       .catch((e) => console.warn('loadMembershipStatus error', e));
+  },
+
+  // 绑定/换绑手机号：getPhoneNumber 组件回调，code 换号走云函数
+  onGetPhoneNumber(e) {
+    const detail = (e && e.detail) || {};
+    if (!detail.code) {
+      // 用户拒绝授权：轻提示，不打断
+      if (detail.errMsg && detail.errMsg.indexOf('deny') !== -1) {
+        wx.showToast({ title: '未授权，无法绑定', icon: 'none' });
+      }
+      return;
+    }
+    wx.cloud.callFunction({ name: 'membership', data: { action: 'bindPhone', code: detail.code } })
+      .then((res) => {
+        const r = res.result || {};
+        if (r.code === 0 && r.data) {
+          this.setData({ phoneMasked: r.data.phoneMasked || '' });
+          wx.showToast({ title: '已绑定', icon: 'success' });
+        } else {
+          wx.showToast({ title: r.message || '绑定失败，请重试', icon: 'none' });
+        }
+      })
+      .catch((err) => {
+        console.warn('bindPhone error', err);
+        wx.showToast({ title: '绑定失败，请重试', icon: 'none' });
+      });
   },
 
   formatMemberDate(ts) {

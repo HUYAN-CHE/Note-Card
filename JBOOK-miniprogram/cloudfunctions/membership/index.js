@@ -1,5 +1,6 @@
-// 会员云函数：getStatus 查询当前用户会员状态 / grant 管理员手动开通或续期
+// 会员云函数：getStatus 查询当前用户会员状态 / grant 管理员手动开通或续期 / bindPhone 绑定手机号
 // 数据模型：users.membership = { plan: 'yearly', status: 'active'|'expired', expireAt: 时间戳, updatedAt }
+// 手机号：users.phoneNumber 存明文（仅云函数读写），getStatus 只回脱敏版 phoneMasked
 // 开通记录：membershipOrders = { targetOpenid, days, plan, remark, operatorOpenid, createdAt }
 // MVP 阶段支付走企微「对外收款」（人工），收款后管理员用 grant 开通；支付自动化后接同一模型
 const cloud = require('wx-server-sdk');
@@ -37,6 +38,13 @@ function formatDateText(ts) {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 }
 
+// 手机号脱敏：前 3 后 4，中间 ****（明文只存库，不回传前端）
+function maskPhone(phone) {
+  const p = String(phone || '');
+  if (p.length < 7) return p;
+  return p.slice(0, 3) + '****' + p.slice(-4);
+}
+
 // 管理员判定：查 admins 集合（该集合权限应为「所有用户不可读写」，仅服务端/控制台可写，
 // 防止用户在小程序端篡改自己的 users 记录自封管理员）
 async function isAdmin(openid) {
@@ -64,6 +72,8 @@ exports.main = async (event, context) => {
         return await getStatus(openid);
       case 'grant':
         return await grant(openid, event);
+      case 'bindPhone':
+        return await bindPhone(openid, event);
       case 'checkAdmin':
         return { code: 0, data: { isAdmin: await isAdmin(openid) } };
       case 'listUsers':
@@ -78,12 +88,18 @@ exports.main = async (event, context) => {
 };
 
 // 查询会员状态：无记录 none / 有效期内 active / 已过期 expired
+// 附带手机号绑定状态：hasPhone + 脱敏 phoneMasked（不回传明文）
 async function getStatus(openid) {
   const res = await db.collection(USERS).where({ _openid: openid }).limit(1).get();
-  const m = res.data && res.data[0] && res.data[0].membership;
+  const user = res.data && res.data[0];
+  const m = user && user.membership;
+  const phone = {
+    hasPhone: !!(user && user.phoneNumber),
+    phoneMasked: user && user.phoneNumber ? maskPhone(user.phoneNumber) : ''
+  };
 
   if (!m || !m.expireAt) {
-    return { code: 0, data: { isMember: false, status: 'none' } };
+    return { code: 0, data: { isMember: false, status: 'none', ...phone } };
   }
 
   const now = Date.now();
@@ -95,12 +111,49 @@ async function getStatus(openid) {
         status: 'active',
         plan: m.plan || 'yearly',
         expireAt: m.expireAt,
-        daysLeft: Math.ceil((m.expireAt - now) / 86400000)
+        daysLeft: Math.ceil((m.expireAt - now) / 86400000),
+        ...phone
       }
     };
   }
 
-  return { code: 0, data: { isMember: false, status: 'expired', expireAt: m.expireAt } };
+  return { code: 0, data: { isMember: false, status: 'expired', expireAt: m.expireAt, ...phone } };
+}
+
+// 绑定/换绑手机号：入参 code 来自前端 getPhoneNumber 组件回调，
+// 用 openapi 换真实号码写入 users.phoneNumber，返回脱敏版
+async function bindPhone(openid, event) {
+  const code = (event.code || '').trim();
+  if (!code) {
+    return { code: -1, message: '缺少 code 参数' };
+  }
+
+  let phoneNumber = '';
+  try {
+    const res = await cloud.openapi.phonenumber.getPhoneNumber({ code });
+    phoneNumber = res && res.phoneInfo && res.phoneInfo.phoneNumber;
+  } catch (err) {
+    console.error('[bindPhone] 手机号换取失败', err);
+    return { code: -1, message: '手机号换取失败，请重试' };
+  }
+  if (!phoneNumber) {
+    return { code: -1, message: '未获取到手机号' };
+  }
+
+  const now = Date.now();
+  const res = await db.collection(USERS).where({ _openid: openid }).limit(1).get();
+  const doc = res.data && res.data[0];
+  if (doc) {
+    await db.collection(USERS).doc(doc._id).update({ data: { phoneNumber, updatedAt: now } });
+  } else {
+    // 云函数端 add 不会自动填充 _openid（仅小程序端会），必须显式写入，
+    // 否则产生 _openid 为空的脏记录，且后续 where({_openid}) 查不到会重复 add
+    await db.collection(USERS).add({
+      data: { _openid: openid, phoneNumber, createdAt: now, updatedAt: now }
+    });
+  }
+
+  return { code: 0, data: { phoneMasked: maskPhone(phoneNumber) } };
 }
 
 // 管理员手动开通/续期：targetOpenid 为目标用户，days 为有效天数

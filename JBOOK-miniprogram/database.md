@@ -41,6 +41,7 @@
 - `lastSubscribedAt`：最近一次手动订阅时间戳；互助页订阅胶囊据此按天显示「已订阅」（仅当天授权过才显示，引导每天补额度）。
 - `initial`：无头像时的首字占位。
 - `color`：无头像时的背景色。
+- `phoneNumber`：手机号，微信手机号快速验证组件绑定后由 `membership` 云函数写入（用于会员开通后核对身份）；`getStatus` 只返回脱敏版 `phoneMasked`（前 3 后 4，中间 `****`），不回传明文。
 - `createdAt`：创建时间。
 - `updatedAt`：更新时间。
 

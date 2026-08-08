@@ -19,6 +19,8 @@ Page({
     status: 'none',
     expireAtText: '',
     daysLeft: 0,
+    // 是否已绑定手机号：未绑定时开通入口替换为绑定引导
+    hasPhone: false,
     benefits: BENEFITS
   },
 
@@ -43,12 +45,39 @@ Page({
           loading: false,
           status: d.status || 'none',
           daysLeft: d.daysLeft || 0,
-          expireAtText: d.expireAt ? this.formatDate(d.expireAt) : ''
+          expireAtText: d.expireAt ? this.formatDate(d.expireAt) : '',
+          hasPhone: !!d.hasPhone
         });
       })
       .catch((e) => {
         console.warn('loadStatus error', e);
         this.setData({ loading: false });
+      });
+  },
+
+  // 绑定手机号：getPhoneNumber 组件回调，成功后露出「添加 AI 助手」开通入口
+  onGetPhoneNumber(e) {
+    const detail = (e && e.detail) || {};
+    if (!detail.code) {
+      // 用户拒绝授权：轻提示，不打断
+      if (detail.errMsg && detail.errMsg.indexOf('deny') !== -1) {
+        wx.showToast({ title: '未授权，无法绑定', icon: 'none' });
+      }
+      return;
+    }
+    wx.cloud.callFunction({ name: 'membership', data: { action: 'bindPhone', code: detail.code } })
+      .then((res) => {
+        const r = res.result || {};
+        if (r.code === 0) {
+          this.setData({ hasPhone: true });
+          wx.showToast({ title: '已绑定', icon: 'success' });
+        } else {
+          wx.showToast({ title: r.message || '绑定失败，请重试', icon: 'none' });
+        }
+      })
+      .catch((err) => {
+        console.warn('bindPhone error', err);
+        wx.showToast({ title: '绑定失败，请重试', icon: 'none' });
       });
   },
 

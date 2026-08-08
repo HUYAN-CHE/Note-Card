@@ -8,8 +8,14 @@
   <view class="user-area" style="padding-top: {{heroPaddingTop}}px;">
       <view class="user-row">
         <text class="nickname">{{user.nickname || '点击授权'}}</text>
-        <view class="user-arrow" bindtap="onLogoutTap" aria-label="退出登录">
-          <image class="user-arrow-icon" src="/assets/icons/logout-green.svg" mode="aspectFit" />
+        <view class="user-actions">
+          <!-- 绑定/换绑手机号：未绑定显示引导文案，已绑定显示脱敏号码（点击可换绑） -->
+          <button class="phone-bind-btn" open-type="getPhoneNumber" bindgetphonenumber="onGetPhoneNumber">
+            {{phoneMasked || '绑定手机号'}}
+          </button>
+          <view class="user-arrow" bindtap="onLogoutTap" aria-label="退出登录">
+            <image class="user-arrow-icon" src="/assets/icons/logout-green.svg" mode="aspectFit" />
+          </view>
         </view>
       </view>
       <view class="skill-row">

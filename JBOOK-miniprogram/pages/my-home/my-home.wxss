@@ -53,6 +53,30 @@
   height: 36rpx;
 }
 
+/* 用户区右侧操作组：绑定手机号胶囊 + 退出 icon */
+.user-actions {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  flex-shrink: 0;
+}
+
+/* 绑定手机号胶囊：与 skill-edit-btn 同款小胶囊，重置 button 默认样式 */
+.phone-bind-btn {
+  margin: 0;
+  padding: 8rpx 24rpx;
+  font-size: 26rpx;
+  line-height: 1.5;
+  color: #16a34a;
+  border-radius: 28rpx;
+  font-weight: 500;
+  background: rgba(22, 163, 74, 0.05);
+}
+
+.phone-bind-btn::after {
+  border: none;
+}
+
 .skill-row {
   display: flex;
   align-items: center;
