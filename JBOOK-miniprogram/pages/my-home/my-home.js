@@ -15,9 +15,15 @@ function isExpired(card) {
   return card.deadline < today;
 }
 
-function cardStatusView(card, reminderOn) {
+// 按卡判定「我是否设置过这张卡的提醒」：reminderSetBy 记录订阅时写入的 openid；
+// creatorId/helperIds 可能存 openid 或昵称，这里同样用 myIds 两个都认（存量卡无此字段视为未设置）
+function isReminderSet(card, myIds) {
+  return Array.isArray(card.reminderSetBy) && card.reminderSetBy.some((id) => myIds.includes(id));
+}
+
+function cardStatusView(card, myIds) {
   if (isExpired(card)) return { text: '已过期', class: 'status-expired' };
-  if (reminderOn) return { text: '提醒中', class: 'status-reminding' };
+  if (isReminderSet(card, myIds)) return { text: '提醒中', class: 'status-reminding' };
   return { text: '未设提醒', class: 'status-no-remind' };
 }
 
@@ -69,7 +75,6 @@ Page({
   },
 
   onLoad() {
-    this.reminderOn = false;
     const navInfo = getNavInfo();
     this.setData({
       statusBarHeight: navInfo.statusBarHeight,
@@ -85,24 +90,6 @@ Page({
     this.loadInspireCards();
     this.loadMembershipStatus();
     this.checkAdmin();
-    this.loadSubscribeState();
-  },
-
-  // 订阅状态是用户级（全列表共用）：reminderEnabled && count>0 才算「提醒中」，返回后重刷列表状态
-  async loadSubscribeState() {
-    const app = getApp();
-    if (!app.globalData || !app.globalData.cloudReady || !wx.cloud) return;
-    try {
-      const res = await wx.cloud.callFunction({
-        name: 'subscribeReminder',
-        data: { action: 'get' }
-      });
-      if (res.result && res.result.code === 0 && res.result.data) {
-        const d = res.result.data;
-        this.reminderOn = !!(d.reminderEnabled && d.count > 0);
-        this.refreshCards();
-      }
-    } catch (e) {}
   },
 
   // 管理员标识：决定右上角菜单是否出现「会员管理」入口
@@ -269,17 +256,17 @@ Page({
     const mine = allCards.filter((c) => this.isMine(c, myIds));
     const notExpired = mine.filter((c) => !isExpired(c));
     return {
-      noRemind: notExpired.filter(() => !this.reminderOn).length,
-      reminding: notExpired.filter(() => this.reminderOn).length,
+      noRemind: notExpired.filter((c) => !isReminderSet(c, myIds)).length,
+      reminding: notExpired.filter((c) => isReminderSet(c, myIds)).length,
       expired: mine.filter((c) => isExpired(c)).length,
       helped: allCards.filter((c) => this.isHelped(c, myIds)).length
     };
   },
 
-  // 与首页一致的卡片展示字段（状态三态：已过期/提醒中/未设提醒）
-  decorateCard(card) {
+  // 与首页一致的卡片展示字段（状态三态：已过期/提醒中/未设提醒，按卡判定）
+  decorateCard(card, myIds) {
     const title = (card.title || '').trim() || '未命名事项';
-    const statusView = cardStatusView(card, this.reminderOn);
+    const statusView = cardStatusView(card, myIds);
     return {
       ...card,
       icon: resolveThemeIcon(card),
@@ -297,10 +284,10 @@ Page({
     let emptyText = '还没有记事卡';
 
     if (activeTab === 'noRemind') {
-      filtered = allCards.filter((c) => this.isMine(c, myIds) && !isExpired(c) && !this.reminderOn);
+      filtered = allCards.filter((c) => this.isMine(c, myIds) && !isExpired(c) && !isReminderSet(c, myIds));
       emptyText = '都订阅提醒了，没有未设提醒的记事卡';
     } else if (activeTab === 'reminding') {
-      filtered = allCards.filter((c) => this.isMine(c, myIds) && !isExpired(c) && this.reminderOn);
+      filtered = allCards.filter((c) => this.isMine(c, myIds) && !isExpired(c) && isReminderSet(c, myIds));
       emptyText = '还没有提醒中的记事卡';
     } else if (activeTab === 'expired') {
       filtered = allCards.filter((c) => this.isMine(c, myIds) && isExpired(c));
@@ -311,7 +298,7 @@ Page({
     }
 
     this.setData({
-      cards: filtered.map((c) => this.decorateCard(c)),
+      cards: filtered.map((c) => this.decorateCard(c, myIds)),
       counts: this.computeCounts(allCards, myIds),
       emptyText
     });

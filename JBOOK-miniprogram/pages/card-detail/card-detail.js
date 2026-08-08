@@ -25,9 +25,10 @@ function checkOverdue(card) {
 }
 
 // 状态为系统判定三态，用户不可选择：已过期 > 提醒中 > 未设提醒
-function computeStatusView(card, reminderOn) {
+// reminderSet：当前用户是否设置过这张卡的提醒（openid 在该卡 reminderSetBy 里），按卡独立判定
+function computeStatusView(card, reminderSet) {
   if (checkOverdue(card)) return { text: '已过期', class: 'expired' };
-  if (reminderOn) return { text: '提醒中', class: 'reminding' };
+  if (reminderSet) return { text: '提醒中', class: 'reminding' };
   return { text: '未设提醒', class: 'no-remind' };
 }
 
@@ -57,7 +58,6 @@ Page({
     keyPoints: [],
     statusClass: 'no-remind',
     statusText: '未设提醒',
-    reminderOn: false,
     showStatusSheet: false,
     statusExplainText: '',
     isOverdue: false,
@@ -151,11 +151,6 @@ Page({
     }
   },
 
-  onShow() {
-    // 回到详情页时刷新订阅状态（可能在其他页面订阅过）
-    this.loadReminderState();
-  },
-
   async loadCard(id) {
     this.setData({ loading: true });
 
@@ -180,38 +175,7 @@ Page({
       wx.showToast({ title: '加载失败', icon: 'none' });
     } finally {
       this.setData({ loading: false });
-      // 订阅状态返回后重算状态三态（先按默认未订阅渲染）
-      this.loadReminderState();
     }
-  },
-
-  // 查询当前用户订阅状态：reminderEnabled && count > 0 才视为「提醒中」（与推送条件一致）
-  async loadReminderState() {
-    const app = getApp();
-    if (!app.globalData || !app.globalData.cloudReady || !wx.cloud) return;
-    try {
-      const res = await wx.cloud.callFunction({
-        name: 'subscribeReminder',
-        data: { action: 'get' }
-      });
-      if (res.result && res.result.code === 0 && res.result.data) {
-        const d = res.result.data;
-        this.setData({ reminderOn: !!(d.reminderEnabled && d.count > 0) });
-        this.applyStatusView();
-      }
-    } catch (e) {}
-  },
-
-  // 用当前卡片与订阅状态重算状态三态（过期判定对所有卡生效，不豁免 done）
-  applyStatusView() {
-    const card = this.data.card;
-    if (!card || !card.id) return;
-    const statusView = computeStatusView(card, this.data.reminderOn);
-    this.setData({
-      statusClass: statusView.class,
-      statusText: statusView.text,
-      isOverdue: checkOverdue(card)
-    });
   },
 
   // 通过 Agent 短码进入：先解析出卡片 ID，再走正常加载（含云端权限判定）
@@ -261,7 +225,7 @@ Page({
     const inviteEntry = this.inviteEntry === true;
     const showApplyArea = isNetworkView && !inviteEntry;
 
-    const statusView = computeStatusView(data, this.data.reminderOn);
+    const statusView = computeStatusView(data, !!data.meReminderSet);
     const keyPoints = Array.isArray(data.keyPoints) ? data.keyPoints : [];
     const creator = data.creator || this.data.creator;
     const helpers = data.helpers || [];
@@ -314,9 +278,13 @@ Page({
     const creator = this.normalizeUser(card.creatorId || card.creator || '未知用户');
     const helpers = (card.helperIds || card.helpers || []).map((h) => this.normalizeUser(h));
     const keyPoints = Array.isArray(card.keyPoints) ? card.keyPoints : [];
-    const statusView = computeStatusView(card, this.data.reminderOn);
-
     const openid = this.getCurrentOpenid();
+    // 本地兜底路径：用卡上的 reminderSetBy + 当前 openid 按卡判定（存量卡无此字段视为未设置）
+    const statusView = computeStatusView(
+      card,
+      Array.isArray(card.reminderSetBy) && card.reminderSetBy.includes(openid)
+    );
+
     const isCreator = card.creatorId === openid;
     const isHelper = Array.isArray(card.helperIds) && card.helperIds.includes(openid);
     const avatarGroup = this.buildAvatarGroup(creator, helpers);
@@ -823,11 +791,11 @@ Page({
 
   // 状态由系统判定（已过期 / 提醒中 / 未设提醒），点击胶囊打开状态说明弹窗
   onStatusTap() {
-    const { statusClass, reminderOn } = this.data;
+    const { statusClass } = this.data;
     let statusExplainText;
     if (statusClass === 'expired') {
       statusExplainText = '这张卡已经过了截止日期。';
-    } else if (reminderOn) {
+    } else if (statusClass === 'reminding') {
       statusExplainText = '你已订阅提醒，截止日前一天会微信提醒你。';
     } else {
       statusExplainText = '你还没有订阅提醒。订阅后，截止日前一天会微信提醒你。';
@@ -839,13 +807,14 @@ Page({
     this.setData({ showStatusSheet: false });
   },
 
-  // 「未设提醒」时弹窗内订阅：成功后刷新状态、关弹窗并提示
+  // 「未设提醒」时弹窗内订阅：额度 +1 并把 openid 记入该卡 reminderSetBy；
+  // 成功后重拉卡片（拿最新 reminderSetBy → 状态三态刷新），关弹窗并提示
   async subscribeFromStatusSheet() {
-    const data = await requestSubscribeCredit({ source: 'button' });
+    const data = await requestSubscribeCredit({ source: 'button', cardId: this.data.cardId });
     if (data) {
       this.setData({ showStatusSheet: false });
       wx.showToast({ title: '已订阅', icon: 'success' });
-      this.loadReminderState();
+      this.loadCard(this.data.cardId);
     } else {
       wx.showToast({ title: '未订阅，可随时在状态说明里订阅', icon: 'none' });
     }

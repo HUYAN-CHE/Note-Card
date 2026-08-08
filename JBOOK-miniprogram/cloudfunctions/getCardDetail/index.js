@@ -140,6 +140,8 @@ exports.main = async (event, context) => {
       isCreator,
       isHelper,
       isNetworkView: role === 'network',
+      // 当前用户是否在这张卡的 reminderSetBy 里（按卡判定「提醒中」，存量卡无此字段视为未设置）
+      meReminderSet: Array.isArray(card.reminderSetBy) && card.reminderSetBy.includes(openid),
       creator: {
         id: card.creatorId,
         nickname: creatorName,

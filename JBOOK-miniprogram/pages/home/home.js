@@ -17,9 +17,12 @@ function isExpired(card) {
   return card.deadline < today;
 }
 
-function cardStatusView(card, reminderOn) {
+// 按卡判定：当前用户 openid 在该卡 reminderSetBy 里才算「提醒中」（存量卡无此字段视为未设置）
+function cardStatusView(card, openid) {
   if (isExpired(card)) return { text: '已过期', class: 'status-expired' };
-  if (reminderOn) return { text: '提醒中', class: 'status-reminding' };
+  if (openid && Array.isArray(card.reminderSetBy) && card.reminderSetBy.includes(openid)) {
+    return { text: '提醒中', class: 'status-reminding' };
+  }
   return { text: '未设提醒', class: 'status-no-remind' };
 }
 
@@ -64,7 +67,6 @@ Page({
   },
 
   onLoad() {
-    this.reminderOn = false;
     this.updateSystemInfo();
     this.updateCalendar();
   },
@@ -386,6 +388,9 @@ Page({
       const store = require('../../utils/store');
       const realCards = await store.getCards();
       const allCards = realCards.length ? realCards : cards;
+      // 状态三态按卡判定：云端就绪时 getCards 直查云库返回全字段（含 reminderSetBy）；
+      // 本地缓存兜底缺该字段时判空安全，按「未设提醒」显示
+      const openid = store.getCurrentOpenid();
 
       const selectedDay = this.data.calendarDays[this.data.selectedIndex];
       const endDate = selectedDateStr
@@ -403,7 +408,7 @@ Page({
       });
 
       const decoratedCards = filteredCards.slice(0, 6).map((card) => {
-        const statusView = cardStatusView(card, this.reminderOn);
+        const statusView = cardStatusView(card, openid);
         return {
           ...card,
           icon: resolveThemeIcon(card),
@@ -485,6 +490,7 @@ Page({
     this.requestSubscribe({ source: 'switch', reminderEnabled: enabled }, { silent: true });
   },
 
+  // 「临近消息提醒」开关状态（reminderEnabled）回显；卡片状态三态改为按卡判定（reminderSetBy），不再依赖全局订阅状态
   async loadSubscribeState() {
     const app = getApp();
     if (!app.globalData || !app.globalData.cloudReady || !wx.cloud) return;
@@ -494,18 +500,7 @@ Page({
         data: { action: 'get' }
       });
       if (res.result && res.result.code === 0 && res.result.data) {
-        const d = res.result.data;
-        this.setData({ reminderEnabled: !!d.reminderEnabled });
-        // 列表状态三态依赖订阅状态：返回后重算已渲染卡片（reminderEnabled && count>0 才算「提醒中」）
-        this.reminderOn = !!(d.reminderEnabled && d.count > 0);
-        if (this.data.cards.length) {
-          this.setData({
-            cards: this.data.cards.map((card) => {
-              const statusView = cardStatusView(card, this.reminderOn);
-              return { ...card, statusText: statusView.text, statusClass: statusView.class };
-            })
-          });
-        }
+        this.setData({ reminderEnabled: !!res.result.data.reminderEnabled });
       }
     } catch (e) {}
   },

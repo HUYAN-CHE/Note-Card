@@ -107,6 +107,19 @@ exports.main = async (event) => {
       await users.add({ data });
     }
 
+    // 订阅来源带 cardId 时（卡片详情页「订阅提醒」按钮），把当前用户记入该卡 reminderSetBy，
+    // 按卡标记「我设置过提醒」，驱动详情页/列表的状态三态（提醒中/未设提醒）；
+    // 独立 try/catch：失败仅打日志，不影响额度累计主流程
+    if (event.cardId) {
+      try {
+        await db.collection('cards')
+          .where({ id: event.cardId })
+          .update({ data: { reminderSetBy: _.addToSet(openid) } });
+      } catch (e) {
+        console.error('reminderSetBy update error', e);
+      }
+    }
+
     // 消息中心：订阅成功提示（额度 +1 后）
     await writeMessage(openid, 'reminder', {
       title: '提醒订阅成功',

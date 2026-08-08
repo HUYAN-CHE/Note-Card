@@ -124,11 +124,13 @@ exports.main = async () => {
   const users = db.collection('users');
 
   try {
+    // 按 deadline 升序扫描：订阅额度不足时先推最急的卡
     const cardRes = await db.collection('cards')
       .where({
         deadline: tomorrowStr,
         status: _.neq('done')
       })
+      .orderBy('deadline', 'asc')
       .limit(100)
       .get();
 
