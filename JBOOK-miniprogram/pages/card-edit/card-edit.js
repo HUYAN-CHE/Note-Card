@@ -1,6 +1,6 @@
 const { TYPE_LABELS, buildDraftFromContext } = require('../../services/ai-adapter');
 const { getCard, createCardFromDraft, saveCard } = require('../../utils/store');
-const { getNavInfo } = require('../../utils/ui');
+const { getNavInfo, getSafeAreaBottom } = require('../../utils/ui');
 const { requestSubscribeCredit } = require('../../utils/subscribe');
 
 Page({
@@ -31,9 +31,7 @@ Page({
     const sys = wx.getSystemInfoSync();
     const navInfo = getNavInfo();
     this.sysInfo = sys;
-    this.safeBottomPx = sys.safeAreaInsets
-      ? sys.safeAreaInsets.bottom
-      : Math.max(0, sys.screenHeight - ((sys.safeArea && sys.safeArea.bottom) || sys.screenHeight));
+    this.safeBottomPx = getSafeAreaBottom();
     // 先用估算值首屏渲染，onReady 中再按实际渲染高度校正
     const estimatePx = Math.round(500 * (sys.windowWidth / 750));
     this.setData({

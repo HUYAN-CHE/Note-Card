@@ -27,6 +27,25 @@ function getNavInfo() {
   }
 }
 
+// 底部安全区（px）：统一口径——getWindowInfo 优先（getSystemInfoSync 已废弃）；
+// safeAreaInsets 是 iOS 专属字段，安卓没有；安卓微信 safeArea 通常不含系统导航栏（inset=0），
+// 所以 inset 为 0 时统一给 12px 最小预留，避免安卓上底部元素贴边。
+function getSafeAreaBottom() {
+  try {
+    const info = wx.getWindowInfo ? wx.getWindowInfo() : wx.getSystemInfoSync();
+    let inset = 0;
+    if (info.safeAreaInsets && typeof info.safeAreaInsets.bottom === 'number') {
+      inset = info.safeAreaInsets.bottom;
+    } else if (info.safeArea) {
+      inset = Math.max(0, info.screenHeight - info.safeArea.bottom);
+    }
+    return Math.max(inset, 12);
+  } catch (e) {
+    return 12;
+  }
+}
+
 module.exports = {
-  getNavInfo
+  getNavInfo,
+  getSafeAreaBottom
 };

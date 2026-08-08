@@ -1,4 +1,5 @@
 const { collections } = require('../../config/env');
+const { getSafeAreaBottom } = require('../../utils/ui');
 const { uploadAvatar } = require('../../utils/upload-avatar');
 const { requestSubscribeCredit } = require('../../utils/subscribe');
 
@@ -165,7 +166,7 @@ Page({
     try {
       const sys = wx.getSystemInfoSync();
       const windowHeight = sys.windowHeight || 667;
-      const safeAreaBottom = sys.safeArea ? (sys.screenHeight - sys.safeArea.bottom) : 0;
+      const safeAreaBottom = getSafeAreaBottom();
       const tabBarHeight = 50 + safeAreaBottom;
 
       const query = wx.createSelectorQuery();

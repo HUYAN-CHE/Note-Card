@@ -1,5 +1,5 @@
 const store = require('../../utils/store.js');
-const { getNavInfo } = require('../../utils/ui');
+const { getNavInfo, getSafeAreaBottom } = require('../../utils/ui');
 const { collections } = require('../../config/env');
 const { uploadAvatar } = require('../../utils/upload-avatar');
 const { requestSubscribeCredit } = require('../../utils/subscribe');
@@ -107,12 +107,8 @@ Page({
   },
 
   onLoad(options) {
-    const sys = wx.getSystemInfoSync();
     const navInfo = getNavInfo();
-    // iPhone Home 指示条安全区兜底：safeAreaInsets 缺失时用 safeArea 计算
-    const safeBottom = sys.safeAreaInsets
-      ? sys.safeAreaInsets.bottom
-      : Math.max(0, sys.screenHeight - ((sys.safeArea && sys.safeArea.bottom) || sys.screenHeight));
+    const safeBottom = getSafeAreaBottom();
 
     // 从「生成记事卡」跳转而来时，播放出票机打印动画（2s 滑出）+ 打印音效
     const developing = options.from === 'create';

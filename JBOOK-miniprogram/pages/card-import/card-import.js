@@ -1,5 +1,5 @@
 const { TYPE_LABELS, buildDraftFromContext } = require('../../services/ai-adapter');
-const { getNavInfo } = require('../../utils/ui');
+const { getNavInfo, getSafeAreaBottom } = require('../../utils/ui');
 
 function extractHelperCandidates(text = '') {
   if (!text) return [];
@@ -36,14 +36,15 @@ Page({
   onLoad(options = {}) {
     const sys = wx.getSystemInfoSync();
     const navInfo = getNavInfo();
-    const footerHeightPx = 136 * sys.windowWidth / 750 + (sys.safeAreaInsets ? sys.safeAreaInsets.bottom : 0);
+    const safeBottom = getSafeAreaBottom();
+    const footerHeightPx = 136 * sys.windowWidth / 750 + safeBottom;
 
     this.setData({
       statusBarHeight: navInfo.statusBarHeight,
       navHeight: navInfo.navHeight,
       totalHeight: navInfo.totalHeight,
       contentHeight: sys.windowHeight - navInfo.totalHeight - footerHeightPx,
-      safeAreaBottom: sys.safeAreaInsets ? sys.safeAreaInsets.bottom : 0
+      safeAreaBottom: safeBottom
     });
 
     const contextText = options.context ? decodeURIComponent(options.context) : '';
