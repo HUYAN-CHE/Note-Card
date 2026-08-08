@@ -84,10 +84,6 @@
   background: #f0f0f0;
 }
 
-.account-danger {
-  color: #e53935;
-}
-
 .skill-row {
   display: flex;
   align-items: center;

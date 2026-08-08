@@ -204,12 +204,10 @@
       </view>
     </view>
 
-  <!-- 账号弹窗（bottom-sheet）：绑定/换绑手机号、会员管理（管理员）、退出登录 -->
-  <bottom-sheet visible="{{showAccountSheet}}" title="账号" bind:close="closeAccountSheet">
+  <!-- 绑定手机号授权弹窗：账号菜单点「绑定手机号」后弹出（getPhoneNumber 必须是授权按钮，系统菜单放不下） -->
+  <bottom-sheet visible="{{showPhoneSheet}}" title="绑定手机号" subtitle="会员需绑定手机号，便于开通后核对" bind:close="closePhoneSheet">
     <view class="account-body">
-      <button class="sheet-btn primary" open-type="getPhoneNumber" bindgetphonenumber="onGetPhoneNumber">{{phoneMasked ? '更换手机号（' + phoneMasked + '）' : '绑定手机号'}}</button>
-      <view class="sheet-btn ghost" wx:if="{{isAdmin}}" bindtap="onAdminTap">会员管理</view>
-      <view class="sheet-btn ghost account-danger" bindtap="onLogoutConfirm">退出登录</view>
+      <button class="sheet-btn primary" open-type="getPhoneNumber" bindgetphonenumber="onGetPhoneNumber">授权绑定手机号</button>
     </view>
   </bottom-sheet>
 </view>
