@@ -81,7 +81,19 @@
   gap: 16rpx;
 }
 
+.message-type {
+  flex: none;
+  align-self: center;
+  padding: 2rpx 12rpx;
+  border: 1rpx solid;
+  border-radius: 999rpx;
+  font-size: 20rpx;
+  line-height: 1.4;
+}
+
 .message-title {
+  flex: 1;
+  min-width: 0;
   font-size: 30rpx;
   font-weight: 600;
   color: #1c1c1e;

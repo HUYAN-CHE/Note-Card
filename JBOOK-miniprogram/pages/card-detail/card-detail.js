@@ -17,10 +17,11 @@ function getInitial(name) {
 }
 
 // 截止日期早于今天即视为已过期（对所有卡生效，不再按 status 豁免）
+// 统一按北京时间（UTC+8）取「今天」，与云函数口径一致
 function checkOverdue(card) {
   if (!card || !card.deadline) return false;
-  const now = new Date();
-  const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+  const beijingNow = new Date(Date.now() + 8 * 3600 * 1000);
+  const today = `${beijingNow.getUTCFullYear()}-${String(beijingNow.getUTCMonth() + 1).padStart(2, '0')}-${String(beijingNow.getUTCDate()).padStart(2, '0')}`;
   return card.deadline < today;
 }
 

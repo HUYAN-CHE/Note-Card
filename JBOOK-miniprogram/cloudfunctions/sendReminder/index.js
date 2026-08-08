@@ -158,6 +158,13 @@ exports.main = async () => {
             data: { subscribeCount: _.inc(-1) }
           });
           sent += 1;
+          // 额度刚扣到 0：写站内消息引导重新订阅（consume action 无调用方，在此直接判断）
+          if (user.subscribeCount - 1 === 0) {
+            await writeMessage(openid, 'reminder', {
+              title: '提醒额度已用完',
+              content: '提醒额度已用完，重新订阅以继续接收提醒'
+            });
+          }
         } catch (e) {
           // 43101 等发送失败不扣额度，跳过该用户
           console.warn('sendReminder fail', openid, card._id, e);

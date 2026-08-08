@@ -22,6 +22,7 @@
           </view>
           <view class="message-main">
             <view class="message-head">
+              <text class="message-type" style="color: {{item.typeColor}}; border-color: {{item.typeColor}};">{{item.typeLabel}}</text>
               <text class="message-title">{{item.title}}</text>
               <text class="message-time">{{item.timeText}}</text>
             </view>
