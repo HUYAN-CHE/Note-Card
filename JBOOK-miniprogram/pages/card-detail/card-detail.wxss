@@ -786,13 +786,29 @@ page {
   z-index: 50;
 }
 
+/* 主操作区：纵向——全宽胶囊主按钮 + 下方文字小字链接 */
+.footer-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20rpx;
+}
+
+.footer-text-link {
+  font-size: 24rpx;
+  color: #49854f;
+  line-height: 1.4;
+}
+
+/* 胶囊样式与新建页（card-edit）统一：96rpx 高、999rpx 圆角 */
 .footer-btn {
   flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 112rpx;
-  border-radius: 16rpx;
+  height: 96rpx;
+  border-radius: 999rpx;
   border: none;
   font-size: 30rpx;
   font-weight: 600;
@@ -808,18 +824,11 @@ page {
   margin-right: 10rpx;
 }
 
-/* 左：实测浅绿 #ecf5ed（保存卡片） */
-.footer-btn.ghost {
-  background: #ecf5ed;
-  color: #49854f;
-  box-shadow: 0 10rpx 28rpx rgba(46, 125, 78, 0.16);
-}
-
-/* 右：实测绿 #77b882（邀请协作） */
+/* 主按钮：与新建页统一 #4caf50 */
 .footer-btn.primary {
-  background: #77b882;
+  background: #4caf50;
   color: #fff;
-  box-shadow: 0 10rpx 28rpx rgba(46, 125, 78, 0.3);
+  box-shadow: 0 12rpx 32rpx rgba(76, 175, 80, 0.35);
 }
 
 .footer-btn.wide {

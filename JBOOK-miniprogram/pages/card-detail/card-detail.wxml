@@ -145,12 +145,12 @@
   <!-- 底部渐变浮层：滚动内容渐渐隐入按钮区后，层级在内容上、按钮下 -->
   <view class="bottom-fade"></view>
 
-  <!-- 底部操作：位置颜色不变——左浅绿「保存卡片」，右绿「邀请协作」 -->
+  <!-- 底部操作：主胶囊「邀请好友一起提醒」（样式与新建页统一），下方小字「保存为图片」 -->
   <view class="detail-footer" style="padding-bottom: calc(28rpx + {{safeAreaBottom}}px);" wx:if="{{role !== 'stranger' || isNetworkView || canAcceptInvite}}">
-    <block wx:if="{{isCreator || isHelper}}">
-      <button class="footer-btn ghost" bindtap="onSavePoster" data-action="save-poster" aria-label="保存卡片"><image class="footer-icon" src="/assets/icons/save-green.svg" mode="aspectFit" />保存卡片</button>
-      <button class="footer-btn primary" open-type="share" data-action="share" aria-label="邀请协作"><image class="footer-icon" src="/assets/icons/share-white.svg" mode="aspectFit" />邀请协作</button>
-    </block>
+    <view class="footer-main" wx:if="{{isCreator || isHelper}}">
+      <button class="footer-btn primary wide" open-type="share" data-action="share" aria-label="邀请好友一起提醒"><image class="footer-icon" src="/assets/icons/share-white.svg" mode="aspectFit" />邀请好友一起提醒</button>
+      <view class="footer-text-link" bindtap="onSavePoster">保存为图片</view>
+    </view>
     <!-- 网络访客（非创建者/协作人，且非邀请入口）：按自己的申请状态渲染底部按钮 -->
     <block wx:if="{{showApplyArea}}">
       <button class="footer-btn primary wide" wx:if="{{!myJoinStatus}}" bindtap="openApplySheet">申请加入</button>
