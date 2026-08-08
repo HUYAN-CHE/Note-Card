@@ -28,8 +28,8 @@
         style="top: {{statusBarHeight + heroNavTop}}px; right: {{heroNavRight}}px; height: {{heroNavHeight}}px;"
       >
         <view class="message-btn" bindtap="onMessageTap" aria-label="消息中心">
+          <image class="message-icon" src="/assets/icons/mail-white.svg" mode="aspectFit" />
           <text class="message-text" wx:if="{{unreadCount > 0}}">{{unreadCount}}条未读</text>
-          <image wx:else class="message-icon" src="/assets/icons/mail-white.svg" mode="aspectFit" />
         </view>
         <view
           class="subscribe-btn {{subscribed ? 'subscribed' : ''}} {{!subscribed ? 'has-bell' : ''}}"
