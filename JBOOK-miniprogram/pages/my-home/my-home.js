@@ -82,17 +82,25 @@ Page({
 
   onLoad() {
     const navInfo = getNavInfo();
-    // 底部安全区：供 bottom-sheet 预留 Home 指示条遮挡（算法同 card-detail）
-    const sys = wx.getSystemInfoSync();
-    const safeBottom = sys.safeAreaInsets
-      ? sys.safeAreaInsets.bottom
-      : Math.max(0, sys.screenHeight - ((sys.safeArea && sys.safeArea.bottom) || sys.screenHeight));
+    // 底部安全区：供 bottom-sheet 预留遮挡。
+    // 注意：safeAreaInsets 是 iOS 专属字段，安卓上没有；安卓微信 safeArea 通常不含
+    // 系统导航栏（inset=0），所以统一给 12px 最小预留，避免安卓上弹窗按钮贴底。
+    // getWindowInfo 为推荐 API（getSystemInfoSync 已废弃），旧基础库走兜底。
+    let safeBottom = 0;
+    try {
+      const info = wx.getWindowInfo ? wx.getWindowInfo() : wx.getSystemInfoSync();
+      if (info.safeAreaInsets && typeof info.safeAreaInsets.bottom === 'number') {
+        safeBottom = info.safeAreaInsets.bottom;
+      } else if (info.safeArea) {
+        safeBottom = Math.max(0, info.screenHeight - info.safeArea.bottom);
+      }
+    } catch (e) {}
     this.setData({
       statusBarHeight: navInfo.statusBarHeight,
       navHeight: navInfo.navHeight,
       totalHeight: navInfo.totalHeight,
       heroPaddingTop: navInfo.totalHeight + 24,
-      safeAreaBottom: safeBottom
+      safeAreaBottom: Math.max(safeBottom, 12)
     });
     this.loadData();
   },
