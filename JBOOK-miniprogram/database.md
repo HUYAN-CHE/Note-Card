@@ -14,7 +14,9 @@
 - `title`：记事卡标题。
 - `desc`：需求描述 / 摘要。
 - `keyPoints`：重点 / 待确认事项，字符串数组。
+- `deadline`：截止日期，`YYYY-MM-DD` 字符串（可空）；系统判定「已过期」与 `sendReminder` 每日推送的扫描依据。
 - `status`：内部业务字段（确认流程用），`draft`（草稿）、`todo`（待确认/待开始）、`doing`（进行中）、`done`（历史遗留，新建不再产生）。注意：面向用户的展示状态自 2026-08-08 起统一为系统判定三态「未设提醒 / 提醒中 / 已过期」（无完成概念，不再使用本字段做展示）。
+- `reminderSetBy`：设置过提醒的用户 openid 数组；订阅提醒时由 `subscribeReminder` 以 `addToSet` 写入（幂等防重），用于按卡判定「提醒中」状态。存量卡无此字段视为未设置。
 - `creatorId`：创建者 openid，用于判断卡片归属和权限。
 - `helperIds`：协助者 openid 数组。
 - `isNetworkVisible`：是否对二度人脉可见，`true` / `false`。
@@ -34,6 +36,9 @@
 - `avatarUrl`：头像 URL。
 - `intro`：一句话介绍。
 - `serviceTags`：我能提供的服务标签数组。
+- `subscribeCount`：提醒订阅剩余额度（微信规则：授权一次 = 可推一条，全局共享）；`subscribeReminder` 订阅时 +1，`sendReminder` 每发一条 -1。
+- `reminderEnabled`：提醒总开关，`true` / `false`；订阅成功自动置 `true`，首页开关可手动切换。
+- `lastSubscribedAt`：最近一次手动订阅时间戳；互助页订阅胶囊据此按天显示「已订阅」（仅当天授权过才显示，引导每天补额度）。
 - `initial`：无头像时的首字占位。
 - `color`：无头像时的背景色。
 - `createdAt`：创建时间。
@@ -54,6 +59,7 @@
 - `createdAt`：创建时间。
 
 > 一度人脉关系是单向记录。查询「我的一度人脉」即查询 `ownerId = 我` 且 `degree = 1` 的文档。
+> 接受邀请（`inviteHelper`）建立双向一度关系；申请审批通过（`approveJoinRequest`）建立双向二度关系。已存在的关系度数只升不降（取 min），`interactCount` +1。
 
 ## joinRequests（加入申请）
 
@@ -63,9 +69,9 @@
 
 - `cardId`：目标记事卡 ID。
 - `applicantId`：申请者 openid。
-- `intermediaryId`：引荐人 openid（共同好友）。
+- `intermediaryId`：引荐人 openid（共同好友，可空）。
 - `note`：申请说明。
-- `status`：申请状态，`pending`（待审）、`approved`（通过）、`rejected`（拒绝）。
+- `status`：申请状态，`pending_intermediary`（待引荐）、`pending`（待审批）、`approved`（通过）、`rejected`（拒绝）。有引荐人时初始为 `pending_intermediary`，引荐人确认引荐后变 `pending`；无引荐人直接 `pending`。
 - `createdAt`：创建时间。
 - `updatedAt`：更新时间。
 
@@ -79,7 +85,7 @@
 - `actorId`：操作者 openid。
 - `actorName` / `actorAvatar`：操作者昵称、头像快照（写入时从 users 集合取，读取免 join）。
 - `action`：操作类型，`update_field`（字段变更）、`join`（加入协作）。
-- `detail`：中文操作描述，如「更新了标题为「xxx」」「将状态改为 进行中」「通过邀请加入协作」。
+- `detail`：中文操作描述，如「更新了标题为「xxx」」「将状态改为 进行中」「通过邀请加入协作」「申请通过，加入协作」。
 - `createdAt`：操作时间戳。
 
 由 `updateCard`、`inviteHelper`、`approveJoinRequest` 云函数写入，通过 `getCardActivities` 云函数读取（仅创作者/协助者可查，按时间倒序返回最近 50 条）。
@@ -99,7 +105,7 @@
 - `read`：是否已读，`true` / `false`。
 - `createdAt`：创建时间戳。
 
-由 `applyToJoinCard`、`endorseJoinRequest`、`approveJoinRequest`、`sendReminder`、`subscribeReminder`、`membership` 云函数写入，通过 `getMyMessages` 云函数读取（按时间倒序返回最近 50 条）、`markMessagesRead` 云函数标记已读。
+由 `applyToJoinCard`、`endorseJoinRequest`、`approveJoinRequest`、`sendReminder`、`subscribeReminder`、`membership` 云函数写入，通过 `getMyMessages` 云函数读取（按时间倒序返回最近 50 条；`action: 'unread'` 时仅返回未读数，供互助页消息胶囊使用）、`markMessagesRead` 云函数标记已读（支持指定 ids 或全部）。
 
 ## 开发期权限建议
 
@@ -107,7 +113,7 @@
 
 - 所有写入操作通过云函数完成。
 - `cards` 集合前端只读，且只能读取 `creatorId` 或 `helperIds` 包含当前用户，或 `isNetworkVisible = true` 的卡片。
-- `relationships`、`joinRequests`、`cardActivities` 集合仅云函数读写。
+- `relationships`、`joinRequests`、`cardActivities`、`messages` 集合仅云函数读写。
 
 ## 环境 ID
 
