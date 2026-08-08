@@ -61,6 +61,7 @@ Page({
     isCreator: false,
     isHelper: false,
     isNetworkView: false,
+    showApplyArea: false,
     canAcceptInvite: false,
     showApplySheet: false,
     applyMessage: '',
@@ -126,6 +127,8 @@ Page({
     // 互助页带入的引荐人 openid；endorse= 为「帮 TA 引荐」分享链接带入的申请 ID
     const intermediaryOpenid = options.helperOpenid || '';
     this.endorseRequestId = options.endorse || '';
+    // 入口区分：互助页二度入口带 view=network、引荐分享带 endorse，其余（ref 短码/裸 id/扫码）均为邀请入口
+    this.inviteEntry = options.view !== 'network' && !this.endorseRequestId;
 
     if (cardId) {
       this.setData({ cardId, intermediaryOpenid });
@@ -213,6 +216,10 @@ Page({
     const isCreator = role === 'creator';
     const isHelper = role === 'helper';
     const isNetworkView = role === 'network';
+    // 邀请入口（ref 短码/裸 id/扫码）优先按被邀请人视角：即使卡片网络可见被判 network，
+    // 也显示「接受邀请」而非「申请加入」；互助页二度入口（view=network）才走申请链路
+    const inviteEntry = this.inviteEntry === true;
+    const showApplyArea = isNetworkView && !inviteEntry;
 
     const statusInfo = STATUS_MAP[data.status] || { text: data.status || '进行中', class: 'doing' };
     const keyPoints = Array.isArray(data.keyPoints) ? data.keyPoints : [];
@@ -237,7 +244,8 @@ Page({
       isCreator,
       isHelper,
       isNetworkView,
-      canAcceptInvite: role === 'stranger' && !isNetworkView,
+      showApplyArea,
+      canAcceptInvite: !isCreator && !isHelper && (role === 'stranger' || (isNetworkView && inviteEntry)),
       pendingRequests: data.pendingRequests || [],
       myJoinStatus: myJoinRequest ? myJoinRequest.status : '',
       myJoinRequestId: myJoinRequest ? myJoinRequest.id : '',
@@ -288,6 +296,7 @@ Page({
       isCreator,
       isHelper,
       isNetworkView: false,
+      showApplyArea: false,
       canAcceptInvite: !isCreator && !isHelper,
       pendingRequests: [],
       // 本地兜底路径无云端申请数据，按无申请处理
