@@ -6,6 +6,27 @@ cloud.init({
 
 const db = cloud.database();
 
+// 写消息到收件箱；失败仅打日志，不影响主流程
+async function writeMessage(openid, type, { title, content, cardId, requestId }) {
+  try {
+    if (!openid) return;
+    await db.collection('messages').add({
+      data: {
+        _openid: openid,
+        type,
+        title,
+        content: content || '',
+        cardId: cardId || '',
+        requestId: requestId || '',
+        read: false,
+        createdAt: Date.now()
+      }
+    });
+  } catch (e) {
+    console.error('writeMessage error', e);
+  }
+}
+
 // 读取操作者昵称头像快照，写入协作记录时免 join
 async function getActorProfile(openid) {
   try {
@@ -85,7 +106,17 @@ exports.main = async (event, context) => {
     return { code: -1, message: '未获取到用户身份' };
   }
 
-  const { requestId, status = 'approved' } = event;
+  const { requestId } = event;
+
+  // status 优先；兼容旧前端只传 approved 布尔（approved === false 视为拒绝）
+  let status = event.status;
+  if (status !== 'approved' && status !== 'rejected') {
+    if (event.approved === false) {
+      status = 'rejected';
+    } else if (event.approved === true) {
+      status = 'approved';
+    }
+  }
 
   if (!requestId) {
     return { code: -2, message: '缺少申请 ID' };
@@ -129,6 +160,13 @@ exports.main = async (event, context) => {
       await db.collection('joinRequests').doc(requestId).update({
         data: { status: 'rejected', updatedAt: now }
       });
+      // 消息中心：告知申请人结果
+      await writeMessage(request.applicantId, 'join_result', {
+        title: '申请未通过',
+        content: `你申请加入的「${card.title}」未通过`,
+        cardId: request.cardId,
+        requestId
+      });
       return { code: 0, message: 'success' };
     }
 
@@ -154,6 +192,14 @@ exports.main = async (event, context) => {
 
     // 记录申请人的加入动作（操作者是申请者本人）
     await logActivity(request.cardId, request.applicantId, 'join', '申请通过，加入协作');
+
+    // 消息中心：告知申请人结果
+    await writeMessage(request.applicantId, 'join_result', {
+      title: '申请已通过',
+      content: `你申请加入的「${card.title}」已通过`,
+      cardId: request.cardId,
+      requestId
+    });
 
     return { code: 0, message: 'success' };
   } catch (error) {

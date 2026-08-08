@@ -1,0 +1,37 @@
+<view class="page messages-page">
+  <custom-nav title="消息" showBack="{{true}}" statusBarHeight="{{statusBarHeight}}" navHeight="{{navHeight}}" />
+
+  <scroll-view class="messages-scroll" scroll-y enhanced show-scrollbar="{{false}}">
+    <view class="messages-body" style="padding-top: {{totalHeight + 12}}px;">
+
+      <view class="messages-loading" wx:if="{{loading}}">
+        <text class="messages-loading-text">加载中…</text>
+      </view>
+
+      <block wx:if="{{!loading && list.length > 0}}">
+        <view
+          wx:for="{{list}}"
+          wx:key="_id"
+          class="message-item {{!item.read ? 'unread' : ''}}"
+          bindtap="onMessageTap"
+          data-item="{{item}}"
+        >
+          <view class="message-dot-wrap">
+            <view class="message-unread-dot" wx:if="{{!item.read}}"></view>
+            <view class="message-type-dot" style="background: {{item.typeColor}};"></view>
+          </view>
+          <view class="message-main">
+            <view class="message-head">
+              <text class="message-title">{{item.title}}</text>
+              <text class="message-time">{{item.timeText}}</text>
+            </view>
+            <text class="message-content">{{item.content}}</text>
+          </view>
+        </view>
+      </block>
+
+      <empty-state wx:if="{{!loading && list.length === 0}}" title="暂无消息" mode="simple" />
+
+    </view>
+  </scroll-view>
+</view>

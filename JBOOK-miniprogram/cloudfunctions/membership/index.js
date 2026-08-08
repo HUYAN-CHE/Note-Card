@@ -10,6 +10,33 @@ const db = cloud.database();
 const USERS = 'users';
 const ORDERS = 'membershipOrders';
 
+// 写消息到收件箱；失败仅打日志，不影响主流程
+async function writeMessage(openid, type, { title, content, cardId, requestId }) {
+  try {
+    if (!openid) return;
+    await db.collection('messages').add({
+      data: {
+        _openid: openid,
+        type,
+        title,
+        content: content || '',
+        cardId: cardId || '',
+        requestId: requestId || '',
+        read: false,
+        createdAt: Date.now()
+      }
+    });
+  } catch (e) {
+    console.error('writeMessage error', e);
+  }
+}
+
+function formatDateText(ts) {
+  const d = new Date(ts);
+  const pad = (n) => (n < 10 ? '0' + n : '' + n);
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+}
+
 // 管理员判定：查 admins 集合（该集合权限应为「所有用户不可读写」，仅服务端/控制台可写，
 // 防止用户在小程序端篡改自己的 users 记录自封管理员）
 async function isAdmin(openid) {
@@ -127,6 +154,16 @@ async function grant(operatorOpenid, event) {
   }
 
   const status = await getStatus(targetOpenid);
+
+  // 消息中心：开通/续费成功通知本人（到期为被动检测，无主动触发点，不写消息）
+  const wasActive = currentExpire && currentExpire > now;
+  await writeMessage(targetOpenid, 'member', {
+    title: wasActive ? '会员已续费' : '会员已开通',
+    content: wasActive
+      ? `会员已续费 ${days} 天，有效期至 ${formatDateText(membership.expireAt)}`
+      : `会员已开通，有效期至 ${formatDateText(membership.expireAt)}`
+  });
+
   return { code: 0, data: status.data };
 }
 

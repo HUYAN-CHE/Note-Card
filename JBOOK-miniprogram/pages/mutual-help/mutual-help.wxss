@@ -27,12 +27,20 @@
   margin-bottom: 70rpx;
 }
 
-/* 订阅胶囊（自首页迁入，位置样式保持一致） */
-.subscribe-btn {
+/* 右上角胶囊组：消息 + 订阅，横向排列 */
+.hero-actions {
   position: absolute;
   display: flex;
   align-items: center;
+  gap: 16rpx;
+}
+
+/* 订阅胶囊（自首页迁入，位置样式保持一致；现由 .hero-actions 容器定位） */
+.subscribe-btn {
+  display: flex;
+  align-items: center;
   justify-content: center;
+  height: 100%;
   padding: 0 24rpx;
   border-radius: 999rpx;
   background: rgba(14, 73, 33, 0.32);
@@ -60,6 +68,41 @@
   color: #ffffff;
   line-height: 1;
   white-space: nowrap;
+}
+
+/* 消息胶囊：与订阅胶囊同底，图标居中 */
+.message-btn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 0 20rpx;
+  border-radius: 999rpx;
+  background: rgba(14, 73, 33, 0.32);
+}
+
+.message-icon {
+  width: 36rpx;
+  height: 36rpx;
+}
+
+/* 未读角标：红色圆点数字，>99 显示 99+ */
+.message-badge {
+  position: absolute;
+  top: -8rpx;
+  right: -8rpx;
+  min-width: 30rpx;
+  height: 30rpx;
+  padding: 0 8rpx;
+  box-sizing: border-box;
+  border-radius: 999rpx;
+  background: #ff3b30;
+  font-size: 18rpx;
+  font-weight: 600;
+  color: #ffffff;
+  line-height: 30rpx;
+  text-align: center;
 }
 
 .my-avatar-wrap {

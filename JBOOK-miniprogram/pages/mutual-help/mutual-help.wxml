@@ -22,15 +22,23 @@
         <text class="my-name">{{myProfile.nickname}}</text>
       </view>
 
-      <!-- 订阅胶囊（原首页头部位置，按天重置） -->
+      <!-- 右上角胶囊组：消息中心 + 订阅（贴微信胶囊左缘，按天重置） -->
       <view
-        class="subscribe-btn {{subscribed ? 'subscribed' : ''}} {{!subscribed ? 'has-bell' : ''}}"
+        class="hero-actions"
         style="top: {{statusBarHeight + heroNavTop}}px; right: {{heroNavRight}}px; height: {{heroNavHeight}}px;"
-        bindtap="onSubscribeTap"
-        aria-label="订阅消息提醒"
       >
-        <image wx:if="{{!subscribed}}" class="subscribe-bell" src="/assets/icons/bell-white.svg" mode="aspectFit" />
-        <text class="subscribe-text">{{subscribed ? '已订阅' : '订阅'}}</text>
+        <view class="message-btn" bindtap="onMessageTap" aria-label="消息中心">
+          <image class="message-icon" src="/assets/images/icon-chat.svg" mode="aspectFit" />
+          <view class="message-badge" wx:if="{{unreadCount > 0}}">{{unreadCount > 99 ? '99+' : unreadCount}}</view>
+        </view>
+        <view
+          class="subscribe-btn {{subscribed ? 'subscribed' : ''}} {{!subscribed ? 'has-bell' : ''}}"
+          bindtap="onSubscribeTap"
+          aria-label="订阅消息提醒"
+        >
+          <image wx:if="{{!subscribed}}" class="subscribe-bell" src="/assets/icons/bell-white.svg" mode="aspectFit" />
+          <text class="subscribe-text">{{subscribed ? '已订阅' : '订阅'}}</text>
+        </view>
       </view>
     </view>
 

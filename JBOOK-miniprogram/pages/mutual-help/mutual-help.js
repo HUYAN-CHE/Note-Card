@@ -34,6 +34,7 @@ Page({
     heroNavHeight: 32,
     heroNavRight: 96,
     subscribed: false,
+    unreadCount: 0,
     contentScrollHeight: 500,
     selectedHelperId: '',
     helpers: [{ id: 'add', type: 'add', name: '添加', avatar: '' }],
@@ -176,6 +177,28 @@ Page({
   onShow() {
     this.loadMyProfile();
     this.loadSubscribeState();
+    this.loadUnreadCount();
+  },
+
+  // 消息中心未读角标：轻量调用，静默失败不提示
+  async loadUnreadCount() {
+    const app = getApp();
+    if (!app.globalData || !app.globalData.cloudReady || !wx.cloud) return;
+    try {
+      const res = await wx.cloud.callFunction({
+        name: 'getMyMessages',
+        data: { action: 'unread' }
+      });
+      if (res.result && res.result.code === 0 && res.result.data) {
+        this.setData({ unreadCount: res.result.data.unreadCount || 0 });
+      }
+    } catch (e) {}
+  },
+
+  onMessageTap() {
+    wx.navigateTo({
+      url: '/pages/messages/messages'
+    });
   },
 
   updateSystemInfo() {
@@ -281,9 +304,10 @@ Page({
   async onChooseAvatar(event) {
     const tempUrl = event.detail.avatarUrl;
     if (!tempUrl) return;
-    // chooseAvatar 返回临时路径（重启即失效），先上传云存储换 fileID 再保存
+    // chooseAvatar 返回临时路径（重启即失效），先上传云存储换 fileID 再保存；
+    // 上传失败置空走首字母兜底——http://tmp 临时路径在其他用户设备上加载不了，写库即裂图
     const fileID = await uploadAvatar(tempUrl);
-    this.saveMyProfile({ avatar: fileID || tempUrl });
+    this.saveMyProfile({ avatar: fileID || '' });
   },
 
   onChooseNickname(event) {
@@ -340,9 +364,13 @@ Page({
             .limit(1)
             .get();
           // 注意：_openid 是系统保留字段不允许写入，add 时云库自动填充
+          // 防御：历史本地缓存可能残留 http://tmp 临时头像路径，不写库（其他设备加载不了）
+          const safeAvatar = nextProfile.avatar && nextProfile.avatar.indexOf('http://tmp') !== 0
+            ? nextProfile.avatar
+            : '';
           const data = {
             nickName: nextProfile.nickname,
-            avatarUrl: nextProfile.avatar,
+            avatarUrl: safeAvatar,
             initial: nextProfile.initial,
             updatedAt: Date.now()
           };

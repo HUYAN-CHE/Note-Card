@@ -6,6 +6,41 @@ cloud.init({
 
 const db = cloud.database();
 
+// 写消息到收件箱；失败仅打日志，不影响主流程
+async function writeMessage(openid, type, { title, content, cardId, requestId }) {
+  try {
+    if (!openid) return;
+    await db.collection('messages').add({
+      data: {
+        _openid: openid,
+        type,
+        title,
+        content: content || '',
+        cardId: cardId || '',
+        requestId: requestId || '',
+        read: false,
+        createdAt: Date.now()
+      }
+    });
+  } catch (e) {
+    console.error('writeMessage error', e);
+  }
+}
+
+// 查用户昵称，无记录兜底「新朋友」
+async function getNickname(openid) {
+  try {
+    const res = await db.collection('users')
+      .where({ _openid: openid })
+      .limit(1)
+      .get();
+    const user = res.data && res.data[0];
+    return (user && user.nickName) || '新朋友';
+  } catch (e) {
+    return '新朋友';
+  }
+}
+
 exports.main = async (event, context) => {
   const wxContext = cloud.getWXContext();
   const openid = wxContext.OPENID;
@@ -46,12 +81,12 @@ exports.main = async (event, context) => {
       return { code: -7, message: '已经是协助者' };
     }
 
-    // 检查是否已有待审申请
+    // 检查是否已有待处理申请（pending=待卡主审批，pending_intermediary=待引荐）
     const existRes = await db.collection('joinRequests')
       .where({
         cardId,
         applicantId: openid,
-        status: 'pending'
+        status: db.command.in(['pending', 'pending_intermediary'])
       })
       .limit(1)
       .get();
@@ -60,6 +95,10 @@ exports.main = async (event, context) => {
       return { code: -8, message: '已有待审申请' };
     }
 
+    // 引荐制：从互助页/一度好友分享进入（带引荐人）的申请先置「待引荐」，
+    // 由引荐人确认后才变为 pending 到达卡主；无引荐入口直接到卡主
+    const status = intermediaryId ? 'pending_intermediary' : 'pending';
+
     const now = Date.now();
     const res = await db.collection('joinRequests').add({
       data: {
@@ -67,17 +106,29 @@ exports.main = async (event, context) => {
         applicantId: openid,
         intermediaryId: intermediaryId || '',
         note: note.trim(),
-        status: 'pending',
+        status,
         createdAt: now,
         updatedAt: now
       }
+    });
+
+    // 消息中心：通知引荐人（有引荐人时）或创建者有新申请
+    const applicantName = await getNickname(openid);
+    await writeMessage(intermediaryId || card.creatorId, 'join_request', {
+      title: '新的加入申请',
+      content: intermediaryId
+        ? `${applicantName} 申请加入「${card.title}」，等你引荐`
+        : `${applicantName} 申请加入你的「${card.title}」`,
+      cardId,
+      requestId: res._id
     });
 
     return {
       code: 0,
       message: 'success',
       data: {
-        requestId: res._id
+        requestId: res._id,
+        status
       }
     };
   } catch (error) {

@@ -7,6 +7,27 @@ cloud.init({
 const db = cloud.database();
 const _ = db.command;
 
+// 写消息到收件箱；失败仅打日志，不影响主流程
+async function writeMessage(openid, type, { title, content, cardId, requestId }) {
+  try {
+    if (!openid) return;
+    await db.collection('messages').add({
+      data: {
+        _openid: openid,
+        type,
+        title,
+        content: content || '',
+        cardId: cardId || '',
+        requestId: requestId || '',
+        read: false,
+        createdAt: Date.now()
+      }
+    });
+  } catch (e) {
+    console.error('writeMessage error', e);
+  }
+}
+
 // 订阅消息额度累计：
 // - 用户每次授权订阅消息，前端调用本函数给 users.subscribeCount +1
 // - sendReminder 发送一条提醒则 -1，额度即剩余可推送条数
@@ -47,6 +68,13 @@ exports.main = async (event) => {
       await users.doc(user._id).update({
         data: { subscribeCount: _.inc(-1) }
       });
+      // 消息中心：额度刚扣到 0 时提示重新订阅
+      if (count - 1 === 0) {
+        await writeMessage(openid, 'reminder', {
+          title: '提醒额度已用完',
+          content: '提醒额度已用完，重新订阅以继续接收提醒'
+        });
+      }
       return { code: 0, data: { subscribed: count - 1 > 0, count: count - 1 } };
     }
 
@@ -66,8 +94,10 @@ exports.main = async (event) => {
       }
       await users.doc(user._id).update({ data });
     } else {
-      // 注意：_openid 是系统保留字段不允许写入，add 时云库自动填充
+      // 云函数端 add 不会自动填充 _openid（仅小程序端会），必须显式写入，
+      // 否则产生 _openid 为空的脏记录，且后续 where({_openid}) 查不到会重复 add
       const data = {
+        _openid: openid,
         subscribeCount: 1,
         reminderEnabled: hasReminderPref ? event.reminderEnabled : false,
         createdAt: db.serverDate()
@@ -77,6 +107,13 @@ exports.main = async (event) => {
       }
       await users.add({ data });
     }
+
+    // 消息中心：订阅成功提示（额度 +1 后）
+    await writeMessage(openid, 'reminder', {
+      title: '提醒订阅成功',
+      content: '提醒订阅成功，截止日前会提醒你'
+    });
+
     return { code: 0, data: { subscribed: true, count: count + 1 } };
   } catch (e) {
     return { code: -1, message: e.message || '订阅失败' };

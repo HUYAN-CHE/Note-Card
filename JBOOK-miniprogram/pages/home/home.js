@@ -157,9 +157,8 @@ Page({
     // 先用临时路径即时显示；上传云存储成功后换 cloud:// fileID（临时路径重启即失效）
     this.setData({ 'authProfile.avatar': tempUrl });
     const fileID = await uploadAvatar(tempUrl);
-    if (fileID) {
-      this.setData({ 'authProfile.avatar': fileID });
-    }
+    // 上传失败不保留微信临时路径：http://tmp 在其他用户设备上加载不了，写库即裂图，置空走首字母兜底
+    this.setData({ 'authProfile.avatar': fileID || '' });
     this.tryFinishAuth();
   },
 

@@ -1,6 +1,6 @@
 # 云开发数据库说明
 
-在微信开发者工具中开通云开发后，创建以下 4 个集合。
+在微信开发者工具中开通云开发后，创建以下 6 个集合。
 
 ## cards（记事卡）
 
@@ -83,6 +83,23 @@
 - `createdAt`：操作时间戳。
 
 由 `updateCard`、`inviteHelper`、`approveJoinRequest` 云函数写入，通过 `getCardActivities` 云函数读取（仅创作者/协助者可查，按时间倒序返回最近 50 条）。
+
+## messages（消息中心）
+
+记录站内消息（收件箱），由各业务云函数在事件发生时写入。
+
+核心字段：
+
+- `_openid`：收件人 openid。
+- `type`：消息类型，`card_expired`（记事卡已过期）、`reminder`（提醒订阅）、`join_request`（申请加入/引荐）、`join_result`（申请结果）、`member`（会员消息）。
+- `title`：消息标题。
+- `content`：消息正文。
+- `cardId`：关联记事卡业务 ID（可空）。
+- `requestId`：关联加入申请 ID（可空）。
+- `read`：是否已读，`true` / `false`。
+- `createdAt`：创建时间戳。
+
+由 `applyToJoinCard`、`endorseJoinRequest`、`approveJoinRequest`、`sendReminder`、`subscribeReminder`、`membership` 云函数写入，通过 `getMyMessages` 云函数读取（按时间倒序返回最近 50 条）、`markMessagesRead` 云函数标记已读。
 
 ## 开发期权限建议
 

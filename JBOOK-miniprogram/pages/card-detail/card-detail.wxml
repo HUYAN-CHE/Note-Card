@@ -152,7 +152,13 @@
       <button class="footer-btn ghost" bindtap="onSavePoster" data-action="save-poster" aria-label="保存卡片"><image class="footer-icon" src="/assets/icons/save-green.svg" mode="aspectFit" />保存卡片</button>
       <button class="footer-btn primary" open-type="share" data-action="share" aria-label="邀请协作"><image class="footer-icon" src="/assets/icons/share-white.svg" mode="aspectFit" />邀请协作</button>
     </block>
-    <button class="footer-btn primary wide" wx:if="{{isNetworkView}}" bindtap="openApplySheet">申请加入</button>
+    <!-- 网络访客（非创建者/协作人）：按自己的申请状态渲染底部按钮 -->
+    <block wx:if="{{isNetworkView}}">
+      <button class="footer-btn primary wide" wx:if="{{!myJoinStatus}}" bindtap="openApplySheet">申请加入</button>
+      <button class="footer-btn primary wide" wx:elif="{{myJoinStatus === 'pending_intermediary'}}" open-type="share" data-action="share" aria-label="转发给好友引荐">待引荐 · 转发给好友引荐</button>
+      <button class="footer-btn primary wide" wx:elif="{{myJoinStatus === 'pending'}}" disabled>已申请，等待通过</button>
+      <button class="footer-btn primary wide" wx:elif="{{myJoinStatus === 'rejected'}}" bindtap="openApplySheet">申请已被拒绝 · 重新申请</button>
+    </block>
     <button class="footer-btn primary wide" wx:if="{{canAcceptInvite}}" bindtap="acceptInvite">接受邀请</button>
   </view>
 
@@ -254,4 +260,31 @@
 
   <!-- 海报画布（离屏渲染，保存卡片时使用） -->
   <canvas type="2d" id="posterCanvas" class="poster-canvas"></canvas>
+
+  <!-- 授权补全弹窗（接受邀请后，与首页授权弹窗同款） -->
+  <view class="auth-mask" wx:if="{{showAuthModal}}" catchtap="closeAuthModal">
+    <view class="auth-modal" catchtap="onPreventBubble">
+      <view class="auth-title">授权登录</view>
+      <view class="auth-desc">完善头像和昵称，让协作伙伴认出你</view>
+      <view class="auth-actions">
+        <button
+          class="auth-avatar-btn {{authProfile.avatar ? 'done' : ''}}"
+          open-type="chooseAvatar"
+          bind:chooseavatar="onAuthAvatar"
+        >
+          <text wx:if="{{!authProfile.avatar}}">授权头像</text>
+          <image wx:else class="auth-avatar-img" src="{{authProfile.avatar}}" mode="aspectFill" />
+        </button>
+        <input
+          class="auth-nickname-input {{authProfile.nickname ? 'done' : ''}}"
+          type="nickname"
+          placeholder="点击输入昵称"
+          value="{{authProfile.nickname}}"
+          bindinput="onAuthNicknameInput"
+          maxlength="20"
+        />
+      </view>
+      <view class="auth-close" bindtap="closeAuthModal">稍后再说</view>
+    </view>
+  </view>
 </view>

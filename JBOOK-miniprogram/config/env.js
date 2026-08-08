@@ -8,6 +8,7 @@ module.exports = {
     cards: 'cards',
     users: 'users',
     relationships: 'relationships',
-    joinRequests: 'joinRequests'
+    joinRequests: 'joinRequests',
+    messages: 'messages'
   }
 };

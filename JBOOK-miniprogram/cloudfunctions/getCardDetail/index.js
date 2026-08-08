@@ -115,6 +115,25 @@ exports.main = async (event, context) => {
       }
     }
 
+    // 查询访客自己的最新一条申请（申请人状态可见；创建者视角走 pendingRequests）
+    let myJoinRequest = null;
+    if (role === 'network') {
+      const myReqRes = await db.collection('joinRequests')
+        .where({ cardId: id, applicantId: openid })
+        .orderBy('createdAt', 'desc')
+        .limit(1)
+        .get();
+
+      const myReq = myReqRes.data && myReqRes.data[0];
+      if (myReq) {
+        myJoinRequest = {
+          id: myReq._id,
+          status: myReq.status,
+          note: myReq.note || ''
+        };
+      }
+    }
+
     const data = {
       ...card,
       role,
@@ -128,7 +147,8 @@ exports.main = async (event, context) => {
         initial: creatorUser ? creatorUser.initial || getInitial(creatorName) : '?'
       },
       helpers,
-      pendingRequests
+      pendingRequests,
+      myJoinRequest
     };
 
     return { code: 0, message: 'success', data };

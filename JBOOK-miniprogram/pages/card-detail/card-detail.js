@@ -1,5 +1,9 @@
 const store = require('../../utils/store.js');
 const { getNavInfo } = require('../../utils/ui');
+const { collections } = require('../../config/env');
+const { uploadAvatar } = require('../../utils/upload-avatar');
+
+const USER_PROFILE_KEY = 'JISHIKA_USER_PROFILE';
 
 const STATUS_MAP = {
   draft: { text: '待确认', class: 'todo' },
@@ -61,6 +65,11 @@ Page({
     showApplySheet: false,
     applyMessage: '',
     pendingRequests: [],
+    // 互助页带入的引荐人 openid（helperOpenid）
+    intermediaryOpenid: '',
+    // 申请人视角：自己最新一条申请的状态与 ID（空串=无申请）
+    myJoinStatus: '',
+    myJoinRequestId: '',
     loading: false,
     safeAreaBottom: 0,
     cardReady: false,
@@ -81,7 +90,14 @@ Page({
     visibleAvatars: [],
     showAvatarMore: false,
     allCollaborators: [],
-    showHelpersSheet: false
+    showHelpersSheet: false,
+    // 接受邀请后的授权补全弹窗（与首页授权弹窗同款）
+    showAuthModal: false,
+    authProfile: {
+      nickname: '',
+      avatar: '',
+      initial: ''
+    }
   },
 
   onLoad(options) {
@@ -107,10 +123,13 @@ Page({
     const cardId = options.id || '';
     // 支持 ?ref= 短码与小程序码 scene（r=XXXXXX）进入，统一转大写
     const refCode = (options.ref || parseSceneRef(options.scene) || '').toUpperCase();
+    // 互助页带入的引荐人 openid；endorse= 为「帮 TA 引荐」分享链接带入的申请 ID
+    const intermediaryOpenid = options.helperOpenid || '';
+    this.endorseRequestId = options.endorse || '';
 
     if (cardId) {
-      this.setData({ cardId });
-      this.loadCard(cardId);
+      this.setData({ cardId, intermediaryOpenid });
+      this.loadCard(cardId).then(() => this.maybePromptEndorse());
     } else if (refCode) {
       this.loadCardByRef(refCode);
     } else {
@@ -200,6 +219,8 @@ Page({
     const creator = data.creator || this.data.creator;
     const helpers = data.helpers || [];
     const avatarGroup = this.buildAvatarGroup(creator, helpers);
+    // 申请人视角：自己最新一条申请（仅 network 角色云端才会返回）
+    const myJoinRequest = data.myJoinRequest || null;
 
     this.setData({
       card: data,
@@ -218,6 +239,8 @@ Page({
       isNetworkView,
       canAcceptInvite: role === 'stranger' && !isNetworkView,
       pendingRequests: data.pendingRequests || [],
+      myJoinStatus: myJoinRequest ? myJoinRequest.status : '',
+      myJoinRequestId: myJoinRequest ? myJoinRequest.id : '',
       cardReady: true,
       canEditStatus: isCreator || isHelper,
       refCode: data.refCode || '',
@@ -267,6 +290,9 @@ Page({
       isNetworkView: false,
       canAcceptInvite: !isCreator && !isHelper,
       pendingRequests: [],
+      // 本地兜底路径无云端申请数据，按无申请处理
+      myJoinStatus: '',
+      myJoinRequestId: '',
       cardReady: true,
       canEditStatus: isCreator || isHelper,
       refCode: card.refCode || '',
@@ -424,23 +450,76 @@ Page({
   },
 
   async submitApply() {
-    const { cardId, applyMessage } = this.data;
+    const { cardId, applyMessage, intermediaryOpenid } = this.data;
     if (!cardId) return;
 
     try {
       const res = await wx.cloud.callFunction({
         name: 'applyToJoinCard',
-        data: { cardId, note: applyMessage }
+        data: { cardId, note: applyMessage, intermediaryId: intermediaryOpenid || '' }
       });
 
       if (res.result && res.result.code === 0) {
-        wx.showToast({ title: '申请已提交', icon: 'success' });
+        const result = res.result.data || {};
+        const status = result.status || 'pending';
         this.closeApplySheet();
+
+        if (status === 'pending_intermediary') {
+          // 引荐制：申请先到引荐人，引导申请人转发给一度好友帮忙引荐
+          this.setData({
+            myJoinStatus: 'pending_intermediary',
+            myJoinRequestId: result.requestId || ''
+          });
+          wx.showModal({
+            title: '申请已提交',
+            content: '还需好友帮你引荐给卡主。点底部「待引荐 · 转发给好友引荐」把申请发给 TA',
+            confirmText: '知道了',
+            showCancel: false
+          });
+        } else {
+          this.setData({ myJoinStatus: 'pending' });
+          wx.showToast({ title: '申请已提交', icon: 'success' });
+        }
       } else {
         wx.showToast({ title: res.result.message || '申请失败', icon: 'none' });
       }
     } catch (e) {
       wx.showToast({ title: '申请失败', icon: 'none' });
+    }
+  },
+
+  // 通过「帮 TA 引荐」分享链接进入：卡片加载完成后弹引荐确认
+  maybePromptEndorse() {
+    const requestId = this.endorseRequestId;
+    if (!requestId || !this.data.cardReady) return;
+    this.endorseRequestId = '';
+
+    const title = (this.data.card && this.data.card.title) || '这张卡';
+    wx.showModal({
+      title: '帮 TA 引荐',
+      content: `你的好友申请加入「${title}」，确认帮 TA 引荐给卡主？`,
+      confirmText: '帮 TA 引荐',
+      cancelText: '再看看',
+      success: (res) => {
+        if (res.confirm) this.endorseJoinRequest(requestId);
+      }
+    });
+  },
+
+  async endorseJoinRequest(requestId) {
+    try {
+      const res = await wx.cloud.callFunction({
+        name: 'endorseJoinRequest',
+        data: { requestId }
+      });
+
+      if (res.result && res.result.code === 0) {
+        wx.showToast({ title: '已引荐给卡主', icon: 'success' });
+      } else {
+        wx.showToast({ title: (res.result && res.result.message) || '引荐失败', icon: 'none' });
+      }
+    } catch (e) {
+      wx.showToast({ title: '引荐失败', icon: 'none' });
     }
   },
 
@@ -458,6 +537,9 @@ Page({
       if (res.result && res.result.code === 0) {
         wx.showToast({ title: '已加入', icon: 'success' });
         this.loadCard(cardId);
+        // 被邀请人可能从未走过首页授权：未授权则补弹授权弹窗，
+        // 否则协作者头像组/协作记录只能显示首字母与「未知用户」
+        this.checkInviteAuth();
       } else {
         wx.showToast({ title: res.result.message || '加入失败', icon: 'none' });
       }
@@ -465,6 +547,172 @@ Page({
       wx.showToast({ title: '加入失败', icon: 'none' });
     }
   },
+
+  // ==================== 授权补全（接受邀请后，与首页授权弹窗同款逻辑） ====================
+
+  // 判定口径与首页 home.js checkAuth 一致：本地缓存有效即用，否则回源云端 users 表
+  async checkInviteAuth() {
+    let profile = wx.getStorageSync(USER_PROFILE_KEY) || {};
+    let nickname = profile.nickname && String(profile.nickname).trim();
+    let authorized = Boolean(nickname && nickname !== '我' && profile.avatar);
+
+    if (!authorized) {
+      const cloudProfile = await this.fetchCloudProfile();
+      if (cloudProfile) {
+        profile = cloudProfile;
+        nickname = cloudProfile.nickname;
+        authorized = true;
+        wx.setStorageSync(USER_PROFILE_KEY, cloudProfile);
+        try {
+          getApp().globalData.userProfile = cloudProfile;
+        } catch (e) {}
+      }
+    }
+
+    if (authorized) return;
+
+    const safeNickname = nickname === '我' ? '' : nickname;
+    this.setData({
+      showAuthModal: true,
+      authProfile: {
+        nickname: safeNickname || '',
+        avatar: profile.avatar || '',
+        initial: profile.initial || (safeNickname ? safeNickname.charAt(0).toUpperCase() : '')
+      }
+    });
+  },
+
+  // 从云端 users 表读授权信息；无有效记录返回 null（同首页 fetchCloudProfile）
+  async fetchCloudProfile() {
+    try {
+      const app = getApp();
+      if (!app.globalData || !app.globalData.cloudReady || !wx.cloud) return null;
+      // 冷启动竞态：app 的 login 云函数是异步的，openid 可能还没就绪，短暂等待
+      let openid = app.globalData.openid || wx.getStorageSync('JISHIKA_OPENID');
+      if (!openid) {
+        for (let i = 0; i < 10 && !openid; i++) {
+          await new Promise((r) => setTimeout(r, 300));
+          openid = app.globalData.openid || wx.getStorageSync('JISHIKA_OPENID');
+        }
+      }
+      if (!openid) return null;
+      const db = wx.cloud.database();
+      const res = await db.collection(collections.users)
+        .where({ _openid: openid })
+        .limit(1)
+        .get();
+      const user = res.data && res.data[0];
+      if (!user) return null;
+      const nickname = user.nickName && String(user.nickName).trim();
+      if (!nickname || nickname === '我' || !user.avatarUrl) return null;
+      return {
+        nickname,
+        avatar: user.avatarUrl,
+        initial: user.initial || nickname.charAt(0).toUpperCase(),
+        serviceTags: Array.isArray(user.serviceTags) ? user.serviceTags : []
+      };
+    } catch (e) {
+      return null;
+    }
+  },
+
+  async onAuthAvatar(event) {
+    const tempUrl = event.detail.avatarUrl;
+    if (!tempUrl) return;
+    // 先用临时路径即时显示；上传云存储成功后换 cloud:// fileID（临时路径重启即失效）
+    this.setData({ 'authProfile.avatar': tempUrl });
+    const fileID = await uploadAvatar(tempUrl);
+    // 上传失败不保留微信临时路径：http://tmp 在其他用户设备上加载不了，写库即裂图
+    this.setData({ 'authProfile.avatar': fileID || '' });
+    this.tryFinishAuth();
+  },
+
+  onAuthNicknameInput(event) {
+    const nickname = event.detail.value || '';
+    this.setData({ 'authProfile.nickname': nickname });
+    if (nickname.trim()) {
+      this.setAuthNickname(nickname.trim());
+    }
+  },
+
+  setAuthNickname(nickname) {
+    const initial = nickname.trim().charAt(0).toUpperCase();
+    this.setData({
+      'authProfile.nickname': nickname,
+      'authProfile.initial': initial
+    }, () => {
+      this.tryFinishAuth();
+    });
+  },
+
+  async tryFinishAuth() {
+    const { authProfile } = this.data;
+    if (!authProfile.nickname || !authProfile.avatar) return;
+    await this.finishAuth({ ...authProfile, serviceTags: [] });
+  },
+
+  // upsert users 与首页 finishAuth 一致；成功后刷新本页让头像组立即显示真头像
+  async finishAuth(profile) {
+    const safeProfile = {
+      nickname: cleanNickname(profile.nickname),
+      avatar: profile.avatar || '',
+      initial: profile.initial && String(profile.initial).trim() !== '我' ? String(profile.initial).trim() : '',
+      serviceTags: Array.isArray(profile.serviceTags) ? profile.serviceTags : []
+    };
+    if (safeProfile.nickname && !safeProfile.initial) {
+      safeProfile.initial = safeProfile.nickname.charAt(0).toUpperCase();
+    }
+
+    wx.setStorageSync(USER_PROFILE_KEY, safeProfile);
+    try {
+      const app = getApp();
+      if (app.globalData) app.globalData.userProfile = safeProfile;
+    } catch (e) {}
+
+    this.setData({ showAuthModal: false }, () => {
+      if (this.data.cardId) this.loadCard(this.data.cardId);
+    });
+
+    try {
+      const app = getApp();
+      if (app.globalData && app.globalData.cloudReady && wx.cloud) {
+        const openid = app.globalData.openid || wx.getStorageSync('JISHIKA_OPENID');
+        if (openid) {
+          const db = wx.cloud.database();
+          const res = await db.collection(collections.users)
+            .where({ _openid: openid })
+            .limit(1)
+            .get();
+          // 注意：_openid 是系统保留字段不允许写入，add 时云库自动填充
+          const data = {
+            nickName: safeProfile.nickname,
+            avatarUrl: safeProfile.avatar,
+            initial: safeProfile.initial,
+            serviceTags: safeProfile.serviceTags,
+            updatedAt: Date.now()
+          };
+          if (res.data && res.data[0] && res.data[0]._id) {
+            await db.collection(collections.users).doc(res.data[0]._id).update({ data });
+          } else {
+            await db.collection(collections.users).add({
+              data: { ...data, createdAt: Date.now() }
+            });
+          }
+        }
+      }
+    } catch (error) {
+      // 写云端失败：本地仍可用，但换设备/清缓存后会「被未授权」，提示用户稍后重试
+      console.error('[finishAuth] 授权信息同步云端失败', error);
+      wx.showToast({ title: '授权信息同步失败，请稍后重试', icon: 'none' });
+    }
+  },
+
+  // 跳过授权：不影响已加入协作的结果，静默关闭
+  closeAuthModal() {
+    this.setData({ showAuthModal: false });
+  },
+
+  onPreventBubble() {},
 
   // 审批申请
   async approveRequest(e) {
@@ -474,7 +722,7 @@ Page({
     try {
       const res = await wx.cloud.callFunction({
         name: 'approveJoinRequest',
-        data: { requestId, approved }
+        data: { requestId, status: approved ? 'approved' : 'rejected' }
       });
 
       if (res.result && res.result.code === 0) {
@@ -1018,7 +1266,15 @@ Page({
   },
 
   onShareAppMessage() {
-    const { card, refCode } = this.data;
+    const { card, refCode, myJoinStatus, myJoinRequestId } = this.data;
+    // 待引荐状态：分享即「请好友帮我引荐」，path 携带申请 ID（endorse）
+    if (myJoinStatus === 'pending_intermediary' && myJoinRequestId && card.id) {
+      return {
+        title: `帮我在《${card.title || '记事卡'}》里引荐一下`,
+        path: `/pages/card-detail/card-detail?id=${card.id}&endorse=${myJoinRequestId}`,
+        imageUrl: '/assets/logo.png'
+      };
+    }
     const title = card.title
       ? `邀请你一起用《${card.title}》`
       : '邀请你一起用记事卡';
