@@ -8,14 +8,8 @@
   <view class="user-area" style="padding-top: {{heroPaddingTop}}px;">
       <view class="user-row">
         <text class="nickname">{{user.nickname || '点击授权'}}</text>
-        <view class="user-actions">
-          <!-- 绑定/换绑手机号：未绑定显示引导文案，已绑定显示脱敏号码（点击可换绑） -->
-          <button class="phone-bind-btn" open-type="getPhoneNumber" bindgetphonenumber="onGetPhoneNumber">
-            {{phoneMasked || '绑定手机号'}}
-          </button>
-          <view class="user-arrow" bindtap="onLogoutTap" aria-label="退出登录">
-            <image class="user-arrow-icon" src="/assets/icons/logout-green.svg" mode="aspectFit" />
-          </view>
+        <view class="user-arrow" bindtap="onLogoutTap" aria-label="账号设置">
+          <image class="user-arrow-icon" src="/assets/icons/logout-green.svg" mode="aspectFit" />
         </view>
       </view>
       <view class="skill-row">
@@ -209,4 +203,13 @@
         <empty-state title="{{emptyText}}" mode="simple" />
       </view>
     </view>
+
+  <!-- 账号弹层：点右上角箭头弹出——绑定/换绑手机号、会员管理（管理员）、退出登录 -->
+  <view class="account-mask" wx:if="{{showAccountSheet}}" bindtap="closeAccountSheet"></view>
+  <view class="account-sheet" wx:if="{{showAccountSheet}}">
+    <button class="account-item" open-type="getPhoneNumber" bindgetphonenumber="onGetPhoneNumber">{{phoneMasked ? '更换手机号（' + phoneMasked + '）' : '绑定手机号'}}</button>
+    <view class="account-item" wx:if="{{isAdmin}}" bindtap="onAdminTap">会员管理</view>
+    <view class="account-item account-item-danger" bindtap="onLogoutConfirm">退出登录</view>
+    <view class="account-cancel" bindtap="closeAccountSheet">取消</view>
+  </view>
 </view>

@@ -74,7 +74,9 @@ Page({
     // 管理员标识：true 时右上角菜单出现「会员管理」入口
     isAdmin: false,
     loading: false,
-    emptyText: '还没有记事卡'
+    emptyText: '还没有记事卡',
+    // 账号弹层：绑定手机号/会员管理/退出登录
+    showAccountSheet: false
   },
 
   onLoad() {
@@ -136,7 +138,7 @@ Page({
       .then((res) => {
         const r = res.result || {};
         if (r.code === 0 && r.data) {
-          this.setData({ phoneMasked: r.data.phoneMasked || '' });
+          this.setData({ phoneMasked: r.data.phoneMasked || '', showAccountSheet: false });
           wx.showToast({ title: '已绑定', icon: 'success' });
         } else {
           wx.showToast({ title: r.message || '绑定失败，请重试', icon: 'none' });
@@ -354,19 +356,23 @@ Page({
     wx.navigateTo({ url: '/pages/member/member' });
   },
 
-  // 右上角箭头：管理员含「会员管理」入口，其余为退出登录
+  // 右上角箭头：弹账号弹层——绑定/换绑手机号、会员管理（管理员）、退出登录
   onLogoutTap() {
-    const items = this.data.isAdmin ? ['会员管理', '退出登录'] : ['退出登录'];
-    wx.showActionSheet({
-      itemList: items,
-      success: (res) => {
-        if (items[res.tapIndex] === '会员管理') {
-          wx.navigateTo({ url: '/pages/admin/admin' });
-        } else if (items[res.tapIndex] === '退出登录') {
-          this.logout();
-        }
-      }
-    });
+    this.setData({ showAccountSheet: true });
+  },
+
+  closeAccountSheet() {
+    this.setData({ showAccountSheet: false });
+  },
+
+  onAdminTap() {
+    this.setData({ showAccountSheet: false });
+    wx.navigateTo({ url: '/pages/admin/admin' });
+  },
+
+  onLogoutConfirm() {
+    this.setData({ showAccountSheet: false });
+    this.logout();
   },
 
   async logout() {

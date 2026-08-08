@@ -53,28 +53,56 @@
   height: 36rpx;
 }
 
-/* 用户区右侧操作组：绑定手机号胶囊 + 退出 icon */
-.user-actions {
+/* 账号弹层：遮罩 + 底部面板 */
+.account-mask {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 90;
+}
+
+.account-sheet {
+  position: fixed;
+  left: 24rpx;
+  right: 24rpx;
+  bottom: calc(24rpx + env(safe-area-inset-bottom));
+  z-index: 91;
   display: flex;
-  align-items: center;
-  gap: 16rpx;
-  flex-shrink: 0;
+  flex-direction: column;
+  gap: 12rpx;
 }
 
-/* 绑定手机号胶囊：与 skill-edit-btn 同款小胶囊，重置 button 默认样式 */
-.phone-bind-btn {
+.account-item {
+  background: #ffffff;
+  border-radius: 16rpx;
+  text-align: center;
+  padding: 28rpx 0;
+  font-size: 30rpx;
+  color: #162116;
+  line-height: 1.4;
   margin: 0;
-  padding: 8rpx 24rpx;
-  font-size: 26rpx;
-  line-height: 1.5;
-  color: #16a34a;
-  border-radius: 28rpx;
-  font-weight: 500;
-  background: rgba(22, 163, 74, 0.05);
 }
 
-.phone-bind-btn::after {
+.account-item::after {
   border: none;
+}
+
+.account-item-danger {
+  color: #e53935;
+}
+
+.account-cancel {
+  background: #ffffff;
+  border-radius: 16rpx;
+  text-align: center;
+  padding: 28rpx 0;
+  font-size: 30rpx;
+  color: #9baaa3;
+  line-height: 1.4;
+  margin-top: 4rpx;
 }
 
 .skill-row {
