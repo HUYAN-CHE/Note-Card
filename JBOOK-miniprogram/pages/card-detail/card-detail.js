@@ -828,9 +828,9 @@ Page({
     if (statusClass === 'expired') {
       statusExplainText = '这张卡已经过了截止日期。';
     } else if (reminderOn) {
-      statusExplainText = '你已订阅提醒，截止日前一天会微信提醒你。';
+      statusExplainText = '你已订阅提醒。订阅是全局累计额度：所有未过期卡都会在截止日前一天微信提醒你，每提醒一张扣一次额度。';
     } else {
-      statusExplainText = '你还没有订阅提醒。订阅后，截止日前一天会微信提醒你。';
+      statusExplainText = '你还没有订阅提醒。订阅是全局累计额度：订阅一次，所有未过期卡都会在截止日前一天微信提醒你。';
     }
     this.setData({ showStatusSheet: true, statusExplainText });
   },
