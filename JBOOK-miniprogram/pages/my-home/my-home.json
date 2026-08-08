@@ -3,6 +3,7 @@
   "backgroundColor": "#f7f1e4",
   "usingComponents": {
     "custom-nav": "/components/custom-nav/custom-nav",
-    "empty-state": "/components/empty-state/empty-state"
+    "empty-state": "/components/empty-state/empty-state",
+    "bottom-sheet": "/components/bottom-sheet/bottom-sheet"
   }
 }

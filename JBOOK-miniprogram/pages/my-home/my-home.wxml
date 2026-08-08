@@ -204,12 +204,12 @@
       </view>
     </view>
 
-  <!-- 账号弹层：点右上角箭头弹出——绑定/换绑手机号、会员管理（管理员）、退出登录 -->
-  <view class="account-mask" wx:if="{{showAccountSheet}}" bindtap="closeAccountSheet"></view>
-  <view class="account-sheet" wx:if="{{showAccountSheet}}">
-    <button class="account-item" open-type="getPhoneNumber" bindgetphonenumber="onGetPhoneNumber">{{phoneMasked ? '更换手机号（' + phoneMasked + '）' : '绑定手机号'}}</button>
-    <view class="account-item" wx:if="{{isAdmin}}" bindtap="onAdminTap">会员管理</view>
-    <view class="account-item account-item-danger" bindtap="onLogoutConfirm">退出登录</view>
-    <view class="account-cancel" bindtap="closeAccountSheet">取消</view>
-  </view>
+  <!-- 账号弹窗（bottom-sheet）：绑定/换绑手机号、会员管理（管理员）、退出登录 -->
+  <bottom-sheet visible="{{showAccountSheet}}" title="账号" bind:close="closeAccountSheet">
+    <view class="account-body">
+      <button class="sheet-btn primary" open-type="getPhoneNumber" bindgetphonenumber="onGetPhoneNumber">{{phoneMasked ? '更换手机号（' + phoneMasked + '）' : '绑定手机号'}}</button>
+      <view class="sheet-btn ghost" wx:if="{{isAdmin}}" bindtap="onAdminTap">会员管理</view>
+      <view class="sheet-btn ghost account-danger" bindtap="onLogoutConfirm">退出登录</view>
+    </view>
+  </bottom-sheet>
 </view>

@@ -53,56 +53,39 @@
   height: 36rpx;
 }
 
-/* 账号弹层：遮罩 + 底部面板 */
-.account-mask {
-  position: fixed;
-  left: 0;
-  right: 0;
-  top: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.45);
-  z-index: 90;
-}
-
-.account-sheet {
-  position: fixed;
-  left: 24rpx;
-  right: 24rpx;
-  bottom: calc(24rpx + env(safe-area-inset-bottom));
-  z-index: 91;
+/* 账号弹窗内容（bottom-sheet 内）：主操作绿胶囊 + 次级灰底行 */
+.account-body {
   display: flex;
   flex-direction: column;
-  gap: 12rpx;
+  gap: 20rpx;
 }
 
-.account-item {
-  background: #ffffff;
-  border-radius: 16rpx;
-  text-align: center;
-  padding: 28rpx 0;
+.sheet-btn {
+  height: 88rpx;
+  line-height: 88rpx;
+  border-radius: 999rpx;
   font-size: 30rpx;
-  color: #162116;
-  line-height: 1.4;
+  font-weight: 600;
+  text-align: center;
   margin: 0;
 }
 
-.account-item::after {
-  border: none;
+.sheet-btn::after {
+  display: none;
 }
 
-.account-item-danger {
+.sheet-btn.primary {
+  color: #fff;
+  background: #4caf50;
+}
+
+.sheet-btn.ghost {
+  color: #666;
+  background: #f0f0f0;
+}
+
+.account-danger {
   color: #e53935;
-}
-
-.account-cancel {
-  background: #ffffff;
-  border-radius: 16rpx;
-  text-align: center;
-  padding: 28rpx 0;
-  font-size: 30rpx;
-  color: #9baaa3;
-  line-height: 1.4;
-  margin-top: 4rpx;
 }
 
 .skill-row {
