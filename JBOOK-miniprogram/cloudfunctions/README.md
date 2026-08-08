@@ -8,13 +8,13 @@
 |---|---|
 | `login` | 获取当前用户 openid |
 | `getMutualHelpers` | 查询当前用户的一度人脉 |
-| `getNetworkCards` | 查询某一度人脉的二度人脉可见卡 |
+| `getNetworkCards` | 查询某一度人脉本人的可见卡（own）+ 其二度人脉可见卡（secondDegree） |
 | `getMyHomeData` | 获取我的主页数据 |
 | `analyzeServiceTags` | 分析记事卡，提取服务能力标签候选 |
 | `createCard` | 创建记事卡 |
 | `updateCard` | 更新记事卡 |
 | `getCardDetail` | 按身份返回记事卡详情 |
-| `inviteHelper` | 接受邀请成为协助者，建立一度关系 |
+| `inviteHelper` | 接受邀请成为协助者，按邀请人建立一度/二度关系 |
 | `applyToJoinCard` | 二度人脉申请加入记事卡 |
 | `approveJoinRequest` | 创作者审批加入申请 |
 

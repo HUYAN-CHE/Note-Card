@@ -88,7 +88,7 @@ exports.main = async (event, context) => {
     return { code: -1, message: '未获取到用户身份' };
   }
 
-  const { cardId } = event;
+  const { cardId, inviter } = event;
   if (!cardId) {
     return { code: -2, message: '缺少卡片 ID' };
   }
@@ -121,9 +121,18 @@ exports.main = async (event, context) => {
       }
     });
 
-    // 建立双向一度关系
-    await upsertRelationship(openid, card.creatorId, 1, 'invite');
-    await upsertRelationship(card.creatorId, openid, 1, 'invite');
+    // 建立人脉关系：谁邀请的算谁的一度
+    if (!inviter || inviter === card.creatorId || inviter === openid) {
+      // 卡主邀请（或链接未带邀请人）：卡主 ↔ 新人 一度
+      await upsertRelationship(openid, card.creatorId, 1, 'invite');
+      await upsertRelationship(card.creatorId, openid, 1, 'invite');
+    } else {
+      // 共同行动人邀请：邀请人 ↔ 新人 一度；卡主 ↔ 新人 二度（经邀请人）
+      await upsertRelationship(openid, inviter, 1, 'invite');
+      await upsertRelationship(inviter, openid, 1, 'invite');
+      await upsertRelationship(openid, card.creatorId, 2, 'invite_via_helper');
+      await upsertRelationship(card.creatorId, openid, 2, 'invite_via_helper');
+    }
 
     await logActivity(cardId, openid, 'join', '通过邀请加入协作');
 

@@ -332,6 +332,15 @@
   color: #8b9a93;
 }
 
+/* 卡列表分组小标题（「TA 需要什么」「TA 的朋友们需要什么」），比 section-title 小一号 */
+.group-title {
+  display: block;
+  margin: 0 48rpx;
+  font-size: 24rpx;
+  font-weight: 300;
+  color: #8b9a93;
+}
+
 /* Lucky cards */
 .card-list {
   display: flex;

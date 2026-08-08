@@ -132,6 +132,8 @@ Page({
     // 互助页带入的引荐人 openid；endorse= 为「帮 TA 引荐」分享链接带入的申请 ID
     const intermediaryOpenid = options.helperOpenid || '';
     this.endorseRequestId = options.endorse || '';
+    // 邀请分享链接带入的邀请人 openid：用于人脉归属（谁邀请的算谁的一度）
+    this.inviterOpenid = options.inviter || '';
     // 入口区分：互助页二度入口带 view=network、引荐分享带 endorse，其余（ref 短码/裸 id/扫码）均为邀请入口
     this.inviteEntry = options.view !== 'network' && !this.endorseRequestId;
 
@@ -549,7 +551,7 @@ Page({
     try {
       const res = await wx.cloud.callFunction({
         name: 'inviteHelper',
-        data: { cardId }
+        data: { cardId, inviter: this.inviterOpenid || '' }
       });
 
       if (res.result && res.result.code === 0) {
@@ -1285,10 +1287,13 @@ Page({
       ? `邀请你一起用《${card.title}》`
       : '邀请你一起用记事卡';
     let path = '/pages/home/home';
+    // 携带邀请人 openid：被邀请人接受邀请时据此建立人脉归属（拿不到则不加，回退为卡主一度）
+    const inviter = this.getCurrentOpenid();
+    const inviterParam = inviter ? `&inviter=${inviter}` : '';
     if (refCode) {
-      path = `/pages/card-detail/card-detail?ref=${refCode}`;
+      path = `/pages/card-detail/card-detail?ref=${refCode}${inviterParam}`;
     } else if (card.id) {
-      path = `/pages/card-detail/card-detail?id=${card.id}`;
+      path = `/pages/card-detail/card-detail?id=${card.id}${inviterParam}`;
     }
     return {
       title,

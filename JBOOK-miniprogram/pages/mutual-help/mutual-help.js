@@ -38,7 +38,8 @@ Page({
     contentScrollHeight: 500,
     selectedHelperId: '',
     helpers: [{ id: 'add', type: 'add', name: '添加', avatar: '' }],
-    cards: [],
+    ownCards: [],
+    networkCards: [],
     myProfile: {
       nickname: '',
       avatar: '',
@@ -121,14 +122,16 @@ Page({
         this.setData({
           helpers: [{ id: 'add', type: 'add', name: '添加', avatar: '' }],
           selectedHelperId: '',
-          cards: []
+          ownCards: [],
+          networkCards: []
         });
       }
     } catch (error) {
       this.setData({
         helpers: [{ id: 'add', type: 'add', name: '添加', avatar: '' }],
         selectedHelperId: '',
-        cards: []
+        ownCards: [],
+        networkCards: []
       });
     } finally {
       this.setData({ loadingHelpers: false });
@@ -145,10 +148,14 @@ Page({
         name: 'getNetworkCards',
         data: { helperOpenid: helperId }
       });
-      const cards = (res.result && res.result.data) || [];
-      this.setData({ cards });
+      // 新结构：own=TA 自己的卡（一度直达），secondDegree=TA 人脉里我的二度卡
+      const result = (res.result && res.result.data) || {};
+      this.setData({
+        ownCards: result.own || [],
+        networkCards: result.secondDegree || []
+      });
     } catch (error) {
-      this.setData({ cards: [] });
+      this.setData({ ownCards: [], networkCards: [] });
     } finally {
       this.setData({ loadingCards: false });
     }
@@ -388,9 +395,12 @@ Page({
 
   onCardTap(event) {
     const id = event.currentTarget.dataset.id;
-    const helperOpenid = this.data.selectedHelperId;
+    const section = event.currentTarget.dataset.section;
+    // own 段是 TA 本人的卡（我的一度）：申请一步直达卡主，不带引荐人
+    // network 段是二度卡：维持引荐制，带 helperOpenid 走「待引荐 → 引荐 → 卡主审批」
+    const helperParam = section === 'own' ? '' : `&helperOpenid=${this.data.selectedHelperId}`;
     wx.navigateTo({
-      url: `/pages/card-detail/card-detail?id=${id}&helperOpenid=${helperOpenid}&view=network`
+      url: `/pages/card-detail/card-detail?id=${id}${helperParam}&view=network`
     });
   },
 

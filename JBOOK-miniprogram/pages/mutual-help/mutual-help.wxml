@@ -95,24 +95,50 @@
       </view>
 
       <view class="card-list" wx:if="{{!loadingCards}}">
-        <view
-          wx:for="{{cards}}"
-          wx:key="id"
-          class="lucky-card"
-          bindtap="onCardTap"
-          data-id="{{item.id}}"
-          data-action="open_card_detail"
-        >
-          <view class="lucky-circle"></view>
-          <view class="lucky-info">
-            <text class="lucky-title">{{item.title}}</text>
-            <text class="lucky-desc">{{item.desc}}</text>
-            <text class="lucky-meta">{{item.relation}} · {{item.creatorName}} · {{item.status}}</text>
+        <!-- TA 需要什么：helper 本人的公开卡，申请一步直达卡主 -->
+        <block wx:if="{{ownCards.length}}">
+          <text class="group-title">TA 需要什么</text>
+          <view
+            wx:for="{{ownCards}}"
+            wx:key="id"
+            class="lucky-card"
+            bindtap="onCardTap"
+            data-id="{{item.id}}"
+            data-section="own"
+            data-action="open_card_detail"
+          >
+            <view class="lucky-circle"></view>
+            <view class="lucky-info">
+              <text class="lucky-title">{{item.title}}</text>
+              <text class="lucky-desc">{{item.desc}}</text>
+              <text class="lucky-meta">{{item.relation}} · {{item.creatorName}} · {{item.status}}</text>
+            </view>
           </view>
-        </view>
+        </block>
+
+        <!-- TA 的朋友们需要什么：helper 人脉里我的二度卡，申请走引荐制 -->
+        <block wx:if="{{networkCards.length}}">
+          <text class="group-title">TA 的朋友们需要什么</text>
+          <view
+            wx:for="{{networkCards}}"
+            wx:key="id"
+            class="lucky-card"
+            bindtap="onCardTap"
+            data-id="{{item.id}}"
+            data-section="network"
+            data-action="open_card_detail"
+          >
+            <view class="lucky-circle"></view>
+            <view class="lucky-info">
+              <text class="lucky-title">{{item.title}}</text>
+              <text class="lucky-desc">{{item.desc}}</text>
+              <text class="lucky-meta">{{item.relation}} · {{item.creatorName}} · {{item.status}}</text>
+            </view>
+          </view>
+        </block>
       </view>
 
-      <empty-state wx:if="{{!loadingCards && cards.length === 0}}" title="{{authorized ? (selectedHelperId ? '这位朋友暂时没有可见的协作事项' : '先添加协作人，或去事项页创建记事卡') : '请先授权登录，查看协作人脉'}}" mode="simple" />
+      <empty-state wx:if="{{!loadingCards && ownCards.length === 0 && networkCards.length === 0}}" title="{{authorized ? (selectedHelperId ? '这位朋友暂时没有可见的协作事项' : '先添加协作人，或去事项页创建记事卡') : '请先授权登录，查看协作人脉'}}" mode="simple" />
 
       <view class="content-bottom-space"></view>
     </scroll-view>

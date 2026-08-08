@@ -53,13 +53,13 @@
 - `ownerId`：关系拥有者 openid。
 - `contactId`：联系人 openid。
 - `degree`：关系度数，`1` 表示一度人脉，`2` 表示二度人脉。
-- `source`：关系来源，`invite`（邀请）、`join_request`（申请加入）、`card_coop`（卡片协作）。
+- `source`：关系来源，`invite`（邀请）、`invite_via_helper`（经协助者邀请）、`join_request`（申请加入）、`card_coop`（卡片协作）。
 - `lastInteractAt`：最近互动时间。
 - `interactCount`：互动次数。
 - `createdAt`：创建时间。
 
 > 一度人脉关系是单向记录。查询「我的一度人脉」即查询 `ownerId = 我` 且 `degree = 1` 的文档。
-> 接受邀请（`inviteHelper`）建立双向一度关系；申请审批通过（`approveJoinRequest`）建立双向二度关系。已存在的关系度数只升不降（取 min），`interactCount` +1。
+> 接受邀请（`inviteHelper`）：卡主邀请建立卡主 ↔ 新人双向一度；协助者邀请（链接带 `inviter`）建立邀请人 ↔ 新人双向一度 + 卡主 ↔ 新人双向二度（`invite_via_helper`）。申请审批通过（`approveJoinRequest`）建立双向二度关系。已存在的关系度数只升不降（取 min），`interactCount` +1。
 
 ## joinRequests（加入申请）
 
