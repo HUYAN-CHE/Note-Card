@@ -70,6 +70,8 @@
   display: flex;
   flex-direction: column;
   gap: 20rpx;
+  /* 底部留白：让最后一张卡停在底部渐隐带上方，不钻进 tab-bar 后面被裁切 */
+  padding-bottom: calc(220rpx + env(safe-area-inset-bottom));
 }
 
 /* 左滑删除：底层删除按钮 + 内容层位移；wrap 背景与卡片同色，遮盖内容层圆角透出的红边 */
