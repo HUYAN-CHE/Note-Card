@@ -229,21 +229,6 @@
 }
 
 /* 底部 */
-/* 底部渐变浮层：z-40 在滚动内容上、按钮(.footer z-50)下；
-   加高到 600rpx 且 60% 纯白实底——新建页背景是浅绿渐变，
-   矮浮层+半透明会让表单卡与按钮区之间透出一段裸奔的浅绿截断；
-   实底加高后表单卡以下到按钮全是白的渐变，不透绿 */
-.bottom-fade {
-  position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 40;
-  height: calc(360rpx + env(safe-area-inset-bottom));
-  pointer-events: none;
-  /* 实白段拉高到 78%，渐隐段压陡——避免滚动内容（如绿色开关）从半透明段透出残影 */
-  background: linear-gradient(0deg, #ffffff 0%, #ffffff 78%, rgba(255, 255, 255, 0.92) 90%, rgba(255, 255, 255, 0) 100%);
-}
 
 .footer {
   position: fixed;
