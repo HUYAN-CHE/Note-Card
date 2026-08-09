@@ -162,8 +162,8 @@ exports.main = async (event, context) => {
       });
       // 消息中心：告知申请人结果
       await writeMessage(request.applicantId, 'join_result', {
-        title: '申请未通过',
-        content: `你申请加入的「${card.title}」未通过`,
+        title: '这次没成',
+        content: `「${card.title}」这次没能加入，别灰心`,
         cardId: request.cardId,
         requestId
       });
@@ -195,8 +195,8 @@ exports.main = async (event, context) => {
 
     // 消息中心：告知申请人结果
     await writeMessage(request.applicantId, 'join_result', {
-      title: '申请已通过',
-      content: `你申请加入的「${card.title}」已通过`,
+      title: '通过啦',
+      content: `你申请的「${card.title}」通过了，开始协作吧`,
       cardId: request.cardId,
       requestId
     });

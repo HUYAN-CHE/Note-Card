@@ -115,10 +115,10 @@ exports.main = async (event, context) => {
     // 消息中心：通知引荐人（有引荐人时）或创建者有新申请
     const applicantName = await getNickname(openid);
     await writeMessage(intermediaryId || card.creatorId, 'join_request', {
-      title: '新的加入申请',
+      title: '有人想加入',
       content: intermediaryId
-        ? `${applicantName} 申请加入「${card.title}」，等你引荐`
-        : `${applicantName} 申请加入你的「${card.title}」`,
+        ? `${applicantName} 想加入「${card.title}」，等你引荐下`
+        : `${applicantName} 想加入你的「${card.title}」，去看看`,
       cardId,
       requestId: res._id
     });

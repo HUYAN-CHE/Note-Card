@@ -499,10 +499,10 @@ Page({
           });
           const name = this.data.intermediaryName;
           wx.showModal({
-            title: '申请已提交',
+            title: '申请提交啦',
             content: name
-              ? `还需 ${name} 帮你引荐给卡主。点底部「待引荐 · 转发给好友引荐」，把申请发给 ${name} 时请 TA 引荐一下`
-              : '还需中间人帮你引荐给卡主。点底部「待引荐 · 转发给好友引荐」，把申请发给 TA 时请 TA 引荐一下',
+              ? `还得 ${name} 帮你引荐给卡主。点下面按钮发给 TA 就行`
+              : '还得请朋友帮你引荐给卡主。点下面按钮发给 TA 就行',
             confirmText: '知道了',
             showCancel: false
           });
@@ -526,8 +526,8 @@ Page({
 
     const title = (this.data.card && this.data.card.title) || '这张卡';
     wx.showModal({
-      title: '帮 TA 引荐',
-      content: `你的好友想加入「${title}」帮忙，看是否合适，请你引荐给卡主？`,
+      title: '帮个忙？',
+      content: `你的好友想加入「${title}」，你看合适就帮 TA 引荐下`,
       confirmText: '帮 TA 引荐',
       cancelText: '再看看',
       success: (res) => {
@@ -552,8 +552,8 @@ Page({
           endorsedApplicantName: d.applicantName || ''
         });
         wx.showModal({
-          title: '已引荐',
-          content: '再把卡片转发给卡主，请 TA 审批这个申请。点底部「已引荐 · 转发给卡主审批」即可',
+          title: '引荐好了',
+          content: '再发给卡主，让 TA 最后拍板。点下面按钮就行',
           confirmText: '知道了',
           showCancel: false
         });
@@ -579,10 +579,10 @@ Page({
     }
     const title = (this.data.card && this.data.card.title) || '这张卡';
     wx.showModal({
-      title: '加入申请',
-      content: `${req.nickname || '新朋友'} 经引荐申请加入「${title}」${req.note ? `\n申请说明：${req.note}` : ''}`,
-      confirmText: '通过',
-      cancelText: '拒绝',
+      title: '有人想加入',
+      content: `${req.nickname || '新朋友'} 想加入「${title}」，是朋友介绍来的${req.note ? `\nTA 说：${req.note}` : ''}`,
+      confirmText: '让他来',
+      cancelText: '先不了',
       success: (res) => {
         if (res.confirm) {
           this.doApprove(requestId, true);
@@ -1330,7 +1330,7 @@ Page({
     if (endorsedForward && endorsedRequestId && card.id) {
       const who = endorsedApplicantName || '你的朋友';
       return {
-        title: `${who} 想加入《${card.title || '记事卡'}》帮忙，我已引荐，请你审批`,
+        title: `${who} 能帮《${card.title || '记事卡'}》这个忙，我引荐下，你看看`,
         path: `/pages/card-detail/card-detail?id=${card.id}&approve=${endorsedRequestId}`,
         imageUrl: '/assets/logo.png'
       };
@@ -1338,7 +1338,7 @@ Page({
     // 待引荐状态：分享即「请中间人帮我引荐」，path 携带申请 ID（endorse）
     if (myJoinStatus === 'pending_intermediary' && myJoinRequestId && card.id) {
       return {
-        title: `这个我可能能帮上忙——《${card.title || '记事卡'}》，看能否帮我引荐给卡主？`,
+        title: '这个我可能能帮上忙，看能否帮我引荐下',
         path: `/pages/card-detail/card-detail?id=${card.id}&endorse=${myJoinRequestId}`,
         imageUrl: '/assets/logo.png'
       };

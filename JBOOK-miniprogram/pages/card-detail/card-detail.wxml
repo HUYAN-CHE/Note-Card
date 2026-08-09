@@ -152,13 +152,13 @@
       <view class="footer-text-link" bindtap="onSavePoster">保存为图片</view>
     </view>
     <!-- 引荐人视角：引荐成功后引导转发给卡主审批 -->
-    <button class="footer-btn primary wide" wx:if="{{endorsedForward}}" open-type="share" data-action="share" aria-label="转发给卡主审批">已引荐 · 转发给卡主审批</button>
+    <button class="footer-btn primary wide" wx:if="{{endorsedForward}}" open-type="share" data-action="share" aria-label="转发给卡主审批">已引荐 · 发给卡主拍板</button>
     <!-- 网络访客（非创建者/协作人，且非邀请入口）：按自己的申请状态渲染底部按钮 -->
     <block wx:if="{{showApplyArea && !endorsedForward}}">
       <button class="footer-btn primary wide" wx:if="{{!myJoinStatus}}" bindtap="openApplySheet">申请加入</button>
-      <button class="footer-btn primary wide" wx:elif="{{myJoinStatus === 'pending_intermediary'}}" open-type="share" data-action="share" aria-label="转发给好友引荐">待引荐 · 转发给好友引荐</button>
-      <button class="footer-btn primary wide" wx:elif="{{myJoinStatus === 'pending'}}" disabled>已申请，等待通过</button>
-      <button class="footer-btn primary wide" wx:elif="{{myJoinStatus === 'rejected'}}" bindtap="openApplySheet">申请已被拒绝 · 重新申请</button>
+      <button class="footer-btn primary wide" wx:elif="{{myJoinStatus === 'pending_intermediary'}}" open-type="share" data-action="share" aria-label="转发给好友引荐">待引荐 · 请好友引荐</button>
+      <button class="footer-btn primary wide" wx:elif="{{myJoinStatus === 'pending'}}" disabled>已申请，等着呢</button>
+      <button class="footer-btn primary wide" wx:elif="{{myJoinStatus === 'rejected'}}" bindtap="openApplySheet">没通过 · 再申请一次</button>
     </block>
     <button class="footer-btn primary wide" wx:if="{{canAcceptInvite}}" bindtap="acceptInvite">接受邀请</button>
   </view>

@@ -110,8 +110,8 @@ exports.main = async (event, context) => {
       getNickname(openid)
     ]);
     await writeMessage(card.creatorId, 'join_request', {
-      title: '经引荐的新申请',
-      content: `经 ${intermediaryName} 引荐，${applicantName} 申请加入你的「${card.title}」`,
+      title: '朋友引荐了新伙伴',
+      content: `${intermediaryName} 引荐 ${applicantName} 加入「${card.title}」，等你拍板`,
       cardId: request.cardId,
       requestId
     });
