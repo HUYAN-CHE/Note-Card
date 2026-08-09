@@ -71,8 +71,9 @@ Page({
     showApplySheet: false,
     applyMessage: '',
     pendingRequests: [],
-    // 互助页带入的引荐人 openid（helperOpenid）
+    // 互助页带入的引荐人 openid（helperOpenid）与昵称（helperName，引荐引导文案用）
     intermediaryOpenid: '',
+    intermediaryName: '',
     // 申请人视角：自己最新一条申请的状态与 ID（空串=无申请）
     myJoinStatus: '',
     myJoinRequestId: '',
@@ -125,8 +126,9 @@ Page({
     const cardId = options.id || '';
     // 支持 ?ref= 短码与小程序码 scene（r=XXXXXX）进入，统一转大写
     const refCode = (options.ref || parseSceneRef(options.scene) || '').toUpperCase();
-    // 互助页带入的引荐人 openid；endorse= 为「帮 TA 引荐」分享链接带入的申请 ID
+    // 互助页带入的引荐人 openid 与昵称；endorse= 为「帮 TA 引荐」分享链接带入的申请 ID
     const intermediaryOpenid = options.helperOpenid || '';
+    const intermediaryName = options.helperName ? decodeURIComponent(options.helperName) : '';
     this.endorseRequestId = options.endorse || '';
     // 邀请分享链接带入的邀请人 openid：用于人脉归属（谁邀请的算谁的一度）
     this.inviterOpenid = options.inviter || '';
@@ -134,7 +136,7 @@ Page({
     this.inviteEntry = options.view !== 'network' && !this.endorseRequestId;
 
     if (cardId) {
-      this.setData({ cardId, intermediaryOpenid });
+      this.setData({ cardId, intermediaryOpenid, intermediaryName });
       this.loadCard(cardId).then(() => this.maybePromptEndorse());
     } else if (refCode) {
       this.loadCardByRef(refCode);
@@ -481,14 +483,17 @@ Page({
         this.closeApplySheet();
 
         if (status === 'pending_intermediary') {
-          // 引荐制：申请先到引荐人，引导申请人转发给一度好友帮忙引荐
+          // 引荐制：申请先到中间人，引导申请人转发给中间人请 TA 引荐（不绕过中间人）
           this.setData({
             myJoinStatus: 'pending_intermediary',
             myJoinRequestId: result.requestId || ''
           });
+          const name = this.data.intermediaryName;
           wx.showModal({
             title: '申请已提交',
-            content: '还需好友帮你引荐给卡主。点底部「待引荐 · 转发给好友引荐」把申请发给 TA',
+            content: name
+              ? `还需 ${name} 帮你引荐给卡主。点底部「待引荐 · 转发给好友引荐」，把申请发给 ${name} 时请 TA 引荐一下`
+              : '还需中间人帮你引荐给卡主。点底部「待引荐 · 转发给好友引荐」，把申请发给 TA 时请 TA 引荐一下',
             confirmText: '知道了',
             showCancel: false
           });
@@ -513,7 +518,7 @@ Page({
     const title = (this.data.card && this.data.card.title) || '这张卡';
     wx.showModal({
       title: '帮 TA 引荐',
-      content: `你的好友申请加入「${title}」，确认帮 TA 引荐给卡主？`,
+      content: `你的好友想加入「${title}」帮忙，看是否合适，请你引荐给卡主？`,
       confirmText: '帮 TA 引荐',
       cancelText: '再看看',
       success: (res) => {
@@ -1271,10 +1276,10 @@ Page({
 
   onShareAppMessage() {
     const { card, refCode, myJoinStatus, myJoinRequestId } = this.data;
-    // 待引荐状态：分享即「请好友帮我引荐」，path 携带申请 ID（endorse）
+    // 待引荐状态：分享即「请中间人帮我引荐」，path 携带申请 ID（endorse）
     if (myJoinStatus === 'pending_intermediary' && myJoinRequestId && card.id) {
       return {
-        title: `帮我在《${card.title || '记事卡'}》里引荐一下`,
+        title: `这个我可能能帮上忙——《${card.title || '记事卡'}》，看能否帮我引荐给卡主？`,
         path: `/pages/card-detail/card-detail?id=${card.id}&endorse=${myJoinRequestId}`,
         imageUrl: '/assets/logo.png'
       };

@@ -443,8 +443,13 @@ Page({
     const id = event.currentTarget.dataset.id;
     const section = event.currentTarget.dataset.section;
     // own 段是 TA 本人的卡（我的一度）：申请一步直达卡主，不带引荐人
-    // network 段是二度卡：维持引荐制，带 helperOpenid 走「待引荐 → 引荐 → 卡主审批」
-    const helperParam = section === 'own' ? '' : `&helperOpenid=${this.data.selectedHelperId}`;
+    // network 段是二度卡：维持引荐制，带 helperOpenid（中间人）+ helperName（引荐引导文案用）
+    let helperParam = '';
+    if (section !== 'own') {
+      const helper = (this.data.helpers || []).find((h) => h.id === this.data.selectedHelperId);
+      const helperName = (helper && helper.name) || '';
+      helperParam = `&helperOpenid=${this.data.selectedHelperId}&helperName=${encodeURIComponent(helperName)}`;
+    }
     wx.navigateTo({
       url: `/pages/card-detail/card-detail?id=${id}${helperParam}&view=network`
     });
