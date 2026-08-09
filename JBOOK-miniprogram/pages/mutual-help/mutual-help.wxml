@@ -141,5 +141,7 @@
     </scroll-view>
   </view>
 
+  <!-- 底部渐隐浮层：tab 区实白不透，向上缓出渐隐 -->
+  <view class="bottom-fade"></view>
   <tab-bar activeTab="mutual-help" />
 </view>

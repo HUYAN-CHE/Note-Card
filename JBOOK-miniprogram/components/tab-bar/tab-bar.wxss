@@ -1,15 +1,4 @@
 /* 底部 Tab */
-/* 实白底板：胶囊顶边到屏底全宽白底，与页面底色一体；内容滚入此区被盖住（原生 tab 栏行为） */
-.tab-bar-backdrop {
-  position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: calc(124rpx + env(safe-area-inset-bottom));
-  background: #ffffff;
-  z-index: 19;
-}
-
 .tab-bar {
   position: fixed;
   left: 50%;

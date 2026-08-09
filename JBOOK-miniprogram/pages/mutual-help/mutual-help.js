@@ -211,6 +211,8 @@ Page({
     try {
       const sys = wx.getSystemInfoSync();
       const windowHeight = sys.windowHeight || 667;
+      const safeAreaBottom = getSafeAreaBottom();
+      const tabBarHeight = 50 + safeAreaBottom;
 
       const query = wx.createSelectorQuery();
       query.select('.hero').boundingClientRect();
@@ -219,7 +221,7 @@ Page({
         const heroRect = res[0];
         const headerRect = res[1];
         if (!heroRect || !headerRect) return;
-        const scrollHeight = windowHeight - heroRect.height - headerRect.height;
+        const scrollHeight = windowHeight - heroRect.height - headerRect.height - tabBarHeight;
         this.setData({ contentScrollHeight: Math.max(200, scrollHeight) });
       });
     } catch (e) {}

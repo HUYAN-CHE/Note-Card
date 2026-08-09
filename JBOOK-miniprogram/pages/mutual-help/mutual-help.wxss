@@ -399,5 +399,21 @@
 }
 
 .content-bottom-space {
-  height: calc(150rpx + env(safe-area-inset-bottom));
+  height: calc(160rpx + env(safe-area-inset-bottom));
+}
+
+/* 底部渐隐浮层：tab 区（124rpx+安全区）实白不透残影，向上缓出渐隐；z-15 在卡片上、tab(20) 下 */
+.bottom-fade {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 15;
+  height: calc(240rpx + env(safe-area-inset-bottom));
+  pointer-events: none;
+  background: linear-gradient(0deg,
+    rgba(255, 255, 255, 1) 0%,
+    rgba(255, 255, 255, 1) 55%,
+    rgba(255, 255, 255, 0.55) 75%,
+    rgba(255, 255, 255, 0) 100%);
 }

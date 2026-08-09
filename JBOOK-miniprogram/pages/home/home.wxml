@@ -151,6 +151,9 @@
     </scroll-view>
   </view>
 
+  <!-- 底部渐隐浮层：两个 tab 共用；tab 区实白不透，向上缓出渐隐（与新建页 footer 渐隐带同款） -->
+  <view class="bottom-fade"></view>
+
   <tab-bar activeTab="home" />
 
   <!-- 首次登录授权弹窗 -->
