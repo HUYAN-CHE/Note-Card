@@ -126,9 +126,6 @@
     </view>
   </scroll-view>
 
-  <!-- 底部渐隐带：固定在 footer 顶边上方，内容滚入按钮区前渐隐 -->
-  <view class="bottom-fade" style="bottom: calc(250rpx + {{safeAreaBottom}}px);"></view>
-
   <!-- 底部操作 -->
   <view class="footer" style="padding-bottom: calc(24rpx + {{safeAreaBottom}}px);">
     <view class="footer-panel">

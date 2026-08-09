@@ -239,27 +239,31 @@
 }
 
 /* 底部 */
-/* 底部渐隐带：固定在 footer 顶边上方（footer 文档流沉底，高约 250rpx+安全区），
-   让滚动内容进入按钮区前渐隐；form 底部留白 144rpx > 渐隐带 110rpx，静止时不被罩 */
-.bottom-fade {
-  position: fixed;
-  left: 0;
-  right: 0;
-  z-index: 40;
-  height: 110rpx;
-  pointer-events: none;
-  background: linear-gradient(0deg, #ffffff 0%, rgba(255, 255, 255, 0.85) 50%, rgba(255, 255, 255, 0) 100%);
-}
+/* 渐隐带：footer 顶边向上延伸 110rpx（见 .footer::before），盖在滚动内容上形成渐隐过渡；
+   属于 footer 的一部分，位置随 footer 实际高度自适应，无需测量/估算 */
 
-/* footer 文档流沉底（不再 fixed）：scroll-view 底边紧贴 footer 顶边，结构上无重叠遮挡 */
+/* footer 文档流沉底（不再 fixed）：scroll-view 底边紧贴 footer 顶边，结构上无重叠遮挡；
+   白底衔接上方表单区，避免透出页面米色渐变造成断层 */
 .footer {
   flex: none;
+  position: relative;
   display: flex;
   flex-direction: column;
   /* 元宝风格：两模块成组浮起，间距收紧，容器透明不透底 */
   gap: 20rpx;
   padding: 0 32rpx 24rpx;
-  background: transparent;
+  background: #ffffff;
+}
+
+.footer::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -110rpx;
+  height: 110rpx;
+  pointer-events: none;
+  background: linear-gradient(0deg, #ffffff 0%, rgba(255, 255, 255, 0.85) 50%, rgba(255, 255, 255, 0) 100%);
 }
 
 /* 元宝风格：浅灰圆角矩形面板，把会员行与生成按钮连成一体 */
