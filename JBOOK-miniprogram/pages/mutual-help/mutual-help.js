@@ -1,5 +1,24 @@
 const { collections } = require('../../config/env');
 const { getSafeAreaBottom } = require('../../utils/ui');
+
+// 演示数据开关：true 时互助页注入假人脉与假记事卡，仅用于查看效果（上线前改回 false）
+const SHOW_DEMO_CARDS = true;
+
+const DEMO_HELPERS = [
+  { id: 'demo-u1', openid: 'demo-u1', type: 'user', name: '李雷', avatar: '', color: '#4caf50', initial: 'L' },
+  { id: 'demo-u2', openid: 'demo-u2', type: 'user', name: '韩梅梅', avatar: '', color: '#5c8dff', initial: 'H' }
+];
+
+const DEMO_OWN_CARDS = [
+  { id: 'demo-c1', title: '周末搬家搭把手', desc: '周六上午，三件大家电需要人抬', creatorName: '李雷', relation: '你的朋友', status: '进行中', creatorId: 'demo-u1', helperOpenid: 'demo-u1' },
+  { id: 'demo-c2', title: '求推荐靠谱搬家公司', desc: '预算 500 内，本周内要定', creatorName: '李雷', relation: '你的朋友', status: '已过期', creatorId: 'demo-u1', helperOpenid: 'demo-u1' }
+];
+
+const DEMO_NETWORK_CARDS = [
+  { id: 'demo-c3', title: '找人一起拼团体检', desc: '公司附近的体检中心，两人成团八折', creatorName: '王芳', relation: '李雷的朋友', status: '进行中', creatorId: 'demo-u3', helperOpenid: 'demo-u1' },
+  { id: 'demo-c4', title: '闲置婴儿车转让', desc: '九成新，自提', creatorName: '张伟', relation: '李雷的朋友', status: '进行中', creatorId: 'demo-u4', helperOpenid: 'demo-u1' },
+  { id: 'demo-c5', title: '求猫咪寄养三天', desc: '下周五到周日，猫粮我备', creatorName: '陈静', relation: '李雷的朋友', status: '已过期', creatorId: 'demo-u5', helperOpenid: 'demo-u1' }
+];
 const { uploadAvatar } = require('../../utils/upload-avatar');
 const { requestSubscribeCredit } = require('../../utils/subscribe');
 
@@ -105,6 +124,20 @@ Page({
   async loadHelpers() {
     this.setData({ loadingHelpers: true });
 
+    // 演示模式：直接注入假人脉与假卡，不看云端
+    if (SHOW_DEMO_CARDS) {
+      const list = [{ id: 'add', type: 'add', name: '添加', avatar: '' }, ...DEMO_HELPERS];
+      this.setData({
+        helpers: list,
+        selectedHelperId: DEMO_HELPERS[0].id,
+        ownCards: DEMO_OWN_CARDS,
+        networkCards: DEMO_NETWORK_CARDS,
+        loadingHelpers: false
+      });
+      this.calcScrollHeight();
+      return;
+    }
+
     try {
       const res = await wx.cloud.callFunction({ name: 'getMutualHelpers' });
       const helpers = (res.result && res.result.data) || [];
@@ -143,6 +176,18 @@ Page({
   async loadNetworkCards(helperId) {
     if (!helperId || helperId === 'add') return;
     this.setData({ loadingCards: true });
+
+    // 演示模式：按当前选中人脉名注入假卡
+    if (SHOW_DEMO_CARDS) {
+      const helper = (this.data.helpers || []).find((h) => h.id === helperId);
+      const name = (helper && helper.name) || '朋友';
+      this.setData({
+        ownCards: DEMO_OWN_CARDS.map((c) => ({ ...c, creatorName: name })),
+        networkCards: DEMO_NETWORK_CARDS.map((c) => ({ ...c, relation: `${name}的朋友` })),
+        loadingCards: false
+      });
+      return;
+    }
 
     try {
       const res = await wx.cloud.callFunction({
