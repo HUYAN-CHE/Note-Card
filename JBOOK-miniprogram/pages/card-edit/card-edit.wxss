@@ -22,9 +22,9 @@
 }
 
 .form {
-  /* 顶部间距与左右一致（28rpx）；底部留白 64rpx：与卡片内边距 60rpx 合计 > 渐隐带 110rpx，
+  /* 顶部间距与左右一致（28rpx）；底部留白 104rpx：与卡片内边距 60rpx 合计 > 渐隐带 160rpx，
      保证静止时开关文字不被罩，间距又不至于过大 */
-  padding: 28rpx 28rpx 64rpx;
+  padding: 28rpx 28rpx 104rpx;
 }
 
 .field {
@@ -261,11 +261,17 @@
   position: absolute;
   left: 0;
   right: 0;
-  top: -110rpx;
-  height: 110rpx;
+  top: -160rpx;
+  height: 160rpx;
   pointer-events: none;
-  /* 实白到全透的过渡拉长到 85%，过渡更自然不生硬 */
-  background: linear-gradient(0deg, #ffffff 0%, rgba(255, 255, 255, 0) 85%);
+  /* 多段停靠模拟缓出曲线：透明度衰减慢→快，比线性过渡自然 */
+  background: linear-gradient(0deg,
+    rgba(255, 255, 255, 1) 0%,
+    rgba(255, 255, 255, 0.85) 28%,
+    rgba(255, 255, 255, 0.6) 48%,
+    rgba(255, 255, 255, 0.32) 68%,
+    rgba(255, 255, 255, 0.12) 85%,
+    rgba(255, 255, 255, 0) 100%);
 }
 
 /* 元宝风格：浅灰圆角矩形面板，把会员行与生成按钮连成一体 */
