@@ -332,15 +332,6 @@
   color: #8b9a93;
 }
 
-/* 卡列表分组小标题（「TA 需要什么」「TA 的朋友们需要什么」），比 section-title 小一号 */
-.group-title {
-  display: block;
-  margin: 0 48rpx;
-  font-size: 24rpx;
-  font-weight: 300;
-  color: #8b9a93;
-}
-
 /* Lucky cards */
 .card-list {
   display: flex;
@@ -408,7 +399,7 @@
 }
 
 .content-bottom-space {
-  height: calc(260rpx + env(safe-area-inset-bottom));
+  height: calc(160rpx + env(safe-area-inset-bottom));
 }
 
 /* 底部渐变遮罩，防止滚动内容遮挡 tab-bar（多段缓出曲线，与新建页渐隐带同款自然过渡） */

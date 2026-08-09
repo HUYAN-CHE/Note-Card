@@ -95,9 +95,8 @@
       </view>
 
       <view class="card-list" wx:if="{{!loadingCards}}">
-        <!-- TA 需要什么：helper 本人的公开卡，申请一步直达卡主 -->
+        <!-- 前段：helper 本人的公开卡（申请一步直达卡主）；后段：helper 人脉里我的二度卡（引荐制） -->
         <block wx:if="{{ownCards.length}}">
-          <text class="group-title">TA 需要什么</text>
           <view
             wx:for="{{ownCards}}"
             wx:key="id"
@@ -116,9 +115,7 @@
           </view>
         </block>
 
-        <!-- TA 的朋友们需要什么：helper 人脉里我的二度卡，申请走引荐制 -->
         <block wx:if="{{networkCards.length}}">
-          <text class="group-title">TA 的朋友们需要什么</text>
           <view
             wx:for="{{networkCards}}"
             wx:key="id"
