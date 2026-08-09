@@ -1,10 +1,10 @@
-<view class="page card-edit-page">
+<view class="page card-edit-page" style="padding-top: {{totalHeight}}px;">
   <custom-nav title="{{card.id ? '编辑记事卡' : '新建记事卡'}}" showBack="{{true}}" statusBarHeight="{{statusBarHeight}}" navHeight="{{navHeight}}">
     <view slot="right" class="nav-save" bindtap="saveAndBack">保存</view>
   </custom-nav>
 
-  <!-- 顶部固定快速创建浮层 -->
-  <view class="float-create-card" style="top: {{totalHeight}}px;">
+  <!-- 顶部快速创建区：文档流布局（不 fixed），scroll-view 紧随其下，结构上不可能遮挡表单 -->
+  <view class="float-create-card">
     <view class="create-card compact">
       <textarea
         class="create-card-input"
@@ -41,7 +41,7 @@
     </view>
   </view>
 
-  <scroll-view class="form-scroll" scroll-y style="height: {{contentHeight}}px; margin-top: {{totalHeight + floatCardHeightPx}}px;">
+  <scroll-view class="form-scroll" scroll-y>
     <view class="form">
       <!-- 信息卡片 -->
       <view class="info-card">

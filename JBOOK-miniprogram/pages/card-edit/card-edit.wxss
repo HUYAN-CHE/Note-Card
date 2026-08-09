@@ -1,8 +1,17 @@
 .card-edit-page {
-  padding: 0;
+  padding-left: 0;
+  padding-right: 0;
+  padding-bottom: 0;
+  height: 100vh;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
 }
 
+/* 紧随顶部创建区，flex 自适应剩余高度，自行裁剪滚动内容 */
 .form-scroll {
+  flex: 1;
+  min-height: 0;
   box-sizing: border-box;
 }
 
@@ -287,18 +296,14 @@
   box-shadow: 0 12rpx 32rpx rgba(76, 175, 80, 0.35);
 }
 
-/* 顶部固定快速创建浮层 */
+/* 顶部快速创建区：文档流（不再 fixed），实白底 */
 .float-create-card {
-  position: fixed;
-  left: 0;
-  right: 0;
-  z-index: 99;
+  flex: none;
+  position: relative;
+  z-index: 2;
   /* 仅底部白边加厚一倍，左右保持 28rpx 不动 */
   padding: 0 28rpx 40rpx;
   box-sizing: border-box;
-  /* 实白遮挡：原 rgba(255,255,255,0.94) + backdrop-filter 的方案，滚动时表单内容
-     会从浮层下透出形成横带（iOS 模糊透色、安卓不支持 backdrop-filter 透出更严重），
-     改实白彻底遮住 */
   background: #ffffff;
   box-shadow: 0 12rpx 32rpx rgba(0, 0, 0, 0.05);
   overflow: hidden;

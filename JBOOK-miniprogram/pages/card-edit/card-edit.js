@@ -8,8 +8,6 @@ Page({
     statusBarHeight: 44,
     navHeight: 88,
     totalHeight: 132,
-    contentHeight: 500,
-    floatCardHeightPx: 0,
     card: {
       title: '',
       desc: '',
@@ -28,56 +26,20 @@ Page({
   },
 
   onLoad(options = {}) {
-    const sys = wx.getSystemInfoSync();
     const navInfo = getNavInfo();
-    this.sysInfo = sys;
     this.safeBottomPx = getSafeAreaBottom();
-    // 先用估算值首屏渲染，onReady 中再按实际渲染高度校正
-    const estimatePx = Math.round(500 * (sys.windowWidth / 750));
     this.setData({
       statusBarHeight: navInfo.statusBarHeight,
       navHeight: navInfo.navHeight,
       totalHeight: navInfo.totalHeight,
       safeAreaBottom: this.safeBottomPx
     });
-    this.updateLayout(estimatePx);
     this.initRecorder();
     this.loadCard(options);
   },
 
-  onReady() {
-    this.measureFloatCard();
-    // 延迟复测一次：icon/textarea 渲染未完成时首次测量可能偏小，导致表单被浮层遮挡
-    setTimeout(() => this.measureFloatCard(), 350);
-  },
-
-  // 底部操作栏实际占位高度（px）：上内边距 40rpx + 下内边距 24rpx + 会员横幅约 70rpx + 间距 32rpx + 按钮 96rpx + 安全区
-  getFooterHeightPx() {
-    const sys = this.sysInfo || wx.getSystemInfoSync();
-    return 262 * (sys.windowWidth / 750) + this.safeBottomPx;
-  },
-
-  updateLayout(floatCardHeightPx) {
-    const sys = this.sysInfo || wx.getSystemInfoSync();
-    const contentHeight = sys.windowHeight - this.data.totalHeight - floatCardHeightPx - this.getFooterHeightPx();
-    this.setData({ floatCardHeightPx, contentHeight });
-  },
-
-  // 实测顶部浮层高度，避免不同机型/文案换行导致表单区与底部按钮被遮挡
-  measureFloatCard() {
-    wx.createSelectorQuery()
-      .in(this)
-      .select('.float-create-card')
-      .boundingClientRect()
-      .exec((res) => {
-        const rect = res && res[0];
-        if (!rect || !rect.height) return;
-        const height = Math.round(rect.height);
-        if (height !== this.data.floatCardHeightPx) {
-          this.updateLayout(height);
-        }
-      });
-  },
+  // 布局说明：顶部创建区为文档流（非 fixed），scroll-view 用 flex 自适应剩余高度，
+  // 不再需要测量浮层高度/计算 contentHeight（原 fixed+测量方案会因测量时机偏差遮住表单）
 
   async loadCard(options = {}) {
     const storedCard = options.id ? await getCard(options.id) : null;
