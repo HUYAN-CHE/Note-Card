@@ -399,5 +399,5 @@
 }
 
 .content-bottom-space {
-  height: 40rpx;
+  height: calc(150rpx + env(safe-area-inset-bottom));
 }

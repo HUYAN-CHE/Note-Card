@@ -211,9 +211,6 @@ Page({
     try {
       const sys = wx.getSystemInfoSync();
       const windowHeight = sys.windowHeight || 667;
-      const safeAreaBottom = getSafeAreaBottom();
-      // tab-bar 占位：高 100rpx(≈50px) + 底部间距 24rpx(≈12px)，滚动视窗底边贴 tab 顶
-      const tabBarHeight = 62 + safeAreaBottom;
 
       const query = wx.createSelectorQuery();
       query.select('.hero').boundingClientRect();
@@ -222,7 +219,7 @@ Page({
         const heroRect = res[0];
         const headerRect = res[1];
         if (!heroRect || !headerRect) return;
-        const scrollHeight = windowHeight - heroRect.height - headerRect.height - tabBarHeight;
+        const scrollHeight = windowHeight - heroRect.height - headerRect.height;
         this.setData({ contentScrollHeight: Math.max(200, scrollHeight) });
       });
     } catch (e) {}

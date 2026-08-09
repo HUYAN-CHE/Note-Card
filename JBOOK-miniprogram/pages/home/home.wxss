@@ -71,9 +71,9 @@
   gap: 20rpx;
 }
 
-/* 底部占位：末张卡与视窗底边留一点呼吸距离 */
+/* 底部占位：滚到底时末张卡完整停在 tab 底栏上方 */
 .card-bottom-space {
-  height: 40rpx;
+  height: calc(150rpx + env(safe-area-inset-bottom));
 }
 
 /* 左滑删除：底层删除按钮 + 内容层位移；wrap 背景与卡片同色，遮盖内容层圆角透出的红边 */
@@ -357,8 +357,7 @@
 .inspire-scroll {
   position: relative;
   z-index: 1;
-  /* 底边贴 tab-bar 顶边（124rpx+安全区），无遮盖层，内容不钻到 tab 后面 */
-  height: calc(100vh - 124rpx - env(safe-area-inset-bottom));
+  height: 100vh;
   box-sizing: border-box;
 }
 
@@ -518,5 +517,5 @@
 }
 
 .inspire-bottom-space {
-  height: 40rpx;
+  height: calc(150rpx + env(safe-area-inset-bottom));
 }
