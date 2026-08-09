@@ -579,7 +579,14 @@ Page({
         { id: 'demo-i2', title: '周末去哪玩', desc: '周边露营地合集', tags: ['出行'], color: '#a8ebc5' },
         { id: 'demo-i3', title: '装修避坑清单', desc: '水电验收要点', tags: ['生活', '清单'], color: '#a8d0f0' },
         { id: 'demo-i4', title: '读书记录', desc: '《卡片笔记写作法》摘抄', tags: ['阅读'], color: '#f0c8e0' },
-        { id: 'demo-i5', title: '减脂餐搭配', desc: '一周备餐思路', tags: ['健康'], color: '#d9f0a8' }
+        { id: 'demo-i5', title: '减脂餐搭配', desc: '一周备餐思路', tags: ['健康'], color: '#d9f0a8' },
+        { id: 'demo-i6', title: '自驾游路线', desc: '沿海线三天两夜', tags: ['出行', '攻略'], color: '#a8c8f0' },
+        { id: 'demo-i7', title: '阳台种菜日记', desc: '小番茄挂果了', tags: ['生活'], color: '#f0e0a8' },
+        { id: 'demo-i8', title: '摄影构图笔记', desc: '三分法与引导线', tags: ['摄影', '笔记'], color: '#c8e0f0' },
+        { id: 'demo-i9', title: '咖啡冲煮参数', desc: '手冲水温与粉水比', tags: ['咖啡'], color: '#e0c8a8' },
+        { id: 'demo-i10', title: '播客清单', desc: '通勤路上听的', tags: ['清单'], color: '#d0a8e8' },
+        { id: 'demo-i11', title: '亲子手工创意', desc: '纸箱城堡搭建记', tags: ['亲子'], color: '#a8e0d0' },
+        { id: 'demo-i12', title: '跑步训练计划', desc: '十公里进阶八周', tags: ['运动', '计划'], color: '#b8d9f0' }
       ];
       this.setData({ inspireCards: demo, inspireCols: splitInspireColumns(demo) });
       return;
