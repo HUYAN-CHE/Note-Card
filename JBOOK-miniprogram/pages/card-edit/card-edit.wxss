@@ -13,7 +13,8 @@
 }
 
 .form {
-  padding: 24rpx 28rpx 48rpx;
+  /* 底部留白 144rpx：让最后的元素静止时停在底部渐变浮层（高约 110rpx 露出段）上方 */
+  padding: 24rpx 28rpx 144rpx;
 }
 
 .field {
@@ -229,6 +230,19 @@
 }
 
 /* 底部 */
+/* 底部渐变浮层：z-40 在滚动内容上、按钮(.footer z-50)下，让滚动内容渐隐入按钮区。
+   注意：浮层顶边比 footer 高约 110rpx（360-250），form 底部留白已加大（144rpx），
+   保证内容静止时最后的元素停在浮层渐隐带上方、不被罩出残影 */
+.bottom-fade {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 40;
+  height: calc(360rpx + env(safe-area-inset-bottom));
+  pointer-events: none;
+  background: linear-gradient(0deg, #ffffff 0%, #ffffff 60%, rgba(255, 255, 255, 0.85) 80%, rgba(255, 255, 255, 0) 100%);
+}
 
 .footer {
   position: fixed;
