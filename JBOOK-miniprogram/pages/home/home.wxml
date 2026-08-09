@@ -82,6 +82,8 @@
           </view>
         </view>
       </view>
+      <!-- 底部占位：最后一张卡停在渐隐带上方，不钻进 tab-bar 后面 -->
+      <view class="card-bottom-space"></view>
     </pull-refresh-view>
 
     <empty-state wx:else image="/assets/images/empty-state-ref.png" image-size="320" title="还没有记事卡" subtitle="下拉或点击上方按钮，从聊天记录生成一张记事卡" />
