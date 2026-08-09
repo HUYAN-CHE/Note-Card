@@ -239,7 +239,7 @@
   right: 0;
   bottom: 0;
   z-index: 40;
-  height: calc(600rpx + env(safe-area-inset-bottom));
+  height: calc(360rpx + env(safe-area-inset-bottom));
   pointer-events: none;
   background: linear-gradient(0deg, #ffffff 0%, #ffffff 60%, rgba(255, 255, 255, 0.85) 80%, rgba(255, 255, 255, 0) 100%);
 }
@@ -474,7 +474,7 @@
 
 /* 信息卡片 */
 .info-card {
-  padding: 108rpx 32rpx;
+  padding: 60rpx 32rpx;
   background: #fff;
   border-radius: 28rpx;
 }
