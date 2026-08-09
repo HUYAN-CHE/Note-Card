@@ -71,9 +71,9 @@
   gap: 20rpx;
 }
 
-/* 底部占位：滚到底时末张卡完整停在 tab 底栏上方 */
+/* 底部占位：滚到底时末张卡完整停在 tab 胶囊上方（与互助页 160rpx 一致） */
 .card-bottom-space {
-  height: calc(150rpx + env(safe-area-inset-bottom));
+  height: calc(160rpx + env(safe-area-inset-bottom));
 }
 
 /* 左滑删除：底层删除按钮 + 内容层位移；wrap 背景与卡片同色，遮盖内容层圆角透出的红边 */
