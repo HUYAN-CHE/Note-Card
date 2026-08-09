@@ -13,7 +13,7 @@
 }
 
 .form {
-  padding: 24rpx 28rpx 48rpx;
+  padding: 72rpx 28rpx 144rpx;
 }
 
 .field {
