@@ -296,8 +296,10 @@
   /* 仅底部白边加厚一倍，左右保持 28rpx 不动 */
   padding: 0 28rpx 40rpx;
   box-sizing: border-box;
-  background: rgba(255, 255, 255, 0.94);
-  backdrop-filter: blur(12rpx);
+  /* 实白遮挡：原 rgba(255,255,255,0.94) + backdrop-filter 的方案，滚动时表单内容
+     会从浮层下透出形成横带（iOS 模糊透色、安卓不支持 backdrop-filter 透出更严重），
+     改实白彻底遮住 */
+  background: #ffffff;
   box-shadow: 0 12rpx 32rpx rgba(0, 0, 0, 0.05);
   overflow: hidden;
 }
