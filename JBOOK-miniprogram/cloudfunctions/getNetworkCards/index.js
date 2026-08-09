@@ -13,14 +13,19 @@ function getCardDesc(card) {
   return '暂无描述';
 }
 
-// 二度访客视角：提醒中/未设提醒对未加入者无意义，只区分「已过期 / 进行中」（按截止日期判定）
-// 统一按北京时间（UTC+8）取「今天」，与前端及 sendReminder 口径一致
-function getCardStatus(card) {
-  if (card.deadline) {
-    const beijingNow = new Date(Date.now() + 8 * 3600 * 1000);
-    const today = `${beijingNow.getUTCFullYear()}-${String(beijingNow.getUTCMonth() + 1).padStart(2, '0')}-${String(beijingNow.getUTCDate()).padStart(2, '0')}`;
-    if (card.deadline < today) return '已过期';
-  }
+// 北京时间今天（YYYY-MM-DD），与前端及 sendReminder 口径一致
+function getToday() {
+  const beijingNow = new Date(Date.now() + 8 * 3600 * 1000);
+  return `${beijingNow.getUTCFullYear()}-${String(beijingNow.getUTCMonth() + 1).padStart(2, '0')}-${String(beijingNow.getUTCDate()).padStart(2, '0')}`;
+}
+
+// 已过期卡不在互助页展示（过期的事再申请也没意义）
+function isExpired(card) {
+  return !!(card.deadline && card.deadline < getToday());
+}
+
+// 展示状态：过期卡已被过滤，正常即「进行中」
+function getCardStatus() {
   return '进行中';
 }
 
@@ -58,7 +63,7 @@ exports.main = async (event, context) => {
       .limit(50)
       .get();
 
-    const own = (ownCardRes.data || []).map((card) => ({
+    const own = (ownCardRes.data || []).filter((card) => !isExpired(card)).map((card) => ({
       id: card.id,
       title: card.title || '未命名事项',
       desc: getCardDesc(card),
@@ -135,7 +140,7 @@ exports.main = async (event, context) => {
       userMap.set(user._openid, user);
     });
 
-    const secondDegree = cardRes.data.map((card) => {
+    const secondDegree = cardRes.data.filter((card) => !isExpired(card)).map((card) => {
       const creator = userMap.get(card.creatorId) || {};
       const creatorName = creator.nickName || '朋友';
       return {

@@ -402,7 +402,8 @@ Page({
     try {
       const store = require('../../utils/store');
       const realCards = await store.getCards();
-      const allCards = realCards.length ? realCards : cards;
+      // 演示模式：demo 卡追加在真实卡后一起展示；正式模式只用真实卡
+      const allCards = SHOW_DEMO_CARDS ? [...realCards, ...cards] : (realCards.length ? realCards : cards);
       // 状态三态按卡判定：云端就绪时 getCards 直查云库返回全字段（含 reminderSetBy）；
       // 本地缓存兜底缺该字段时判空安全，按「未设提醒」显示
       const openid = store.getCurrentOpenid();
