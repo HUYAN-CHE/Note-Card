@@ -151,8 +151,10 @@
       <button class="footer-btn primary wide" open-type="share" data-action="share" aria-label="提醒一下TA"><image class="footer-icon" src="/assets/icons/share-white.svg" mode="aspectFit" />提醒一下 TA</button>
       <view class="footer-text-link" bindtap="onSavePoster">保存为图片</view>
     </view>
+    <!-- 引荐人视角：引荐成功后引导转发给卡主审批 -->
+    <button class="footer-btn primary wide" wx:if="{{endorsedForward}}" open-type="share" data-action="share" aria-label="转发给卡主审批">已引荐 · 转发给卡主审批</button>
     <!-- 网络访客（非创建者/协作人，且非邀请入口）：按自己的申请状态渲染底部按钮 -->
-    <block wx:if="{{showApplyArea}}">
+    <block wx:if="{{showApplyArea && !endorsedForward}}">
       <button class="footer-btn primary wide" wx:if="{{!myJoinStatus}}" bindtap="openApplySheet">申请加入</button>
       <button class="footer-btn primary wide" wx:elif="{{myJoinStatus === 'pending_intermediary'}}" open-type="share" data-action="share" aria-label="转发给好友引荐">待引荐 · 转发给好友引荐</button>
       <button class="footer-btn primary wide" wx:elif="{{myJoinStatus === 'pending'}}" disabled>已申请，等待通过</button>

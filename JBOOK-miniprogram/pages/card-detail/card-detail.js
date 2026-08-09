@@ -77,6 +77,10 @@ Page({
     // 申请人视角：自己最新一条申请的状态与 ID（空串=无申请）
     myJoinStatus: '',
     myJoinRequestId: '',
+    // 引荐人视角：引荐成功后引导转发给卡主审批（approve 链路）
+    endorsedForward: false,
+    endorsedRequestId: '',
+    endorsedApplicantName: '',
     loading: false,
     safeAreaBottom: 0,
     cardReady: false,
@@ -130,6 +134,8 @@ Page({
     const intermediaryOpenid = options.helperOpenid || '';
     const intermediaryName = options.helperName ? decodeURIComponent(options.helperName) : '';
     this.endorseRequestId = options.endorse || '';
+    // 卡主审批链路：B 转发给 A 的链接带 approve=<申请ID>，打开后直接弹审批
+    this.approveRequestId = options.approve || '';
     // 邀请分享链接带入的邀请人 openid：用于人脉归属（谁邀请的算谁的一度）
     this.inviterOpenid = options.inviter || '';
     // 入口区分：互助页二度入口带 view=network、引荐分享带 endorse，其余（ref 短码/裸 id/扫码）均为邀请入口
@@ -137,7 +143,10 @@ Page({
 
     if (cardId) {
       this.setData({ cardId, intermediaryOpenid, intermediaryName });
-      this.loadCard(cardId).then(() => this.maybePromptEndorse());
+      this.loadCard(cardId).then(() => {
+        this.maybePromptEndorse();
+        this.maybePromptApprove();
+      });
     } else if (refCode) {
       this.loadCardByRef(refCode);
     } else {
@@ -535,13 +544,53 @@ Page({
       });
 
       if (res.result && res.result.code === 0) {
-        wx.showToast({ title: '已引荐给卡主', icon: 'success' });
+        const d = res.result.data || {};
+        // 引荐成功：引导中间人把申请转发给卡主审批（不绕过中间人链路的最后一步）
+        this.setData({
+          endorsedForward: true,
+          endorsedRequestId: requestId,
+          endorsedApplicantName: d.applicantName || ''
+        });
+        wx.showModal({
+          title: '已引荐',
+          content: '再把卡片转发给卡主，请 TA 审批这个申请。点底部「已引荐 · 转发给卡主审批」即可',
+          confirmText: '知道了',
+          showCancel: false
+        });
       } else {
         wx.showToast({ title: (res.result && res.result.message) || '引荐失败', icon: 'none' });
       }
     } catch (e) {
       wx.showToast({ title: '引荐失败', icon: 'none' });
     }
+  },
+
+  // 通过「已引荐 · 转发给卡主审批」分享链接进入（卡主视角）：卡片加载完成后弹审批
+  maybePromptApprove() {
+    const requestId = this.approveRequestId;
+    if (!requestId || !this.data.cardReady) return;
+    this.approveRequestId = '';
+    if (!this.data.isCreator) return;
+
+    const req = (this.data.pendingRequests || []).find((r) => r.id === requestId);
+    if (!req) {
+      wx.showToast({ title: '申请不存在或已处理', icon: 'none' });
+      return;
+    }
+    const title = (this.data.card && this.data.card.title) || '这张卡';
+    wx.showModal({
+      title: '加入申请',
+      content: `${req.nickname || '新朋友'} 经引荐申请加入「${title}」${req.note ? `\n申请说明：${req.note}` : ''}`,
+      confirmText: '通过',
+      cancelText: '拒绝',
+      success: (res) => {
+        if (res.confirm) {
+          this.doApprove(requestId, true);
+        } else if (res.cancel) {
+          this.doApprove(requestId, false);
+        }
+      }
+    });
   },
 
   // 接受邀请
@@ -735,11 +784,12 @@ Page({
 
   onPreventBubble() {},
 
-  // 审批申请
-  async approveRequest(e) {
-    const requestId = e.currentTarget.dataset.id;
-    const approved = e.currentTarget.dataset.approved;
+  // 审批申请（事件入口）：委托给 doApprove 供弹窗审批复用
+  approveRequest(e) {
+    this.doApprove(e.currentTarget.dataset.id, e.currentTarget.dataset.approved);
+  },
 
+  async doApprove(requestId, approved) {
     try {
       const res = await wx.cloud.callFunction({
         name: 'approveJoinRequest',
@@ -1275,7 +1325,16 @@ Page({
   },
 
   onShareAppMessage() {
-    const { card, refCode, myJoinStatus, myJoinRequestId } = this.data;
+    const { card, refCode, myJoinStatus, myJoinRequestId, endorsedForward, endorsedRequestId, endorsedApplicantName } = this.data;
+    // 引荐人已引荐：分享即「请卡主审批」，path 携带申请 ID（approve）
+    if (endorsedForward && endorsedRequestId && card.id) {
+      const who = endorsedApplicantName || '你的朋友';
+      return {
+        title: `${who} 想加入《${card.title || '记事卡'}》帮忙，我已引荐，请你审批`,
+        path: `/pages/card-detail/card-detail?id=${card.id}&approve=${endorsedRequestId}`,
+        imageUrl: '/assets/logo.png'
+      };
+    }
     // 待引荐状态：分享即「请中间人帮我引荐」，path 携带申请 ID（endorse）
     if (myJoinStatus === 'pending_intermediary' && myJoinRequestId && card.id) {
       return {

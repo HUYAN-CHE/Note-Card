@@ -116,7 +116,7 @@ exports.main = async (event, context) => {
       requestId
     });
 
-    return { code: 0, message: 'success' };
+    return { code: 0, message: 'success', data: { applicantName, cardTitle: card.title || '' } };
   } catch (error) {
     return { code: -9, message: error.message || '引荐失败' };
   }
