@@ -147,10 +147,10 @@
       </view>
       <view class="inspire-bottom-space"></view>
     </scroll-view>
-
-    <!-- 底部渐变浮层：卡片滚到底部 tab 前渐隐（与互助页一致），层级在卡片上、tab 下 -->
-    <view class="bottom-fade"></view>
   </view>
+
+  <!-- 底部渐变浮层：两个 tab 共用，卡片滚到底部 tab 前渐隐；层级在卡片上、tab 下 -->
+  <view class="bottom-fade"></view>
 
   <tab-bar activeTab="home" />
 
