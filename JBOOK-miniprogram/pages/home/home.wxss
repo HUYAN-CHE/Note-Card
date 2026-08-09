@@ -50,10 +50,7 @@
 .card-list-scroll {
   flex: 1;
   min-height: 0;
-  height: 100%;
   margin-top: 34rpx;
-  /* 滚动视窗底边收至 tab-bar 上方（sheet 白底不动，内容滚不进 tab 后面） */
-  margin-bottom: calc(148rpx + env(safe-area-inset-bottom));
 }
 
 .create-refresher {
