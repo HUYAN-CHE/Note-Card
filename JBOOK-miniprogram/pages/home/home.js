@@ -6,7 +6,7 @@ const { uploadAvatar } = require('../../utils/upload-avatar');
 const { listInspireCards, splitInspireColumns } = require('../../services/inspire-cards');
 
 const USER_PROFILE_KEY = 'JISHIKA_USER_PROFILE';
-const SHOW_DEMO_CARDS = true;
+const SHOW_DEMO_CARDS = false;
 
 // 状态为系统判定三态（已过期/提醒中/未设提醒）：deadline 早于今天即过期，不再按 status 豁免
 // 统一按北京时间（UTC+8）取「今天」，与云函数口径一致

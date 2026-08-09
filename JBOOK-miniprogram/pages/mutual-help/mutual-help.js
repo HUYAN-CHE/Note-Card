@@ -2,7 +2,7 @@ const { collections } = require('../../config/env');
 const { getSafeAreaBottom } = require('../../utils/ui');
 
 // 演示数据开关：true 时互助页注入假人脉与假记事卡，仅用于查看效果（上线前改回 false）
-const SHOW_DEMO_CARDS = true;
+const SHOW_DEMO_CARDS = false;
 
 const DEMO_HELPERS = [
   { id: 'demo-u1', openid: 'demo-u1', type: 'user', name: '李雷', avatar: '', color: '#4caf50', initial: 'L' },
