@@ -239,32 +239,27 @@
 }
 
 /* 底部 */
-/* 底部渐变浮层：z-40 在滚动内容上、按钮(.footer z-50)下，让滚动内容渐隐入按钮区。
-   注意：浮层顶边比 footer 高约 110rpx（360-250），form 底部留白已加大（144rpx），
-   保证内容静止时最后的元素停在浮层渐隐带上方、不被罩出残影 */
+/* 底部渐隐带：固定在 footer 顶边上方（footer 文档流沉底，高约 250rpx+安全区），
+   让滚动内容进入按钮区前渐隐；form 底部留白 144rpx > 渐隐带 110rpx，静止时不被罩 */
 .bottom-fade {
   position: fixed;
   left: 0;
   right: 0;
-  bottom: 0;
   z-index: 40;
-  height: calc(360rpx + env(safe-area-inset-bottom));
+  height: 110rpx;
   pointer-events: none;
-  background: linear-gradient(0deg, #ffffff 0%, #ffffff 60%, rgba(255, 255, 255, 0.85) 80%, rgba(255, 255, 255, 0) 100%);
+  background: linear-gradient(0deg, #ffffff 0%, rgba(255, 255, 255, 0.85) 50%, rgba(255, 255, 255, 0) 100%);
 }
 
+/* footer 文档流沉底（不再 fixed）：scroll-view 底边紧贴 footer 顶边，结构上无重叠遮挡 */
 .footer {
-  position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  flex: none;
   display: flex;
   flex-direction: column;
   /* 元宝风格：两模块成组浮起，间距收紧，容器透明不透底 */
   gap: 20rpx;
   padding: 0 32rpx 24rpx;
   background: transparent;
-  z-index: 50;
 }
 
 /* 元宝风格：浅灰圆角矩形面板，把会员行与生成按钮连成一体 */
