@@ -13,7 +13,7 @@
 }
 
 .form {
-  padding: 72rpx 28rpx 144rpx;
+  padding: 24rpx 28rpx 48rpx;
 }
 
 .field {
@@ -474,7 +474,7 @@
 
 /* 信息卡片 */
 .info-card {
-  padding: 36rpx 32rpx;
+  padding: 108rpx 32rpx;
   background: #fff;
   border-radius: 28rpx;
 }
