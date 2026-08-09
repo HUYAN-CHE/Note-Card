@@ -241,7 +241,8 @@
   z-index: 40;
   height: calc(360rpx + env(safe-area-inset-bottom));
   pointer-events: none;
-  background: linear-gradient(0deg, #ffffff 0%, #ffffff 60%, rgba(255, 255, 255, 0.85) 80%, rgba(255, 255, 255, 0) 100%);
+  /* 实白段拉高到 78%，渐隐段压陡——避免滚动内容（如绿色开关）从半透明段透出残影 */
+  background: linear-gradient(0deg, #ffffff 0%, #ffffff 78%, rgba(255, 255, 255, 0.92) 90%, rgba(255, 255, 255, 0) 100%);
 }
 
 .footer {
