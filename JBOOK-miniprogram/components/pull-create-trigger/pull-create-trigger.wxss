@@ -223,6 +223,11 @@
   position: relative;
   flex: 1;
   min-height: 0;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  /* 滚动视窗底边贴 tab-bar 顶边（124rpx+安全区），无遮盖层，内容不钻到 tab 后面 */
+  padding-bottom: calc(124rpx + env(safe-area-inset-bottom));
 }
 
 .sheet-body-touch-layer {

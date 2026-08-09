@@ -212,7 +212,8 @@ Page({
       const sys = wx.getSystemInfoSync();
       const windowHeight = sys.windowHeight || 667;
       const safeAreaBottom = getSafeAreaBottom();
-      const tabBarHeight = 50 + safeAreaBottom;
+      // tab-bar 占位：高 100rpx(≈50px) + 底部间距 24rpx(≈12px)，滚动视窗底边贴 tab 顶
+      const tabBarHeight = 62 + safeAreaBottom;
 
       const query = wx.createSelectorQuery();
       query.select('.hero').boundingClientRect();

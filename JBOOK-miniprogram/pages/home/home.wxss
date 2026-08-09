@@ -71,9 +71,9 @@
   gap: 20rpx;
 }
 
-/* 底部占位：大于渐隐带（240rpx+安全区），滚到底时末张卡完整停在渐隐带上方 */
+/* 底部占位：末张卡与视窗底边留一点呼吸距离 */
 .card-bottom-space {
-  height: calc(250rpx + env(safe-area-inset-bottom));
+  height: 40rpx;
 }
 
 /* 左滑删除：底层删除按钮 + 内容层位移；wrap 背景与卡片同色，遮盖内容层圆角透出的红边 */
@@ -357,7 +357,8 @@
 .inspire-scroll {
   position: relative;
   z-index: 1;
-  height: 100vh;
+  /* 底边贴 tab-bar 顶边（124rpx+安全区），无遮盖层，内容不钻到 tab 后面 */
+  height: calc(100vh - 124rpx - env(safe-area-inset-bottom));
   box-sizing: border-box;
 }
 
@@ -517,23 +518,5 @@
 }
 
 .inspire-bottom-space {
-  height: calc(220rpx + env(safe-area-inset-bottom));
-}
-
-/* 底部渐隐带：与互助页同一套——贴底 240rpx，tab-bar 区域（124rpx+安全区）全实白，
-   上方缓出渐隐；z-15 在卡片上、底部 tab(20) 下；两个 tab 共用 */
-.bottom-fade {
-  position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 15;
-  height: calc(240rpx + env(safe-area-inset-bottom));
-  pointer-events: none;
-  background: linear-gradient(0deg,
-    rgba(255, 255, 255, 1) 0%,
-    rgba(255, 255, 255, 1) calc(124rpx + env(safe-area-inset-bottom)),
-    rgba(255, 255, 255, 0.85) 72%,
-    rgba(255, 255, 255, 0.4) 88%,
-    rgba(255, 255, 255, 0) 100%);
+  height: 40rpx;
 }
