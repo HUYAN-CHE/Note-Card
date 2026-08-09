@@ -145,7 +145,7 @@
           </view>
         </view>
       </view>
-      <view class="inspire-bottom-space"></view>
+      <view class="inspire-bottom-space" wx:if="{{inspireCards.length}}"></view>
     </scroll-view>
   </view>
 

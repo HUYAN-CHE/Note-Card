@@ -409,21 +409,23 @@ Page({
       const openid = store.getCurrentOpenid();
 
       const selectedDay = this.data.calendarDays[this.data.selectedIndex];
-      const endDate = selectedDateStr
+      // 展示口径：当前选择日期（含）往后 7 天内到期的卡；已过期（deadline 早于选择日期）不出现；不限张数
+      const pad2 = (n) => String(n).padStart(2, '0');
+      const fmtD = (d) => `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
+      const baseDate = selectedDateStr
         ? new Date(selectedDateStr)
         : (selectedDay ? new Date(selectedDay.date) : new Date());
-      const startDate = new Date(endDate);
-      startDate.setDate(endDate.getDate() - 6);
-      startDate.setHours(0, 0, 0, 0);
-      endDate.setHours(23, 59, 59, 999);
+      const endDate = new Date(baseDate);
+      endDate.setDate(baseDate.getDate() + 7);
+      const baseStr = fmtD(baseDate);
+      const endStr = fmtD(endDate);
 
       const filteredCards = allCards.filter((card) => {
-        if (!card.updatedAt) return false;
-        const updated = new Date(card.updatedAt);
-        return updated >= startDate && updated <= endDate;
+        if (!card.deadline) return false;
+        return card.deadline >= baseStr && card.deadline <= endStr;
       });
 
-      const decoratedCards = filteredCards.slice(0, 6).map((card) => {
+      const decoratedCards = filteredCards.map((card) => {
         const statusView = cardStatusView(card, openid);
         return {
           ...card,
@@ -486,12 +488,12 @@ Page({
   },
 
   updateDayCounts(cards) {
+    // 日历数字口径：该日期到期的卡数（deadline 归一化为补零格式后比较）
+    const pad2 = (n) => String(n).padStart(2, '0');
+    const fmtD = (d) => `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
     const calendarDays = this.data.calendarDays.map((day) => {
-      const count = cards.filter((card) => {
-        if (!card.updatedAt) return false;
-        const updated = new Date(card.updatedAt);
-        return this.formatDate(updated) === day.date && card.status !== 'done';
-      }).length;
+      const dayStr = fmtD(new Date(day.date));
+      const count = cards.filter((card) => card.deadline && card.deadline === dayStr).length;
       return { ...day, count };
     });
 
@@ -569,7 +571,19 @@ Page({
   },
 
   // 灵感卡：从云端加载（缓存命中则直接用，后台刷新），瀑布流分列（内含相邻不同色着色）
+  // 演示模式：注入假灵感卡查看瀑布流效果（demo- 前缀，点击不跳转详情）
   loadInspireCards() {
+    if (SHOW_DEMO_CARDS) {
+      const demo = [
+        { id: 'demo-i1', title: '把灵感随手记下来', desc: '想到什么发什么，AI 帮你集采成文', tags: ['灵感', 'AI'], color: '#ffd9a8' },
+        { id: 'demo-i2', title: '周末去哪玩', desc: '周边露营地合集', tags: ['出行'], color: '#a8ebc5' },
+        { id: 'demo-i3', title: '装修避坑清单', desc: '水电验收要点', tags: ['生活', '清单'], color: '#a8d0f0' },
+        { id: 'demo-i4', title: '读书记录', desc: '《卡片笔记写作法》摘抄', tags: ['阅读'], color: '#f0c8e0' },
+        { id: 'demo-i5', title: '减脂餐搭配', desc: '一周备餐思路', tags: ['健康'], color: '#d9f0a8' }
+      ];
+      this.setData({ inspireCards: demo, inspireCols: splitInspireColumns(demo) });
+      return;
+    }
     listInspireCards(true)
       .then((cards) => {
         this.setData({ inspireCards: cards, inspireCols: splitInspireColumns(cards) });
@@ -581,6 +595,11 @@ Page({
   openInspireDetail(event) {
     const { id, color } = event.currentTarget.dataset;
     if (!id) return;
+    // 演示卡不进详情（云端无对应数据）
+    if (String(id).indexOf('demo-') === 0) {
+      wx.showToast({ title: '演示卡片，仅展示效果', icon: 'none' });
+      return;
+    }
     wx.navigateTo({ url: `/pages/inspire-detail/inspire-detail?id=${id}&color=${encodeURIComponent(color || '')}` });
   },
 
