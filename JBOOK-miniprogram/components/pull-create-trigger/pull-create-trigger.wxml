@@ -46,7 +46,7 @@
 
   <view
     class="pull-sheet {{isReturning ? 'returning' : ''}}"
-    style="margin-top: {{heroHeight}}px; height: calc(100vh - {{heroHeight}}px - 148rpx - env(safe-area-inset-bottom)); transform: translateY({{sheetOffsetY}}px);"
+    style="margin-top: {{heroHeight}}px; height: calc(100vh - {{heroHeight}}px); transform: translateY({{sheetOffsetY}}px);"
   >
     <view
       class="sheet-head-wrap"
