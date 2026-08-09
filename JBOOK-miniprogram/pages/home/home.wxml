@@ -151,8 +151,8 @@
     </scroll-view>
   </view>
 
-  <!-- 底部渐隐带：仅灵感 tab（彩色卡上渐隐可见）；记事 tab 卡片是白底，白渐变罩上无视觉效果反显生硬 -->
-  <view class="bottom-fade" wx:if="{{homeTab === 'inspire'}}"></view>
+  <!-- 底部渐隐带：两个 tab 共用（与互助页同一套），滚到底内容渐隐入白 -->
+  <view class="bottom-fade"></view>
 
   <tab-bar activeTab="home" />
 
