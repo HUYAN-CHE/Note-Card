@@ -1,4 +1,3 @@
-const { ensureDemoCards } = require('../../utils/store');
 const { buildSkillLaunchUrl, getSkill } = require('../../services/skill-registry');
 const { collections, reviewMode } = require('../../config/env');
 const { resolveThemeIcon } = require('../../utils/theme-icon');
@@ -7,7 +6,7 @@ const { uploadAvatar } = require('../../utils/upload-avatar');
 const { listInspireCards, splitInspireColumns } = require('../../services/inspire-cards');
 
 const USER_PROFILE_KEY = 'JISHIKA_USER_PROFILE';
-const SHOW_DEMO_CARDS = false;
+const SHOW_DEMO_CARDS = true;
 
 // 状态为系统判定三态（已过期/提醒中/未设提醒）：deadline 早于今天即过期，不再按 status 豁免
 // 统一按北京时间（UTC+8）取「今天」，与云函数口径一致
@@ -363,8 +362,23 @@ Page({
     }
   },
 
+  // 演示数据：SHOW_DEMO_CARDS 开启且首页无真实卡时展示（仅本地，不写云库）
   buildTestCards() {
-    return [];
+    if (!SHOW_DEMO_CARDS) return [];
+    const store = require('../../utils/store');
+    const openid = (store.getCurrentOpenid && store.getCurrentOpenid()) || '';
+    const now = Date.now();
+    const day = 24 * 3600 * 1000;
+    const fmt = (t) => {
+      const d = new Date(t);
+      return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    };
+    return [
+      { id: 'demo-1', title: '周六拼车去露营', desc: '老地方集合，装备我带', deadline: fmt(now + 3 * day), updatedAt: now, reminderSetBy: [openid], status: 'todo' },
+      { id: 'demo-2', title: '给妈妈预约体检', desc: '电话确认过套餐内容', deadline: fmt(now + 6 * day), updatedAt: now - day, reminderSetBy: [], status: 'todo' },
+      { id: 'demo-3', title: '还图书馆的书', desc: '两本，别超期', deadline: fmt(now - day), updatedAt: now - 2 * day, reminderSetBy: [], status: 'todo' },
+      { id: 'demo-4', title: '周五团建接龙报名', desc: '截止周五中午', deadline: fmt(now + day), updatedAt: now - 3600 * 1000, reminderSetBy: [openid], status: 'todo' }
+    ];
   },
 
   async loadCards(selectedDateStr) {
@@ -383,7 +397,7 @@ Page({
       return;
     }
 
-    const cards = SHOW_DEMO_CARDS ? await ensureDemoCards() : this.buildTestCards();
+    const cards = this.buildTestCards();
 
     try {
       const store = require('../../utils/store');
