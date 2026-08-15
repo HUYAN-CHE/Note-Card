@@ -120,6 +120,13 @@
   color: #2e7d4e;
 }
 
+/* 会员码小字：客服按码查人用 */
+.user-code {
+  font-size: 22rpx;
+  color: rgba(28, 28, 30, 0.45);
+  letter-spacing: 1rpx;
+}
+
 .grant-btn {
   flex: none;
   padding: 14rpx 28rpx;

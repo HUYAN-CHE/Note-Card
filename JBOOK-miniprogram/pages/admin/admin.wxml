@@ -22,11 +22,12 @@
           <view class="user-info">
             <text class="user-name">{{item.nickName}}</text>
             <text class="user-status {{item.status}}">
-              {{item.status === 'active' ? '会员有效期中' : (item.status === 'expired' ? '会员已过期' : '未开通会员')}}
+              {{item.status === 'active' ? '会员有效期中' : (item.status === 'expired' ? '会员已过期' : '未开通会员')}}{{item.planLabel ? ' · ' + item.planLabel : ''}}
             </text>
+            <text class="user-code" wx:if="{{item.memberCode}}">码 {{item.memberCode}}</text>
           </view>
           <view class="grant-btn" bindtap="onGrant" data-openid="{{item.openid}}" data-nickname="{{item.nickName}}" wx:if="{{granting !== item.openid}}">
-            {{item.status === 'active' ? '续期一年' : '开通一年'}}
+            {{item.status === 'active' ? '续期' : '开通'}}
           </view>
           <view class="grant-btn granting" wx:else>开通中...</view>
         </view>

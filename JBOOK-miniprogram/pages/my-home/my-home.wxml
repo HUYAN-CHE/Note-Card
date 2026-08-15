@@ -7,7 +7,10 @@
   <!-- 用户区：昵称 + 技能 -->
   <view class="user-area" style="padding-top: {{heroPaddingTop}}px;">
       <view class="user-row">
-        <text class="nickname">{{user.nickname || '点击授权'}}</text>
+        <view class="user-name-wrap">
+          <text class="nickname">{{user.nickname || '点击授权'}}</text>
+          <text class="member-code" wx:if="{{memberCode}}" bindtap="onCopyMemberCode">会员码 {{memberCode}}</text>
+        </view>
         <view class="user-arrow" bindtap="onLogoutTap" aria-label="账号设置">
           <image class="user-arrow-icon" src="/assets/icons/logout-green.svg" mode="aspectFit" />
         </view>
@@ -112,7 +115,7 @@
         </scroll-view>
         <!-- 右缘渐变遮罩：卡片滑到边缘渐隐 -->
         <view class="inspire-edge-fade" wx:if="{{previewCards.length}}"></view>
-        <empty-state wx:if="{{!previewCards.length}}" title="还没有集灵中的灵感卡" subtitle="把零碎灵感发给 AI 助手，自动集采成卡" mode="simple" />
+        <empty-state wx:if="{{!previewCards.length}}" title="还没有集灵中的灵感卡" subtitle="把零碎灵感发给私人助理，自动集采成卡" mode="simple" />
       </view>
 
       <!-- 已输出：横滑卡片，与集灵中同样式 -->

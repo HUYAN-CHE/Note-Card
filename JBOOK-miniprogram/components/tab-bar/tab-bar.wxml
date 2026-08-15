@@ -1,4 +1,4 @@
-<view class="tab-bar" style="bottom: calc(24rpx + env(safe-area-inset-bottom));">
+<view class="tab-bar" style="bottom: calc({{safeBottom}}px + 12px);">
   <view
     class="tab-item {{activeTab === 'home' ? 'active' : ''}}"
     bindtap="switchTab"

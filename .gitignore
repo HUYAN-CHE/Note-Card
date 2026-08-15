@@ -26,3 +26,4 @@ cloudfunctions/*/node_modules/
 # Cloud function bundled binary (Linux static ffmpeg, too large for git)
 cloudfunctions/parseContext/ffmpeg
 JBOOK-miniprogram/cloudfunctions/parseContext/ffmpeg
+JBOOK-miniprogram/cloudfunctions/virtualPayment/config.js

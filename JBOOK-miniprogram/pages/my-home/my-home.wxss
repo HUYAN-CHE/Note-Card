@@ -38,6 +38,19 @@
   color: #162116;
 }
 
+/* 昵称 + 会员码同行：码用次级小灰字，不抢昵称视觉 */
+.user-name-wrap {
+  display: flex;
+  align-items: baseline;
+  gap: 16rpx;
+}
+
+.member-code {
+  font-size: 22rpx;
+  color: #9aa79c;
+  letter-spacing: 1rpx;
+}
+
 .user-arrow {
   width: 80rpx;
   height: 80rpx;

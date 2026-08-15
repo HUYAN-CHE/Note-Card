@@ -1,0 +1,9 @@
+{
+  "name": "virtualPayment",
+  "version": "1.0.0",
+  "description": "虚拟支付全链路：下单 prepareOrder / 查单开通 confirmOrder / 发货推送 xpay_goods_deliver_notify",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "latest"
+  }
+}

@@ -261,6 +261,8 @@
   right: 0;
   bottom: 0;
   padding: 24rpx;
+  /* 安卓全面屏手势条安全区，避免底部按钮被遮挡 */
+  padding-bottom: calc(24rpx + env(safe-area-inset-bottom));
   background: #fff;
   border-top: 1rpx solid #eee;
   z-index: 50;

@@ -1,12 +1,19 @@
 const { getNavInfo } = require('../../utils/ui');
+const { membershipPlans } = require('../../config/env');
 
-// 会员权益（文案与 my-home 会员 banner 呼应）
+// 开发自测开关：true 时档位列表额外展示 test（1 元测试道具，env.js 里 hidden:true），
+// 用于沙箱支付链路自测；正式提交/发布前必须保持 false
+const SHOW_TEST_PLAN = true;
+
+// 会员权益（按 2026-08-12 设计稿文案）
 const BENEFITS = [
-  { title: '专属 AI 助手', desc: '灵感与记事，在微信里随手发给它' },
-  { title: '灵感集采成文', desc: '零碎灵感自动汇总，AI 提取标题与关键词成文章' },
-  { title: '聊天整理成卡', desc: '聊天记录转发给 AI 助手，自动整理成记事卡' },
-  { title: '事项到期提醒', desc: '重要事项到期，主动推送提醒' },
-  { title: '多端同步（规划中）', desc: 'Mac 版应用即将推出，全端数据打通' }
+  { title: '像发微信一样随手记', desc: '文字、语音、截图、聊天记录，不用打开小程序' },
+  { title: '记事助理提醒', desc: '私助 1V1，不漏事，不招人烦。' },
+  { title: '把日常琐碎变成精彩创意', desc: '灵感、截图、转发私助，AI 分析整理成完整灵感卡' },
+  { title: '跨屏多端同步', desc: '后续 Mac 端应用，其他社交场景插件自动同步' },
+  { title: '事项群，协作记录整理，提醒', desc: '用完解散，记录留卡' },
+  { title: '一键喂 AI', desc: '支持导出 AI 可读格式，ChatGPT / Claude 无缝使用' },
+  { title: '新玩具终身领', desc: '时光轴、数据看板、探索功能……永久会员终身免费解锁。' }
 ];
 
 Page({
@@ -17,10 +24,21 @@ Page({
     loading: true,
     // none 未开通 / active 有效期中 / expired 已过期
     status: 'none',
+    // monthly 月卡 / yearly 年卡 / lifetime 终身会员
+    plan: '',
     expireAtText: '',
     daysLeft: 0,
-    // 是否已绑定手机号：未绑定时开通入口替换为绑定引导
-    hasPhone: false,
+    // 是否已绑定企业微信私人助理
+    hasWecomBound: false,
+    // 会员码（会员身份证+绑定码合一，已添加过助手的会员把码发给 TA 完成连接）
+    memberCode: '',
+    wecomBoundAtText: '',
+    // 档位卡片从 config/env.js 读取（hidden 档位不展示，test 仅供开发自测）
+    plans: membershipPlans.filter((p) => SHOW_TEST_PLAN || !p.hidden),
+    // 当前选中档位（默认年卡）与支付按钮文案
+    selectedPlan: 'yearly',
+    payBtnText: '',
+    paying: false,
     benefits: BENEFITS
   },
 
@@ -31,6 +49,7 @@ Page({
       navHeight: navInfo.navHeight,
       totalHeight: navInfo.totalHeight
     });
+    this.updatePayBtnText();
   },
 
   onShow() {
@@ -44,10 +63,15 @@ Page({
         this.setData({
           loading: false,
           status: d.status || 'none',
+          plan: d.plan || '',
+          // 终身会员 daysLeft 为 null，不展示剩余天数
           daysLeft: d.daysLeft || 0,
           expireAtText: d.expireAt ? this.formatDate(d.expireAt) : '',
-          hasPhone: !!d.hasPhone
+          hasWecomBound: !!d.hasWecomBound,
+          memberCode: d.memberCode || '',
+          wecomBoundAtText: d.wecomBoundAt ? this.formatDate(d.wecomBoundAt) : ''
         });
+        this.updatePayBtnText();
       })
       .catch((e) => {
         console.warn('loadStatus error', e);
@@ -55,51 +79,151 @@ Page({
       });
   },
 
-  // 绑定手机号：getPhoneNumber 组件回调，成功后露出「添加 AI 助手」开通入口
-  onGetPhoneNumber(e) {
-    const detail = (e && e.detail) || {};
-    if (!detail.code) {
-      // 用户拒绝授权：轻提示，不打断
-      if (detail.errMsg && detail.errMsg.indexOf('deny') !== -1) {
-        wx.showToast({ title: '未授权，无法绑定', icon: 'none' });
-      }
-      return;
-    }
-    wx.cloud.callFunction({ name: 'membership', data: { action: 'bindPhone', code: detail.code } })
-      .then((res) => {
-        const r = res.result || {};
-        if (r.code === 0) {
-          this.setData({ hasPhone: true });
-          wx.showToast({ title: '已绑定', icon: 'success' });
-        } else {
-          wx.showToast({ title: r.message || '绑定失败，请重试', icon: 'none' });
+  // 档位卡片点击选中
+  onSelectPlan(e) {
+    const plan = e.currentTarget.dataset.plan;
+    if (!plan || plan === this.data.selectedPlan) return;
+    this.setData({ selectedPlan: plan });
+    this.updatePayBtnText();
+  },
+
+  // 支付按钮文案：「立即开通 · 年卡 ¥99」（已过期为「立即续费 · …」）
+  updatePayBtnText() {
+    const p = this.data.plans.find((item) => item.plan === this.data.selectedPlan);
+    if (!p) return;
+    const prefix = this.data.status === 'expired' ? '立即续费' : '立即开通';
+    this.setData({ payBtnText: `${prefix} · ${p.label} ¥${p.price}` });
+  },
+
+  // 立即开通：wx.login → prepareOrder → wx.requestVirtualPayment → confirmOrder 查单兜底
+  // 发货不依赖 success 回调（另有控制台消息推送通道），success 后这里最多轮询 3 次确认
+  onPay() {
+    if (this.data.paying) return;
+    const plan = this.data.selectedPlan;
+    this.setData({ paying: true });
+
+    wx.login({
+      success: (loginRes) => {
+        if (!loginRes.code) {
+          this.setData({ paying: false });
+          wx.showToast({ title: '登录失败，请重试', icon: 'none' });
+          return;
         }
+        wx.cloud.callFunction({
+          name: 'virtualPayment',
+          data: { action: 'prepareOrder', plan, code: loginRes.code }
+        })
+          .then((res) => {
+            const r = res.result || {};
+            if (r.code !== 0) {
+              throw new Error(r.message || '下单失败');
+            }
+            const d = r.data;
+            wx.requestVirtualPayment({
+              mode: 'short_series_goods',
+              signData: d.signData,
+              paySig: d.paySig,
+              signature: d.signature,
+              success: () => this.confirmOrder(d.outTradeNo, plan),
+              fail: (err) => {
+                this.setData({ paying: false });
+                const msg = (err && err.errMsg) || '';
+                // 用户取消支付：静默不提示
+                if (msg.indexOf('cancel') === -1) {
+                  console.warn('requestVirtualPayment error', err);
+                  wx.showToast({ title: '支付失败，请重试', icon: 'none' });
+                }
+              }
+            });
+          })
+          .catch((err) => {
+            console.warn('prepareOrder error', err);
+            this.setData({ paying: false });
+            wx.showToast({ title: err.message || '下单失败，请重试', icon: 'none' });
+          });
+      },
+      fail: (err) => {
+        console.warn('wx.login error', err);
+        this.setData({ paying: false });
+        wx.showToast({ title: '登录失败，请重试', icon: 'none' });
+      }
+    });
+  },
+
+  // 查单确认开通：最多轮询 3 次，间隔 2s（发货推送可能先到，confirmOrder 幂等）
+  confirmOrder(outTradeNo, plan) {
+    wx.showLoading({ title: '确认开通中…', mask: true });
+    let attempt = 0;
+    const tryConfirm = () => {
+      attempt += 1;
+      wx.cloud.callFunction({
+        name: 'virtualPayment',
+        data: { action: 'confirmOrder', outTradeNo }
       })
-      .catch((err) => {
-        console.warn('bindPhone error', err);
-        wx.showToast({ title: '绑定失败，请重试', icon: 'none' });
-      });
+        .then((res) => {
+          const r = res.result || {};
+          if (r.code === 0 && r.data && r.data.paid) {
+            wx.hideLoading();
+            this.setData({ paying: false });
+            // 跳转到开通成功页（redirectTo 不占返回栈，成功页「完成」返回上一页）
+            wx.redirectTo({ url: '/pages/member-success/member-success?plan=' + plan });
+          } else if (attempt < 3) {
+            setTimeout(tryConfirm, 2000);
+          } else {
+            // 3 次仍未确认：支付成功但开通延迟，发货推送/后台会兜底完成
+            wx.hideLoading();
+            this.setData({ paying: false });
+            wx.showToast({ title: '支付成功，开通确认中，请稍后下拉刷新查看', icon: 'none' });
+            this.loadStatus();
+          }
+        })
+        .catch((err) => {
+          console.warn('confirmOrder error', err);
+          wx.hideLoading();
+          this.setData({ paying: false });
+          wx.showToast({ title: '确认失败，请稍后查看', icon: 'none' });
+        });
+    };
+    tryConfirm();
+  },
+
+  // 复制会员码：会员把码发给企微私人助理完成连接（主路径）
+  onCopyMemberCode() {
+    if (!this.data.memberCode) return;
+    wx.setClipboardData({
+      data: this.data.memberCode,
+      success: () => wx.showToast({ title: '已复制', icon: 'success' })
+    });
+  },
+
+  // 重新连接：确认后解绑当前私人助理，回到未绑定态
+  onUnbind() {
+    wx.showModal({
+      title: '重新连接',
+      content: '确定断开当前私人助理连接吗？断开后可重新添加。',
+      confirmText: '断开并重连',
+      success: (res) => {
+        if (!res.confirm) return;
+        wx.cloud.callFunction({ name: 'membership', data: { action: 'unbind' } })
+          .then((r) => {
+            const result = r.result || {};
+            if (result.code === 0) {
+              wx.showToast({ title: '已断开', icon: 'success' });
+              this.loadStatus();
+            } else {
+              wx.showToast({ title: result.message || '操作失败，请重试', icon: 'none' });
+            }
+          })
+          .catch((err) => {
+            console.warn('unbind error', err);
+            wx.showToast({ title: '操作失败，请重试', icon: 'none' });
+          });
+      }
+    });
   },
 
   formatDate(ts) {
     const d = new Date(ts);
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-  },
-
-  // ==================== 联系我插件（排查用回调，真机 vConsole 可见） ====================
-
-  onContactStart(e) {
-    console.log('[contactCell] start', e && e.detail);
-  },
-
-  // completemessage: { errcode, name, headurl, notifytype }
-  // notifytype 0=服务通知推送名片 1=展示二维码（插件两种正常方式之一，非故障）
-  // errcode 负值才是真异常：-3002 配置获取失败 / -3004 授权失败 / -3005 客服消息发送失败 / -3006 已是好友 / -3008 未配置客服
-  onContactComplete(e) {
-    const d = (e && e.detail) || {};
-    console.log('[contactCell] complete errcode=%s notifytype=%s name=%s', d.errcode, d.notifytype, d.name, d);
-    if (d.errcode && d.errcode !== 0 && d.errcode !== -3006) {
-      wx.showToast({ title: `添加助手失败(${d.errcode})，请截图反馈`, icon: 'none' });
-    }
   }
 });

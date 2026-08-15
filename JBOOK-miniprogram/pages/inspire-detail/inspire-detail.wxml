@@ -20,10 +20,10 @@
           <input class="hero-keywords" value="{{keywordsText}}" placeholder="关键词，用逗号分隔" placeholder-class="hero-ph" bindinput="onKeywordsInput" />
         </view>
 
-        <!-- 灵感条目：零碎灵感来源（AI 助手收集写入），只读 -->
+        <!-- 灵感条目：零碎灵感来源（私人助理收集写入），只读 -->
         <view class="section">
           <view class="section-title">灵感条目 · {{sparks.length}}</view>
-          <view class="spark-empty" wx:if="{{!sparks.length}}">还没有灵感条目，把第一条灵感发给 AI 助手</view>
+          <view class="spark-empty" wx:if="{{!sparks.length}}">还没有灵感条目，把第一条灵感发给私人助理</view>
           <view class="spark-item" wx:for="{{sparks}}" wx:key="index">
             <text class="spark-index">{{index + 1}}</text>
             <text class="spark-text">{{item.text}}</text>
@@ -50,7 +50,7 @@
   </scroll-view>
 
   <!-- 底部操作栏 -->
-  <view class="action-bar" wx:if="{{!loading && !loadError}}">
+  <view class="action-bar" style="padding-bottom: calc(16rpx + {{safeAreaBottom}}px);" wx:if="{{!loading && !loadError}}">
     <button class="btn btn-ai" bindtap="onSummarize" disabled="{{summarizing || saving}}" loading="{{summarizing}}">{{summarizing ? '整理中' : 'AI 整理'}}</button>
     <button class="btn btn-save {{dirty ? 'glow' : ''}}" bindtap="onSave" disabled="{{saving || summarizing}}" loading="{{saving}}">保存</button>
   </view>

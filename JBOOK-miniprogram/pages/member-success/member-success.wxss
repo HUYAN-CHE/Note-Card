@@ -1,0 +1,155 @@
+/* 开通成功页：沿用 member 页视觉语言（主色 #2e7d4e、白色圆角卡片、vip-btn 体系） */
+
+/* 壳不滚、内容滚：同 member 页 */
+.success-page {
+  padding: 0;
+  height: 100vh;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.success-scroll {
+  height: 100vh;
+  box-sizing: border-box;
+  padding: 0 28rpx;
+}
+
+.success-body {
+  position: relative;
+  z-index: 1;
+}
+
+/* ==================== 成功头部 ==================== */
+
+.success-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12rpx;
+  padding: 48rpx 32rpx;
+  border-radius: 24rpx;
+  background: #ffffff;
+  box-shadow: 0 12rpx 40rpx rgba(28, 28, 30, 0.05);
+}
+
+/* 大对勾：主色圆形底 + 白色 ✓ */
+.success-icon {
+  width: 112rpx;
+  height: 112rpx;
+  border-radius: 50%;
+  background: #2e7d4e;
+  color: #ffffff;
+  font-size: 64rpx;
+  font-weight: 700;
+  line-height: 112rpx;
+  text-align: center;
+  box-shadow: 0 6rpx 20rpx rgba(46, 125, 78, 0.3);
+}
+
+.success-title {
+  font-size: 40rpx;
+  font-weight: 700;
+  color: #1c1c1e;
+}
+
+.success-plan {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #2e7d4e;
+}
+
+.success-validity {
+  font-size: 24rpx;
+  color: rgba(28, 28, 30, 0.55);
+}
+
+/* ==================== 分区（同 member 页 section 卡片） ==================== */
+
+.section {
+  margin-top: 24rpx;
+  padding: 32rpx;
+  border-radius: 24rpx;
+  background: #ffffff;
+}
+
+/* 会员码卡片区（沿用 member 页 bindcode-card，首个区块去掉多余上间距） */
+.bindcode-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12rpx;
+  padding: 24rpx;
+  border-radius: 20rpx;
+  background: rgba(28, 28, 30, 0.04);
+}
+
+.bindcode-value {
+  font-size: 36rpx;
+  font-weight: 700;
+  color: #1c1c1e;
+  letter-spacing: 4rpx;
+}
+
+.qrcode-card {
+  margin-top: 28rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16rpx;
+}
+
+.qrcode-tip {
+  font-size: 24rpx;
+  color: rgba(28, 28, 30, 0.5);
+  text-align: center;
+}
+
+/* 私人助理企微二维码：长按识别添加（show-menu-by-longpress） */
+.wecom-qr {
+  display: block;
+  width: 380rpx;
+  height: 380rpx;
+  margin: 8rpx auto 16rpx;
+}
+
+/* ==================== 按钮体系（沿用 member 页 vip-btn） ==================== */
+
+.vip-btn {
+  padding: 22rpx 72rpx;
+  border-radius: 999rpx;
+  background: #2e7d4e;
+  color: #ffffff;
+  font-size: 30rpx;
+  font-weight: 600;
+  box-shadow: 0 6rpx 20rpx rgba(46, 125, 78, 0.3);
+}
+
+/* 复制会员码按钮：小号次级按钮（主色描边，弱化视觉） */
+.copy-btn {
+  padding: 10rpx 40rpx;
+  font-size: 24rpx;
+  background: #ffffff;
+  color: #2e7d4e;
+  border: 2rpx solid #2e7d4e;
+  box-shadow: none;
+}
+
+/* 底部主按钮「完成」 */
+.done-area {
+  margin-top: 32rpx;
+}
+
+.done-btn {
+  width: 100%;
+  margin: 0;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.done-btn::after {
+  border: none;
+}
+
+.bottom-space {
+  height: calc(60rpx + env(safe-area-inset-bottom));
+}

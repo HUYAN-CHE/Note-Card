@@ -131,37 +131,6 @@
   line-height: 1.5;
 }
 
-/* 开通流程 */
-
-.step {
-  display: flex;
-  align-items: flex-start;
-  gap: 16rpx;
-  margin-top: 20rpx;
-}
-
-.step-num {
-  flex: none;
-  width: 36rpx;
-  height: 36rpx;
-  border-radius: 999rpx;
-  background: #2e7d4e;
-  color: #ffffff;
-  font-size: 22rpx;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-top: 4rpx;
-}
-
-.step-text {
-  flex: 1;
-  font-size: 26rpx;
-  color: rgba(28, 28, 30, 0.85);
-  line-height: 1.55;
-}
-
 /* 二维码 */
 
 .qrcode-card {
@@ -187,7 +156,7 @@
   box-shadow: 0 6rpx 20rpx rgba(46, 125, 78, 0.3);
 }
 
-/* 绑定手机号按钮：复用 vip-btn 视觉，重置 button 默认样式 */
+/* 绑定手机号按钮：复用 vip-btn 视觉，重置 button 默认样式（人工收款过渡方案已下线，样式保留备用） */
 .phone-bind-btn {
   margin: 0;
   line-height: 1.5;
@@ -214,4 +183,133 @@
 
 .bottom-space {
   height: calc(60rpx + env(safe-area-inset-bottom));
+}
+
+/* ==================== 档位卡片 / 会员码 / 重新连接（会员页重构新增） ==================== */
+
+/* 三档卡片：沿用 status-card/section 的白色圆角卡片语言 */
+.plan-list {
+  display: flex;
+  gap: 20rpx;
+}
+
+.plan-card {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10rpx;
+  padding: 28rpx 12rpx;
+  border-radius: 20rpx;
+  background: rgba(46, 125, 78, 0.06);
+  border: 2rpx solid rgba(46, 125, 78, 0.16);
+}
+
+.plan-label {
+  font-size: 26rpx;
+  font-weight: 600;
+  color: #1c1c1e;
+}
+
+.plan-price {
+  font-size: 36rpx;
+  font-weight: 700;
+  color: #2e7d4e;
+}
+
+.plan-days {
+  font-size: 22rpx;
+  color: rgba(28, 28, 30, 0.5);
+}
+
+/* 档位卡片选中态：描边加粗 + 底色微调，沿用 #2e7d4e 主色体系 */
+.plan-card.selected {
+  border: 4rpx solid #2e7d4e;
+  background: rgba(46, 125, 78, 0.12);
+}
+
+/* 支付区：主按钮 + 人工客服辅助链接 */
+.pay-area {
+  margin-top: 32rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20rpx;
+}
+
+.pay-btn {
+  width: 100%;
+  margin: 0;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.pay-btn::after {
+  border: none;
+}
+
+/* 人工通道降级：小字链接样式（button 重置为透明无框） */
+.contact-link {
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  font-size: 24rpx;
+  color: rgba(28, 28, 30, 0.45);
+  line-height: 1.5;
+}
+
+.contact-link::after {
+  border: none;
+}
+
+/* 会员码卡片区 */
+.bindcode-card {
+  margin-top: 28rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12rpx;
+  padding: 24rpx;
+  border-radius: 20rpx;
+  background: rgba(28, 28, 30, 0.04);
+}
+
+.bindcode-value {
+  font-size: 36rpx;
+  font-weight: 700;
+  color: #1c1c1e;
+  letter-spacing: 4rpx;
+}
+
+/* 复制会员码按钮：沿用 vip-btn 体系的小号次级按钮（主色描边，弱化视觉） */
+.copy-btn {
+  padding: 10rpx 40rpx;
+  font-size: 24rpx;
+  background: #ffffff;
+  color: #2e7d4e;
+  border: 2rpx solid #2e7d4e;
+  box-shadow: none;
+}
+
+/* 已连接状态文案 */
+.bound-text {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #1c1c1e;
+}
+
+/* 重新连接按钮：沿用 vip-btn 尺寸，弱化为主色描边 */
+.rebind-btn {
+  background: #ffffff;
+  color: #2e7d4e;
+  border: 2rpx solid #2e7d4e;
+  box-shadow: none;
+}
+
+/* 私人助理企微二维码：长按识别添加（show-menu-by-longpress） */
+.wecom-qr {
+  display: block;
+  width: 380rpx;
+  height: 380rpx;
+  margin: 8rpx auto 16rpx;
 }

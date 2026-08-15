@@ -54,6 +54,8 @@ Page({
     reviewMode: reviewMode,
     // 会员状态：none 未开通 / active 有效期中 / expired 已过期（灵感页空态展示用）
     memberStatus: 'none',
+    // 是否已绑定企微私人助理（灵感页空态分流：已连接→纯文案，未连接→引导去会员页）
+    hasWecomBound: false,
     refreshing: false,
     bodyScrollTop: 0,
     bodyCanScroll: false,
@@ -554,13 +556,16 @@ Page({
     }
   },
 
-  // 会员状态：灵感页空态区分「会员引导」与「会员待记录」两种展示
+  // 会员状态：灵感页空态区分「会员引导」「待连接助理」「已连接待记录」三种展示
   loadMembershipStatus() {
     if (!wx.cloud) return;
     wx.cloud.callFunction({ name: 'membership', data: { action: 'getStatus' } })
       .then((res) => {
         const d = (res.result && res.result.data) || {};
-        this.setData({ memberStatus: d.status || 'none' });
+        this.setData({
+          memberStatus: d.status || 'none',
+          hasWecomBound: !!d.hasWecomBound
+        });
       })
       .catch(() => {});
   },

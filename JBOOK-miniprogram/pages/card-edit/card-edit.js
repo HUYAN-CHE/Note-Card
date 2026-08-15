@@ -128,8 +128,9 @@ Page({
     this.setData({ parseInputText: event.detail.value });
   },
 
+  // 底部会员横幅：跳转会员页（会员体系已上线，原为占位 toast）
   onChatCreateTap() {
-    wx.showToast({ title: '正在开发中，敬请期待', icon: 'none' });
+    wx.navigateTo({ url: '/pages/member/member' });
   },
 
   async parseFromInput() {

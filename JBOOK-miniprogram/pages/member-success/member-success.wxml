@@ -1,0 +1,38 @@
+<view class="page success-page">
+  <custom-nav title="开通成功" showBack="{{false}}" statusBarHeight="{{statusBarHeight}}" navHeight="{{navHeight}}" />
+
+  <scroll-view class="success-scroll" scroll-y enhanced show-scrollbar="{{false}}">
+    <view class="success-body" style="padding-top: {{totalHeight + 12}}px;">
+
+      <!-- 开通成功头部：大对勾 + 档位信息 -->
+      <view class="success-hero">
+        <view class="success-icon">✓</view>
+        <text class="success-title">开通成功</text>
+        <text class="success-plan">{{planLabel}}</text>
+        <text class="success-validity" wx:if="{{validityText}}">{{validityText}}</text>
+      </view>
+
+      <!-- 会员码卡片区（沿用 member 页 bindcode-card 视觉） -->
+      <view class="section">
+        <view class="bindcode-card" wx:if="{{memberCode}}">
+          <text class="bindcode-value">{{memberCode}}</text>
+          <view class="vip-btn copy-btn" bindtap="onCopyMemberCode">复制</view>
+          <text class="qrcode-tip">第一步：复制你的会员码</text>
+        </view>
+
+        <!-- 第二步：企微「联系我」二维码，长按识别添加 -->
+        <view class="qrcode-card">
+          <image class="wecom-qr" src="/assets/images/wecom-qr.png" mode="aspectFit" show-menu-by-longpress="{{true}}" />
+          <text class="qrcode-tip">第二步：长按二维码添加你的私人助理，把会员码发给 TA（约 2 分钟完成连接）</text>
+        </view>
+      </view>
+
+      <!-- 底部主按钮 -->
+      <view class="done-area">
+        <button class="vip-btn done-btn" bindtap="onDone">完成</button>
+      </view>
+
+      <view class="bottom-space"></view>
+    </view>
+  </scroll-view>
+</view>

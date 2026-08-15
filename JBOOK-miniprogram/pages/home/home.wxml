@@ -122,7 +122,7 @@
         </view>
       </view>
       <view class="inspire-empty-wrap" wx:if="{{!inspireCards.length}}" style="min-height: calc(100vh - {{statusBarHeight + heroNavTop + heroNavHeight + 28}}px);">
-        <!-- 审核版：中性空态，不暴露会员/AI助手概念与入口（reviewMode 改 false 后恢复完整版） -->
+        <!-- 审核版：中性空态，不暴露会员/私人助理概念与入口（reviewMode 改 false 后恢复完整版） -->
         <view class="inspire-empty" wx:if="{{reviewMode}}">
           <image class="inspire-empty-image" src="/assets/images/inspire-empty.png" mode="widthFix" aria-hidden="true" />
           <text class="inspire-empty-title">还没有灵感卡</text>
@@ -132,19 +132,20 @@
         <view class="inspire-empty" wx:elif="{{memberStatus !== 'active'}}">
           <image class="inspire-empty-image" src="/assets/images/inspire-empty.png" mode="widthFix" aria-hidden="true" />
           <text class="inspire-empty-title">灵感集采 · 会员专属</text>
-          <text class="inspire-empty-subtitle">开通会员，获得专属 AI 助手：灵感随手发给它，自动提取标题与关键词，集满成一篇可编辑的文章</text>
+          <text class="inspire-empty-subtitle">开通会员，获得专属私人助理：灵感随手发给它，自动提取标题与关键词，集满成一篇可编辑的文章</text>
           <view class="inspire-vip-btn" bindtap="openMember">了解会员权益</view>
         </view>
-        <!-- 会员暂无数据：已是会员说明已添加过，引导直接给 AI 助手发第一条灵感 -->
+        <!-- 会员暂无数据：按是否已绑定私人助理分流（contactCell 插件加载不稳已移除） -->
         <view class="inspire-empty" wx:else>
           <image class="inspire-empty-image" src="/assets/images/inspire-empty.png" mode="widthFix" aria-hidden="true" />
           <text class="inspire-empty-title">还没有灵感卡</text>
-          <text class="inspire-empty-subtitle">把第一条零碎灵感发给 AI 助手，自动集采成卡</text>
-          <!-- 自定义视觉按钮 + 透明插件按钮覆盖（点击弹助手名片/会话） -->
-          <view class="inspire-vip-wrap">
-            <view class="inspire-vip-btn">发给 AI 助手</view>
-            <contactCell class="contact-mask" plugid="0a45e709f9fca07a8ac292708f7000a1" />
-          </view>
+          <!-- 已绑定：纯文案引导去微信发 -->
+          <text class="inspire-empty-subtitle" wx:if="{{hasWecomBound}}">已连接私人助理，去微信里把第一条灵感发给 TA，自动集采成卡</text>
+          <!-- 未绑定：引导去会员页完成连接 -->
+          <block wx:else>
+            <text class="inspire-empty-subtitle">先连接私人助理，之后灵感随手发给 TA，自动集采成卡</text>
+            <view class="inspire-vip-btn" bindtap="openMember">连接私人助理</view>
+          </block>
         </view>
       </view>
       <view class="inspire-bottom-space" wx:if="{{inspireCards.length}}"></view>

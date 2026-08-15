@@ -70,6 +70,8 @@ Page({
     memberStatus: 'none',
     memberExpireText: '',
     memberDaysLeft: 0,
+    // 会员码（仅会员有，资料卡昵称旁展示，点击复制）
+    memberCode: '',
     // 已绑定手机号的脱敏展示（如 138****5678），空串 = 未绑定
     phoneMasked: '',
     // 管理员标识：true 时右上角菜单出现「会员管理」入口
@@ -120,10 +122,20 @@ Page({
           memberStatus: d.status || 'none',
           memberDaysLeft: d.daysLeft || 0,
           memberExpireText: d.expireAt ? this.formatMemberDate(d.expireAt) : '',
+          memberCode: d.memberCode || '',
           phoneMasked: d.phoneMasked || ''
         });
       })
       .catch((e) => console.warn('loadMembershipStatus error', e));
+  },
+
+  // 复制会员码：资料卡昵称旁的会员码小字，点击复制
+  onCopyMemberCode() {
+    if (!this.data.memberCode) return;
+    wx.setClipboardData({
+      data: this.data.memberCode,
+      success: () => wx.showToast({ title: '已复制', icon: 'success' })
+    });
   },
 
   // 绑定/换绑手机号：getPhoneNumber 组件回调，code 换号走云函数

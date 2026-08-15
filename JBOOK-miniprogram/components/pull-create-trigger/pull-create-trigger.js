@@ -147,7 +147,19 @@ Component({
       this._triggered = false;
       this.clearProgressTimer();
       this.setData({ dragY: 0 });
-      this.drawProgress(0);
+      // 安卓返回时渲染层尚未重建 canvas，同步绘制会落空（胶囊虚线偶发缺失）；
+      // 等布局完成后重新测量再重绘，与 ready 时序保持一致；
+      // 再补一道 120ms 延迟重绘兜底（安卓原生 canvas 重建更慢，重绘幂等无副作用）
+      wx.nextTick(() => {
+        this.measureCanvas(() => {
+          this.drawProgress(0);
+        });
+      });
+      setTimeout(() => {
+        this.measureCanvas(() => {
+          this.drawProgress(this._lastProgress || 0);
+        });
+      }, 120);
       this.measureHeroHeight();
     }
   },

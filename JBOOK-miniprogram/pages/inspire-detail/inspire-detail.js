@@ -1,4 +1,4 @@
-const { getNavInfo } = require('../../utils/ui');
+const { getNavInfo, getSafeAreaBottom } = require('../../utils/ui');
 const {
   getInspireCard,
   updateInspireCard,
@@ -10,6 +10,8 @@ Page({
     statusBarHeight: 44,
     navHeight: 88,
     totalHeight: 132,
+    // 底部安全区（px）：安卓 env() 多数机型为 0，JS 计算统一兜底
+    safeAreaBottom: 12,
     id: '',
     loading: true,
     loadError: '',
@@ -31,7 +33,8 @@ Page({
     this.setData({
       statusBarHeight: navInfo.statusBarHeight,
       navHeight: navInfo.navHeight,
-      totalHeight: navInfo.totalHeight
+      totalHeight: navInfo.totalHeight,
+      safeAreaBottom: getSafeAreaBottom()
     });
 
     // 列表带入的着色优先（展示层按列表顺序循环着色，保证相邻不同色），没有则用卡片自身颜色
