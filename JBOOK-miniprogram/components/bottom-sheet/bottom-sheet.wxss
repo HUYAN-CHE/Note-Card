@@ -16,6 +16,8 @@
 
 .sheet {
   width: 100%;
+  /* border-box：否则 width:100%+左右 padding 会超出屏幕，弹层内容右端被裁 */
+  box-sizing: border-box;
   background: #ffffff;
   border-radius: 32rpx 32rpx 0 0;
   padding: 24rpx 32rpx;

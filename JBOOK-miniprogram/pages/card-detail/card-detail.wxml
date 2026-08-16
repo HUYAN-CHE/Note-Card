@@ -146,10 +146,14 @@
   <view class="bottom-fade"></view>
 
   <!-- 底部操作：主胶囊「邀请好友一起提醒」（样式与新建页统一），下方小字「保存为图片」 -->
-  <view class="detail-footer" style="padding-bottom: calc(28rpx + {{safeAreaBottom}}px);" wx:if="{{role !== 'stranger' || isNetworkView || canAcceptInvite}}">
+  <view class="detail-footer" style="padding-bottom: calc(28rpx + {{safeAreaBottom}}px);" wx:if="{{role !== 'stranger' || isNetworkView || canAcceptInvite || (meReminderSet && !isCreator && !isHelper)}}">
     <view class="footer-main" wx:if="{{isCreator || isHelper}}">
       <button class="footer-btn primary wide" open-type="share" data-action="share" aria-label="提醒一下TA"><image class="footer-icon" src="/assets/icons/share-white.svg" mode="aspectFit" />提醒一下 TA</button>
       <view class="footer-text-link" bindtap="onSavePoster">保存为图片</view>
+    </view>
+    <!-- 纯关注者（已留意、非创立者/协作人）：补充说明入口 -->
+    <view class="footer-main" wx:if="{{meReminderSet && !isCreator && !isHelper}}">
+      <button class="footer-btn primary wide" bindtap="openNoteSheet" aria-label="补充说明">补充说明</button>
     </view>
     <!-- 引荐人视角：引荐成功后引导转发给卡主审批 -->
     <button class="footer-btn primary wide" wx:if="{{endorsedForward}}" open-type="share" data-action="share" aria-label="转发给卡主审批">已引荐 · 发给卡主拍板</button>
@@ -177,6 +181,24 @@
       <view class="sheet-actions">
         <button class="sheet-btn ghost" bindtap="closeApplySheet">取消</button>
         <button class="sheet-btn primary" bindtap="submitApply">提交申请</button>
+      </view>
+    </view>
+  </bottom-sheet>
+
+  <!-- 补充说明 Sheet（纯关注者：给卡主补充进展，≤200 字） -->
+  <bottom-sheet visible="{{showNoteSheet}}" title="补充说明" subtitle="说明会记入协作记录，并通知卡主" safeAreaBottom="{{safeAreaBottom}}" bind:close="closeNoteSheet">
+    <view class="apply-body">
+      <textarea
+        class="apply-input"
+        value="{{noteText}}"
+        bindinput="onNoteInput"
+        placeholder="例如：我问过搬家公司了，周六上午有车..."
+        maxlength="200"
+        adjust-position="{{true}}"
+      />
+      <view class="sheet-actions">
+        <button class="sheet-btn ghost" bindtap="closeNoteSheet">取消</button>
+        <button class="sheet-btn primary" bindtap="submitNote">提交</button>
       </view>
     </view>
   </bottom-sheet>

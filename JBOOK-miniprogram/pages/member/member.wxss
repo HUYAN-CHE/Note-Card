@@ -238,9 +238,19 @@
 }
 
 .pay-btn {
+  /* border-box 保险：宽度含内边距 */
+  box-sizing: border-box;
   width: 100%;
   margin: 0;
-  line-height: 1.5;
+  /* 防文字换行挤压：nowrap + 固定高度 flex 居中 */
+  height: 96rpx;
+  line-height: 96rpx;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  overflow: hidden;
   text-align: center;
 }
 

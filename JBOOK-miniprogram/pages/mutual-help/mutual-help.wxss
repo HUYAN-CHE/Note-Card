@@ -402,6 +402,112 @@
   height: calc(160rpx + env(safe-area-inset-bottom));
 }
 
+/* ==================== 邀请好友留意弹层 ==================== */
+
+.watch-body {
+  padding-bottom: 8rpx;
+}
+
+/* 弹层内卡片列表：超高时可滚动（沿用 lucky-card 圆角浅灰底语言，边距收进弹层） */
+.watch-list {
+  max-height: 640rpx;
+}
+
+.watch-card {
+  display: flex;
+  align-items: center;
+  gap: 24rpx;
+  padding: 28rpx;
+  margin-bottom: 24rpx;
+  border-radius: 32rpx;
+  background: #f5f7fa;
+  border: 2rpx solid transparent;
+  box-sizing: border-box;
+}
+
+/* 选中态：主色描边 + 浅绿底（checkbox 风格） */
+.watch-card.selected {
+  background: #eefbf2;
+  border-color: #00c853;
+}
+
+.watch-check {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 44rpx;
+  width: 44rpx;
+  height: 44rpx;
+  border-radius: 50%;
+  border: 2rpx solid #c3cec7;
+  background: #ffffff;
+  font-size: 28rpx;
+  color: #ffffff;
+}
+
+.watch-card.selected .watch-check {
+  background: #00c853;
+  border-color: #00c853;
+}
+
+.watch-info {
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+  min-width: 0;
+  flex: 1;
+}
+
+.watch-title {
+  font-size: 28rpx;
+  color: #162116;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.watch-meta {
+  font-size: 22rpx;
+  color: #9baaa3;
+}
+
+.watch-empty {
+  padding: 80rpx 32rpx;
+  font-size: 26rpx;
+  color: #9baaa3;
+  text-align: center;
+}
+
+/* 底部确认按钮：主色大胶囊，未选时置灰 */
+.watch-confirm {
+  /* border-box：width:100% 含内边距，否则溢出容器导致文字被裁 */
+  box-sizing: border-box;
+  width: 100%;
+  margin: 8rpx 0 0;
+  padding: 0 32rpx;
+  height: 96rpx;
+  /* 防文字换行：文案含「已选 N 张」变量，nowrap + flex 居中 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  overflow: hidden;
+  border-radius: 999rpx;
+  background: #2e7d4e;
+  color: #ffffff;
+  font-size: 30rpx;
+  font-weight: 600;
+}
+
+.watch-confirm::after {
+  border: none;
+}
+
+.watch-confirm.disabled {
+  background: rgba(28, 28, 30, 0.08);
+  color: rgba(28, 28, 30, 0.4);
+}
+
 /* 底部渐隐浮层：多段缓出曲线（0.98→0，无实白段），z-15 在卡片上、tab(20) 下 */
 .bottom-fade {
   position: fixed;

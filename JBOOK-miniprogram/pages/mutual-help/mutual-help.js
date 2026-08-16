@@ -1,5 +1,6 @@
 const { collections } = require('../../config/env');
 const { getSafeAreaBottom } = require('../../utils/ui');
+const store = require('../../utils/store.js');
 
 // 演示数据开关：true 时互助页注入假人脉与假记事卡，仅用于查看效果（上线前改回 false）
 const SHOW_DEMO_CARDS = false;
@@ -29,6 +30,13 @@ function beijingDayKey(ts) {
   return `${d.getUTCFullYear()}-${d.getUTCMonth() + 1}-${d.getUTCDate()}`;
 }
 
+// 北京时间（UTC+8）「今天」字符串（YYYY-MM-DD），与首页口径一致：deadline 字符串比较判未到期
+function beijingToday() {
+  const d = new Date(Date.now() + 8 * 3600 * 1000);
+  const pad = (n) => String(n).padStart(2, '0');
+  return `${d.getUTCFullYear()}-${pad(d.getUTCMonth() + 1)}-${pad(d.getUTCDate())}`;
+}
+
 const STORAGE_KEY = 'JISHIKA_USER_PROFILE';
 
 function getInitial(name) {
@@ -56,6 +64,8 @@ Page({
     subscribed: false,
     unreadCount: 0,
     contentScrollHeight: 500,
+    // 底部安全区（px）：传给 bottom-sheet 弹层
+    safeAreaBottom: 12,
     selectedHelperId: '',
     helpers: [{ id: 'add', type: 'add', name: '添加', avatar: '' }],
     ownCards: [],
@@ -67,10 +77,18 @@ Page({
     },
     authorized: false,
     loadingHelpers: false,
-    loadingCards: false
+    loadingCards: false,
+    // 「邀请好友留意」弹层：我的未到期卡多选
+    showWatchSheet: false,
+    watchLoading: false,
+    watchCards: [],
+    watchSelected: {},
+    watchSelectedCount: 0
   },
 
   onLoad() {
+    // 底部安全区：bottom-sheet 弹层按钮防安卓手势条遮挡
+    this.setData({ safeAreaBottom: getSafeAreaBottom() });
     this.updateSystemInfo();
     this.loadMyProfile();
   },
@@ -340,12 +358,68 @@ Page({
     });
   },
 
+  // [+] 添加：打开「邀请好友留意」弹层（选卡 → 转发给好友帮忙留意）
   onInviteTap() {
-    wx.showShareMenu({ withShareTicket: true });
-    wx.showToast({
-      title: '邀请功能开发中，请右上角转发',
-      icon: 'none'
+    this.openWatchSheet();
+  },
+
+  // 邀请好友留意弹层：拉取我的未到期记事卡（deadline >= 北京时间今天，需有短码才能分享）
+  async openWatchSheet() {
+    this.setData({
+      showWatchSheet: true,
+      watchLoading: true,
+      watchCards: [],
+      watchSelected: {},
+      watchSelectedCount: 0
     });
+
+    try {
+      const openid = (getApp().globalData && getApp().globalData.openid) || wx.getStorageSync('JISHIKA_OPENID') || '';
+      // 复用首页卡片数据源（云端就绪时直查 cards 集合并带全字段，含 refCode）
+      const cards = await store.getCards();
+      const today = beijingToday();
+      const list = (cards || [])
+        .filter((c) => c && c.creatorId === openid && c.deadline && c.deadline >= today && c.refCode)
+        .map((c) => ({
+          id: c.id,
+          refCode: c.refCode,
+          title: (c.title || '').trim() || '未命名事项',
+          deadline: c.deadline
+        }));
+      this.setData({ watchCards: list, watchLoading: false });
+    } catch (e) {
+      this.setData({ watchLoading: false });
+    }
+  },
+
+  closeWatchSheet() {
+    this.setData({ showWatchSheet: false });
+  },
+
+  // 多选切换：watchSelected 以 refCode 为 key
+  onWatchCardToggle(event) {
+    const ref = event.currentTarget.dataset.ref;
+    if (!ref) return;
+    const selected = { ...this.data.watchSelected };
+    if (selected[ref]) {
+      delete selected[ref];
+    } else {
+      selected[ref] = true;
+    }
+    this.setData({ watchSelected: selected, watchSelectedCount: Object.keys(selected).length });
+  },
+
+  // 完成选卡：记住短码列表（onShareAppMessage 消费），引导右上角转发给好友
+  confirmWatchInvite() {
+    const refs = Object.keys(this.data.watchSelected);
+    if (!refs.length) {
+      wx.showToast({ title: '先选几件事', icon: 'none' });
+      return;
+    }
+    this._watchRefs = refs;
+    this.setData({ showWatchSheet: false });
+    wx.showShareMenu({ withShareTicket: true });
+    wx.showToast({ title: '点右上角「转发」发给好友', icon: 'none', duration: 2500 });
   },
 
   onMyProfileTap() {
@@ -456,6 +530,16 @@ Page({
   },
 
   onShareAppMessage() {
+    // 刚完成「邀请好友留意」选卡：分享落地页 watch-invite，携带短码列表与我的 openid（消费一次即清）
+    if (this._watchRefs && this._watchRefs.length) {
+      const refs = this._watchRefs;
+      this._watchRefs = null;
+      const inviter = (getApp().globalData && getApp().globalData.openid) || wx.getStorageSync('JISHIKA_OPENID') || '';
+      return {
+        title: '我想让你帮忙留意这几件事',
+        path: `/pages/watch-invite/watch-invite?refs=${refs.join(',')}&inviter=${inviter}`
+      };
+    }
     return {
       title: '记事卡｜一起协作，互相帮忙',
       path: '/pages/mutual-help/mutual-help'

@@ -6,7 +6,9 @@ const TYPE_META = {
   reminder: { label: '提醒', color: '#00c853' },
   join_request: { label: '申请', color: '#2e7d4e' },
   join_result: { label: '结果', color: '#5c8dff' },
-  member: { label: '会员', color: '#c9a227' }
+  member: { label: '会员', color: '#c9a227' },
+  watch: { label: '留意', color: '#00c853' },
+  note: { label: '补充', color: '#5c8dff' }
 };
 
 // 相对时间：刚刚 / N分钟前 / N小时前 / 昨天 / N天前 / 日期
@@ -93,9 +95,10 @@ Page({
     const item = event.currentTarget.dataset.item;
     if (!item) return;
 
-    // reminder 类型无落地页，仅标记已读不跳转
+    // reminder 类型无落地页，仅标记已读不跳转；watch/note 跟随 card_expired 跳卡详情
     if (
-      (item.type === 'card_expired' || item.type === 'join_request' || item.type === 'join_result') &&
+      (item.type === 'card_expired' || item.type === 'join_request' || item.type === 'join_result' ||
+        item.type === 'watch' || item.type === 'note') &&
       item.cardId
     ) {
       wx.navigateTo({

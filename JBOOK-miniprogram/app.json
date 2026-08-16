@@ -11,6 +11,7 @@
     "pages/inspire-detail/inspire-detail",
     "pages/member/member",
     "pages/member-success/member-success",
+    "pages/watch-invite/watch-invite",
     "pages/admin/admin"
   ],
   "window": {

@@ -1,0 +1,259 @@
+/* 留意邀请落地页：沿用 member-success 页视觉语言（主色 #2e7d4e、白色圆角卡片、vip-btn 体系） */
+
+/* 壳不滚、内容滚：同 member-success 页 */
+.watch-page {
+  padding: 0;
+  height: 100vh;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.watch-scroll {
+  height: 100vh;
+  box-sizing: border-box;
+  padding: 0 28rpx;
+}
+
+.watch-body {
+  position: relative;
+  z-index: 1;
+}
+
+/* ==================== 头部（同 member-success success-hero） ==================== */
+
+.success-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12rpx;
+  padding: 48rpx 32rpx;
+  border-radius: 24rpx;
+  background: #ffffff;
+  box-shadow: 0 12rpx 40rpx rgba(28, 28, 30, 0.05);
+}
+
+/* 大对勾：主色圆形底 + 白色 ✓ */
+.success-icon {
+  width: 112rpx;
+  height: 112rpx;
+  border-radius: 50%;
+  background: #2e7d4e;
+  color: #ffffff;
+  font-size: 64rpx;
+  font-weight: 700;
+  line-height: 112rpx;
+  text-align: center;
+  box-shadow: 0 6rpx 20rpx rgba(46, 125, 78, 0.3);
+}
+
+.success-title {
+  font-size: 40rpx;
+  font-weight: 700;
+  color: #1c1c1e;
+  text-align: center;
+}
+
+.success-validity {
+  font-size: 24rpx;
+  color: rgba(28, 28, 30, 0.55);
+}
+
+/* ==================== 卡片清单（同 member-success section 卡片） ==================== */
+
+.section {
+  margin-top: 24rpx;
+  padding: 32rpx;
+  border-radius: 24rpx;
+  background: #ffffff;
+}
+
+.watch-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 120rpx 32rpx;
+}
+
+.watch-loading-text,
+.watch-empty {
+  font-size: 26rpx;
+  color: rgba(28, 28, 30, 0.5);
+  text-align: center;
+}
+
+.watch-empty {
+  padding: 48rpx 0;
+}
+
+/* 单张待留意卡：浅灰圆角块（同 member-success bindcode-card 底色） */
+.invite-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+  padding: 24rpx;
+  margin-bottom: 16rpx;
+  border-radius: 20rpx;
+  background: rgba(28, 28, 30, 0.04);
+}
+
+.invite-card:last-child {
+  margin-bottom: 0;
+}
+
+.invite-card-title {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #1c1c1e;
+}
+
+.invite-card-meta {
+  font-size: 24rpx;
+  color: rgba(28, 28, 30, 0.55);
+}
+
+.link-text {
+  color: #2e7d4e;
+}
+
+/* ==================== 按钮体系（沿用 member-success vip-btn） ==================== */
+
+.vip-btn {
+  padding: 22rpx 72rpx;
+  border-radius: 999rpx;
+  background: #2e7d4e;
+  color: #ffffff;
+  font-size: 30rpx;
+  font-weight: 600;
+  box-shadow: 0 6rpx 20rpx rgba(46, 125, 78, 0.3);
+  /* 防文字换行挤压 */
+  white-space: nowrap;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.done-area {
+  margin-top: 32rpx;
+}
+
+.done-btn {
+  width: 100%;
+  margin: 0;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.done-btn::after {
+  border: none;
+}
+
+.bottom-space {
+  height: calc(60rpx + env(safe-area-inset-bottom));
+}
+
+/* ==================== 授权补全弹窗（与卡详情页同款样式） ==================== */
+
+.auth-mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 100;
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.auth-modal {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  padding: 48rpx 48rpx calc(48rpx + env(safe-area-inset-bottom));
+  border-radius: 32rpx 32rpx 0 0;
+  background: #ffffff;
+  box-sizing: border-box;
+}
+
+.auth-title {
+  font-size: 36rpx;
+  font-weight: 700;
+  color: #162116;
+  text-align: center;
+}
+
+.auth-desc {
+  margin-top: 16rpx;
+  font-size: 26rpx;
+  color: #6b7a73;
+  text-align: center;
+}
+
+.auth-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24rpx;
+  margin-top: 40rpx;
+}
+
+.auth-avatar-btn {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 140rpx !important;
+  height: 140rpx !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: none !important;
+  border-radius: 50% !important;
+  background: #f5f7fa !important;
+  font-size: 24rpx;
+  color: #6b7a73;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.auth-avatar-btn::after {
+  display: none;
+}
+
+.auth-avatar-img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+}
+
+.auth-nickname-input {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 80rpx;
+  padding: 0;
+  margin: 0;
+  border: none;
+  border-radius: 999rpx;
+  background: #f5f7fa;
+  font-size: 28rpx;
+  color: #162116;
+  line-height: 1;
+  text-align: center;
+}
+
+.auth-nickname-input.done {
+  background: #e8f5e9;
+  color: #22c55e;
+}
+
+.auth-close {
+  margin-top: 32rpx;
+  font-size: 26rpx;
+  color: #9baaa3;
+  text-align: center;
+}

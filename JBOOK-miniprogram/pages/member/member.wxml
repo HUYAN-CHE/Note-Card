@@ -46,7 +46,7 @@
 
         <!-- 虚拟支付：wx.login → prepareOrder → requestVirtualPayment → confirmOrder -->
         <view class="pay-area">
-          <button class="vip-btn pay-btn" bindtap="onPay" disabled="{{paying}}">{{payBtnText}}</button>
+          <view class="vip-btn pay-btn {{paying ? 'disabled' : ''}}" bindtap="onPay">{{payBtnText}}</view>
           <!-- 人工通道降级为辅助：支付遇到问题或需人工开通时进客服会话 -->
           <button class="contact-link" open-type="contact">人工开通/支付遇到问题？联系客服</button>
         </view>
@@ -83,7 +83,7 @@
         </view>
       </view>
 
-      <view class="bottom-space"></view>
+      <view class="bottom-space" style="height: calc({{safeAreaBottom}}px + 30px);"></view>
     </view>
   </scroll-view>
 </view>

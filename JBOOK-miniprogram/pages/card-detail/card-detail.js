@@ -95,6 +95,10 @@ Page({
     showActivitySheet: false,
     activities: [],
     activitiesLoading: false,
+    // 我是否已关注提醒（云端 getCardDetail 返回 meReminderSet）；纯关注者据此显示「补充说明」入口
+    meReminderSet: false,
+    showNoteSheet: false,
+    noteText: '',
     attachments: [],
     projectThumb: '',
     projectLabel: '',
@@ -261,6 +265,7 @@ Page({
       showApplyArea,
       canAcceptInvite: !isCreator && !isHelper && (role === 'stranger' || (isNetworkView && inviteEntry)),
       pendingRequests: data.pendingRequests || [],
+      meReminderSet: !!data.meReminderSet,
       myJoinStatus: myJoinRequest ? myJoinRequest.status : '',
       myJoinRequestId: myJoinRequest ? myJoinRequest.id : '',
       cardReady: true,
@@ -317,6 +322,8 @@ Page({
       showApplyArea: false,
       canAcceptInvite: !isCreator && !isHelper,
       pendingRequests: [],
+      // 本地兜底路径：用卡上的 reminderSetBy + 当前 openid 判定（存量卡无此字段视为未设置）
+      meReminderSet: Array.isArray(card.reminderSetBy) && card.reminderSetBy.includes(openid),
       // 本地兜底路径无云端申请数据，按无申请处理
       myJoinStatus: '',
       myJoinRequestId: '',
@@ -956,6 +963,49 @@ Page({
       this.loadCard(cardId);
     } catch (err) {
       wx.showToast({ title: '保存失败', icon: 'none' });
+    }
+  },
+
+  // ==================== 补充说明（纯关注者：已留意、非创立者/协作人） ====================
+
+  openNoteSheet() {
+    this.setData({ showNoteSheet: true, noteText: '' });
+  },
+
+  closeNoteSheet() {
+    this.setData({ showNoteSheet: false });
+  },
+
+  onNoteInput(e) {
+    this.setData({ noteText: e.detail.value });
+  },
+
+  // 提交补充说明：watchOps/addNote 写协作记录 + 站内信通知卡主（云端实现）
+  async submitNote() {
+    const { cardId, noteText } = this.data;
+    const content = (noteText || '').trim();
+    if (!cardId) return;
+    if (!content) {
+      wx.showToast({ title: '先写点内容', icon: 'none' });
+      return;
+    }
+
+    try {
+      const res = await wx.cloud.callFunction({
+        name: 'watchOps',
+        data: { action: 'addNote', cardId, content }
+      });
+
+      if (res.result && res.result.code === 0) {
+        this.setData({ showNoteSheet: false, noteText: '' });
+        wx.showToast({ title: '已补充', icon: 'success' });
+        // 协作记录弹层开着时即时刷新
+        if (this.data.showActivitySheet) this.loadActivities();
+      } else {
+        wx.showToast({ title: (res.result && res.result.message) || '提交失败', icon: 'none' });
+      }
+    } catch (e) {
+      wx.showToast({ title: '提交失败', icon: 'none' });
     }
   },
 

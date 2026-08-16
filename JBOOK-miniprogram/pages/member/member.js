@@ -1,4 +1,4 @@
-const { getNavInfo } = require('../../utils/ui');
+const { getNavInfo, getSafeAreaBottom } = require('../../utils/ui');
 const { membershipPlans } = require('../../config/env');
 
 // 开发自测开关：true 时档位列表额外展示 test（1 元测试道具，env.js 里 hidden:true），
@@ -39,6 +39,8 @@ Page({
     selectedPlan: 'yearly',
     payBtnText: '',
     paying: false,
+    // 底部安全区（px）：安卓 env() 失效，JS 计算
+    safeAreaBottom: 12,
     benefits: BENEFITS
   },
 
@@ -47,7 +49,8 @@ Page({
     this.setData({
       statusBarHeight: navInfo.statusBarHeight,
       navHeight: navInfo.navHeight,
-      totalHeight: navInfo.totalHeight
+      totalHeight: navInfo.totalHeight,
+      safeAreaBottom: getSafeAreaBottom()
     });
     this.updatePayBtnText();
   },

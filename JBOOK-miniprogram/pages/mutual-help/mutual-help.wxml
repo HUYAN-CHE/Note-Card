@@ -144,4 +144,30 @@
   <!-- 底部渐隐浮层：tab 区实白不透，向上缓出渐隐 -->
   <view class="bottom-fade"></view>
   <tab-bar activeTab="mutual-help" />
+
+  <!-- 邀请好友留意 Sheet：多选我的未到期记事卡，转发给好友帮忙留意 -->
+  <bottom-sheet visible="{{showWatchSheet}}" title="邀请好友留意" subtitle="选好几件事，转发给好友帮你在到期前盯着" safeAreaBottom="{{safeAreaBottom}}" bind:close="closeWatchSheet">
+    <view class="watch-body">
+      <view class="card-loading" wx:if="{{watchLoading}}">
+        <text class="card-loading-text">加载中…</text>
+      </view>
+      <view class="watch-empty" wx:elif="{{!watchCards.length}}">还没有未到期的记事卡，先去事项页创建一张</view>
+      <scroll-view class="watch-list" scroll-y enhanced show-scrollbar="{{false}}" wx:else>
+        <view
+          wx:for="{{watchCards}}"
+          wx:key="id"
+          class="watch-card {{watchSelected[item.refCode] ? 'selected' : ''}}"
+          bindtap="onWatchCardToggle"
+          data-ref="{{item.refCode}}"
+        >
+          <view class="watch-check"><text wx:if="{{watchSelected[item.refCode]}}">✓</text></view>
+          <view class="watch-info">
+            <text class="watch-title">{{item.title}}</text>
+            <text class="watch-meta">截止 {{item.deadline}}</text>
+          </view>
+        </view>
+      </scroll-view>
+      <view class="watch-confirm {{watchSelectedCount ? '' : 'disabled'}}" bindtap="confirmWatchInvite">邀请好友留意（已选 {{watchSelectedCount}} 张）</view>
+    </view>
+  </bottom-sheet>
 </view>

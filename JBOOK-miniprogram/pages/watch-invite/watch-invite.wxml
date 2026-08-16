@@ -1,0 +1,89 @@
+<view class="page watch-page">
+  <custom-nav title="留意邀请" showBack="{{false}}" statusBarHeight="{{statusBarHeight}}" navHeight="{{navHeight}}" />
+
+  <scroll-view class="watch-scroll" scroll-y enhanced show-scrollbar="{{false}}">
+    <view class="watch-body" style="padding-top: {{totalHeight + 12}}px;">
+
+      <!-- 加载中 -->
+      <view class="section watch-loading" wx:if="{{loading}}">
+        <text class="watch-loading-text">加载中…</text>
+      </view>
+
+      <!-- 待确认：邀请头部 + 卡片清单 + 打开提醒 -->
+      <block wx:elif="{{!accepted}}">
+        <view class="success-hero">
+          <text class="success-title">{{inviterName || '好友'}} 想让你帮忙留意 {{cards.length}} 件事</text>
+          <text class="success-validity">打开提醒后，到期前会微信提醒你</text>
+        </view>
+
+        <view class="section">
+          <view class="invite-card" wx:for="{{cards}}" wx:key="refCode">
+            <text class="invite-card-title">{{item.title}}</text>
+            <text class="invite-card-meta" wx:if="{{item.deadline}}">截止 {{item.deadline}}</text>
+          </view>
+          <view class="watch-empty" wx:if="{{!cards.length}}">卡片不存在或已失效</view>
+        </view>
+
+        <view class="done-area" wx:if="{{cards.length}}">
+          <view class="vip-btn done-btn {{accepting ? 'disabled' : ''}}" bindtap="onAcceptTap">{{accepting ? '打开中…' : '打开提醒'}}</view>
+        </view>
+      </block>
+
+      <!-- 已留意：成功头部 + 卡片清单（可点进详情） -->
+      <block wx:else>
+        <view class="success-hero">
+          <view class="success-icon">✓</view>
+          <text class="success-title">已开始留意</text>
+          <text class="success-validity">到期前会提醒你</text>
+        </view>
+
+        <view class="section">
+          <view
+            class="invite-card {{item.id ? 'link' : ''}}"
+            wx:for="{{acceptedCards.length ? acceptedCards : cards}}"
+            wx:key="index"
+            bindtap="onAcceptedCardTap"
+            data-id="{{item.id || ''}}"
+          >
+            <text class="invite-card-title">{{item.title}}</text>
+            <text class="invite-card-meta" wx:if="{{item.deadline}}">截止 {{item.deadline}}</text>
+            <text class="invite-card-meta link-text" wx:elif="{{item.id}}">点击查看 ›</text>
+          </view>
+        </view>
+
+        <view class="done-area">
+          <view class="vip-btn done-btn" bindtap="onDone">完成</view>
+        </view>
+      </block>
+
+      <view class="bottom-space" style="height: calc({{safeAreaBottom}}px + 30px);"></view>
+    </view>
+  </scroll-view>
+
+  <!-- 授权补全弹窗（留意成功后，与卡详情页同款） -->
+  <view class="auth-mask" wx:if="{{showAuthModal}}" catchtap="closeAuthModal">
+    <view class="auth-modal" catchtap="onPreventBubble">
+      <view class="auth-title">授权登录</view>
+      <view class="auth-desc">完善头像和昵称，让好友认出你</view>
+      <view class="auth-actions">
+        <button
+          class="auth-avatar-btn {{authProfile.avatar ? 'done' : ''}}"
+          open-type="chooseAvatar"
+          bind:chooseavatar="onAuthAvatar"
+        >
+          <text wx:if="{{!authProfile.avatar}}">授权头像</text>
+          <image wx:else class="auth-avatar-img" src="{{authProfile.avatar}}" mode="aspectFill" />
+        </button>
+        <input
+          class="auth-nickname-input {{authProfile.nickname ? 'done' : ''}}"
+          type="nickname"
+          placeholder="点击输入昵称"
+          value="{{authProfile.nickname}}"
+          bindinput="onAuthNicknameInput"
+          maxlength="20"
+        />
+      </view>
+      <view class="auth-close" bindtap="closeAuthModal">稍后再说</view>
+    </view>
+  </view>
+</view>
