@@ -178,9 +178,11 @@ async function getStatus(openid) {
     hasWecomBound: !!(user && user.externalUserid),
     wecomBoundAt: (user && user.wecomBoundAt) || 0
   };
+  // 订阅消息剩余额度（会员页展示与充值引导用）
+  const quota = { subscribeCount: (user && user.subscribeCount) || 0 };
 
   if (!m || !m.expireAt) {
-    return { code: 0, data: { isMember: false, status: 'none', ...wecom, ...phone } };
+    return { code: 0, data: { isMember: false, status: 'none', ...wecom, ...phone, ...quota } };
   }
 
   // 有会员记录（含已过期）才下发会员码；历史数据无码的现场补生成
@@ -198,7 +200,8 @@ async function getStatus(openid) {
         daysLeft: null,
         memberCode,
         ...wecom,
-        ...phone
+        ...phone,
+        ...quota
       }
     };
   }
@@ -215,12 +218,13 @@ async function getStatus(openid) {
         daysLeft: Math.ceil((m.expireAt - now) / 86400000),
         memberCode,
         ...wecom,
-        ...phone
+        ...phone,
+        ...quota
       }
     };
   }
 
-  return { code: 0, data: { isMember: false, status: 'expired', expireAt: m.expireAt, memberCode, ...wecom, ...phone } };
+  return { code: 0, data: { isMember: false, status: 'expired', expireAt: m.expireAt, memberCode, ...wecom, ...phone, ...quota } };
 }
 
 // 绑定/换绑手机号：入参 code 来自前端 getPhoneNumber 组件回调，

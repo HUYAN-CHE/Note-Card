@@ -1,9 +1,10 @@
 const { getNavInfo, getSafeAreaBottom } = require('../../utils/ui');
 const { membershipPlans } = require('../../config/env');
+const { requestSubscribeCredit } = require('../../utils/subscribe');
 
 // 开发自测开关：true 时档位列表额外展示 test（1 元测试道具，env.js 里 hidden:true），
 // 用于沙箱支付链路自测；正式提交/发布前必须保持 false
-const SHOW_TEST_PLAN = true;
+const SHOW_TEST_PLAN = false;
 
 // 会员权益（按 2026-08-12 设计稿文案）
 const BENEFITS = [
@@ -43,6 +44,9 @@ Page({
     unbindConfirming: false,
     // 底部安全区（px）：安卓 env() 失效，JS 计算
     safeAreaBottom: 12,
+    // 订阅消息剩余额度（回执/提醒共用累计池）
+    subscribeCount: 0,
+    charging: false,
     benefits: BENEFITS
   },
 
@@ -80,7 +84,8 @@ Page({
           expireAtText: d.expireAt ? this.formatDate(d.expireAt) : '',
           hasWecomBound: !!d.hasWecomBound,
           memberCode: d.memberCode || '',
-          wecomBoundAtText: d.wecomBoundAt ? this.formatDate(d.wecomBoundAt) : ''
+          wecomBoundAtText: d.wecomBoundAt ? this.formatDate(d.wecomBoundAt) : '',
+          subscribeCount: d.subscribeCount || 0
         });
         // 缓存本次状态供下次进入时首帧渲染（见 onLoad）
         wx.setStorageSync('memberStatus', { status: d.status || 'none', plan: d.plan || '' });
@@ -212,6 +217,21 @@ Page({
   // 查看私聊新卡：跳首页强制弹出私聊卡弹窗（不受每日一次限制）
   onViewWecomCards() {
     wx.redirectTo({ url: '/pages/home/home?wecomSheet=1' });
+  },
+
+  // 充值提醒额度：弹微信订阅授权，接受 +1（想充多条就连点）
+  onRechargeQuota() {
+    if (this.data.charging) return;
+    this.setData({ charging: true });
+    requestSubscribeCredit()
+      .then((d) => {
+        if (d && typeof d.count === 'number') {
+          this.setData({ subscribeCount: d.count });
+          wx.showToast({ title: `额度 +1，现有 ${d.count} 条`, icon: 'none' });
+        }
+        // 用户拒绝/取消：静默
+      })
+      .finally(() => this.setData({ charging: false }));
   },
 
   // 重新连接：页面内二次确认（不用 wx.showModal——该 API 在本页真机/模拟器均 pending 不渲染，原因未明，绕开）

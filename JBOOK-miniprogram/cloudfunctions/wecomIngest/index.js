@@ -11,10 +11,16 @@ const cloud = require('wx-server-sdk');
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
 
 const db = cloud.database();
+const _ = db.command;
 const USERS = 'users';
 const CARDS = 'cards';
 const MESSAGES = 'messages';
 const PENDING = 'wecomPending';
+
+// 订阅消息模板：待办事项提醒（模板编号 15788，与 sendReminder 同一个）
+// 成卡回执复用：thing4=已记成卡片《标题》，time25=截止时间（无 deadline 用成卡时间）
+const TEMPLATE_ID = '4P5CvHsMvxnRGmD3rksLdeo6iuBV6m1hOc0DVPFcqoY';
+const TEMPLATE_PAGE = 'pages/home/home';
 
 // 与 membership 的 PAY_SYSTEM_KEY 同模式：凭证只在云函数/容器环境变量里，前端拿不到
 const INGEST_SYSTEM_KEY = process.env.INGEST_SYSTEM_KEY || 'jishika-ingest-2026';
@@ -88,6 +94,37 @@ function membershipActive(user) {
   if (!m || !m.expireAt) return false;
   if (m.plan === 'lifetime') return true;
   return m.expireAt > Date.now();
+}
+
+// 成卡回执：用户有订阅额度则推一条「已记成卡片」，成功额度 -1；无额度静默（站内消息已兜底）
+// 回执文案回显 AI 理解结果（标题+时间），私聊不能回话，纠错靠用户扫一眼回执
+async function sendReceipt(user, card) {
+  if (!(user.subscribeCount > 0)) return;
+  const bj = new Date(Date.now() + 8 * 3600 * 1000);
+  const pad = (n) => `${n}`.padStart(2, '0');
+  const createdText = `${bj.getUTCFullYear()}-${pad(bj.getUTCMonth() + 1)}-${pad(bj.getUTCDate())} ${pad(bj.getUTCHours())}:${pad(bj.getUTCMinutes())}:00`;
+  try {
+    await cloud.openapi.subscribeMessage.send({
+      touser: user._openid,
+      templateId: TEMPLATE_ID,
+      page: TEMPLATE_PAGE,
+      data: {
+        thing4: { value: `已记成卡片《${card.title}》`.slice(0, 20) },
+        time25: { value: card.deadline ? `${card.deadline} 23:59:59` : createdText }
+      }
+    });
+    await db.collection(USERS).doc(user._id).update({ data: { subscribeCount: _.inc(-1) } });
+    // 额度刚扣到 0：站内消息引导充值（同 sendReminder 模式）
+    if (user.subscribeCount - 1 === 0) {
+      await writeMessage(user._openid, {
+        title: '提醒额度已用完',
+        content: '提醒额度已用完，去会员页充值以继续接收私聊回执与到期提醒'
+      });
+    }
+  } catch (e) {
+    // 43101 等发送失败不扣额度，不阻塞成卡
+    console.warn('[sendReceipt] 发送失败', e.message || e);
+  }
 }
 
 exports.main = async (event) => {
@@ -185,9 +222,14 @@ exports.main = async (event) => {
 
     await writeMessage(user._openid, {
       title: '已记成卡片',
-      content: `《${title}》已存为草稿，去首页确认`,
+      content: card.deadline
+        ? `《${title}》已存为草稿，将于 ${card.deadline} 前提醒`
+        : `《${title}》已存为草稿，未识别到时间，进小程序可补`,
       cardId: card.id
     });
+
+    // 订阅消息回执：有额度才推，文案回显 AI 理解（标题+时间）
+    await sendReceipt(user, card);
 
     return { code: 0, data: { result: 'card', cardId: card.id, title, aiParsed: !!parsed } };
   } catch (err) {
