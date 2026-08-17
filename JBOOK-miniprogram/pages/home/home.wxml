@@ -157,6 +157,35 @@
 
   <tab-bar activeTab="home" />
 
+  <!-- 私聊成卡弹窗：每日首次进入弹出，可滑动浏览、直接设提醒时间、点遮罩或按钮关闭 -->
+  <bottom-sheet
+    visible="{{wecomSheetVisible}}"
+    title="私聊新记了 {{wecomDrafts.length}} 张卡"
+    subtitle="设个提醒时间，到点微信通知你"
+    safe-area-bottom="{{safeAreaBottom}}"
+    show-close="{{true}}"
+    bind:close="onWecomSheetClose"
+  >
+    <scroll-view class="wecom-sheet-list" scroll-y enhanced show-scrollbar="{{false}}">
+      <view class="wecom-sheet-card" wx:for="{{wecomDrafts}}" wx:key="_id">
+        <view class="wecom-sheet-info">
+          <text class="wecom-sheet-title">{{item.title}}</text>
+          <text class="wecom-sheet-desc" wx:if="{{item.desc}}">{{item.desc}}</text>
+        </view>
+        <picker
+          class="wecom-sheet-picker {{item.deadline ? 'set' : ''}}"
+          mode="date"
+          value="{{item.deadline}}"
+          data-docid="{{item._id}}"
+          bindchange="onSetWecomDeadline"
+        >
+          {{item.deadline ? item.deadline.slice(5).replace('-', '/') : '设时间'}}
+        </picker>
+      </view>
+    </scroll-view>
+    <view class="wecom-sheet-done" bindtap="onWecomSheetClose">好了</view>
+  </bottom-sheet>
+
   <!-- 首次登录授权弹窗 -->
   <view class="auth-mask" wx:if="{{showAuthModal}}" catchtap="closeAuthModal">
     <view class="auth-modal" catchtap="onPreventBubble">

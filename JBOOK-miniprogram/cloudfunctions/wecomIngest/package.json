@@ -1,0 +1,9 @@
+{
+  "name": "wecomIngest",
+  "version": "1.0.0",
+  "description": "企微私聊消息入卡：绑定识别、会员校验、AI 整理成草稿卡",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "latest"
+  }
+}

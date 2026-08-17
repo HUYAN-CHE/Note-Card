@@ -20,7 +20,7 @@ const THEME_ENUM = [
   'volunteer', 'health', 'default'
 ];
 
-const SYSTEM_PROMPT = '你是一个智能记事卡解析助手。请从用户输入的文本中提取 title、desc、keyPoints、theme 四个字段，只返回 JSON。title 是简短标题（5-15字），desc 是通顺的描述（保留关键细节），keyPoints 是基于全部内容总结的主题关键词数组：每个关键词 2-8 个字，概括文本涉及的一个主题；文本涉及多个主题时每个主题各出一个关键词，按重要性排序，最多 5 个。theme 是内容所属的唯一场景分类，必须从以下枚举中选择一个：camp(露营户外) wedding(婚礼) baby(育儿) school(学校) pet(宠物) car(车辆接送) travel(旅行) express(快递) move(搬家) house(租房居家) repair(维修家政) plant(植物) food(聚餐美食) cook(做饭) entertainment(娱乐夜场) movie(电影演出) game(游戏) sport(运动) beauty(美容) shopping(购物) gift(礼物祝福) photo(拍照) study(学习考试) job(求职入职) meeting(会议沟通) design(设计装修) work(项目工作) money(费用报销) finance(理财) insurance(保险) legal(法律合同) document(证件办理) volunteer(公益) health(医疗健康) default(其他)。';
+const SYSTEM_PROMPT = '你是一个智能记事卡解析助手。请从用户输入的文本中提取 title、desc、keyPoints、theme、deadline 五个字段，只返回 JSON。title 是简短标题（5-15字），desc 是通顺的描述（保留关键细节），keyPoints 是基于全部内容总结的主题关键词数组：每个关键词 2-8 个字，概括文本涉及的一个主题；文本涉及多个主题时每个主题各出一个关键词，按重要性排序，最多 5 个。theme 是内容所属的唯一场景分类，必须从以下枚举中选择一个：camp(露营户外) wedding(婚礼) baby(育儿) school(学校) pet(宠物) car(车辆接送) travel(旅行) express(快递) move(搬家) house(租房居家) repair(维修家政) plant(植物) food(聚餐美食) cook(做饭) entertainment(娱乐夜场) movie(电影演出) game(游戏) sport(运动) beauty(美容) shopping(购物) gift(礼物祝福) photo(拍照) study(学习考试) job(求职入职) meeting(会议沟通) design(设计装修) work(项目工作) money(费用报销) finance(理财) insurance(保险) legal(法律合同) document(证件办理) volunteer(公益) health(医疗健康) default(其他)。deadline 是文本中明确提到的截止或提醒日期，格式 YYYY-MM-DD，相对时间（如"明天""这周五""下周三前"）根据用户消息里给出的当前日期推算；没有明确时间信息时返回空字符串。';
 
 exports.main = async (event, context) => {
   console.log('[parseContext] 收到请求', JSON.stringify({ action: event.action }));
@@ -97,12 +97,15 @@ async function handleParseVoice(fileID, format, type) {
 async function callTextModel(text, type) {
   const model = cloud.ai().createModel('cloudbase');
   const typeLabel = TYPE_LABELS[type] || '记事卡';
+  // AI 推算"这周五/明天"等相对时间需要锚点：注入北京时间今天（与卡片 deadline 同时区）
+  const bj = new Date(Date.now() + 8 * 3600 * 1000);
+  const today = `${bj.getUTCFullYear()}-${`${bj.getUTCMonth() + 1}`.padStart(2, '0')}-${`${bj.getUTCDate()}`.padStart(2, '0')}`;
 
   const res = await model.generateText({
     model: 'hy3',
     messages: [
       { role: 'system', content: SYSTEM_PROMPT },
-      { role: 'user', content: `请解析以下文本，整理成一张"${typeLabel}"。\n\n${text}` }
+      { role: 'user', content: `请解析以下文本，整理成一张"${typeLabel}"。\n当前日期：${today}\n\n${text}` }
     ]
   });
 
@@ -141,7 +144,9 @@ function validateResult(data) {
       title: data.title || '未命名记事卡',
       desc: data.desc || data.description || '',
       keyPoints: Array.isArray(data.keyPoints) ? data.keyPoints : [],
-      theme: THEME_ENUM.indexOf(data.theme) !== -1 ? data.theme : 'default'
+      theme: THEME_ENUM.indexOf(data.theme) !== -1 ? data.theme : 'default',
+      // 截止/提醒日期：仅接受 YYYY-MM-DD，其它一律视为未提取
+      deadline: /^\d{4}-\d{2}-\d{2}$/.test(data.deadline || '') ? data.deadline : ''
     }
   };
 }

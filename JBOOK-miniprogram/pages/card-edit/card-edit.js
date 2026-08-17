@@ -349,6 +349,8 @@ Page({
       desc: draft.desc || this.data.card.desc,
       keyPoints: Array.isArray(draft.keyPoints) ? draft.keyPoints : this.data.card.keyPoints,
       theme: draft.theme || this.data.card.theme || '',
+      // AI 提取的截止/提醒日期（如"这周五"→YYYY-MM-DD），用户可在日期选择器里改
+      deadline: draft.deadline || this.data.card.deadline,
       type,
       typeLabel: TYPE_LABELS[type] || this.data.card.typeLabel,
       source: draft.source || this.data.card.source

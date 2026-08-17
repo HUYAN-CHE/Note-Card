@@ -3,6 +3,7 @@ const { collections, reviewMode } = require('../../config/env');
 const { resolveThemeIcon } = require('../../utils/theme-icon');
 const { requestSubscribeCredit } = require('../../utils/subscribe');
 const { uploadAvatar } = require('../../utils/upload-avatar');
+const { getSafeAreaBottom } = require('../../utils/ui');
 const { listInspireCards, splitInspireColumns } = require('../../services/inspire-cards');
 
 const USER_PROFILE_KEY = 'JISHIKA_USER_PROFILE';
@@ -57,6 +58,10 @@ Page({
     // 是否已绑定企微私人助理（灵感页空态分流：已连接→纯文案，未连接→引导去会员页）
     hasWecomBound: false,
     refreshing: false,
+    // 私聊成卡弹窗：私聊来源草稿卡列表，每天首次进入弹出，可直接设提醒时间
+    wecomDrafts: [],
+    wecomSheetVisible: false,
+    safeAreaBottom: 0,
     bodyScrollTop: 0,
     bodyCanScroll: false,
     openedCardId: '',
@@ -68,9 +73,12 @@ Page({
     }
   },
 
-  onLoad() {
+  onLoad(options) {
     this.updateSystemInfo();
     this.updateCalendar();
+    this.setData({ safeAreaBottom: getSafeAreaBottom() });
+    // 会员页「查看私聊新卡」跳入：强制弹私聊卡弹窗，不受每日一次限制，也不消耗当日额度
+    this._forceWecomSheet = !!(options && options.wecomSheet === '1');
   },
 
   onShow() {
@@ -85,10 +93,64 @@ Page({
     this.loadMembershipStatus();
     this.loadSubscribeState();
     this.checkAuth();
+    this.checkWecomDrafts();
 
     const today = this.formatDate(new Date());
     if (this.todayDate && this.todayDate !== today) {
       this.updateCalendar();
+    }
+  },
+
+  // 私聊成卡弹窗：每天首次进入检查私聊来源的草稿卡（首页规则不展示无 deadline 的卡，需主动告知）
+  async checkWecomDrafts() {
+    const force = this._forceWecomSheet;
+    this._forceWecomSheet = false;
+    const today = this.formatDate(new Date());
+    // 会员页主动入口跳入（force）不受每日一次限制；正常进入当天已提示过则跳过
+    if (!force && wx.getStorageSync('JISHIKA_WECOM_TIP_DATE') === today) return;
+    const app = getApp();
+    if (!app.globalData || !app.globalData.cloudReady || !wx.cloud) return;
+    const openid = app.globalData.openid || wx.getStorageSync('JISHIKA_OPENID');
+    if (!openid) return;
+    try {
+      const db = wx.cloud.database();
+      const res = await db.collection(collections.cards)
+        .where({ creatorId: openid, source: 'wecom', status: 'draft' })
+        .orderBy('createdAt', 'desc')
+        .limit(50)
+        .get();
+      const list = res.data || [];
+      if (!list.length) {
+        if (force) wx.showToast({ title: '暂时没有私聊新卡', icon: 'none' });
+        return;
+      }
+      // 自动提醒才记当日已提示；force 主动查看不消耗当日额度
+      if (!force) wx.setStorageSync('JISHIKA_WECOM_TIP_DATE', today);
+      this.setData({ wecomDrafts: list, wecomSheetVisible: true });
+    } catch (e) {
+      console.warn('checkWecomDrafts error', e);
+    }
+  },
+
+  onWecomSheetClose() {
+    this.setData({ wecomSheetVisible: false });
+  },
+
+  // 弹窗内直接设提醒时间：原生日期选择器，选完即写库
+  async onSetWecomDeadline(e) {
+    const deadline = e.detail.value;
+    const docId = e.currentTarget.dataset.docid;
+    if (!deadline || !docId) return;
+    const list = this.data.wecomDrafts.map((c) => (c._id === docId ? { ...c, deadline } : c));
+    this.setData({ wecomDrafts: list });
+    try {
+      await wx.cloud.database().collection(collections.cards)
+        .doc(docId)
+        .update({ data: { deadline, updatedAt: Date.now() } });
+      wx.showToast({ title: '已设置提醒', icon: 'success' });
+    } catch (err) {
+      console.warn('onSetWecomDeadline error', err);
+      wx.showToast({ title: '设置失败，请重试', icon: 'none' });
     }
   },
 

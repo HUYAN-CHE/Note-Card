@@ -65,6 +65,74 @@
   background: rgba(19, 30, 21, 0.16);
 }
 
+/* 私聊成卡弹窗：列表限高可滑动，卡片右置日期选择器 */
+.wecom-sheet-list {
+  max-height: 60vh;
+  margin-top: 8rpx;
+}
+
+.wecom-sheet-card {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+  padding: 24rpx;
+  margin-bottom: 16rpx;
+  border-radius: 20rpx;
+  background: rgba(46, 125, 78, 0.06);
+}
+
+.wecom-sheet-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6rpx;
+  overflow: hidden;
+}
+
+.wecom-sheet-title {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #1c1c1e;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wecom-sheet-desc {
+  font-size: 22rpx;
+  color: rgba(28, 28, 30, 0.5);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wecom-sheet-picker {
+  flex: none;
+  padding: 12rpx 28rpx;
+  border-radius: 999rpx;
+  background: #2e7d4e;
+  color: #ffffff;
+  font-size: 24rpx;
+  font-weight: 600;
+}
+
+.wecom-sheet-picker.set {
+  background: #ffffff;
+  color: #2e7d4e;
+  border: 2rpx solid #2e7d4e;
+}
+
+.wecom-sheet-done {
+  margin-top: 8rpx;
+  padding: 22rpx 0;
+  border-radius: 999rpx;
+  background: rgba(28, 28, 30, 0.06);
+  color: rgba(28, 28, 30, 0.6);
+  font-size: 28rpx;
+  font-weight: 600;
+  text-align: center;
+}
+
 .card-list {
   display: flex;
   flex-direction: column;
