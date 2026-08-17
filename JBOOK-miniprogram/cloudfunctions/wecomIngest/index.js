@@ -148,24 +148,60 @@ exports.main = async (event) => {
       return { code: 0, data: { result: 'pending', reason: 'notMember' } };
     }
 
+    // 前缀强制覆盖：「灵感」/「#灵感」开头强制进灵感库，「记事」/「#记事」开头强制进记事卡
+    // （AI kind 判定的显式纠偏通道；剥掉前缀再整理）
+    let forceKind = '';
+    let text = content;
+    const prefixMatch = text.match(/^[#＃]?(灵感|记事)[:：\s]?/);
+    if (prefixMatch) {
+      forceKind = prefixMatch[1] === '灵感' ? 'inspire' : 'note';
+      text = text.slice(prefixMatch[0].length).trim();
+    }
+    if (!text) {
+      return { code: -1, message: '剥除前缀后内容为空' };
+    }
+
     // AI 整理成卡：parseContext 失败时原文兜底成卡（标题截 15 字），保证"不丢"
     let parsed = null;
     try {
       const parseRes = await cloud.callFunction({
         name: 'parseContext',
-        data: { action: 'parseText', text: content }
+        data: { action: 'parseText', text }
       });
       if (parseRes.result && parseRes.result.code === 0) parsed = parseRes.result.data;
     } catch (e) {
       console.warn('[ingest] parseContext 调用失败', e.message || e);
     }
 
+    // 分流：前缀 > AI kind > 默认 note（偏置记事：宁可错放，不漏事项）
+    const kind = forceKind || (parsed && parsed.kind) || 'note';
+
+    // 灵感库：互调 inspireCard.ingestSpark 按主题归集（追加进匹配卡或新建），碎片存原文
+    if (kind === 'inspire') {
+      const sparkRes = await cloud.callFunction({
+        name: 'inspireCard',
+        data: { action: 'ingestSpark', openid: user._openid, text, systemKey: INGEST_SYSTEM_KEY }
+      });
+      const sr = (sparkRes && sparkRes.result) || {};
+      if (sr.code !== 0) {
+        await savePending({ externalUserid, msgType, content, msgId: event.msgId, msgTime: event.msgTime, reason: 'inspire_failed' });
+        return { code: 0, data: { result: 'pending', reason: 'inspire_failed', message: sr.message } };
+      }
+      const sparkTitle = (sr.data && sr.data.title) || (text.length > 15 ? text.slice(0, 15) + '…' : text);
+      await writeMessage(user._openid, {
+        title: '已沉淀到灵感库',
+        content: `《${sparkTitle}》${sr.data && sr.data.matched ? '（归入已有主题）' : '（新建灵感卡）'}`,
+        cardId: '' // 灵感卡 id 不是记事卡 id，不留 cardId 防止消息中心跳错页
+      });
+      return { code: 0, data: { result: 'inspire', title: sparkTitle, matched: !!(sr.data && sr.data.matched) } };
+    }
+
     const now = Date.now();
-    const title = (parsed && parsed.title) || (content.length > 15 ? content.slice(0, 15) + '…' : content);
+    const title = (parsed && parsed.title) || (text.length > 15 ? text.slice(0, 15) + '…' : text);
     const card = {
       id: uid(),
       title,
-      desc: (parsed && parsed.desc) || content,
+      desc: (parsed && parsed.desc) || text,
       keyPoints: (parsed && parsed.keyPoints) || [],
       theme: (parsed && parsed.theme) || 'default',
       // 截止/提醒日期：sendReminder 定时任务扫到期卡推订阅消息

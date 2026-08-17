@@ -27,7 +27,12 @@ const SYSTEM_PROMPT = '你是一个灵感整理助手。用户平时把零碎的
 exports.main = async (event, context) => {
   console.log('[inspireCard] 收到请求', JSON.stringify({ action: event.action, id: event.id }));
 
-  const openid = cloud.getWXContext().OPENID;
+  let openid = cloud.getWXContext().OPENID;
+  // 系统通道：wecomIngest 云函数间调用私聊灵感沉淀（无小程序用户上下文），
+  // 凭 systemKey（与 wecomIngest 的 INGEST_SYSTEM_KEY 一致）+ 显式 event.openid 放行，仅限 ingestSpark
+  if (!openid && event.action === 'ingestSpark' && (event.systemKey || '') === (process.env.INGEST_SYSTEM_KEY || 'jishika-ingest-2026')) {
+    openid = (event.openid || '').trim();
+  }
   if (!openid) {
     return { code: -1, message: '未获取到用户身份' };
   }
@@ -46,6 +51,8 @@ exports.main = async (event, context) => {
         return await summarize(openid, event.id);
       case 'update':
         return await updateCard(openid, event);
+      case 'ingestSpark':
+        return await ingestSpark(openid, event.text);
       default:
         return { code: -1, message: '未知 action' };
     }
@@ -246,4 +253,35 @@ function extractJSON(rawText) {
       throw new Error('AI 返回无法解析为 JSON: ' + rawText.substring(0, 200));
     }
   }
+}
+
+// 私聊灵感沉淀入口（wecomIngest 云函数间调用，系统通道）：按主题归集
+// 简单版匹配：碎片文本命中现有 collecting 卡的 keyword/title 词（≥2 字）即归入；否则新建卡
+// 归错率实际偏高再升级 AI 匹配版（把卡列表喂模型判归属）
+async function ingestSpark(openid, text) {
+  const sparkText = (text || '').trim();
+  if (!sparkText) return { code: -1, message: '灵感内容为空' };
+
+  const res = await db.collection(COLLECTION)
+    .where({ creatorId: openid, status: 'collecting' })
+    .field({ title: true, keywords: true })
+    .orderBy('updatedAt', 'desc')
+    .limit(20)
+    .get();
+  const cards = res.data || [];
+
+  const hit = cards.find((c) => {
+    const words = [c.title, ...(c.keywords || [])].filter(Boolean);
+    return words.some((w) => w.length >= 2 && sparkText.includes(w));
+  });
+
+  if (hit) {
+    const r = await addSpark(openid, hit._id, sparkText);
+    if (r.code !== 0) return r;
+    return { code: 0, data: { cardId: hit._id, matched: true, title: hit.title || '' } };
+  }
+
+  const created = await createCard(openid, sparkText);
+  const card = created.data && created.data.card;
+  return { code: 0, data: { cardId: (card && card.id) || '', matched: false, title: (card && card.title) || '' } };
 }

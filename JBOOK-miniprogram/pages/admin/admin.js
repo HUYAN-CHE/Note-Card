@@ -141,6 +141,8 @@ Page({
           // result: card 成卡 / bound 完成绑定 / pending 进待认领区
           if (d.result === 'card') {
             wx.showModal({ title: '已记成卡片', content: `《${d.title}》${d.aiParsed ? '' : '（AI 失败，原文兜底）'}`, showCancel: false });
+          } else if (d.result === 'inspire') {
+            wx.showModal({ title: '已沉淀到灵感库', content: `《${d.title}》${d.matched ? '（归入已有主题）' : '（新建灵感卡）'}`, showCancel: false });
           } else if (d.result === 'bound') {
             wx.showToast({ title: '已完成绑定', icon: 'success' });
           } else {

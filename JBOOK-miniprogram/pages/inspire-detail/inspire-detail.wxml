@@ -27,6 +27,8 @@
           <view class="spark-item" wx:for="{{sparks}}" wx:key="index">
             <text class="spark-index">{{index + 1}}</text>
             <text class="spark-text">{{item.text}}</text>
+            <!-- AI 分流判错的纠正入口：这条碎片其实是待办事项时转为记事卡 -->
+            <view class="spark-to-note" data-index="{{index}}" bindtap="onSparkToNote">转记事</view>
           </view>
         </view>
 

@@ -74,6 +74,9 @@ const MOCK_CARDS = [
 let cachedCards = null;
 
 function toViewModel(card) {
+  // 今日新增碎片数（createdAt 是 UTC ISO 串，按北京时间口径）：首页私聊弹窗底部汇总行用
+  const sparks = Array.isArray(card.sparks) ? card.sparks : [];
+  const todaySparkCount = sparks.filter((s) => isBeijingToday(s.createdAt)).length;
   return {
     id: card.id,
     title: card.title || '未命名灵感',
@@ -81,9 +84,22 @@ function toViewModel(card) {
     tags: Array.isArray(card.keywords) ? card.keywords : [],
     color: card.color || '#cfe8fb',
     status: card.status === 'exported' ? 'exported' : 'collecting',
-    sparkCount: Array.isArray(card.sparks) ? card.sparks.length : 0,
+    sparkCount: sparks.length,
+    todaySparkCount,
     updatedAt: card.updatedAt || ''
   };
+}
+
+// createdAt 是 UTC ISO 串，转北京时间判断是否今天
+function isBeijingToday(iso) {
+  if (!iso) return false;
+  const t = new Date(iso).getTime();
+  if (isNaN(t)) return false;
+  const bj = new Date(t + 8 * 3600 * 1000);
+  const bjNow = new Date(Date.now() + 8 * 3600 * 1000);
+  return bj.getUTCFullYear() === bjNow.getUTCFullYear()
+    && bj.getUTCMonth() === bjNow.getUTCMonth()
+    && bj.getUTCDate() === bjNow.getUTCDate();
 }
 
 function callInspireCard(data) {

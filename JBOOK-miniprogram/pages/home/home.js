@@ -61,6 +61,8 @@ Page({
     // 私聊成卡弹窗：私聊来源草稿卡列表，每天首次进入弹出，可直接设提醒时间
     wecomDrafts: [],
     wecomSheetVisible: false,
+    // 今日新增灵感碎片数（弹窗底部汇总行；0 不显示）
+    inspireTodayCount: 0,
     safeAreaBottom: 0,
     bodyScrollTop: 0,
     bodyCanScroll: false,
@@ -126,7 +128,13 @@ Page({
       }
       // 自动提醒才记当日已提示；force 主动查看不消耗当日额度
       if (!force) wx.setStorageSync('JISHIKA_WECOM_TIP_DATE', today);
-      this.setData({ wecomDrafts: list, wecomSheetVisible: true });
+      // 弹窗底部汇总：今日新增灵感碎片数（走 service 缓存，与 loadInspireCards 共用一次请求）
+      let inspireTodayCount = 0;
+      try {
+        const inspireCards = await listInspireCards();
+        inspireTodayCount = inspireCards.reduce((sum, c) => sum + (c.todaySparkCount || 0), 0);
+      } catch (e) { /* 汇总行失败不阻塞弹窗 */ }
+      this.setData({ wecomDrafts: list, wecomSheetVisible: true, inspireTodayCount });
     } catch (e) {
       console.warn('checkWecomDrafts error', e);
     }
@@ -134,6 +142,11 @@ Page({
 
   onWecomSheetClose() {
     this.setData({ wecomSheetVisible: false });
+  },
+
+  // 弹窗底部汇总行：关弹窗并切到灵感 tab
+  onWecomTipInspire() {
+    this.setData({ wecomSheetVisible: false, homeTab: 'inspire' });
   },
 
   // 弹窗内直接设提醒时间：原生日期选择器，选完即写库

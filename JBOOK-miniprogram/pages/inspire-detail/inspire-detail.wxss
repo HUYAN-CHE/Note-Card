@@ -130,6 +130,17 @@
   line-height: 1.55;
 }
 
+/* 转记事入口：弱化小字按钮，不抢阅读 */
+.spark-to-note {
+  flex: none;
+  margin-top: 4rpx;
+  padding: 4rpx 16rpx;
+  border-radius: 999rpx;
+  font-size: 20rpx;
+  color: #2e7d4e;
+  border: 1rpx solid rgba(46, 125, 78, 0.4);
+}
+
 /* 文章 */
 
 .article-input {

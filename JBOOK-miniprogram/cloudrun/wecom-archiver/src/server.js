@@ -114,6 +114,8 @@ async function pullOnce() {
     log(`[pull] 拉到 ${chatdata.length} 条，seq ${seq} → ${chatdata[chatdata.length - 1].seq}`);
 
     let maxSeq = seq;
+    // 先解密收集本轮全部有效消息（单条失败不阻塞整轮）
+    const pickedList = [];
     for (const item of chatdata) {
       if (item.seq > maxSeq) maxSeq = item.seq;
       try {
@@ -121,12 +123,33 @@ async function pullOnce() {
         const plainRaw = await runSdkCli(['decrypt', encryptKey, item.encrypt_chat_msg]);
         const msg = JSON.parse(plainRaw);
         const picked = pickMessage(msg);
-        if (!picked) continue;
-        const r = await ingest(picked);
-        log('[ingest]', picked.externalUserid, JSON.stringify(r));
+        if (picked) pickedList.push(picked);
       } catch (e) {
         // 单条失败（含私钥版本不对 10007 等）不阻塞整轮，打日志继续
         console.error(new Date().toISOString(), '[msg] 处理失败 seq=' + item.seq, e.message);
+      }
+    }
+
+    // 窗口期合并：同一发送者相邻 <60 秒的连续消息拼成一条，一次 AI 整理成一张卡
+    //（"周五前给回复"这类补充信息与上文不割裂；超过阈值各自成卡）
+    pickedList.sort((a, b) => a.msgTime - b.msgTime);
+    const merged = [];
+    for (const m of pickedList) {
+      const last = merged[merged.length - 1];
+      if (last && last.externalUserid === m.externalUserid && m.msgTime - last.msgTime < 60000) {
+        last.content += '\n' + m.content;
+        last.msgTime = m.msgTime;
+      } else {
+        merged.push({ ...m });
+      }
+    }
+
+    for (const m of merged) {
+      try {
+        const r = await ingest(m);
+        log('[ingest]', m.externalUserid, JSON.stringify(r));
+      } catch (e) {
+        console.error(new Date().toISOString(), '[ingest] 调用失败', m.externalUserid, e.message);
       }
     }
     await saveSeq(maxSeq);
