@@ -1,0 +1,9 @@
+{
+  "name": "wecom-archiver",
+  "version": "1.0.0",
+  "description": "企微会话存档拉取服务：定时拉取解密会员私聊消息，调 wecomIngest 入卡",
+  "main": "src/server.js",
+  "dependencies": {
+    "@cloudbase/node-sdk": "latest"
+  }
+}

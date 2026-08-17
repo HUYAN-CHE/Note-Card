@@ -30,3 +30,6 @@ JBOOK-miniprogram/cloudfunctions/virtualPayment/config.js
 
 # 企微会话存档 RSA 密钥对等敏感凭证（只存本机，永不提交）
 secrets/
+
+# 企微会话存档 C SDK 二进制（体积大，从官方渠道下载，见 cloudrun/wecom-archiver/README.md）
+JBOOK-miniprogram/cloudrun/wecom-archiver/sdk/
