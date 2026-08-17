@@ -1,6 +1,7 @@
 // 企微会话存档 C SDK 命令行封装：Node 服务（server.js）以子进程方式调用
 //   sdk_cli getchat <corpid> <secret> <seq> <limit>   拉取加密会话数据，JSON 输出到 stdout
 //   sdk_cli decrypt <encrypt_key> <encrypt_msg>       解密单条消息，明文输出到 stdout
+//   sdk_cli selfcheck                                 仅 dlopen + dlsym 全符号，验证容器内 SDK 可加载（Spike 用）
 // 动态加载 libWeWorkFinanceSdk_C.so（路径取环境变量 SDK_SO，默认 ./libWeWorkFinanceSdk_C.so）
 // 参考官方 demo tool_testSdk.cpp 的 dlopen 模式；进程短生命周期，每次调用独立 Init/DestroySdk
 #include "WeWorkFinanceSdk_C.h"
@@ -116,13 +117,34 @@ static int doDecrypt(int argc, char* argv[]) {
     return 0;
 }
 
+// Spike 自检：dlopen + dlsym 全部用到的符号，成功即证明 C SDK 在容器内可编译可加载
+// （Init/GetChatData 需要真实凭证，不在此验证）
+static int doSelfcheck(void) {
+    const char* loadErr = NULL;
+    void* so = loadSdk(&loadErr);
+    if (!so) {
+        printf("selfcheck FAIL dlopen: %s\n", loadErr ? loadErr : "unknown");
+        return 1;
+    }
+    const char* symbols[] = { "NewSdk", "Init", "DestroySdk", "GetChatData", "DecryptData", "NewSlice", "FreeSlice" };
+    for (int i = 0; i < 7; i++) {
+        if (!dlsym(so, symbols[i])) {
+            printf("selfcheck FAIL dlsym: %s\n", symbols[i]);
+            return 1;
+        }
+    }
+    printf("selfcheck OK\n");
+    return 0;
+}
+
 int main(int argc, char* argv[]) {
     if (argc < 2) {
-        fprintf(stderr, "usage: sdk_cli getchat <corpid> <secret> <seq> <limit> | decrypt <encrypt_key> <encrypt_msg>\n");
+        fprintf(stderr, "usage: sdk_cli getchat <corpid> <secret> <seq> <limit> | decrypt <encrypt_key> <encrypt_msg> | selfcheck\n");
         return 2;
     }
     if (strcmp(argv[1], "getchat") == 0) return doGetChat(argc, argv);
     if (strcmp(argv[1], "decrypt") == 0) return doDecrypt(argc, argv);
+    if (strcmp(argv[1], "selfcheck") == 0) return doSelfcheck();
     fprintf(stderr, "unknown command: %s\n", argv[1]);
     return 2;
 }

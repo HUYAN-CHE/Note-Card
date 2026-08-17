@@ -144,6 +144,18 @@ function checkEnv() {
 }
 
 const server = http.createServer(async (req, res) => {
+  // Spike 自检：容器内跑 sdk_cli selfcheck，验证 C SDK 可加载（不需要任何凭证）
+  if (req.url === '/selfcheck') {
+    try {
+      const out = await runSdkCli(['selfcheck']);
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ ok: true, output: out }));
+    } catch (e) {
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ ok: false, error: e.message }));
+    }
+    return;
+  }
   if (req.url === '/pull') {
     pullOnce(); // 异步触发，不阻塞响应
     res.writeHead(200, { 'Content-Type': 'application/json' });
