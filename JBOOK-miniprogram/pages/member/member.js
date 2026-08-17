@@ -39,6 +39,8 @@ Page({
     selectedPlan: 'yearly',
     payBtnText: '',
     paying: false,
+    // 重新连接按钮的二次确认态（true 时按钮变红，再点一次执行解绑）
+    unbindConfirming: false,
     // 底部安全区（px）：安卓 env() 失效，JS 计算
     safeAreaBottom: 12,
     benefits: BENEFITS
@@ -46,11 +48,17 @@ Page({
 
   onLoad() {
     const navInfo = getNavInfo();
+    // 首帧优化：用缓存的上次会员状态先渲染（底部选价区不等云函数返回即出现），
+    // onShow 拿到最新状态后校正；无缓存时维持 loading，避免开通用户看到选价区闪现
+    const cached = wx.getStorageSync('memberStatus') || null;
     this.setData({
       statusBarHeight: navInfo.statusBarHeight,
       navHeight: navInfo.navHeight,
       totalHeight: navInfo.totalHeight,
-      safeAreaBottom: getSafeAreaBottom()
+      safeAreaBottom: getSafeAreaBottom(),
+      loading: !cached,
+      status: cached ? cached.status : 'none',
+      plan: cached ? cached.plan : ''
     });
     this.updatePayBtnText();
   },
@@ -74,6 +82,8 @@ Page({
           memberCode: d.memberCode || '',
           wecomBoundAtText: d.wecomBoundAt ? this.formatDate(d.wecomBoundAt) : ''
         });
+        // 缓存本次状态供下次进入时首帧渲染（见 onLoad）
+        wx.setStorageSync('memberStatus', { status: d.status || 'none', plan: d.plan || '' });
         this.updatePayBtnText();
       })
       .catch((e) => {
@@ -199,30 +209,36 @@ Page({
     });
   },
 
-  // 重新连接：确认后解绑当前私人助理，回到未绑定态
+  // 查看私聊新卡：跳首页强制弹出私聊卡弹窗（不受每日一次限制）
+  onViewWecomCards() {
+    wx.redirectTo({ url: '/pages/home/home?wecomSheet=1' });
+  },
+
+  // 重新连接：页面内二次确认（不用 wx.showModal——该 API 在本页真机/模拟器均 pending 不渲染，原因未明，绕开）
+  // 第一次点进入确认态（按钮变红、文案变"再点一次确认断开"），3 秒内再点执行解绑，超时恢复
   onUnbind() {
-    wx.showModal({
-      title: '重新连接',
-      content: '确定断开当前私人助理连接吗？断开后可重新添加。',
-      confirmText: '断开并重连',
-      success: (res) => {
-        if (!res.confirm) return;
-        wx.cloud.callFunction({ name: 'membership', data: { action: 'unbind' } })
-          .then((r) => {
-            const result = r.result || {};
-            if (result.code === 0) {
-              wx.showToast({ title: '已断开', icon: 'success' });
-              this.loadStatus();
-            } else {
-              wx.showToast({ title: result.message || '操作失败，请重试', icon: 'none' });
-            }
-          })
-          .catch((err) => {
-            console.warn('unbind error', err);
-            wx.showToast({ title: '操作失败，请重试', icon: 'none' });
-          });
-      }
-    });
+    if (!this.data.unbindConfirming) {
+      this.setData({ unbindConfirming: true });
+      clearTimeout(this._unbindTimer);
+      this._unbindTimer = setTimeout(() => this.setData({ unbindConfirming: false }), 3000);
+      return;
+    }
+    clearTimeout(this._unbindTimer);
+    this.setData({ unbindConfirming: false });
+    wx.cloud.callFunction({ name: 'membership', data: { action: 'unbind' } })
+      .then((r) => {
+        const result = r.result || {};
+        if (result.code === 0) {
+          wx.showToast({ title: '已断开', icon: 'success' });
+          this.loadStatus();
+        } else {
+          wx.showToast({ title: result.message || '操作失败，请重试', icon: 'none' });
+        }
+      })
+      .catch((err) => {
+        console.warn('unbind error', err);
+        wx.showToast({ title: '操作失败，请重试', icon: 'none' });
+      });
   },
 
   formatDate(ts) {

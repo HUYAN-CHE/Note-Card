@@ -449,7 +449,10 @@ async function listUsers(operatorOpenid, event) {
       plan: m.plan || '',
       expireAt: m.expireAt || 0,
       // 会员码：客服按码查人用，无码用户返回空串
-      memberCode: u.memberCode || ''
+      memberCode: u.memberCode || '',
+      // 企微绑定状态：管理页展示与模拟绑定测试用
+      hasWecomBound: !!u.externalUserid,
+      externalUserid: u.externalUserid || ''
     };
   });
 

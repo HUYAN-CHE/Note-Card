@@ -1,13 +1,16 @@
-/* 壳不滚、内容滚：同灵感卡列表页 */
+/* 壳不滚、内容滚：flex 纵向布局，scroll-view 自适应剩余高度，选价区沉底（同新建记事卡） */
 .member-page {
   padding: 0;
   height: 100vh;
   box-sizing: border-box;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 .member-scroll {
-  height: 100vh;
+  flex: 1;
+  min-height: 0;
   box-sizing: border-box;
   padding: 0 28rpx;
 }
@@ -308,6 +311,16 @@
   color: #1c1c1e;
 }
 
+/* 查看私聊新卡入口：主色文字链接行 */
+.wecom-cards-link {
+  margin-top: 24rpx;
+  font-size: 26rpx;
+  color: #2e7d4e;
+  font-weight: 600;
+  text-align: center;
+  padding: 12rpx 0;
+}
+
 /* 重新连接按钮：沿用 vip-btn 尺寸，弱化为主色描边 */
 .rebind-btn {
   background: #ffffff;
@@ -316,10 +329,47 @@
   box-shadow: none;
 }
 
+/* 二次确认态：红色警示 */
+.rebind-btn.confirming {
+  color: #d43c2f;
+  border-color: #d43c2f;
+}
+
 /* 私人助理企微二维码：长按识别添加（show-menu-by-longpress） */
 .wecom-qr {
   display: block;
   width: 380rpx;
   height: 380rpx;
   margin: 8rpx auto 16rpx;
+}
+
+/* ==================== 底部固定选价区（未开通/已过期时显示） ==================== */
+/* 文档流沉底（不 fixed）：scroll-view 底边紧贴 footer 顶边，结构上无重叠遮挡；
+   白底 + 顶边渐隐带，同新建记事卡 footer 手法 */
+.member-footer {
+  flex: none;
+  position: relative;
+  padding: 24rpx 28rpx 24rpx;
+  background: #ffffff;
+}
+
+.member-footer::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -120rpx;
+  height: 120rpx;
+  pointer-events: none;
+  background: linear-gradient(to bottom,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.6) 45%,
+    rgba(255, 255, 255, 0.95) 100%);
+}
+
+.footer-title {
+  font-size: 28rpx;
+  font-weight: 700;
+  color: #1c1c1e;
+  margin-bottom: 20rpx;
 }

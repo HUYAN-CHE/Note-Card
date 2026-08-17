@@ -31,27 +31,6 @@
         </view>
       </view>
 
-      <!-- 未开通/已过期：档位卡片可选 + 虚拟支付立即开通（人工联系降级为辅助链接） -->
-      <view class="section" wx:if="{{!loading && status !== 'active'}}">
-        <view class="section-title">选择{{status === 'expired' ? '续费' : '开通'}}档位</view>
-
-        <!-- 档位卡片（数据来自 config/env.js membershipPlans，hidden 档位不展示） -->
-        <view class="plan-list">
-          <view class="plan-card {{selectedPlan === item.plan ? 'selected' : ''}}" wx:for="{{plans}}" wx:key="plan" data-plan="{{item.plan}}" bindtap="onSelectPlan">
-            <text class="plan-label">{{item.label}}</text>
-            <text class="plan-price">¥{{item.price}}</text>
-            <text class="plan-days">{{item.days ? item.days + ' 天' : '终身有效'}}</text>
-          </view>
-        </view>
-
-        <!-- 虚拟支付：wx.login → prepareOrder → requestVirtualPayment → confirmOrder -->
-        <view class="pay-area">
-          <view class="vip-btn pay-btn {{paying ? 'disabled' : ''}}" bindtap="onPay">{{payBtnText}}</view>
-          <!-- 人工通道降级为辅助：支付遇到问题或需人工开通时进客服会话 -->
-          <button class="contact-link" open-type="contact">人工开通/支付遇到问题？联系客服</button>
-        </view>
-      </view>
-
       <!-- 已开通未绑定：先复制会员码，再长按添加私人助理（加完直接粘贴发送） -->
       <view class="section" wx:if="{{!loading && status === 'active' && !hasWecomBound}}">
         <view class="section-title">连接你的私人助理</view>
@@ -77,8 +56,10 @@
           <text class="bound-text">已连接私人助理 ✅</text>
           <text class="qrcode-tip" wx:if="{{wecomBoundAtText}}">连接时间 {{wecomBoundAtText}}</text>
         </view>
+        <!-- 私聊新卡主动入口：跳首页强制弹出私聊卡弹窗（不受每日一次限制） -->
+        <view class="wecom-cards-link" bindtap="onViewWecomCards">查看私聊新卡 →</view>
         <view class="qrcode-card">
-          <view class="vip-btn rebind-btn" bindtap="onUnbind">重新连接</view>
+          <view class="vip-btn rebind-btn {{unbindConfirming ? 'confirming' : ''}}" bindtap="onUnbind">{{unbindConfirming ? '再点一次确认断开' : '重新连接'}}</view>
           <text class="qrcode-tip">断开当前连接后可重新添加助手</text>
         </view>
       </view>
@@ -86,4 +67,25 @@
       <view class="bottom-space" style="height: calc({{safeAreaBottom}}px + 30px);"></view>
     </view>
   </scroll-view>
+
+  <!-- 未开通/已过期：选价 + 开通按钮固定沉底（同新建记事卡 footer：文档流布局，非 fixed） -->
+  <view class="member-footer" wx:if="{{!loading && status !== 'active'}}" style="padding-bottom: calc(24rpx + {{safeAreaBottom}}px);">
+    <view class="footer-title">选择{{status === 'expired' ? '续费' : '开通'}}档位</view>
+
+    <!-- 档位卡片（数据来自 config/env.js membershipPlans，hidden 档位不展示） -->
+    <view class="plan-list">
+      <view class="plan-card {{selectedPlan === item.plan ? 'selected' : ''}}" wx:for="{{plans}}" wx:key="plan" data-plan="{{item.plan}}" bindtap="onSelectPlan">
+        <text class="plan-label">{{item.label}}</text>
+        <text class="plan-price">¥{{item.price}}</text>
+        <text class="plan-days">{{item.days ? item.days + ' 天' : '终身有效'}}</text>
+      </view>
+    </view>
+
+    <!-- 虚拟支付：wx.login → prepareOrder → requestVirtualPayment → confirmOrder -->
+    <view class="pay-area">
+      <view class="vip-btn pay-btn {{paying ? 'disabled' : ''}}" bindtap="onPay">{{payBtnText}}</view>
+      <!-- 人工通道降级为辅助：支付遇到问题或需人工开通时进客服会话 -->
+      <button class="contact-link" open-type="contact">人工开通/支付遇到问题？联系客服</button>
+    </view>
+  </view>
 </view>

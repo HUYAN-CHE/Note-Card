@@ -7,6 +7,7 @@ const TYPE_META = {
   join_request: { label: '申请', color: '#2e7d4e' },
   join_result: { label: '结果', color: '#5c8dff' },
   member: { label: '会员', color: '#c9a227' },
+  wecom: { label: '私聊', color: '#2e7d4e' },
   watch: { label: '留意', color: '#00c853' },
   note: { label: '补充', color: '#5c8dff' }
 };

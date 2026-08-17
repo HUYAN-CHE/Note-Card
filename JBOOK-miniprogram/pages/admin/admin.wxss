@@ -141,6 +141,26 @@
   background: rgba(28, 28, 30, 0.15);
 }
 
+/* 操作区：模拟绑定 + 开通/续期 */
+.user-ops {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 12rpx;
+}
+
+/* 模拟绑定：次级描边按钮，区分于主操作 grant-btn */
+.mock-bind-btn {
+  padding: 10rpx 24rpx;
+  border-radius: 999rpx;
+  background: #ffffff;
+  color: #2e7d4e;
+  border: 2rpx solid #2e7d4e;
+  font-size: 22rpx;
+  font-weight: 600;
+}
+
 .bottom-space {
   height: calc(60rpx + env(safe-area-inset-bottom));
 }
