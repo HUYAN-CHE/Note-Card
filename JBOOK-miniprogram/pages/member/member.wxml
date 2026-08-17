@@ -58,12 +58,6 @@
         </view>
         <!-- 私聊新卡主动入口：跳首页强制弹出私聊卡弹窗（不受每日一次限制） -->
         <view class="wecom-cards-link" bindtap="onViewWecomCards">查看私聊新卡 →</view>
-
-        <!-- 订阅消息额度：回执/提醒共用累计池，充值走微信授权（一次 +1，多充连点） -->
-        <view class="quota-row">
-          <text class="quota-text">微信提醒额度：剩余 {{subscribeCount}} 条</text>
-          <view class="quota-btn" bindtap="onRechargeQuota">充值</view>
-        </view>
         <view class="qrcode-card">
           <view class="vip-btn rebind-btn {{unbindConfirming ? 'confirming' : ''}}" bindtap="onUnbind">{{unbindConfirming ? '再点一次确认断开' : '重新连接'}}</view>
           <text class="qrcode-tip">断开当前连接后可重新添加助手</text>

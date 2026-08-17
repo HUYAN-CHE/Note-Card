@@ -321,30 +321,6 @@
   padding: 12rpx 0;
 }
 
-/* 订阅消息额度行：剩余条数 + 充值按钮 */
-.quota-row {
-  margin-top: 20rpx;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 16rpx 4rpx 0;
-}
-
-.quota-text {
-  font-size: 24rpx;
-  color: rgba(28, 28, 30, 0.55);
-}
-
-.quota-btn {
-  padding: 8rpx 32rpx;
-  border-radius: 999rpx;
-  background: #ffffff;
-  color: #2e7d4e;
-  border: 2rpx solid #2e7d4e;
-  font-size: 24rpx;
-  font-weight: 600;
-}
-
 /* 重新连接按钮：沿用 vip-btn 尺寸，弱化为主色描边 */
 .rebind-btn {
   background: #ffffff;
