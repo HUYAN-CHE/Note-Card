@@ -51,7 +51,17 @@
   },
   "simulatorPluginLibVersion": {},
   "packOptions": {
-    "ignore": [],
+    "ignore": [
+      { "type": "file", "value": "database.md" },
+      { "type": "file", "value": "database.md.bak" },
+      { "type": "file", "value": "README.md" },
+      { "type": "file", "value": "agent-ui-contract.md" },
+      { "type": "folder", "value": "agent" },
+      { "type": "folder", "value": ".kimi" },
+      { "type": "file", "value": "assets/home_preview.html" },
+      { "type": "file", "value": "assets/images/progress-ring-preview.html" },
+      { "type": "suffix", "value": ".DS_Store" }
+    ],
     "include": []
   },
   "editorSetting": {}

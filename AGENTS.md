@@ -11,6 +11,12 @@
 
 本项目是微信生态小程序《记事卡》（又称《轻跟进》），当前聚焦 MVP 微信小程序开发。
 
+## 云函数部署
+
+- 云函数改动后由 agent 直接部署，不要让用户手动在开发者工具里上传。
+- 命令：`/Applications/wechatwebdevtools.app/Contents/MacOS/cli cloud functions deploy --env cloud1-d3gsqteqm9c3866ac --names <函数名> --project <仓库根>/JBOOK-miniprogram -r`
+- 环境 ID 见 `JBOOK-miniprogram/config/env.js` 的 `cloudEnvId`；`-r` 表示云端安装依赖（不上传本地 node_modules）。
+
 ## Git 备份与提交规范
 
 ### 备份规则
