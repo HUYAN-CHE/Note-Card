@@ -10,7 +10,6 @@
     "pull-create-trigger": "/components/pull-create-trigger/pull-create-trigger",
     "pull-refresh-view": "/components/pull-refresh-view/index",
     "empty-state": "/components/empty-state/empty-state",
-    "bottom-sheet": "/components/bottom-sheet/bottom-sheet",
-    "contactCell": "plugin://contactPlugin/cell"
+    "bottom-sheet": "/components/bottom-sheet/bottom-sheet"
   }
 }

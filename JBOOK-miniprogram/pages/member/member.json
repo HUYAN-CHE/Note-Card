@@ -1,7 +1,6 @@
 {
   "navigationStyle": "custom",
   "usingComponents": {
-    "custom-nav": "/components/custom-nav/custom-nav",
-    "contactCell": "plugin://contactPlugin/cell"
+    "custom-nav": "/components/custom-nav/custom-nav"
   }
 }
