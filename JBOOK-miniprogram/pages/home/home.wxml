@@ -184,7 +184,7 @@
       </view>
     </scroll-view>
     <!-- 灵感沉淀汇总：今日私聊碎片进灵感库的条数，点击切灵感 tab（审核版无灵感功能，不显示） -->
-    <view class="wecom-sheet-inspire" wx:if="{{inspireTodayCount && !reviewMode}}" bindtap="onWecomTipInspire">今天还沉淀了 {{inspireTodayCount}} 条灵感到灵感库 →</view>
+    <view class="wecom-sheet-inspire" wx:if="{{inspireTodayCount && !reviewMode}}" bindtap="onWecomTipInspire">还有 {{inspireTodayCount}} 条碎片进了灵感库，看看有没有记错的 →</view>
     <view class="wecom-sheet-done" bindtap="onWecomSheetClose">好了</view>
   </bottom-sheet>
 

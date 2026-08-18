@@ -105,12 +105,13 @@ Page({
   },
 
   // 灵感碎片转记事卡：AI 分流判错的纠正入口（碎片应是要跟进的事项时用）
-  // 走 JISHIKA_PENDING_DRAFT 通道预填新建页，用户在编辑页确认后保存
+  // 走 JISHIKA_PENDING_DRAFT 通道预填新建页；inspireRef 记录来源，编辑页保存成功后删该碎片
   onSparkToNote(e) {
     const index = e.currentTarget.dataset.index;
     const spark = this.data.sparks[index];
     if (!spark || !spark.text) return;
     const draft = buildDraftFromContext({ text: spark.text, source: 'inspire' });
+    draft.inspireRef = { cardId: this.data.id, index };
     wx.setStorageSync('JISHIKA_PENDING_DRAFT', draft);
     wx.navigateTo({ url: '/pages/card-edit/card-edit?from=inspire' });
   },

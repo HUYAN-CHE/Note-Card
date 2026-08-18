@@ -444,6 +444,14 @@ Page({
 
     const saved = card.id ? await saveCard(card) : await createCardFromDraft(card);
     wx.removeStorageSync('JISHIKA_PENDING_DRAFT');
+    // 灵感转记事：保存成功后删掉灵感卡里的对应碎片（避免一条内容两边都在）
+    const inspireRef = this.data.card.inspireRef;
+    if (inspireRef && inspireRef.cardId) {
+      wx.cloud.callFunction({
+        name: 'inspireCard',
+        data: { action: 'removeSpark', id: inspireRef.cardId, index: inspireRef.index }
+      }).catch((e) => console.warn('removeSpark fail', e));
+    }
     this.setCard(saved);
     return saved;
   },

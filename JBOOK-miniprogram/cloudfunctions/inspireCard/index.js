@@ -53,6 +53,8 @@ exports.main = async (event, context) => {
         return await updateCard(openid, event);
       case 'ingestSpark':
         return await ingestSpark(openid, event.text);
+      case 'removeSpark':
+        return await removeSpark(openid, event.id, event.index);
       default:
         return { code: -1, message: '未知 action' };
     }
@@ -284,4 +286,18 @@ async function ingestSpark(openid, text) {
   const created = await createCard(openid, sparkText);
   const card = created.data && created.data.card;
   return { code: 0, data: { cardId: (card && card.id) || '', matched: false, title: (card && card.title) || '' } };
+}
+
+// 删除指定碎片（灵感详情页「转记事」成功后清理，避免一条内容两边都在）；index 为 sparks 下标
+async function removeSpark(openid, id, index) {
+  const card = await loadOwnedCard(openid, id);
+  if (!card) return { code: -1, message: '灵感卡不存在' };
+  const sparks = Array.isArray(card.sparks) ? card.sparks.slice() : [];
+  const i = Number(index);
+  if (!(i >= 0 && i < sparks.length)) return { code: -1, message: '碎片不存在' };
+  sparks.splice(i, 1);
+  await db.collection(COLLECTION).doc(id).update({
+    data: { sparks, updatedAt: new Date().toISOString() }
+  });
+  return { code: 0, data: { left: sparks.length } };
 }
