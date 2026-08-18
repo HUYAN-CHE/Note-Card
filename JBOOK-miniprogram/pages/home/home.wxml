@@ -173,13 +173,13 @@
           <text class="wecom-sheet-desc" wx:if="{{item.desc}}">{{item.desc}}</text>
         </view>
         <picker
-          class="wecom-sheet-picker {{item.deadline ? 'set' : ''}}"
+          class="wecom-sheet-picker {{item.deadlineText ? 'set' : ''}}"
           mode="date"
           value="{{item.deadline}}"
           data-docid="{{item._id}}"
           bindchange="onSetWecomDeadline"
         >
-          {{item.deadline ? item.deadline.slice(5).replace('-', '/') : '设时间'}}
+          {{item.deadlineText || '设时间'}}
         </picker>
       </view>
     </scroll-view>

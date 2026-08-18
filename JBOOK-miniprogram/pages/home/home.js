@@ -121,7 +121,11 @@ Page({
         .orderBy('createdAt', 'desc')
         .limit(50)
         .get();
-      const list = res.data || [];
+      const list = (res.data || []).map((c) => ({
+        ...c,
+        // WXML 表达式不支持字符串方法调用，日期短格式（08/19）在这里预处理
+        deadlineText: c.deadline ? c.deadline.slice(5).replace('-', '/') : ''
+      }));
       if (!list.length) {
         if (force) wx.showToast({ title: '暂时没有私聊新卡', icon: 'none' });
         return;
@@ -154,7 +158,9 @@ Page({
     const deadline = e.detail.value;
     const docId = e.currentTarget.dataset.docid;
     if (!deadline || !docId) return;
-    const list = this.data.wecomDrafts.map((c) => (c._id === docId ? { ...c, deadline } : c));
+    const list = this.data.wecomDrafts.map((c) => (
+      c._id === docId ? { ...c, deadline, deadlineText: deadline.slice(5).replace('-', '/') } : c
+    ));
     this.setData({ wecomDrafts: list });
     try {
       await wx.cloud.database().collection(collections.cards)
