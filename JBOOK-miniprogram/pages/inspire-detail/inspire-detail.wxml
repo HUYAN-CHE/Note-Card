@@ -20,10 +20,10 @@
           <input class="hero-keywords" value="{{keywordsText}}" placeholder="关键词，用逗号分隔" placeholder-class="hero-ph" bindinput="onKeywordsInput" />
         </view>
 
-        <!-- 灵感条目：按来源分段的记录原文（私聊/转发/语音/手动），只读 -->
+        <!-- 灵感纸条：按来源分段的记录原文（私聊/转发/语音/手动），只读 -->
         <view class="section">
-          <view class="section-title">灵感条目 · {{sparks.length}}</view>
-          <view class="spark-empty" wx:if="{{!sparks.length}}">还没有灵感条目，把第一条灵感发给私人助理</view>
+          <view class="section-title">灵感纸条 · {{sparks.length}}</view>
+          <view class="spark-empty" wx:if="{{!sparks.length}}">还没有灵感纸条，把第一条灵感发给私人助理</view>
           <block wx:for="{{sparkGroups}}" wx:key="label" wx:for-item="group">
             <view class="spark-group-label">{{group.label}}</view>
             <view class="spark-item" wx:for="{{group.items}}" wx:key="index" wx:for-item="spark">
@@ -35,9 +35,9 @@
           </block>
         </view>
 
-        <!-- 文章：AI 汇总生成，可手动编辑 -->
+        <!-- 脉络梳理：满 3 条碎片后 AI 自动融合生成，可手动编辑 -->
         <view class="section">
-          <view class="section-title">文章</view>
+          <view class="section-title">脉络梳理</view>
           <textarea
             class="article-input"
             value="{{article}}"

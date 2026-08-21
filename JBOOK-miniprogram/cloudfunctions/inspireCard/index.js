@@ -278,10 +278,14 @@ async function ingestSpark(openid, text, source) {
     .get();
   const cards = res.data || [];
 
-  const hit = cards.find((c) => {
-    const words = [c.title, ...(c.keywords || [])].filter(Boolean);
-    return words.some((w) => w.length >= 2 && sparkText.includes(w));
-  });
+  // AI 主题匹配：把现有卡的标题/关键词喂给模型判归属；失败降级为字面匹配
+  let hit = await matchCardByAI(cards, sparkText);
+  if (!hit) {
+    hit = cards.find((c) => {
+      const words = [c.title, ...(c.keywords || [])].filter(Boolean);
+      return words.some((w) => w.length >= 2 && sparkText.includes(w));
+    });
+  }
 
   if (hit) {
     const r = await addSpark(openid, hit._id, sparkText, sparkSource);
@@ -314,4 +318,35 @@ async function deleteCard(openid, id) {
   if (!card) return { code: -1, message: '灵感卡不存在' };
   await db.collection(COLLECTION).doc(id).remove();
   return { code: 0, data: { removed: 1 } };
+}
+
+// AI 主题匹配：判断新碎片属于哪张现有灵感卡（语义匹配，字面不重叠也能归对）
+// 返回匹配的卡对象；无匹配或调用失败返回 null（调用方降级字面匹配/新建）
+async function matchCardByAI(cards, sparkText) {
+  if (!cards.length || !sparkText) return null;
+  try {
+    const listText = cards
+      .map((c, i) => `${i + 1}. 《${c.title || '未命名'}》 关键词：${(c.keywords || []).join('、') || '无'}`)
+      .join('\n');
+    const model = cloud.ai().createModel('cloudbase');
+    const res = await model.generateText({
+      model: 'hy3',
+      messages: [
+        {
+          role: 'system',
+          content: '你是灵感归类助手。给你一组灵感卡（标题+关键词）和一条新灵感，判断新灵感主题上属于哪张卡。只返回 JSON：{"index": 数字}，index 是卡片序号（从 1 开始）；都不属于时返回 {"index": -1}。语义相近即可归入，不要求字面相同；主题确实无关才返回 -1。禁止返回其它内容。'
+        },
+        { role: 'user', content: `现有灵感卡：\n${listText}\n\n新灵感：${sparkText}` }
+      ]
+    });
+    const m = (res.text || '').match(/"index"\s*:\s*(-?\d+)/);
+    console.log('[matchCardByAI] AI 返回:', res.text);
+    if (!m) return null;
+    const idx = parseInt(m[1], 10);
+    if (idx >= 1 && idx <= cards.length) return cards[idx - 1];
+    return null;
+  } catch (e) {
+    console.warn('[matchCardByAI] 失败，降级字面匹配', e.message || e);
+    return null;
+  }
 }
