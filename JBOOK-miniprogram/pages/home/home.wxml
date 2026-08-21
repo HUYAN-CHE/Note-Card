@@ -188,6 +188,18 @@
     <view class="wecom-sheet-done" bindtap="onWecomSheetClose">好了</view>
   </bottom-sheet>
 
+  <!-- 绑定成功半弹窗：私聊发会员码后回小程序，检测到绑定跳变时弹出 -->
+  <bottom-sheet
+    visible="{{boundSheetVisible}}"
+    title="私人助理已连接 ✅"
+    subtitle="以后随手发给它：文字、语音、截图、聊天记录，自动整理成卡"
+    safe-area-bottom="{{safeAreaBottom}}"
+    show-close="{{true}}"
+    bind:close="onBoundSheetClose"
+  >
+    <view class="wecom-sheet-done" bindtap="onBoundSheetClose">知道了</view>
+  </bottom-sheet>
+
   <!-- 首次登录授权弹窗 -->
   <view class="auth-mask" wx:if="{{showAuthModal}}" catchtap="closeAuthModal">
     <view class="auth-modal" catchtap="onPreventBubble">

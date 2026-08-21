@@ -84,6 +84,8 @@ Page({
         });
         // 缓存本次状态供下次进入时首帧渲染（见 onLoad）
         wx.setStorageSync('memberStatus', { status: d.status || 'none', plan: d.plan || '' });
+        // 记录绑定状态供首页跳变检测（绑定成功的半弹窗反馈）
+        wx.setStorageSync('JISHIKA_WECOM_BOUND', !!d.hasWecomBound);
         this.updatePayBtnText();
       })
       .catch((e) => {

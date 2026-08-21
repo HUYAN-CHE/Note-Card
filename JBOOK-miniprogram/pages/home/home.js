@@ -63,6 +63,8 @@ Page({
     wecomSheetVisible: false,
     // 今日新增灵感碎片数（弹窗底部汇总行；0 不显示）
     inspireTodayCount: 0,
+    // 绑定成功半弹窗：私聊发会员码后回小程序，检测到未绑定→已绑定跳变时弹出
+    boundSheetVisible: false,
     safeAreaBottom: 0,
     bodyScrollTop: 0,
     bodyCanScroll: false,
@@ -151,6 +153,10 @@ Page({
   // 弹窗底部汇总行：关弹窗并切到灵感 tab
   onWecomTipInspire() {
     this.setData({ wecomSheetVisible: false, homeTab: 'inspire' });
+  },
+
+  onBoundSheetClose() {
+    this.setData({ boundSheetVisible: false });
   },
 
   // 弹窗内直接设提醒时间：原生日期选择器，选完即写库
@@ -638,14 +644,23 @@ Page({
   },
 
   // 会员状态：灵感页空态区分「会员引导」「待连接助理」「已连接待记录」三种展示
+  // 顺带做绑定成功跳变检测：storage 记录上次绑定状态，未绑定→已绑定 时弹半弹窗即时反馈
+  //（私聊发会员码后用户回小程序必然经过首页，无需订阅消息额度）
   loadMembershipStatus() {
     if (!wx.cloud) return;
     wx.cloud.callFunction({ name: 'membership', data: { action: 'getStatus' } })
       .then((res) => {
         const d = (res.result && res.result.data) || {};
+        const bound = !!d.hasWecomBound;
+        const lastBound = wx.getStorageSync('JISHIKA_WECOM_BOUND');
+        // 仅在"有记录且从 false 变 true"时弹：避免老用户/未走过绑定流程的用户误弹
+        if (bound && lastBound === false) {
+          this.setData({ boundSheetVisible: true });
+        }
+        wx.setStorageSync('JISHIKA_WECOM_BOUND', bound);
         this.setData({
           memberStatus: d.status || 'none',
-          hasWecomBound: !!d.hasWecomBound
+          hasWecomBound: bound
         });
       })
       .catch(() => {});
