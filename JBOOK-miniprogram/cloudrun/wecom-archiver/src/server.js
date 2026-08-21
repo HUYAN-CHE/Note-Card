@@ -16,7 +16,7 @@ const fs = require('fs');
 const { execFile, spawnSync } = require('child_process');
 
 const SDK_CLI = process.env.SDK_CLI || '/app/bin/sdk_cli';
-const POLL_INTERVAL_MS = 2 * 60 * 1000;
+const POLL_INTERVAL_MS = 30 * 1000; // 30 秒一轮（官方频率上限 4000 次/分钟，远未触及）
 const PULL_LIMIT = 500; // 单轮上限 500 条（官方单次上限 1000，留余量）
 
 const PRIVATE_KEY = (process.env.WECOM_PRIVATE_KEY || '').replace(/\\n/g, '\n');

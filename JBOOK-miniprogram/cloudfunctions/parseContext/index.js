@@ -105,7 +105,8 @@ async function callTextModel(text, type) {
     model: 'hy3',
     messages: [
       { role: 'system', content: SYSTEM_PROMPT },
-      { role: 'user', content: `请解析以下文本，整理成一张"${typeLabel}"。\n当前日期：${today}\n\n${text}` }
+      // 末尾重复强调 deadline：小模型对长 prompt 中部规则容易漏，首尾双重锚定
+      { role: 'user', content: `请解析以下文本，整理成一张"${typeLabel}"。\n当前日期：${today}\n\n${text}\n\n再次提醒：deadline 字段必须仔细检查——只要文本含"提醒/明天/后天/下周/周X/X月X日/X点"等任何时间意图，就必须推算出 YYYY-MM-DD 填入，不得留空。` }
     ]
   });
 
