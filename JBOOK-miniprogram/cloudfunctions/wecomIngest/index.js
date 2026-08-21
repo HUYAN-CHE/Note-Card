@@ -271,6 +271,9 @@ exports.main = async (event) => {
       theme: (parsed && parsed.theme) || 'default',
       // 截止/提醒日期：sendReminder 定时任务扫到期卡推订阅消息（含二次兜底提取）
       deadline,
+      // 有 deadline 即视为"提醒中"（sendReminder 按 deadline+额度推送，不看 reminderSetBy）；
+      // 写入创建者使前端状态与后端推送行为一致（my-home 的"提醒中"判定读此字段）
+      reminderSetBy: deadline ? [user._openid] : [],
       status: 'draft',
       creatorId: user._openid,
       helperIds: [],
@@ -290,7 +293,7 @@ exports.main = async (event) => {
       cardId: card.id
     });
 
-    return { code: 0, data: { result: 'card', cardId: card.id, title, aiParsed: !!parsed } };
+    return { code: 0, data: { result: 'card', cardId: card.id, title, deadline, aiParsed: !!parsed } };
   } catch (err) {
     console.error('[wecomIngest] 错误', err);
     return { code: -1, message: '云函数内部错误: ' + (err.message || JSON.stringify(err)) };
