@@ -29,6 +29,9 @@ exports.main = async (event, context) => {
     if (event.action === 'parseText') {
       return await handleParseText(event.text, event.type);
     }
+    if (event.action === 'parseDeadline') {
+      return await handleParseDeadline(event.text);
+    }
     if (event.action === 'parseVoice') {
       return await handleParseVoice(event.fileID, event.format, event.type);
     }
@@ -46,6 +49,25 @@ async function handleParseText(text, type) {
 
   const result = await callTextModel(text, type);
   return extractJSON(result);
+}
+
+// 极简日期提取（deadline 二次兜底用）：单字段任务，只返回 YYYY-MM-DD 或空串
+// 主解析的 deadline 字段在长 prompt 下命中率不稳，时间意图明确时用它补一枪
+async function handleParseDeadline(text) {
+  if (!text || !text.trim()) return { code: -1, message: '文本内容为空' };
+  const bj = new Date(Date.now() + 8 * 3600 * 1000);
+  const pad = (n) => `${n}`.padStart(2, '0');
+  const today = `${bj.getUTCFullYear()}-${pad(bj.getUTCMonth() + 1)}-${pad(bj.getUTCDate())}`;
+  const model = cloud.ai().createModel('cloudbase');
+  const res = await model.generateText({
+    model: 'hy3',
+    messages: [
+      { role: 'system', content: '你是日期提取器。从用户文本中提取截止或提醒日期（如"明天""这周五""下周三""8月25日"按当前日期推算），只返回一个 YYYY-MM-DD 格式的日期；文本没有任何日期信息时只返回空字符串。禁止返回任何其它内容。' },
+      { role: 'user', content: `当前日期：${today}\n文本：${text}` }
+    ]
+  });
+  const m = (res.text || '').match(/\d{4}-\d{2}-\d{2}/);
+  return { code: 0, data: { deadline: m ? m[0] : '' } };
 }
 
 async function handleParseVoice(fileID, format, type) {

@@ -249,14 +249,28 @@ exports.main = async (event) => {
 
     const now = Date.now();
     const title = (parsed && parsed.title) || (text.length > 15 ? text.slice(0, 15) + '…' : text);
+
+    // deadline 二次兜底：主解析没给日期但文本有明显时间意图时，单跑一次极简日期提取
+    let deadline = (parsed && parsed.deadline) || '';
+    if (!deadline && /(提醒|明天|明早|后天|今天|今晚|下周|周[一二三四五六日天末]|星期[一二三四五六日天]|\d{1,2}\s*点|\d{1,2}\s*月|\d{1,2}\s*[日号]|早上|上午|中午|下午|晚上|月底|周末)/.test(text)) {
+      try {
+        const dr = await cloud.callFunction({ name: 'parseContext', data: { action: 'parseDeadline', text } });
+        if (dr.result && dr.result.code === 0 && dr.result.data) {
+          deadline = dr.result.data.deadline || '';
+        }
+      } catch (e) {
+        console.warn('[ingest] parseDeadline 兜底失败', e.message || e);
+      }
+    }
+
     const card = {
       id: uid(),
       title,
       desc: (parsed && parsed.desc) || text,
       keyPoints: (parsed && parsed.keyPoints) || [],
       theme: (parsed && parsed.theme) || 'default',
-      // 截止/提醒日期：sendReminder 定时任务扫到期卡推订阅消息
-      deadline: (parsed && parsed.deadline) || '',
+      // 截止/提醒日期：sendReminder 定时任务扫到期卡推订阅消息（含二次兜底提取）
+      deadline,
       status: 'draft',
       creatorId: user._openid,
       helperIds: [],
