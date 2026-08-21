@@ -80,11 +80,13 @@ function callIngest(payload) {
 
 async function loadSeq() {
   const r = await callIngest({ action: 'getSeq' });
-  return (r && r.data && r.data.seq) || 0;
+  if (!r || r.code !== 0) throw new Error('getSeq 失败: ' + JSON.stringify(r).slice(0, 200));
+  return (r.data && r.data.seq) || 0;
 }
 
 async function saveSeq(seq) {
-  await callIngest({ action: 'saveSeq', seq });
+  const r = await callIngest({ action: 'saveSeq', seq });
+  if (!r || r.code !== 0) throw new Error('saveSeq 失败: ' + JSON.stringify(r).slice(0, 200));
 }
 
 // RSA 解密 encrypt_random_key：企微用后台配置的公钥 RSA/PKCS1 加密，用配对私钥解
