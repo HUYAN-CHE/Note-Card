@@ -8,8 +8,9 @@ COPY sdk/C_sdk/WeWorkFinanceSdk_C.h sdk/C_sdk/libWeWorkFinanceSdk_C.so ./sdk/
 COPY src/sdk_cli.c ./src/
 RUN gcc -O2 -o sdk_cli src/sdk_cli.c -I./sdk -ldl
 
-# 阶段 2：运行镜像
+# 阶段 2：运行镜像（装 openssl CLI：Node 20 已禁用 crypto 的 RSA_PKCS1 私钥解密，改由 openssl pkeyutl 承担）
 FROM node:20-bookworm-slim
+RUN apt-get update && apt-get install -y --no-install-recommends openssl && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 COPY --from=builder /build/sdk_cli /app/bin/sdk_cli
 COPY sdk/C_sdk/libWeWorkFinanceSdk_C.so /app/bin/libWeWorkFinanceSdk_C.so

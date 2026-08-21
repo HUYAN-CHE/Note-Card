@@ -12,8 +12,8 @@
 // HTTP 端点：GET / 健康检查；GET /pull 手动触发一轮（联调用）；GET /envs 列环境变量键名（调试）
 const http = require('http');
 const https = require('https');
-const crypto = require('crypto');
-const { execFile } = require('child_process');
+const fs = require('fs');
+const { execFile, spawnSync } = require('child_process');
 
 const SDK_CLI = process.env.SDK_CLI || '/app/bin/sdk_cli';
 const POLL_INTERVAL_MS = 2 * 60 * 1000;
@@ -21,6 +21,15 @@ const PULL_LIMIT = 500; // 单轮上限 500 条（官方单次上限 1000，留�
 
 const PRIVATE_KEY = (process.env.WECOM_PRIVATE_KEY || '').replace(/\\n/g, '\n');
 const INGEST_KEY = process.env.INGEST_SYSTEM_KEY || 'jishika-ingest-2026';
+// 私钥落盘供 openssl CLI 使用（Node 20 已禁用 crypto 的 RSA_PKCS1 私钥解密，CVE-2023-46809）
+const PRIVATE_KEY_FILE = '/tmp/wecom_msg_archive_key.pem';
+if (PRIVATE_KEY) {
+  try {
+    fs.writeFileSync(PRIVATE_KEY_FILE, PRIVATE_KEY, { mode: 0o600 });
+  } catch (e) {
+    console.error(new Date().toISOString(), '[boot] 私钥写入失败', e.message);
+  }
+}
 
 // 进程防崩：常驻服务的任何未捕获异常只记日志不退场（崩了探针失败会被云托管判部署失败）
 process.on('unhandledRejection', (e) => console.error(new Date().toISOString(), '[unhandledRejection]', (e && e.message) || e));
@@ -79,12 +88,16 @@ async function saveSeq(seq) {
 }
 
 // RSA 解密 encrypt_random_key：企微用后台配置的公钥 RSA/PKCS1 加密，用配对私钥解
+// Node 20 的 crypto 已禁用 PKCS1 私钥解密，改用 openssl CLI（spawnSync 同步执行，单条毫秒级）
 function decryptRandomKey(encryptRandomKeyB64) {
   const encrypted = Buffer.from(encryptRandomKeyB64, 'base64');
-  return crypto.privateDecrypt(
-    { key: PRIVATE_KEY, padding: crypto.constants.RSA_PKCS1_PADDING },
-    encrypted
-  ).toString('utf8');
+  const r = spawnSync('openssl', ['pkeyutl', '-decrypt', '-inkey', PRIVATE_KEY_FILE, '-pkeyopt', 'rsa_padding_mode:pkcs1'], {
+    input: encrypted,
+    maxBuffer: 1024 * 1024
+  });
+  if (r.error) throw r.error;
+  if (r.status !== 0) throw new Error('openssl decrypt fail: ' + (r.stderr || '').toString().slice(0, 200));
+  return r.stdout.toString('utf8');
 }
 
 // 单条明文消息路由：仅处理外部联系人（wm/wo 开头）发来的单聊文本
