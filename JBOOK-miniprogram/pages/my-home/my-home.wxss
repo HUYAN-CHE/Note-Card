@@ -483,6 +483,36 @@
   gap: 32rpx;
 }
 
+/* 左滑删除：与首页同一套结构与样式 */
+.swipe-wrap {
+  position: relative;
+  overflow: hidden;
+  border-radius: 24rpx;
+  background: #f4f5f7;
+}
+
+.swipe-delete {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 140rpx;
+  /* 右圆角与内容层卡片圆角弧度重合，避免卡片四角透明弧透出红色 */
+  border-radius: 0 24rpx 24rpx 0;
+  background: #e53935;
+  color: #fff;
+  font-size: 30rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.swipe-content {
+  position: relative;
+  z-index: 1;
+  transition: transform 0.2s ease;
+}
+
 /* 容器固定 5 张卡高度，多于 5 个区块内滑动 */
 .card-scroll {
   height: 838rpx;

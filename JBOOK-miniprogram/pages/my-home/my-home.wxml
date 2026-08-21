@@ -182,20 +182,26 @@
         show-scrollbar="{{false}}"
       >
         <view class="card-list">
-          <view
-            wx:for="{{cards}}"
-            wx:key="id"
-            class="card-item"
-            bindtap="openCard"
-            data-id="{{item.id}}"
-          >
-            <view class="card-icon">{{item.icon}}</view>
-            <view class="card-info">
-              <text class="card-title">{{item.displayTitle}}</text>
-              <text class="card-meta">截止日期 {{item.deadlineText}}</text>
-            </view>
-            <view class="card-status {{item.statusClass}}" aria-hidden="true">
-              <text class="status-text">{{item.statusText}}</text>
+          <view class="swipe-wrap" wx:for="{{cards}}" wx:key="id">
+            <view class="swipe-delete" style="visibility: {{item.swipeX ? 'visible' : 'hidden'}};" bindtap="onDeleteCard" data-id="{{item.id}}">删除</view>
+            <view
+              class="swipe-content card-item"
+              style="{{item.swipeX ? 'transform: translateX(' + item.swipeX + 'px);' : ''}}"
+              bindtap="openCard"
+              data-id="{{item.id}}"
+              data-index="{{index}}"
+              bindtouchstart="onSwipeStart"
+              bindtouchmove="onSwipeMove"
+              bindtouchend="onSwipeEnd"
+            >
+              <view class="card-icon">{{item.icon}}</view>
+              <view class="card-info">
+                <text class="card-title">{{item.displayTitle}}</text>
+                <text class="card-meta">截止日期 {{item.deadlineText}}</text>
+              </view>
+              <view class="card-status {{item.statusClass}}" aria-hidden="true">
+                <text class="status-text">{{item.statusText}}</text>
+              </view>
             </view>
           </view>
         </view>

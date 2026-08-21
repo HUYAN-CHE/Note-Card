@@ -229,11 +229,18 @@ exports.main = async (event) => {
 
     // 灵感库：互调 inspireCard.ingestSpark 按主题归集（追加进匹配卡或新建），碎片存原文
     if (kind === 'inspire') {
-      const sparkRes = await cloud.callFunction({
-        name: 'inspireCard',
-        data: { action: 'ingestSpark', openid: user._openid, text, source: msgType, systemKey: INGEST_SYSTEM_KEY }
-      });
-      const sr = (sparkRes && sparkRes.result) || {};
+      let sr = {};
+      try {
+        const sparkRes = await cloud.callFunction({
+          name: 'inspireCard',
+          data: { action: 'ingestSpark', openid: user._openid, text, source: msgType, systemKey: INGEST_SYSTEM_KEY }
+        });
+        sr = (sparkRes && sparkRes.result) || {};
+      } catch (e) {
+        // 互调失败（inspireCard 超时等）：存待认领不丢
+        console.warn('[ingest] inspireCard 互调失败', e.message || e);
+        sr = { code: -1, message: e.message || '互调失败' };
+      }
       if (sr.code !== 0) {
         await savePending({ externalUserid, msgType, content, msgId: event.msgId, msgTime: event.msgTime, reason: 'inspire_failed' });
         return { code: 0, data: { result: 'pending', reason: 'inspire_failed', message: sr.message } };
