@@ -90,8 +90,44 @@ function membershipActive(user) {
   return m.expireAt > Date.now();
 }
 
+// 拉取游标读写（wecomArchiveState 集合，单行 _id='main'）：
+// 容器经 HTTP 触发器调 getSeq/saveSeq，替代容器侧 SDK 直连数据库（容器无密钥）
+const STATE_COL = 'wecomArchiveState';
+const STATE_ID = 'main';
+
+async function handleSeq(event) {
+  if (event.action === 'getSeq') {
+    try {
+      const res = await db.collection(STATE_COL).doc(STATE_ID).get();
+      return { code: 0, data: { seq: (res.data && res.data.seq) || 0 } };
+    } catch (e) {
+      return { code: 0, data: { seq: 0 } }; // 文档不存在视为首轮
+    }
+  }
+  const seq = Number(event.seq) || 0;
+  const data = { seq, updatedAt: Date.now() };
+  try {
+    await db.collection(STATE_COL).doc(STATE_ID).update({ data });
+  } catch (e) {
+    await db.collection(STATE_COL).add({ data: { _id: STATE_ID, ...data } });
+  }
+  return { code: 0, data: { seq } };
+}
+
 exports.main = async (event) => {
+  // HTTP 触发器适配：容器经 HTTP 网关调用时，参数在 body（JSON 字符串）里
+  if (event && typeof event.body === 'string') {
+    try { Object.assign(event, JSON.parse(event.body)); } catch (e) { /* body 非 JSON 忽略 */ }
+  }
   console.log('[wecomIngest] 收到请求', JSON.stringify({ action: event.action, msgType: event.msgType }));
+
+  // 游标读写：仅供存档容器凭 systemKey 调用（HTTP 触发器通道，容器不走 SDK 鉴权）
+  if (event.action === 'getSeq' || event.action === 'saveSeq') {
+    if ((event.systemKey || '') !== INGEST_SYSTEM_KEY) {
+      return { code: -1, message: '无权限' };
+    }
+    return await handleSeq(event);
+  }
 
   if (event.action !== 'ingest') {
     return { code: -1, message: '未知 action' };
