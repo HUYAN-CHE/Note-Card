@@ -106,9 +106,9 @@ async function handleSeq(event) {
   }
   const seq = Number(event.seq) || 0;
   const data = { seq, updatedAt: Date.now() };
-  try {
-    await db.collection(STATE_COL).doc(STATE_ID).update({ data });
-  } catch (e) {
+  // 微信云数据库 update 不存在的文档不抛错（stats.updated=0），必须显式判断再补 add
+  const r = await db.collection(STATE_COL).doc(STATE_ID).update({ data });
+  if (!r.stats || !r.stats.updated) {
     await db.collection(STATE_COL).add({ data: { _id: STATE_ID, ...data } });
   }
   return { code: 0, data: { seq } };
