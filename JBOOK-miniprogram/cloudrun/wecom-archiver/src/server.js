@@ -17,7 +17,13 @@ const SDK_CLI = process.env.SDK_CLI || '/app/bin/sdk_cli';
 const POLL_INTERVAL_MS = 2 * 60 * 1000;
 const PULL_LIMIT = 500; // 单轮上限 500 条（官方单次上限 1000，留余量）
 
-const app = cloudbase.init({ env: process.env.CBR_ENV_ID || process.env.ENV_ID });
+// 进程防崩：常驻服务的任何未捕获异常只记日志不退场（崩了探针失败会被云托管判部署失败）
+process.on('unhandledRejection', (e) => console.error(new Date().toISOString(), '[unhandledRejection]', (e && e.message) || e));
+process.on('uncaughtException', (e) => console.error(new Date().toISOString(), '[uncaughtException]', (e && e.message) || e));
+
+// 环境 ID：云托管注入变量名不确定，三级兜底（最后一个就是本项目环境 cloud1）
+const ENV_ID = process.env.CBR_ENV_ID || process.env.ENV_ID || 'cloud1-d3gsqteqm9c3866ac';
+const app = cloudbase.init({ env: ENV_ID });
 const db = app.database();
 const STATE_COL = 'wecomArchiveState';
 const STATE_ID = 'main';
@@ -90,7 +96,8 @@ async function ingest(item) {
       content: item.content,
       msgId: item.msgId || '',
       msgTime: item.msgTime || 0,
-      systemKey: process.env.INGEST_SYSTEM_KEY || ''
+      // 与 wecomIngest 云函数的默认凭证一致（环境变量优先），不配也能对上
+      systemKey: process.env.INGEST_SYSTEM_KEY || 'jishika-ingest-2026'
     }
   });
   return res.result;
@@ -161,7 +168,8 @@ async function pullOnce() {
 }
 
 function checkEnv() {
-  const missing = ['WECOM_CORPID', 'WECOM_SECRET', 'WECOM_PRIVATE_KEY', 'INGEST_SYSTEM_KEY'].filter((k) => !process.env[k]);
+  // INGEST_SYSTEM_KEY 有默认值兜底（见 ingest()），不在必需列表
+  const missing = ['WECOM_CORPID', 'WECOM_SECRET', 'WECOM_PRIVATE_KEY'].filter((k) => !process.env[k]);
   if (missing.length) log('[env] 缺少环境变量:', missing.join(','));
   return missing.length === 0;
 }
