@@ -55,6 +55,8 @@ exports.main = async (event, context) => {
         return await ingestSpark(openid, event.text);
       case 'removeSpark':
         return await removeSpark(openid, event.id, event.index);
+      case 'delete':
+        return await deleteCard(openid, event.id);
       default:
         return { code: -1, message: '未知 action' };
     }
@@ -304,4 +306,12 @@ async function removeSpark(openid, id, index) {
     data: { sparks, updatedAt: new Date().toISOString() }
   });
   return { code: 0, data: { left: sparks.length } };
+}
+
+// 删除整张灵感卡（仅本人）
+async function deleteCard(openid, id) {
+  const card = await loadOwnedCard(openid, id);
+  if (!card) return { code: -1, message: '灵感卡不存在' };
+  await db.collection(COLLECTION).doc(id).remove();
+  return { code: 0, data: { removed: 1 } };
 }

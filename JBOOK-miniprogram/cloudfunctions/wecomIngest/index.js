@@ -129,6 +129,16 @@ exports.main = async (event) => {
     return await handleSeq(event);
   }
 
+  // 测试垃圾清理：删除本人全部 source='wecom' 的记事卡（游标失效期间重复成卡的清理用，仅管理员）
+  if (event.action === 'cleanup') {
+    const opid = cloud.getWXContext().OPENID;
+    if (!opid || !(await isAdmin(opid))) {
+      return { code: -1, message: '无权限' };
+    }
+    const r = await db.collection(CARDS).where({ creatorId: opid, source: 'wecom' }).remove();
+    return { code: 0, data: { removed: (r.stats && r.stats.removed) || 0 } };
+  }
+
   if (event.action !== 'ingest') {
     return { code: -1, message: '未知 action' };
   }
@@ -182,6 +192,11 @@ exports.main = async (event) => {
     if (!membershipActive(user)) {
       await savePending({ externalUserid, msgType, content, msgId: event.msgId, msgTime: event.msgTime, reason: 'notMember' });
       return { code: 0, data: { result: 'pending', reason: 'notMember' } };
+    }
+
+    // 防护：已绑定用户再发自己的会员码（重发/游标重放），直接忽略不成卡
+    if (user.memberCode && content.toUpperCase() === user.memberCode) {
+      return { code: 0, data: { result: 'ignored', reason: 'own_member_code' } };
     }
 
     // 前缀强制覆盖：「灵感」/「#灵感」开头强制进灵感库，「记事」/「#记事」开头强制进记事卡
