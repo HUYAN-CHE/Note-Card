@@ -106,7 +106,7 @@
     >
       <view class="inspire-grid" wx:if="{{inspireCards.length}}">
         <view class="inspire-col" wx:for="{{[inspireCols.left, inspireCols.right]}}" wx:for-item="col" wx:key="index">
-          <view class="inspire-card" wx:for="{{col}}" wx:key="id" bindtap="openInspireDetail" data-id="{{item.id}}" data-color="{{item.color}}">
+          <view class="inspire-card" wx:for="{{col}}" wx:key="id" bindtap="openInspireDetail" bindlongpress="onInspireLongPress" data-id="{{item.id}}" data-color="{{item.color}}">
             <view class="inspire-card-top" style="background: {{item.color}};">
               <view class="inspire-card-title">{{item.title}}</view>
               <view class="inspire-card-desc">{{item.desc}}</view>

@@ -673,6 +673,29 @@ Page({
 
   // 灵感卡：从云端加载（缓存命中则直接用，后台刷新），瀑布流分列（内含相邻不同色着色）
   // 演示模式：注入假灵感卡查看瀑布流效果（demo- 前缀，点击不跳转详情）
+  // 灵感卡长按删除：actionSheet 确认后调 inspireCard.delete，刷新列表
+  onInspireLongPress(e) {
+    const id = e.currentTarget.dataset.id;
+    if (!id) return;
+    wx.showActionSheet({
+      itemList: ['删除这张灵感卡'],
+      success: (res) => {
+        if (res.tapIndex !== 0) return;
+        wx.cloud.callFunction({ name: 'inspireCard', data: { action: 'delete', id } })
+          .then((r) => {
+            const result = (r && r.result) || {};
+            if (result.code === 0) {
+              wx.showToast({ title: '已删除', icon: 'success' });
+              this.loadInspireCards();
+            } else {
+              wx.showToast({ title: result.message || '删除失败', icon: 'none' });
+            }
+          })
+          .catch(() => wx.showToast({ title: '删除失败', icon: 'none' }));
+      }
+    });
+  },
+
   loadInspireCards() {
     if (SHOW_DEMO_CARDS) {
       const demo = [

@@ -293,6 +293,10 @@
 .inspire-card {
   flex-shrink: 0;
   width: 440rpx;
+  /* 高度一致：固定总高，内容区超出裁剪 */
+  height: 360rpx;
+  display: flex;
+  flex-direction: column;
   border-radius: 24rpx;
   background: #ffffff;
   overflow: hidden;
@@ -300,6 +304,8 @@
 }
 
 .inspire-card-top {
+  flex: 1;
+  overflow: hidden;
   padding: 32rpx 32rpx 36rpx;
   box-sizing: border-box;
 }
@@ -310,6 +316,10 @@
   letter-spacing: 1rpx;
   color: #1c1c1e;
   line-height: 1.35;
+  /* 单行省略 */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .inspire-card-desc {
@@ -318,6 +328,11 @@
   color: rgba(28, 28, 30, 0.5);
   line-height: 1.6;
   white-space: normal;
+  /* 两行省略 */
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
 }
 
 .inspire-tags {
