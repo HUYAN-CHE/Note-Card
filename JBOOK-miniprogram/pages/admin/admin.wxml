@@ -27,10 +27,8 @@
             <text class="user-code" wx:if="{{item.memberCode}}">码 {{item.memberCode}}</text>
             <text class="user-code" wx:if="{{item.hasWecomBound}}">已绑企微 {{item.externalUserid}}</text>
           </view>
-          <!-- 操作区：开通/续期 + 模拟企微绑定（测 bindByCode 链路，等同将来存档服务的调用） -->
+          <!-- 操作区：开通/续期（真实通道已上线，模拟绑定/私聊入口已移除） -->
           <view class="user-ops">
-            <view class="mock-bind-btn" bindtap="onMockBind" data-openid="{{item.openid}}" data-code="{{item.memberCode}}" wx:if="{{item.memberCode}}">{{item.hasWecomBound ? '模拟换绑' : '模拟绑定'}}</view>
-            <view class="mock-bind-btn" bindtap="onMockChat" data-external-userid="{{item.externalUserid}}" wx:if="{{item.hasWecomBound}}">模拟私聊</view>
             <view class="grant-btn" bindtap="onGrant" data-openid="{{item.openid}}" data-nickname="{{item.nickName}}" wx:if="{{granting !== item.openid}}">
               {{item.status === 'active' ? '续期' : '开通'}}
             </view>

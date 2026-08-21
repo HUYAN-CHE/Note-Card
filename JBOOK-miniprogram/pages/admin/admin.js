@@ -93,66 +93,6 @@ Page({
     });
   },
 
-  // 模拟企微绑定：调 bindByCode（将来会话存档服务识别会员码后走同一接口）
-  // editable 弹窗可改 externalUserid，默认填测试 ID，方便测幂等/冲突场景
-  onMockBind(e) {
-    const { code } = e.currentTarget.dataset;
-    if (!code) return;
-    const defaultId = 'wmTEST_' + code;
-    wx.showModal({
-      title: '模拟企微绑定',
-      editable: true,
-      placeholderText: 'externalUserid',
-      content: defaultId,
-      confirmText: '绑定',
-      success: (res) => {
-        if (!res.confirm) return;
-        const externalUserid = (res.content || '').trim() || defaultId;
-        this.callMembership({ action: 'bindByCode', code, externalUserid })
-          .then(() => {
-            wx.showToast({ title: '绑定成功', icon: 'success' });
-            return this.loadUsers();
-          })
-          .catch((err) => wx.showToast({ title: err.message, icon: 'none' }));
-      }
-    });
-  },
-
-  // 模拟私聊：已绑定用户发一条文本消息，走 wecomIngest 全链路（等同存档容器拉到消息后的调用）
-  onMockChat(e) {
-    const externalUserid = e.currentTarget.dataset.externalUserid;
-    if (!externalUserid) return;
-    wx.showModal({
-      title: '模拟私聊消息',
-      editable: true,
-      placeholderText: '输入会员发给助手的内容',
-      confirmText: '发送',
-      success: (res) => {
-        if (!res.confirm) return;
-        const content = (res.content || '').trim();
-        if (!content) return;
-        wx.cloud.callFunction({
-          name: 'wecomIngest',
-          data: { action: 'ingest', externalUserid, msgType: 'text', content, msgTime: Date.now() }
-        }).then((r) => {
-          const result = (r && r.result) || {};
-          const d = result.data || {};
-          if (result.code !== 0) throw new Error(result.message || '调用失败');
-          // result: card 成卡 / bound 完成绑定 / pending 进待认领区
-          if (d.result === 'card') {
-            wx.showModal({ title: '已记成卡片', content: `《${d.title}》${d.aiParsed ? '' : '（AI 失败，原文兜底）'}`, showCancel: false });
-          } else if (d.result === 'inspire') {
-            wx.showModal({ title: '已沉淀到灵感库', content: `《${d.title}》${d.matched ? '（归入已有主题）' : '（新建灵感卡）'}`, showCancel: false });
-          } else if (d.result === 'bound') {
-            wx.showToast({ title: '已完成绑定', icon: 'success' });
-          } else {
-            wx.showModal({ title: '进入待认领区', content: `原因：${d.reason || 'unknown'}`, showCancel: false });
-          }
-        }).catch((err) => wx.showToast({ title: err.message, icon: 'none' }));
-      }
-    });
-  },
-
   formatExpire(e) {
     // wxml 不便处理时间戳，列表渲染前已可格式化；此处备用
     return e;
