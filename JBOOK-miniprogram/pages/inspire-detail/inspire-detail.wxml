@@ -20,16 +20,19 @@
           <input class="hero-keywords" value="{{keywordsText}}" placeholder="关键词，用逗号分隔" placeholder-class="hero-ph" bindinput="onKeywordsInput" />
         </view>
 
-        <!-- 灵感条目：零碎灵感来源（私人助理收集写入），只读 -->
+        <!-- 灵感条目：按来源分段的记录原文（私聊/转发/语音/手动），只读 -->
         <view class="section">
           <view class="section-title">灵感条目 · {{sparks.length}}</view>
           <view class="spark-empty" wx:if="{{!sparks.length}}">还没有灵感条目，把第一条灵感发给私人助理</view>
-          <view class="spark-item" wx:for="{{sparks}}" wx:key="index">
-            <text class="spark-index">{{index + 1}}</text>
-            <text class="spark-text">{{item.text}}</text>
-            <!-- AI 分流判错的纠正入口：这条碎片其实是待办事项时转为记事卡 -->
-            <view class="spark-to-note" data-index="{{index}}" bindtap="onSparkToNote">转记事</view>
-          </view>
+          <block wx:for="{{sparkGroups}}" wx:key="label" wx:for-item="group">
+            <view class="spark-group-label">{{group.label}}</view>
+            <view class="spark-item" wx:for="{{group.items}}" wx:key="index" wx:for-item="spark">
+              <text class="spark-index">{{spark.index + 1}}</text>
+              <text class="spark-text">{{spark.text}}</text>
+              <!-- AI 分流判错的纠正入口：这条碎片其实是待办事项时转为记事卡 -->
+              <view class="spark-to-note" data-index="{{spark.index}}" bindtap="onSparkToNote">转记事</view>
+            </view>
+          </block>
         </view>
 
         <!-- 文章：AI 汇总生成，可手动编辑 -->
@@ -40,7 +43,7 @@
             value="{{article}}"
             auto-height
             disable-default-padding
-            placeholder="点击底部「AI 整理」把灵感汇总成文章，也可以直接手动撰写"
+            placeholder="满 3 条碎片后点「AI 整理」自动融合成文章（严格基于原文），也可直接手动撰写"
             placeholder-class="article-ph"
             bindinput="onArticleInput"
           />

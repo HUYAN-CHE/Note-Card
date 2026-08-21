@@ -180,7 +180,7 @@ exports.main = async (event) => {
     if (kind === 'inspire') {
       const sparkRes = await cloud.callFunction({
         name: 'inspireCard',
-        data: { action: 'ingestSpark', openid: user._openid, text, systemKey: INGEST_SYSTEM_KEY }
+        data: { action: 'ingestSpark', openid: user._openid, text, source: msgType, systemKey: INGEST_SYSTEM_KEY }
       });
       const sr = (sparkRes && sparkRes.result) || {};
       if (sr.code !== 0) {

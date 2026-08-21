@@ -6,6 +6,30 @@ const {
   summarizeInspireCard
 } = require('../../services/inspire-cards');
 
+// 碎片按来源分段（记录原文区）：私聊/转发/语音/手动；无 source 的旧数据归「记录」
+const SOURCE_LABELS = [
+  ['wecom-text', '私聊'],
+  ['wecom-chatrecord', '转发'],
+  ['wecom-voice', '语音'],
+  ['manual', '手动']
+];
+
+function groupSparksBySource(sparks) {
+  const groups = [];
+  const fallback = { label: '记录', items: [] };
+  SOURCE_LABELS.forEach(([key, label]) => {
+    const items = sparks
+      .map((s, i) => ({ ...s, index: i }))
+      .filter((s) => s.source === key);
+    if (items.length) groups.push({ label, items });
+  });
+  fallback.items = sparks
+    .map((s, i) => ({ ...s, index: i }))
+    .filter((s) => !s.source || !SOURCE_LABELS.some(([k]) => k === s.source));
+  if (fallback.items.length) groups.push(fallback);
+  return groups;
+}
+
 Page({
   data: {
     statusBarHeight: 44,
@@ -60,6 +84,7 @@ Page({
     this.setData({ loading: true, loadError: '' });
     getInspireCard(this.data.id)
       .then((card) => {
+        const sparks = Array.isArray(card.sparks) ? card.sparks : [];
         this.setData({
           loading: false,
           color: this.navColor || card.color || '#cfe8fb',
@@ -68,7 +93,8 @@ Page({
           keywordsText: (card.keywords || []).join('，'),
           article: card.article || '',
           status: card.status === 'exported' ? 'exported' : 'collecting',
-          sparks: Array.isArray(card.sparks) ? card.sparks : [],
+          sparks,
+          sparkGroups: groupSparksBySource(sparks),
           dirty: false
         });
       })

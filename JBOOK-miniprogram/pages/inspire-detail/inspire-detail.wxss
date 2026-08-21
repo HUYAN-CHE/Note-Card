@@ -109,6 +109,14 @@
   margin-top: 20rpx;
 }
 
+/* 来源分段标签（私聊/转发/语音/手动） */
+.spark-group-label {
+  margin-top: 28rpx;
+  font-size: 22rpx;
+  font-weight: 600;
+  color: rgba(28, 28, 30, 0.4);
+}
+
 .spark-index {
   flex: none;
   width: 36rpx;

@@ -22,7 +22,7 @@ const COLOR_PALETTE = [
   '#f2d3e6'  // 浅玫粉
 ];
 
-const SYSTEM_PROMPT = '你是一个灵感整理助手。用户平时把零碎的灵感逐条发给你，你需要把它们汇总成一篇文章。请基于用户提供的全部灵感条目提取四个字段，只返回 JSON：title 是这组灵感共同主题的简短标题（5-15字）；subtitle 是一句话副标题（20-40字），概括这组灵感的核心方向；keywords 是主题关键词数组，数量 1-7 个不等，按内容实际涉及的主题提炼，不要硬凑；每个 2-8 个字，按重要性从高到低排序；article 是把所有灵感条目串联整理成的一篇通顺文章（200-500字），忠实保留用户的原始想法，只补充必要的逻辑衔接，不要编造用户没有提到的观点或事实，段落之间用 \\n\\n 分隔。';
+const SYSTEM_PROMPT = '你是一个灵感整理助手。用户平时把零碎的灵感逐条发给你，你需要把它们汇总成一篇文章。请基于用户提供的全部灵感条目提取四个字段，只返回 JSON：title 是这组灵感共同主题的简短标题（5-15字）；subtitle 是一句话副标题（20-40字），概括这组灵感的核心方向；keywords 是主题关键词数组，数量 1-7 个不等，按内容实际涉及的主题提炼，不要硬凑；每个 2-8 个字，按重要性从高到低排序；article 是把所有灵感条目串联整理成的一篇通顺文章（200-500字），【铁律：article 只能基于条目原文提炼融合，禁止补充条目之外的任何信息、观点、案例或细节；条目单薄时文章就写短，宁短勿编】，段落之间用 \\n\\n 分隔。';
 
 exports.main = async (event, context) => {
   console.log('[inspireCard] 收到请求', JSON.stringify({ action: event.action, id: event.id }));
@@ -83,7 +83,8 @@ async function getDetail(openid, id) {
 }
 
 // 新建灵感卡，可带首条灵感；有首条灵感时自动做一次 AI 提取，生成初始标题/副标题/关键词
-async function createCard(openid, text) {
+// source：碎片来源（wecom-text 私聊 / wecom-chatrecord 转发 / wecom-voice 语音 / manual 手动）
+async function createCard(openid, text, source) {
   const now = new Date().toISOString();
   const firstText = (text || '').trim();
   const countRes = await db.collection(COLLECTION).where({ creatorId: openid }).count();
@@ -94,7 +95,7 @@ async function createCard(openid, text) {
     subtitle: '',
     keywords: [],
     status: 'collecting',
-    sparks: firstText ? [{ text: firstText, createdAt: now }] : [],
+    sparks: firstText ? [{ text: firstText, createdAt: now, source: source || 'manual' }] : [],
     article: '',
     color: COLOR_PALETTE[countRes.total % COLOR_PALETTE.length],
     createdAt: now,
@@ -115,8 +116,9 @@ async function createCard(openid, text) {
   return { code: 0, data: { card: detail.data.card } };
 }
 
-// 追加一条零碎灵感（企业微信 Bot 联调入口）；卡片还没有标题时自动补一次 AI 提取
-async function addSpark(openid, id, text) {
+// 追加一条零碎灵感；卡片还没有标题时自动补一次 AI 提取
+// source：碎片来源（wecom-text 私聊 / wecom-chatrecord 转发 / wecom-voice 语音 / manual 手动）
+async function addSpark(openid, id, text, source) {
   const sparkText = (text || '').trim();
   if (!sparkText) return { code: -1, message: '灵感内容为空' };
 
@@ -125,7 +127,7 @@ async function addSpark(openid, id, text) {
 
   await db.collection(COLLECTION).doc(id).update({
     data: {
-      sparks: _.push([{ text: sparkText, createdAt: new Date().toISOString() }]),
+      sparks: _.push([{ text: sparkText, createdAt: new Date().toISOString(), source: source || 'manual' }]),
       updatedAt: new Date().toISOString()
     }
   });
@@ -160,7 +162,8 @@ async function runSummarize(openid, id) {
     title: parsed.title || card.title || '未命名灵感',
     subtitle: parsed.subtitle || '',
     keywords: Array.isArray(parsed.keywords) ? parsed.keywords.filter(Boolean).slice(0, 7) : [],
-    article: parsed.article || '',
+    // 融合文章门槛：少于 3 条碎片不生成——素材太少时 AI 必然脑补，宁缺毋滥
+    article: sparks.length >= 3 ? (parsed.article || '') : '',
     updatedAt: new Date().toISOString()
   };
 
@@ -259,10 +262,11 @@ function extractJSON(rawText) {
 
 // 私聊灵感沉淀入口（wecomIngest 云函数间调用，系统通道）：按主题归集
 // 简单版匹配：碎片文本命中现有 collecting 卡的 keyword/title 词（≥2 字）即归入；否则新建卡
-// 归错率实际偏高再升级 AI 匹配版（把卡列表喂模型判归属）
-async function ingestSpark(openid, text) {
+// source：消息类型 text 私聊 / chatrecord 转发 / voice 语音（碎片原文按来源分段展示用）
+async function ingestSpark(openid, text, source) {
   const sparkText = (text || '').trim();
   if (!sparkText) return { code: -1, message: '灵感内容为空' };
+  const sparkSource = source ? 'wecom-' + source : 'wecom-text';
 
   const res = await db.collection(COLLECTION)
     .where({ creatorId: openid, status: 'collecting' })
@@ -278,12 +282,12 @@ async function ingestSpark(openid, text) {
   });
 
   if (hit) {
-    const r = await addSpark(openid, hit._id, sparkText);
+    const r = await addSpark(openid, hit._id, sparkText, sparkSource);
     if (r.code !== 0) return r;
     return { code: 0, data: { cardId: hit._id, matched: true, title: hit.title || '' } };
   }
 
-  const created = await createCard(openid, sparkText);
+  const created = await createCard(openid, sparkText, sparkSource);
   const card = created.data && created.data.card;
   return { code: 0, data: { cardId: (card && card.id) || '', matched: false, title: (card && card.title) || '' } };
 }
