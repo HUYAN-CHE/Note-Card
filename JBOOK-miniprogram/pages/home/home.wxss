@@ -143,6 +143,32 @@
   text-align: center;
 }
 
+/* 私聊卡提示条：浅色不抢眼，整条可点，右侧 × 关闭（今日不再出现） */
+.wecom-bar {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  margin-bottom: 20rpx;
+  padding: 16rpx 24rpx;
+  border-radius: 16rpx;
+  background: rgba(46, 125, 78, 0.06);
+}
+
+.wecom-bar-text {
+  flex: 1;
+  font-size: 24rpx;
+  color: rgba(46, 125, 78, 0.75);
+  line-height: 1.5;
+}
+
+.wecom-bar-close {
+  flex: none;
+  font-size: 36rpx;
+  color: rgba(46, 125, 78, 0.4);
+  padding: 0 8rpx;
+  line-height: 1;
+}
+
 .card-list {
   display: flex;
   flex-direction: column;

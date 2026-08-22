@@ -61,6 +61,8 @@ Page({
     // 私聊成卡弹窗：私聊来源草稿卡列表，每天首次进入弹出，可直接设提醒时间
     wecomDrafts: [],
     wecomSheetVisible: false,
+    // 首页浅色提示条：有未设时间私聊卡时显示（null 不显示），点 × 关闭后今日不再出现
+    wecomBar: null,
     // 今日新增灵感碎片数（弹窗底部汇总行；0 不显示）
     inspireTodayCount: 0,
     // 绑定成功半弹窗：私聊发会员码后回小程序，检测到未绑定→已绑定跳变时弹出
@@ -77,12 +79,10 @@ Page({
     }
   },
 
-  onLoad(options) {
+  onLoad() {
     this.updateSystemInfo();
     this.updateCalendar();
     this.setData({ safeAreaBottom: getSafeAreaBottom() });
-    // 会员页「查看私聊新卡」跳入：强制弹私聊卡弹窗，不受每日一次限制，也不消耗当日额度
-    this._forceWecomSheet = !!(options && options.wecomSheet === '1');
   },
 
   onShow() {
@@ -105,13 +105,11 @@ Page({
     }
   },
 
-  // 私聊成卡弹窗：每天首次进入检查私聊来源的草稿卡（首页规则不展示无 deadline 的卡，需主动告知）
+  // 私聊成卡检查（每次 onShow 都跑）：
+  // 1. 弹窗——每天首次进入自动弹（记 JISHIKA_WECOM_TIP_DATE）；
+  // 2. 首页浅色提示条——有未设时间的私聊卡时显示，点击开弹窗；点 × 关闭后今日不再出现（记 JISHIKA_WECOM_BAR_DATE）
   async checkWecomDrafts() {
-    const force = this._forceWecomSheet;
-    this._forceWecomSheet = false;
     const today = this.formatDate(new Date());
-    // 会员页主动入口跳入（force）不受每日一次限制；正常进入当天已提示过则跳过
-    if (!force && wx.getStorageSync('JISHIKA_WECOM_TIP_DATE') === today) return;
     const app = getApp();
     if (!app.globalData || !app.globalData.cloudReady || !wx.cloud) return;
     const openid = app.globalData.openid || wx.getStorageSync('JISHIKA_OPENID');
@@ -128,19 +126,23 @@ Page({
         // WXML 表达式不支持字符串方法调用，日期短格式（08/19）在这里预处理
         deadlineText: c.deadline ? c.deadline.slice(5).replace('-', '/') : ''
       }));
-      if (!list.length) {
-        if (force) wx.showToast({ title: '暂时没有私聊新卡', icon: 'none' });
-        return;
-      }
-      // 自动提醒才记当日已提示；force 主动查看不消耗当日额度
-      if (!force) wx.setStorageSync('JISHIKA_WECOM_TIP_DATE', today);
+      this.setData({ wecomDrafts: list });
+
+      // 提示条：今日未点 × 关闭才显示（无卡自然不显示）
+      const barClosed = wx.getStorageSync('JISHIKA_WECOM_BAR_DATE') === today;
+      this.setData({ wecomBar: list.length && !barClosed ? { count: list.length } : null });
+
+      if (!list.length) return;
+      // 自动弹窗：每天最多一次
+      if (wx.getStorageSync('JISHIKA_WECOM_TIP_DATE') === today) return;
+      wx.setStorageSync('JISHIKA_WECOM_TIP_DATE', today);
       // 弹窗底部汇总：今日新增灵感碎片数（走 service 缓存，与 loadInspireCards 共用一次请求）
       let inspireTodayCount = 0;
       try {
         const inspireCards = await listInspireCards();
         inspireTodayCount = inspireCards.reduce((sum, c) => sum + (c.todaySparkCount || 0), 0);
       } catch (e) { /* 汇总行失败不阻塞弹窗 */ }
-      this.setData({ wecomDrafts: list, wecomSheetVisible: true, inspireTodayCount });
+      this.setData({ wecomSheetVisible: true, inspireTodayCount });
     } catch (e) {
       console.warn('checkWecomDrafts error', e);
     }
@@ -148,6 +150,16 @@ Page({
 
   onWecomSheetClose() {
     this.setData({ wecomSheetVisible: false });
+  },
+
+  // 首页提示条：点击打开私聊卡弹窗；点 × 关闭后今日不再显示
+  onWecomBarTap() {
+    this.setData({ wecomSheetVisible: true });
+  },
+
+  onWecomBarClose() {
+    wx.setStorageSync('JISHIKA_WECOM_BAR_DATE', this.formatDate(new Date()));
+    this.setData({ wecomBar: null });
   },
 
   // 弹窗底部汇总行：关弹窗并切到灵感 tab

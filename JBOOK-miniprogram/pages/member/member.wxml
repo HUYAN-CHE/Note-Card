@@ -56,8 +56,6 @@
           <text class="bound-text">已连接私人助理 ✅</text>
           <text class="qrcode-tip" wx:if="{{wecomBoundAtText}}">连接时间 {{wecomBoundAtText}}</text>
         </view>
-        <!-- 私聊新卡主动入口：跳首页强制弹出私聊卡弹窗（不受每日一次限制） -->
-        <view class="wecom-cards-link" bindtap="onViewWecomCards">查看私聊新卡 →</view>
         <view class="qrcode-card">
           <view class="vip-btn rebind-btn {{unbindConfirming ? 'confirming' : ''}}" bindtap="onUnbind">{{unbindConfirming ? '再点一次确认断开' : '重新连接'}}</view>
           <text class="qrcode-tip">断开当前连接后可重新添加助手</text>

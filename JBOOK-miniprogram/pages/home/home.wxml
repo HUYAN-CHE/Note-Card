@@ -45,6 +45,12 @@
       </view>
     </view>
 
+    <!-- 私聊卡浅色提示条：有未设时间私聊卡时显示，点击开弹窗；× 关闭后今日不再出现 -->
+    <view class="wecom-bar" wx:if="{{wecomBar && homeTab === 'note'}}" bindtap="onWecomBarTap">
+      <text class="wecom-bar-text">有 {{wecomBar.count}} 张私聊记事卡待设提醒时间</text>
+      <view class="wecom-bar-close" catchtap="onWecomBarClose">×</view>
+    </view>
+
     <pull-refresh-view
       wx:if="{{cards.length}}"
       class="card-list-scroll"

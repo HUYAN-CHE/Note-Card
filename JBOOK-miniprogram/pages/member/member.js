@@ -211,11 +211,6 @@ Page({
     });
   },
 
-  // 查看私聊新卡：跳首页强制弹出私聊卡弹窗（不受每日一次限制）
-  onViewWecomCards() {
-    wx.redirectTo({ url: '/pages/home/home?wecomSheet=1' });
-  },
-
   // 重新连接：页面内二次确认（不用 wx.showModal——该 API 在本页真机/模拟器均 pending 不渲染，原因未明，绕开）
   // 第一次点进入确认态（按钮变红、文案变"再点一次确认断开"），3 秒内再点执行解绑，超时恢复
   onUnbind() {
