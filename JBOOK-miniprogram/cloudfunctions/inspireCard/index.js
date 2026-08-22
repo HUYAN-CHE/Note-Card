@@ -55,6 +55,8 @@ exports.main = async (event, context) => {
         return await ingestSpark(openid, event.text);
       case 'removeSpark':
         return await removeSpark(openid, event.id, event.index);
+      case 'moveSparks':
+        return await moveSparks(openid, event.fromId, event.toId, event.indexes);
       case 'delete':
         return await deleteCard(openid, event.id);
       default:
@@ -134,7 +136,10 @@ async function addSpark(openid, id, text, source) {
     }
   });
 
-  if (!card.title) {
+  // 自动重整脉络：集灵中 且（还没标题 或 纸条满 3 条）时跑 AI 提取（文章门槛 3 条在 runSummarize 内）
+  // 已输出（exported）的卡不再自动重写——输出后脉络归用户手动编辑
+  const newCount = (card.sparks || []).length + 1;
+  if (card.status !== 'exported' && (!card.title || newCount >= 3)) {
     const sumRes = await runSummarize(openid, id);
     if (sumRes.code === 0) return { code: 0, data: { card: sumRes.data.card } };
     console.warn('[addSpark] 自动 summarize 失败', sumRes.message);
@@ -349,4 +354,40 @@ async function matchCardByAI(cards, sparkText) {
     console.warn('[matchCardByAI] 失败，降级字面匹配', e.message || e);
     return null;
   }
+}
+
+// 纸条多选搬移：把 fromId 卡的指定 sparks 移到 toId 卡（归集纠错用）
+// indexes 为 fromId 卡的 sparks 下标数组；两卡都须本人；目标卡限 collecting（已输出卡不再进新碎片）
+async function moveSparks(openid, fromId, toId, indexes) {
+  if (!fromId || !toId || fromId === toId || !Array.isArray(indexes) || !indexes.length) {
+    return { code: -1, message: '参数不完整' };
+  }
+  const fromCard = await loadOwnedCard(openid, fromId);
+  const toCard = await loadOwnedCard(openid, toId);
+  if (!fromCard || !toCard) return { code: -1, message: '灵感卡不存在' };
+  if (toCard.status === 'exported') return { code: -1, message: '已输出的卡不能再加入纸条' };
+
+  const fromSparks = Array.isArray(fromCard.sparks) ? fromCard.sparks : [];
+  const idxSet = new Set(indexes.map((i) => Number(i)).filter((i) => i >= 0 && i < fromSparks.length));
+  if (!idxSet.size) return { code: -1, message: '未选中有效纸条' };
+
+  const moving = fromSparks.filter((_, i) => idxSet.has(i));
+  const remaining = fromSparks.filter((_, i) => !idxSet.has(i));
+  const now = new Date().toISOString();
+
+  await db.collection(COLLECTION).doc(fromId).update({
+    data: { sparks: remaining, updatedAt: now }
+  });
+  await db.collection(COLLECTION).doc(toId).update({
+    data: { sparks: _.push(moving), updatedAt: now }
+  });
+
+  // 目标卡按自动重整规则补一次 AI 提取（集灵中且满 3 条）
+  const toCount = (toCard.sparks || []).length + moving.length;
+  if (toCount >= 3) {
+    const sumRes = await runSummarize(openid, toId);
+    if (sumRes.code !== 0) console.warn('[moveSparks] 目标卡重整失败', sumRes.message);
+  }
+
+  return { code: 0, data: { moved: moving.length, fromLeft: remaining.length } };
 }

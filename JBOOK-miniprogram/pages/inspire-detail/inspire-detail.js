@@ -3,7 +3,8 @@ const { buildDraftFromContext } = require('../../services/ai-adapter');
 const {
   getInspireCard,
   updateInspireCard,
-  summarizeInspireCard
+  summarizeInspireCard,
+  listInspireCards
 } = require('../../services/inspire-cards');
 
 // 碎片按来源分段（记录原文区）：私聊/转发/语音/手动；无 source 的旧数据归「记录」
@@ -50,7 +51,13 @@ Page({
     sparks: [],
     dirty: false,
     saving: false,
-    summarizing: false
+    summarizing: false,
+    // 输出动作（集灵中 → 已输出，单向）
+    exporting: false,
+    // 纸条整理选择态：多选后可移动到别的灵感卡（归集纠错）
+    selectMode: false,
+    selected: {},
+    selectedCount: 0
   },
 
   onLoad(options) {
@@ -147,12 +154,80 @@ Page({
     this.setDirty(true);
   },
 
-  // 状态：集灵中 / 已输出，用户手动选择，随保存写入
-  onStatusTap(e) {
-    const status = e.currentTarget.dataset.status;
-    if (status === this.data.status) return;
-    this.setData({ status });
-    this.setDirty(true);
+  // 「输出」：集灵中 → 已输出（单向动作，非 tag 切换）；输出后脉络才可手动编辑
+  onExport() {
+    if (this.data.exporting || this.data.saving) return;
+    this.setData({ exporting: true });
+    updateInspireCard(this.data.id, { status: 'exported' })
+      .then(() => {
+        this.setData({ status: 'exported' });
+        wx.showToast({ title: '已输出，脉络可编辑', icon: 'success' });
+      })
+      .catch((err) => {
+        wx.showToast({ title: err.message || '输出失败', icon: 'none' });
+      })
+      .finally(() => {
+        this.setData({ exporting: false });
+      });
+  },
+
+  // 纸条整理：进入/退出多选态
+  onToggleSelectMode() {
+    const next = !this.data.selectMode;
+    this.setData({ selectMode: next, selected: {}, selectedCount: 0 });
+  },
+
+  onSparkSelect(e) {
+    const index = e.currentTarget.dataset.index;
+    const selected = { ...this.data.selected };
+    if (selected[index]) {
+      delete selected[index];
+    } else {
+      selected[index] = true;
+    }
+    this.setData({ selected, selectedCount: Object.keys(selected).length });
+  },
+
+  // 移动到别的灵感卡：拉现有集灵中的卡（排除本卡），选择后调 moveSparks
+  onMoveTap() {
+    const indexes = Object.keys(this.data.selected).map(Number);
+    if (!indexes.length) return;
+    wx.showLoading({ title: '加载中', mask: true });
+    listInspireCards(true)
+      .then((cards) => {
+        wx.hideLoading();
+        const targets = cards.filter((c) => c.id !== this.data.id && c.status === 'collecting');
+        if (!targets.length) {
+          wx.showToast({ title: '没有其它集灵中的卡', icon: 'none' });
+          return;
+        }
+        wx.showActionSheet({
+          itemList: targets.map((c) => c.title),
+          success: (sheet) => {
+            const target = targets[sheet.tapIndex];
+            if (!target) return;
+            wx.cloud.callFunction({
+              name: 'inspireCard',
+              data: { action: 'moveSparks', fromId: this.data.id, toId: target.id, indexes }
+            })
+              .then((r) => {
+                const result = (r && r.result) || {};
+                if (result.code === 0) {
+                  wx.showToast({ title: `已移到《${target.title}》`, icon: 'success' });
+                  this.setData({ selectMode: false, selected: {}, selectedCount: 0 });
+                  this.loadDetail();
+                } else {
+                  wx.showToast({ title: result.message || '移动失败', icon: 'none' });
+                }
+              })
+              .catch(() => wx.showToast({ title: '移动失败', icon: 'none' }));
+          }
+        });
+      })
+      .catch(() => {
+        wx.hideLoading();
+        wx.showToast({ title: '加载卡列表失败', icon: 'none' });
+      });
   },
 
   parseKeywords() {
@@ -191,8 +266,8 @@ Page({
 
     if (this.data.dirty) {
       wx.showModal({
-        title: 'AI 整理',
-        content: '将重新生成标题、副标题、关键词和文章，覆盖当前未保存的修改，继续吗？',
+        title: '重新整理',
+        content: '将重新生成标题、副标题、关键词和脉络，覆盖当前未保存的修改，继续吗？',
         confirmText: '继续',
         success: (res) => {
           if (res.confirm) run();

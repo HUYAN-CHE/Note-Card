@@ -9,33 +9,36 @@
       <view class="state-tip" wx:elif="{{loadError}}">{{loadError}}</view>
 
       <block wx:else>
-        <!-- 彩色卡头：状态切换 + 标题/副标题/关键词（均可编辑） -->
+        <!-- 彩色卡头：状态标签（只读，输出走底部按钮）+ 标题/副标题/关键词（均可编辑） -->
         <view class="hero" style="background: {{color}};">
           <view class="status-row">
-            <view class="status-pill {{status === 'collecting' ? 'active' : ''}}" bindtap="onStatusTap" data-status="collecting">集灵中</view>
-            <view class="status-pill {{status === 'exported' ? 'active' : ''}}" bindtap="onStatusTap" data-status="exported">已输出</view>
+            <view class="status-pill active">{{status === 'collecting' ? '集灵中' : '已输出'}}</view>
           </view>
           <input class="hero-title" value="{{title}}" placeholder="未命名灵感" placeholder-class="hero-ph" bindinput="onTitleInput" />
           <input class="hero-subtitle" value="{{subtitle}}" placeholder="一句话副标题" placeholder-class="hero-ph" bindinput="onSubtitleInput" />
           <input class="hero-keywords" value="{{keywordsText}}" placeholder="关键词，用逗号分隔" placeholder-class="hero-ph" bindinput="onKeywordsInput" />
         </view>
 
-        <!-- 灵感纸条：按来源分段的记录原文（私聊/转发/语音/手动），只读 -->
+        <!-- 灵感纸条：按来源分段的记录原文（私聊/转发/语音/手动），只读；「整理」进入多选可移到别的卡 -->
         <view class="section">
-          <view class="section-title">灵感纸条 · {{sparks.length}}</view>
+          <view class="section-title-row">
+            <view class="section-title">灵感纸条 · {{sparks.length}}</view>
+            <view class="spark-manage-btn" wx:if="{{sparks.length}}" bindtap="onToggleSelectMode">{{selectMode ? '完成' : '整理'}}</view>
+          </view>
           <view class="spark-empty" wx:if="{{!sparks.length}}">还没有灵感纸条，把第一条灵感发给私人助理</view>
           <block wx:for="{{sparkGroups}}" wx:key="label" wx:for-item="group">
             <view class="spark-group-label">{{group.label}}</view>
             <view class="spark-item" wx:for="{{group.items}}" wx:key="index" wx:for-item="spark">
-              <text class="spark-index">{{spark.index + 1}}</text>
+              <view class="spark-check {{selected[spark.index] ? 'on' : ''}}" wx:if="{{selectMode}}" data-index="{{spark.index}}" bindtap="onSparkSelect">{{selected[spark.index] ? '✓' : ''}}</view>
+              <text class="spark-index" wx:if="{{!selectMode}}">{{spark.index + 1}}</text>
               <text class="spark-text">{{spark.text}}</text>
-              <!-- AI 分流判错的纠正入口：这条碎片其实是待办事项时转为记事卡 -->
-              <view class="spark-to-note" data-index="{{spark.index}}" bindtap="onSparkToNote">转记事</view>
+              <!-- AI 分流判错的纠正入口：这条碎片其实是待办事项时转为记事卡（选择态隐藏） -->
+              <view class="spark-to-note" wx:if="{{!selectMode}}" data-index="{{spark.index}}" bindtap="onSparkToNote">转记事</view>
             </view>
           </block>
         </view>
 
-        <!-- 脉络梳理：满 3 条碎片后 AI 自动融合生成，可手动编辑 -->
+        <!-- 脉络梳理：集灵中由 AI 自动融合（满 3 条生成），只读；输出后才可手动编辑 -->
         <view class="section">
           <view class="section-title">脉络梳理</view>
           <textarea
@@ -43,7 +46,8 @@
             value="{{article}}"
             auto-height
             disable-default-padding
-            placeholder="满 3 条碎片后点「AI 整理」自动融合成文章（严格基于原文），也可直接手动撰写"
+            disabled="{{status !== 'exported'}}"
+            placeholder="{{status === 'exported' ? '可手动编辑脉络' : '纸条满 3 条后自动生成（严格基于原文融合），输出后可编辑'}}"
             placeholder-class="article-ph"
             bindinput="onArticleInput"
           />
@@ -54,9 +58,19 @@
     </view>
   </scroll-view>
 
-  <!-- 底部操作栏 -->
+  <!-- 底部操作栏：选择态优先；集灵中=输出+保存；已输出=重新整理+保存 -->
   <view class="action-bar" style="padding-bottom: calc(16rpx + {{safeAreaBottom}}px);" wx:if="{{!loading && !loadError}}">
-    <button class="btn btn-ai" bindtap="onSummarize" disabled="{{summarizing || saving}}" loading="{{summarizing}}">{{summarizing ? '整理中' : 'AI 整理'}}</button>
-    <button class="btn btn-save {{dirty ? 'glow' : ''}}" bindtap="onSave" disabled="{{saving || summarizing}}" loading="{{saving}}">保存</button>
+    <block wx:if="{{selectMode}}">
+      <button class="btn btn-ai" bindtap="onMoveTap" disabled="{{!selectedCount}}">移动到别的卡{{selectedCount ? '（' + selectedCount + '）' : ''}}</button>
+      <button class="btn btn-save" bindtap="onToggleSelectMode">完成</button>
+    </block>
+    <block wx:elif="{{status === 'collecting'}}">
+      <button class="btn btn-ai" bindtap="onExport" disabled="{{saving}}" loading="{{exporting}}">{{exporting ? '输出中' : '输出'}}</button>
+      <button class="btn btn-save {{dirty ? 'glow' : ''}}" bindtap="onSave" disabled="{{saving}}" loading="{{saving}}">保存</button>
+    </block>
+    <block wx:else>
+      <button class="btn btn-ai" bindtap="onSummarize" disabled="{{summarizing || saving}}" loading="{{summarizing}}">{{summarizing ? '整理中' : '重新整理'}}</button>
+      <button class="btn btn-save {{dirty ? 'glow' : ''}}" bindtap="onSave" disabled="{{saving || summarizing}}" loading="{{saving}}">保存</button>
+    </block>
   </view>
 </view>

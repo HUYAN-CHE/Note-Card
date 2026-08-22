@@ -149,6 +149,40 @@
   border: 1rpx solid rgba(46, 125, 78, 0.4);
 }
 
+/* 纸条区标题行：标题 + 整理入口 */
+.section-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.spark-manage-btn {
+  font-size: 24rpx;
+  color: #2e7d4e;
+  font-weight: 600;
+  padding: 8rpx 20rpx;
+}
+
+/* 多选勾选圈 */
+.spark-check {
+  flex: none;
+  width: 36rpx;
+  height: 36rpx;
+  margin-top: 4rpx;
+  border-radius: 999rpx;
+  border: 2rpx solid rgba(28, 28, 30, 0.25);
+  font-size: 22rpx;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.spark-check.on {
+  background: #2e7d4e;
+  border-color: #2e7d4e;
+}
+
 /* 文章 */
 
 .article-input {
