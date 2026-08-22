@@ -67,6 +67,7 @@ async function handleParseDeadline(text) {
     ]
   });
   const m = (res.text || '').match(/\d{4}-\d{2}-\d{2}/);
+  console.log('[handleParseDeadline] AI 原始返回:', res.text);
   return { code: 0, data: { deadline: m ? m[0] : '' } };
 }
 
